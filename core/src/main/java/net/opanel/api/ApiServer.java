@@ -1,7 +1,5 @@
 package net.opanel.api;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import net.opanel.OPanel;
 
@@ -21,7 +19,7 @@ public class ApiServer {
 
     public void start() throws IOException {
         server = HttpServer.create(new InetSocketAddress(PORT), 0);
-        // ...
+        server.createContext(InfoHandler.route, new InfoHandler(plugin));
         server.setExecutor(null);
 
         server.start();

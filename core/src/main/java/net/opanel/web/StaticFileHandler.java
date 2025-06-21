@@ -1,24 +1,23 @@
 package net.opanel.web;
 
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import net.opanel.OPanel;
+import net.opanel.utils.ServerHandler;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
-public class StaticFileHandler implements HttpHandler {
+public class StaticFileHandler extends ServerHandler {
     private final static String ROOT_PATH = "web";
     private final static String DEFAULT_FILE = "index.html";
 
+    public StaticFileHandler(OPanel plugin) {
+        super(plugin);
+    }
+
     @Override
-    public void handle(HttpExchange req) throws IOException {
+    public void handle(HttpExchange req) {
         String reqPath = req.getRequestURI().getPath();
 
         if(reqPath.equals("/")) {
@@ -34,7 +33,7 @@ public class StaticFileHandler implements HttpHandler {
         }
 
         if(stream == null) {
-            sendError(req, 404, "Not found");
+            sendResponse(req, 404, "Not found");
             return;
         }
 
@@ -49,22 +48,8 @@ public class StaticFileHandler implements HttpHandler {
                 os.write(bytes);
             }
         } catch (IOException e) {
-            sendError(req, 500, "Internal server error");
+            sendResponse(req, 500, "Internal server error");
             e.printStackTrace();
-        }
-    }
-
-    private void sendError(HttpExchange req, int code, String msg) {
-        try {
-            req.sendResponseHeaders(code, msg.length());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        try(OutputStream os = req.getResponseBody()) {
-            os.write(msg.getBytes());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 

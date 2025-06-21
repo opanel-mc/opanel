@@ -19,7 +19,7 @@ public class WebServer {
 
     public void start() throws IOException {
         server = HttpServer.create(new InetSocketAddress(PORT), 0);
-        server.createContext("/", new StaticFileHandler());
+        server.createContext("/", new StaticFileHandler(plugin));
         server.setExecutor(null);
 
         server.start();

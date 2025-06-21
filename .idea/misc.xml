@@ -6,7 +6,5 @@
     </list>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_19" project-jdk-name="21" project-jdk-type="JavaSDK">
-    <output url="file://$PROJECT_DIR$/out" />
-  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_19" project-jdk-name="21" project-jdk-type="JavaSDK" />
 </project>

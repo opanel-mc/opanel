@@ -1,11 +1,9 @@
 package net.opanel;
 
 import net.opanel.api.ApiServer;
+import net.opanel.common.OPanelServer;
 import net.opanel.logger.Loggable;
 import net.opanel.web.WebServer;
-
-import java.io.File;
-import java.io.InputStream;
 
 public class OPanel {
     private final OPanelConfiguration config;
@@ -13,6 +11,8 @@ public class OPanel {
 
     private WebServer webServer;
     private ApiServer apiServer;
+
+    private OPanelServer server;
 
     public OPanel(OPanelConfiguration config, Loggable logger) {
         this.config = config;
@@ -32,5 +32,13 @@ public class OPanel {
 
     public ApiServer getApiServer() {
         return apiServer;
+    }
+
+    public void setServer(OPanelServer server) {
+        this.server = server;
+    }
+
+    public OPanelServer getServer() {
+        return server;
     }
 }
