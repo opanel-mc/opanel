@@ -1,0 +1,5 @@
+archivesBaseName = "${rootProject.name}-core"
+
+dependencies {
+
+}

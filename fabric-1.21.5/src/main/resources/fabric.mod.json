@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "opanel",
+  "version": "${version}",
+  "name": "OPanel",
+  "description": "",
+  "authors": [
+    "NriotHrreion"
+  ],
+  "license": "CC0-1.0",
+  "icon": "assets/opanel/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.opanel.fabric_1_21_5.Main"
+    ]
+  },
+  "mixins": [
+
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "minecraft": "~1.21.5",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

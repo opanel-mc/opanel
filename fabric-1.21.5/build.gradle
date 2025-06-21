@@ -1,0 +1,52 @@
+plugins {
+    id 'fabric-loom' version '1.10-SNAPSHOT'
+}
+
+version = "${rootProject.version}"
+group = "${rootProject.group}"
+
+base {
+    archivesName = "opanel"
+}
+
+loom {
+    splitEnvironmentSourceSets()
+
+    mods {
+        "opanel" {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+}
+
+repositories {
+    maven {
+        url = uri("https://repo.codemc.io/repository/tetoe-mc")
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:1.21.5"
+    mappings "net.fabricmc:yarn:1.21.5+build.1:v2"
+    modImplementation "net.fabricmc:fabric-loader:0.16.14"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:0.127.1+1.21.5"
+    include(modImplementation("space.nocp:configx:2.0.1"))
+
+    implementation(include(project(":core")))
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+java {
+    withSourcesJar()
+
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
