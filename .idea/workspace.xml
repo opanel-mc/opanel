@@ -5,30 +5,28 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/AuthHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/app/favicon.ico" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/app/globals.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/app/layout.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/app/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/eslint.config.mjs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/next.config.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/package-lock.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/postcss.config.mjs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/public/file.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/public/globe.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/public/next.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/public/vercel.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/public/window.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/scripts/copy.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/tsconfig.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/ApiServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/ApiServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/InfoHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/InfoHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bukkit-1.21.5/src/main/resources/plugin.yml" beforeDir="false" afterPath="$PROJECT_DIR$/bukkit-1.21.5/src/main/resources/plugin.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/OPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/OPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/OPanelConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/OPanelConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/ApiServer.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/utils/ServerHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/utils/ServerHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/utils/Utils.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/utils/Utils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/StaticFileHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/StaticFileHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/WebServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/WebServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.5/src/main/resources/fabric.mod.json" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.5/src/main/resources/fabric.mod.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/favicon.ico" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/globals.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/eslint.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/eslint.config.mjs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/file.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/globe.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/next.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/vercel.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/window.svg" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

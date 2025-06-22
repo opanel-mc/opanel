@@ -2,6 +2,7 @@ package net.opanel.web;
 
 import com.sun.net.httpserver.HttpServer;
 import net.opanel.OPanel;
+import net.opanel.api.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -19,6 +20,8 @@ public class WebServer {
 
     public void start() throws IOException {
         server = HttpServer.create(new InetSocketAddress(PORT), 0);
+        server.createContext(AuthHandler.route, new AuthHandler(plugin));
+        server.createContext(InfoHandler.route, new InfoHandler(plugin));
         server.createContext("/", new StaticFileHandler(plugin));
         server.setExecutor(null);
 

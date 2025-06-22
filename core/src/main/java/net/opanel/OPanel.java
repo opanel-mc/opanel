@@ -1,6 +1,5 @@
 package net.opanel;
 
-import net.opanel.api.ApiServer;
 import net.opanel.common.OPanelServer;
 import net.opanel.logger.Loggable;
 import net.opanel.web.WebServer;
@@ -10,8 +9,6 @@ public class OPanel {
     public final Loggable logger;
 
     private WebServer webServer;
-    private ApiServer apiServer;
-
     private OPanelServer server;
 
     public OPanel(OPanelConfiguration config, Loggable logger) {
@@ -19,7 +16,6 @@ public class OPanel {
         this.logger = logger;
 
         webServer = new WebServer(this);
-        apiServer = new ApiServer(this);
     }
 
     public OPanelConfiguration getConfig() {
@@ -28,10 +24,6 @@ public class OPanel {
 
     public WebServer getWebServer() {
         return webServer;
-    }
-
-    public ApiServer getApiServer() {
-        return apiServer;
     }
 
     public void setServer(OPanelServer server) {

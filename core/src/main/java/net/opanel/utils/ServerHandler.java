@@ -41,6 +41,11 @@ public abstract class ServerHandler implements HttpHandler {
     }
 
     protected void sendResponse(HttpExchange req, int code, String msg) {
+        Headers resHeaders = req.getResponseHeaders();
+        resHeaders.add("Access-Control-Allow-Headers","x-prototype-version,x-requested-with");
+        resHeaders.add("Access-Control-Allow-Methods","GET,POST,PUT,DELETE");
+        resHeaders.add("Access-Control-Allow-Origin","*");
+
         try {
             req.sendResponseHeaders(code, msg.length());
         } catch (Exception e) {

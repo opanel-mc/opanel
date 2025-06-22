@@ -28,7 +28,6 @@ public class Main implements ModInitializer {
 
         try {
             instance.getWebServer().start(); // default port 3000
-            instance.getApiServer().start(); // default port 3010
         } catch (IOException e) {
             e.printStackTrace();
         }

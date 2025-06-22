@@ -3,7 +3,7 @@
   "id": "opanel",
   "version": "${version}",
   "name": "OPanel",
-  "description": "",
+  "description": "A Minecraft server management panel",
   "authors": [
     "NriotHrreion"
   ],
