@@ -19,6 +19,7 @@ public class ApiServer {
 
     public void start() throws IOException {
         server = HttpServer.create(new InetSocketAddress(PORT), 0);
+        server.createContext(AuthHandler.route, new AuthHandler(plugin));
         server.createContext(InfoHandler.route, new InfoHandler(plugin));
         server.setExecutor(null);
 

@@ -33,7 +33,7 @@ public class StaticFileHandler extends ServerHandler {
         }
 
         if(stream == null) {
-            sendResponse(req, 404, "Not found");
+            sendResponse(req, 404);
             return;
         }
 
@@ -48,7 +48,7 @@ public class StaticFileHandler extends ServerHandler {
                 os.write(bytes);
             }
         } catch (IOException e) {
-            sendResponse(req, 500, "Internal server error");
+            sendResponse(req, 500);
             e.printStackTrace();
         }
     }

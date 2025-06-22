@@ -20,6 +20,11 @@ public class InfoHandler extends ServerHandler {
 
     @Override
     public void handle(HttpExchange req) {
+        if(!authCookie(req)) {
+            sendResponse(req, 401);
+            return;
+        }
+
         final OPanelServer server = plugin.getServer();
 
         HashMap<String, Object> res = new HashMap<>();
@@ -36,6 +41,6 @@ public class InfoHandler extends ServerHandler {
         }
         res.put("players", players);
 
-        sendResponse(req, new Gson().toJson(res));
+        sendResponse(req, res);
     }
 }
