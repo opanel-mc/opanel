@@ -18,19 +18,21 @@ public class StaticFileHandler extends ServerHandler {
 
     @Override
     public void handle(HttpExchange req) {
-        String reqPath = req.getRequestURI().getPath();
+        final String reqPath = req.getRequestURI().getPath();
+        if(reqPath.startsWith("/api")) return;
 
-        if(reqPath.equals("/")) {
-            reqPath += DEFAULT_FILE;
-        }
-
+        final boolean hasExtension = reqPath.lastIndexOf(".") > reqPath.lastIndexOf("/");
         String resourcePath = ROOT_PATH + reqPath;
-        InputStream stream = getClass().getClassLoader().getResourceAsStream(resourcePath);
 
-        if(stream == null && !resourcePath.contains(".")) {
-            resourcePath = resourcePath +"/"+ DEFAULT_FILE;
-            stream = getClass().getClassLoader().getResourceAsStream(resourcePath);
+        if(!hasExtension) {
+            resourcePath = (
+                    resourcePath.endsWith("/")
+                    ? (resourcePath + DEFAULT_FILE)
+                    : (resourcePath +"/"+ DEFAULT_FILE)
+            );
         }
+
+        InputStream stream = getClass().getClassLoader().getResourceAsStream(resourcePath);
 
         if(stream == null) {
             sendResponse(req, 404);
@@ -56,7 +58,7 @@ public class StaticFileHandler extends ServerHandler {
     private String getMimeType(String fileName) {
         if(fileName.endsWith(".html") || fileName.endsWith(".htm")) return "text/html";
         if(fileName.endsWith(".css")) return "text/css";
-        if(fileName.endsWith(".js")) return "application/javascript";
+        if(fileName.endsWith(".js")) return "text/javascript";
         if(fileName.endsWith(".json")) return "application/json";
         if(fileName.endsWith(".png")) return "image/png";
         if(fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) return "image/jpeg";

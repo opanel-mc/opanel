@@ -6,27 +6,36 @@
   <component name="ChangeListManager">
     <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bukkit-1.21.5/src/main/resources/plugin.yml" beforeDir="false" afterPath="$PROJECT_DIR$/bukkit-1.21.5/src/main/resources/plugin.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/OPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/OPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/OPanelConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/OPanelConfiguration.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/ApiServer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/utils/ServerHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/utils/ServerHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/WebServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/WebServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.5/src/main/resources/fabric.mod.json" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.5/src/main/resources/fabric.mod.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/app/favicon.ico" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/globals.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/eslint.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/eslint.config.mjs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/file.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/globe.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/next.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/vercel.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/window.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/StaticFileHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/StaticFileHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/404.html" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/404.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/Cqng9Z9DiynAGi1JLVm50/_buildManifest.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/Cqng9Z9DiynAGi1JLVm50/_ssgManifest.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/4bd1b696-67ee12fb04071d3b.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/63-11f4d058746abff6.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/684-2d117c50cbadadca.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/app/_not-found/page-f08302ee705a96b1.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/app/layout-b8f1e8d96b7f4d6a.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/app/page-e541964114f48adb.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/main-829d43144a777921.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/main-app-0a836381679debf7.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/webpack-7c870ce55912d3b5.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/css/deb8e469bf5e7676.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/media/569ce4b8f30dc480-s.p.woff2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/media/747892c23ea88013-s.woff2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/media/8d697b304b401681-s.woff2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/media/93f479601ee12b01-s.p.woff2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/media/9610d9e46709d722-s.woff2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/media/ba015fad6dcf6784-s.woff2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/favicon.ico" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/file.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/globe.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/index.txt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/index.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/next.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/vercel.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/window.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/next.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/next.config.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/scripts/copy.js" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/scripts/copy.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
