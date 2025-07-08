@@ -11,15 +11,17 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 export function SubPage({
   children,
   title,
-  icon
+  icon,
+  className
 }: Readonly<{
   children?: React.ReactNode
   title: string
   icon?: React.ReactNode
+  className?: string
 }>) {
   return (
-    <div className="flex flex-col gap-6">
-      <div className="px-16 py-10 flex flex-col gap-8">
+    <div className="px-16 flex-1 flex flex-col gap-6">
+      <div className="py-10 flex flex-col gap-8">
         <div className="flex items-center gap-4">
           <SidebarTrigger className="cursor-pointer"/>
           <Separator orientation="vertical"/>
@@ -38,7 +40,7 @@ export function SubPage({
           <h1 className="text-3xl font-bold">{title}</h1>
         </div>
       </div>
-      <div>
+      <div className={className}>
         {children}
       </div>
     </div>

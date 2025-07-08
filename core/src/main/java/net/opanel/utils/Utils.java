@@ -2,6 +2,7 @@ package net.opanel.utils;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.Base64;
 
 public class Utils {
     /**
@@ -25,5 +26,10 @@ public class Utils {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static String bytesToBase64URL(byte[] bytes) {
+        final String base64 = Base64.getEncoder().encodeToString(bytes);
+        return "data:image/png;base64,"+ base64; // png by default
     }
 }

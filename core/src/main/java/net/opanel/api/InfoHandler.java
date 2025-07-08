@@ -28,7 +28,9 @@ public class InfoHandler extends ServerHandler {
         final OPanelServer server = plugin.getServer();
 
         HashMap<String, Object> res = new HashMap<>();
+        res.put("favicon", server.getFavicon());
         res.put("motd", server.getMotd());
+        res.put("ip", server.getIP());
         res.put("port", server.getPort());
 
         List<HashMap<String, Object>> players = new ArrayList<>();

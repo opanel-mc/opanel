@@ -1,12 +1,15 @@
 package net.opanel.fabric_1_21_5;
 
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.ServerMetadata;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelServer;
+import net.opanel.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class FabricServer implements OPanelServer {
     private final MinecraftServer server;
@@ -16,8 +19,25 @@ public class FabricServer implements OPanelServer {
     }
 
     @Override
+    public String getFavicon() {
+        ServerMetadata metadata = server.getServerMetadata();
+        if(metadata == null) return "";
+
+        Optional<ServerMetadata.Favicon> faviconOptional = metadata.favicon();
+        if(faviconOptional.isEmpty()) return "";
+
+        ServerMetadata.Favicon favicon = faviconOptional.get();
+        return Utils.bytesToBase64URL(favicon.iconBytes());
+    }
+
+    @Override
     public String getMotd() {
         return server.getServerMotd();
+    }
+
+    @Override
+    public String getIP() {
+        return server.getServerIp();
     }
 
     @Override
