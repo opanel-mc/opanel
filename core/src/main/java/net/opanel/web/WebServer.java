@@ -22,6 +22,7 @@ public class WebServer {
         server = HttpServer.create(new InetSocketAddress(PORT), 0);
         server.createContext(AuthHandler.route, new AuthHandler(plugin));
         server.createContext(InfoHandler.route, new InfoHandler(plugin));
+        server.createContext(IconHandler.route, new IconHandler(plugin));
         server.createContext("/", new StaticFileHandler(plugin));
         server.setExecutor(null);
 

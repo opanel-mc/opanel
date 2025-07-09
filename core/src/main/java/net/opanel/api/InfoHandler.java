@@ -7,7 +7,9 @@ import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelServer;
 import net.opanel.utils.ServerHandler;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 
@@ -20,6 +22,11 @@ public class InfoHandler extends ServerHandler {
 
     @Override
     public void handle(HttpExchange req) {
+        if(req.getRequestMethod().equals("OPTIONS")) {
+            sendResponse(req, 200);
+            return;
+        }
+
         if(!authCookie(req)) {
             sendResponse(req, 401);
             return;
@@ -28,8 +35,8 @@ public class InfoHandler extends ServerHandler {
         final OPanelServer server = plugin.getServer();
 
         HashMap<String, Object> res = new HashMap<>();
-        res.put("favicon", server.getFavicon());
-        res.put("motd", server.getMotd());
+        res.put("favicon", server.getFavicon() != null ? IconHandler.route : null);
+        res.put("motd", Base64.getEncoder().encodeToString(server.getMotd().getBytes(StandardCharsets.UTF_8)));
         res.put("ip", server.getIP());
         res.put("port", server.getPort());
 

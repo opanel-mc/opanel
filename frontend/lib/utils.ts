@@ -13,7 +13,7 @@ export async function sendGetRequest<R>(api: string): Promise<APIResponse<R>> {
   return (await axios.request({
     method: "get",
     url: apiUrl + api,
-    headers: { "Cookie": `token=${getCookie("token")};` }
+    headers: { "X-Credential-Token": getCookie("token") }
   })).data as APIResponse<R>;
 }
 

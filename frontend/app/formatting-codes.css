@@ -1,0 +1,86 @@
+@reference "tailwindcss";
+@reference "./globals.css";
+
+/* see https://minecraft.fandom.com/wiki/Formatting_codes */
+
+.cc-0 {
+  @apply text-[#000];
+}
+
+.cc-1 {
+  @apply dark:text-[#1515bb] text-[#00a];
+}
+
+.cc-2 {
+  @apply text-[#0a0];
+}
+
+.cc-3 {
+  @apply text-[#0aa];
+}
+
+.cc-4 {
+  @apply dark:text-[#b00] text-[#a00];
+}
+
+.cc-5 {
+  @apply text-[#a0a];
+}
+
+.cc-6 {
+  @apply dark:text-[#fa0] text-[#c78500];
+}
+
+.cc-7 {
+  @apply text-[#aaa];
+}
+
+.cc-8 {
+  @apply text-[#555];
+}
+
+.cc-9 {
+  @apply text-[#55f];
+}
+
+.cc-a {
+  @apply dark:text-[#5f5] text-[#25db25];
+}
+
+.cc-b {
+  @apply dark:text-[#5ff] text-[#25f5f5];
+}
+
+.cc-c {
+  @apply text-[#f55];
+}
+
+.cc-d {
+  @apply text-[#f5f];
+}
+
+.cc-e {
+  @apply dark:text-[#ff5] text-[#e9d200];
+}
+
+.cc-f {
+  @apply text-[#fff];
+}
+
+// .cc-k {}
+
+.cc-l {
+  @apply font-bold;
+}
+
+.cc-m {
+  @apply line-through;
+}
+
+.cc-n {
+  @apply underline underline-offset-2 decoration-2;
+}
+
+.cc-o {
+  @apply italic;
+}

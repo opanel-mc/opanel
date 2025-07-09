@@ -43,12 +43,7 @@ public class StaticFileHandler extends ServerHandler {
             byte[] bytes = stream.readAllBytes();
             stream.close();
 
-            req.getResponseHeaders().set("Content-Type", getMimeType(resourcePath));
-            req.sendResponseHeaders(200, bytes.length);
-
-            try(OutputStream os = req.getResponseBody()) {
-                os.write(bytes);
-            }
+            sendContentResponse(req, bytes, getMimeType(resourcePath));
         } catch (IOException e) {
             sendResponse(req, 500);
             e.printStackTrace();

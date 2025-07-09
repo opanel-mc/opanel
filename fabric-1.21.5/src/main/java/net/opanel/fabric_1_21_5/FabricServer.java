@@ -19,15 +19,15 @@ public class FabricServer implements OPanelServer {
     }
 
     @Override
-    public String getFavicon() {
+    public byte[] getFavicon() {
         ServerMetadata metadata = server.getServerMetadata();
-        if(metadata == null) return "";
+        if(metadata == null) return null;
 
         Optional<ServerMetadata.Favicon> faviconOptional = metadata.favicon();
-        if(faviconOptional.isEmpty()) return "";
+        if(faviconOptional.isEmpty()) return null;
 
         ServerMetadata.Favicon favicon = faviconOptional.get();
-        return Utils.bytesToBase64URL(favicon.iconBytes());
+        return favicon.iconBytes();
     }
 
     @Override
