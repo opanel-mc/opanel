@@ -38,7 +38,7 @@ export function RecommendedCard({
   className?: string
 }>) {
   return (
-    <Card className={cn(className, "flex flex-row gap-2")}>
+    <Card className={cn(className, "flex flex-row gap-2 rounded-md")}>
       {recommendedPage.map((item, i) => (
         <Button
           className="h-full flex flex-1 flex-col"

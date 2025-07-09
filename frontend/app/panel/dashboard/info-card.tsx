@@ -26,9 +26,9 @@ export function InfoCard({
   const { favicon, ip, port, motd } = ctx;
 
   return (
-    <Card className={cn(className, "flex flex-row")}>
+    <Card className={cn(className, "flex flex-row rounded-md")}>
       <img
-        className="aspect-square h-full rounded-sm"
+        className="aspect-square h-full rounded-xs"
         src={favicon ? (apiUrl + favicon) : PackIcon.src}
         alt="favicon"/>
       

@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { deleteCookie } from "cookies-next/client";
 import { Blocks, Earth, Gauge, Info, LogOut, PencilRuler, ScrollText, Settings, SquareTerminal, Users } from "lucide-react";
 import {
@@ -32,7 +33,10 @@ const serverGroupItems = [
     name: "玩家",
     url: "/panel/players",
     icon: Users
-  },
+  }
+];
+
+const managementGroupItems = [
   {
     name: "游戏规则",
     url: "/panel/gamerules",
@@ -69,6 +73,8 @@ const helpGroupItems = [
 ];
 
 export function AppSidebar() {
+  const pathname = usePathname();
+
   const handleLogout = () => {
     deleteCookie("token");
     window.location.href = "/login";
@@ -87,7 +93,26 @@ export function AppSidebar() {
               {serverGroupItems.map((item, i) => (
                 <SidebarMenuItem key={i}>
                   <SidebarMenuButton
-                    isActive={window.location.pathname.startsWith(item.url)}
+                    isActive={pathname.startsWith(item.url)}
+                    asChild>
+                    <a href={item.url}>
+                      <item.icon />
+                      <span>{item.name}</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
+          <SidebarGroupLabel>管理</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {managementGroupItems.map((item, i) => (
+                <SidebarMenuItem key={i}>
+                  <SidebarMenuButton
+                    isActive={pathname.startsWith(item.url)}
                     asChild>
                     <a href={item.url}>
                       <item.icon />

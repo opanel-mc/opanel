@@ -7,6 +7,7 @@ public interface OPanelServer {
     String getMotd();
     String getIP();
     int getPort();
+    List<OPanelPlayer> getOnlinePlayers();
     List<OPanelPlayer> getPlayers();
     OPanelPlayer getPlayer(String name);
 }

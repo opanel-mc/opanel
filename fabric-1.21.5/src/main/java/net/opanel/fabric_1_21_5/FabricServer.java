@@ -46,12 +46,20 @@ public class FabricServer implements OPanelServer {
     }
 
     @Override
-    public List<OPanelPlayer> getPlayers() {
+    public List<OPanelPlayer> getOnlinePlayers() {
         List<OPanelPlayer> list = new ArrayList<>();
         List<ServerPlayerEntity> players = server.getPlayerManager().getPlayerList();
         for(ServerPlayerEntity player : players) {
             list.add(new FabricPlayer(player));
         }
+        return list;
+    }
+
+    /** @todo */
+    @Override
+    public List<OPanelPlayer> getPlayers() {
+        List<OPanelPlayer> list = new ArrayList<>();
+
         return list;
     }
 

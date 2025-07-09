@@ -4,6 +4,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.world.GameMode;
+import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
 
 import java.net.InetSocketAddress;
@@ -58,13 +60,20 @@ public class FabricPlayer implements OPanelPlayer {
     public boolean isOp() {
         if(player == null) return false;
 
-        MinecraftServer server = player.getServer();
-        String[] ops = server.getPlayerManager().getOpList().getNames();
-        for(String name : ops) {
-            if(getName().equals(name)) {
-                return true;
-            }
+        return player.hasPermissionLevel(2);
+    }
+
+    @Override
+    public OPanelGameMode getGameMode() {
+        if(player == null) return null;
+
+        GameMode gamemode = player.getGameMode();
+        switch(gamemode) {
+            case ADVENTURE -> { return OPanelGameMode.ADVENTURE; }
+            case SURVIVAL -> { return OPanelGameMode.SURVIVAL; }
+            case CREATIVE -> { return OPanelGameMode.CREATIVE; }
+            case SPECTATOR -> { return OPanelGameMode.SPECTATOR; }
         }
-        return false;
+        return null;
     }
 }

@@ -8,4 +8,5 @@ public interface OPanelPlayer {
     String getUUID();
     InetSocketAddress getAddress();
     boolean isOp();
+    OPanelGameMode getGameMode();
 }

@@ -6,16 +6,14 @@ import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelServer;
 import net.opanel.utils.ServerHandler;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 
-public class InfoHandler extends ServerHandler {
-    public static final String route = "/api/info";
+public class PlayersHandler extends ServerHandler {
+    public static final String route = "/api/players";
 
-    public InfoHandler(OPanel plugin) {
+    public PlayersHandler(OPanel plugin) {
         super(plugin);
     }
 
@@ -34,13 +32,8 @@ public class InfoHandler extends ServerHandler {
         final OPanelServer server = plugin.getServer();
 
         HashMap<String, Object> res = new HashMap<>();
-        res.put("favicon", server.getFavicon() != null ? IconHandler.route : null);
-        res.put("motd", Base64.getEncoder().encodeToString(server.getMotd().getBytes(StandardCharsets.UTF_8)));
-        res.put("ip", server.getIP());
-        res.put("port", server.getPort());
-
         List<HashMap<String, Object>> players = new ArrayList<>();
-        for(OPanelPlayer player : server.getOnlinePlayers()) {
+        for(OPanelPlayer player : server.getPlayers()) {
             HashMap<String, Object> playerInfo = new HashMap<>();
             playerInfo.put("name", player.getName());
             playerInfo.put("uuid", player.getUUID());
@@ -48,7 +41,7 @@ public class InfoHandler extends ServerHandler {
             playerInfo.put("gameMode", player.getGameMode().getName());
             players.add(playerInfo);
         }
-        res.put("onlinePlayers", players);
+        res.put("players", players);
 
         sendResponse(req, res);
     }

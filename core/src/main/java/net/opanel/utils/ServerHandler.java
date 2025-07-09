@@ -62,6 +62,9 @@ public abstract class ServerHandler implements HttpHandler {
     }
 
     protected void sendContentResponse(HttpExchange req, byte[] bytes, String contentType) {
+        Headers resHeaders = req.getResponseHeaders();
+        resHeaders.add("X-Powered-By", "OPanel");
+
         try {
             req.getResponseHeaders().set("Content-Type", contentType);
             req.sendResponseHeaders(200, bytes.length);
