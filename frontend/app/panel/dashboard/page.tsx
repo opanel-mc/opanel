@@ -10,6 +10,7 @@ import { sendGetRequest } from "@/lib/utils";
 import { InfoCard } from "./info-card";
 import { PlayersCard } from "./players-card";
 import { RecommendedCard } from "./recommended-card";
+import { MonitorCard } from "./monitor-card";
 
 export default function Dashboard() {
   const [info, setInfo] = useState<APIResponse<InfoResponse>>();
@@ -29,7 +30,7 @@ export default function Dashboard() {
         <InfoCard className="row-start-1"/>
         <PlayersCard className="row-span-2 row-start-2"/>
         <RecommendedCard className="row-start-1"/>
-        <Card className="row-span-2 row-start-2 rounded-md"></Card>
+        <MonitorCard className="row-span-2 row-start-2"/>
         <Card className="row-span-3 rounded-md"></Card>
       </InfoContext.Provider>
     </SubPage>

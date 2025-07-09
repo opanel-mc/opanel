@@ -9,6 +9,7 @@ export function FunctionalCard({
   title,
   moreLink,
   className,
+  innerClassName,
   children,
   ...props
 }: Readonly<PropsWithChildren<{
@@ -16,10 +17,11 @@ export function FunctionalCard({
   title: string
   moreLink?: string
   className?: string
+  innerClassName?: string
 }>>) {
   return (
-    <Card className={cn(className, "p-1 flex flex-col gap-3 rounded-md")}>
-      <div className="flex justify-between items-center">
+    <Card className={cn(className, "!p-0 flex flex-col gap-3 rounded-md")}>
+      <div className="p-4 pb-0 flex justify-between items-center">
         <div className="flex items-center gap-3 pl-2">
           <props.icon size={20}/>
           <h2 className="text-lg font-semibold">{title}</h2>
@@ -35,7 +37,7 @@ export function FunctionalCard({
           </Link>
         </Button>}
       </div>
-      <div className="overflow-auto">
+      <div className={cn(innerClassName, "overflow-auto")}>
         {children}
       </div>
     </Card>

@@ -33,7 +33,8 @@ export function PlayersCard({
       icon={Users}
       title="在线玩家"
       moreLink="/panel/players"
-      className={className}>
+      className={className}
+      innerClassName="p-4 pt-0">
       <Table>
         <TableHeader>
           <TableRow>
