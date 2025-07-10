@@ -28,37 +28,37 @@ export function InfoCard({
         src={(ctx && ctx.favicon) ? (apiUrl + ctx.favicon) : PackIcon.src}
         alt="favicon"/>
       
-      {ctx && <div className="flex-1 flex flex-col gap-1">
+      <div className="flex-1 flex flex-col gap-1">
         <div className="flex justify-between items-center *:text-nowrap">
           <div className="flex gap-4 [&>*]:space-x-2">
             <div>
               <span className="font-semibold">IP:</span>
               {
-                ctx.ip
+                (ctx && ctx.ip)
                 ? <span>{ctx.ip}</span>
                 : <span className="text-muted-foreground italic">未设置</span>
               }
             </div>
             <div>
               <span className="font-semibold">端口:</span>
-              <span className="text-emerald-500 font-[Consolas]">{ctx.port}</span>
+              <span className="text-emerald-500 font-[Consolas]">{ctx ? ctx.port : ""}</span>
             </div>
           </div>
           <div className="pr-2">
             <Tooltip>
               <TooltipTrigger>
-                <div className="w-2 h-2 rounded-full bg-green-600"/>
+                <div className={cn("w-2 h-2 rounded-full", ctx ? "bg-green-600" : "bg-red-700")}/>
               </TooltipTrigger>
               <TooltipContent>
-                <p>正在运行</p>
+                <p>{ctx ? "正在运行" : "未运行"}</p>
               </TooltipContent>
             </Tooltip>
           </div>
         </div>
         <div className="flex-1">
-          <div dangerouslySetInnerHTML={{ __html: parseMotd(atob(ctx.motd)).outerHTML }}/>
+          {ctx && <div dangerouslySetInnerHTML={{ __html: parseMotd(atob(ctx.motd)).outerHTML }}/>}
         </div>
-      </div>}
+      </div>
     </Card>
   );
 }

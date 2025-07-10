@@ -5,7 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/frontend/app/panel/dashboard/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/dashboard/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/dashboard/info-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/dashboard/info-card.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
