@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Info, KeyRound } from "lucide-react";
 import md5 from "md5";
 import { hasCookie, setCookie } from "cookies-next/client";
@@ -34,6 +35,7 @@ const formSchema = z.object({
 });
 
 export default function Login() {
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -49,7 +51,7 @@ export default function Login() {
       const res = await sendPostRequest<{ token: string }>("/api/auth", { accessKey: hashedKey });
       setCookie("token", res.token);
       toast.success("登录成功");
-      window.location.href = "/panel";
+      router.push("/panel");
     } catch (e: any) {
       if(e.status === 401) {
         form.setError("accessKey", { message: "访问密钥错误" });
@@ -59,7 +61,7 @@ export default function Login() {
 
   useEffect(() => {
     if(hasCookie("token")) {
-      window.location.href = "/panel";
+      router.push("/panel");
     }
 
     document.body.addEventListener("keydown", (e) => {

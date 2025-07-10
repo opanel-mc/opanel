@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { deleteCookie } from "cookies-next/client";
 import { Blocks, Earth, Gauge, Info, LogOut, PencilRuler, ScrollText, Settings, SquareTerminal, Users } from "lucide-react";
@@ -95,10 +96,10 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     isActive={pathname.startsWith(item.url)}
                     asChild>
-                    <a href={item.url}>
+                    <Link href={item.url}>
                       <item.icon />
                       <span>{item.name}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -114,10 +115,10 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     isActive={pathname.startsWith(item.url)}
                     asChild>
-                    <a href={item.url}>
+                    <Link href={item.url}>
                       <item.icon />
                       <span>{item.name}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -130,11 +131,13 @@ export function AppSidebar() {
             <SidebarMenu>
               {helpGroupItems.map((item, i) => (
                 <SidebarMenuItem key={i}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                  <SidebarMenuButton
+                    isActive={pathname.startsWith(item.url)}
+                    asChild>
+                    <Link href={item.url}>
                       <item.icon />
                       <span>{item.name}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

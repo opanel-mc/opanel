@@ -5,13 +5,13 @@ import { useEffect, useState } from "react";
 import { Gauge } from "lucide-react";
 import { toast } from "sonner";
 import { SubPage } from "../sub-page";
-import { Card } from "@/components/ui/card";
 import { type InfoResponse, InfoContext } from "@/contexts/api-context";
 import { sendGetRequest } from "@/lib/utils";
 import { InfoCard } from "./info-card";
 import { PlayersCard } from "./players-card";
 import { RecommendedCard } from "./recommended-card";
 import { MonitorCard } from "./monitor-card";
+import { TerminalCard } from "./terminal-card";
 
 export default function Dashboard() {
   const [info, setInfo] = useState<APIResponse<InfoResponse>>();
@@ -36,7 +36,7 @@ export default function Dashboard() {
         <PlayersCard className="row-span-2 row-start-2"/>
         <RecommendedCard className="row-start-1"/>
         <MonitorCard className="row-span-2 row-start-2"/>
-        <Card className="row-span-3 rounded-md"></Card>
+        <TerminalCard className="row-span-3 rounded-md"></TerminalCard>
       </InfoContext.Provider>
     </SubPage>
   );
