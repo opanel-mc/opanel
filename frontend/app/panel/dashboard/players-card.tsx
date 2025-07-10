@@ -24,10 +24,6 @@ export function PlayersCard({
 }>) {
   const ctx = useContext(InfoContext);
   
-  if(!ctx) return <></>;
-
-  const { onlinePlayers } = ctx;
-  
   return (
     <FunctionalCard
       icon={Users}
@@ -44,7 +40,7 @@ export function PlayersCard({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {onlinePlayers.map(({ name, uuid, isOp, gameMode }, i) => (
+          {ctx && ctx.onlinePlayers.map(({ name, uuid, isOp, gameMode }, i) => (
             <TableRow key={i}>
               <TableCell className="font-semibold">
                 <Tooltip>

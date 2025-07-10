@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import { Info, KeyRound } from "lucide-react";
 import md5 from "md5";
 import { hasCookie, setCookie } from "cookies-next/client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -26,7 +28,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { sendPostRequest } from "@/lib/utils";
-import Link from "next/link";
 
 const formSchema = z.object({
   accessKey: z.string(),
@@ -47,6 +48,7 @@ export default function Login() {
     try {
       const res = await sendPostRequest<{ token: string }>("/api/auth", { accessKey: hashedKey });
       setCookie("token", res.token);
+      toast.success("登录成功");
       window.location.href = "/panel";
     } catch (e: any) {
       if(e.status === 401) {

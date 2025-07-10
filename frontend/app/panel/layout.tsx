@@ -1,11 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
   SidebarInset,
   SidebarProvider
 } from "@/components/ui/sidebar";
-import { useEffect, useState } from "react";
 
 export default function PanelLayout({
   children,

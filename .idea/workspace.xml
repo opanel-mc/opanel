@@ -6,9 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/login/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/login/page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/app/panel/dashboard/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/dashboard/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/app/panel/dashboard/players-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/dashboard/players-card.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/components/functional-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/components/functional-card.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/layout.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
     </list>
@@ -75,16 +76,16 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration name="opanel [runServer]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>

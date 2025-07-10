@@ -3,6 +3,7 @@
 import type { APIResponse } from "@/lib/types";
 import { useEffect, useState } from "react";
 import { Gauge } from "lucide-react";
+import { toast } from "sonner";
 import { SubPage } from "../sub-page";
 import { Card } from "@/components/ui/card";
 import { type InfoResponse, InfoContext } from "@/contexts/api-context";
@@ -16,8 +17,12 @@ export default function Dashboard() {
   const [info, setInfo] = useState<APIResponse<InfoResponse>>();
 
   const fetchServerInfo = async () => {
-    const res = await sendGetRequest<InfoResponse>("/api/info");
-    setInfo(res);
+    try {
+      const res = await sendGetRequest<InfoResponse>("/api/info");
+      setInfo(res);
+    } catch (e) {
+      toast.error("无法连接到服务器", { description: `错误：${e}` });
+    }
   };
 
   useEffect(() => {

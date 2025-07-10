@@ -4,6 +4,7 @@ import "./globals.css";
 import "./formatting-codes.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const notoSansSC = localFont({
   src: [
@@ -32,6 +33,10 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange>
+          <Toaster
+            position="bottom-right"
+            expand
+            richColors/>
           {children}
         </ThemeProvider>
       </body>
