@@ -2,14 +2,22 @@ const secSign = "§";
 const colorCodes = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
 const formattingCodes = ["k", "l", "m", "n", "o"];
 
-function purifyMotd(motd: string): string {
+function purify(text: string): string {
   /** @see https://minecraft.fandom.com/wiki/Formatting_codes Compatibility with older versions */
-  return motd.replaceAll("\u00c2", "");
+  return text.replaceAll("\u00c2", "");
 }
 
-export function parseMotd(motd: string): HTMLSpanElement {
-  const pure = purifyMotd(motd);
+// function convert(text: string): string {
+//   return text.replaceAll("&", secSign);
+// }
+
+/**
+ * Parses a Minecraft text string with formatting codes into HTML elements.
+ */
+export function parseText(text: string): HTMLSpanElement {
+  const pure = purify(text);
   const root = document.createElement("span");
+  root.className = "cc-root";
   let currentNode = root;
 
   for(let i = 0; i < pure.length; i++) {
@@ -40,7 +48,7 @@ export function parseMotd(motd: string): HTMLSpanElement {
       currentNode = span;
       i++;
     } else {
-      currentNode.innerText += char;
+      currentNode.innerHTML += char;
     }
   }
 

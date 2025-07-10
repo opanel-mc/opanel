@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/tooltip";
 import { apiUrl } from "@/lib/global";
 import { InfoContext } from "@/contexts/api-context";
-import { parseMotd } from "@/lib/motd";
+import { MinecraftText } from "@/components/mc-text";
 
 import PackIcon from "@/assets/images/pack.png";
 
@@ -56,7 +56,7 @@ export function InfoCard({
           </div>
         </div>
         <div className="flex-1">
-          {ctx && <div dangerouslySetInnerHTML={{ __html: parseMotd(atob(ctx.motd)).outerHTML }}/>}
+          {ctx && <MinecraftText>{atob(ctx.motd)}</MinecraftText>}
         </div>
       </div>
     </Card>
