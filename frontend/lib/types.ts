@@ -9,3 +9,23 @@ export enum GameMode {
   CREATIVE = "creative",
   SPECTATOR = "spectator"
 }
+
+// /api/info
+export interface InfoResponse {
+  favicon: string | null
+  motd: string
+  ip: string
+  port: number
+  onlinePlayers: {
+    name: string
+    uuid: string
+    isOp: boolean
+    gameMode: GameMode
+  }[]
+}
+
+// /api/monitor
+export interface MonitorResponse {
+  mem: number
+  cpu: number
+}

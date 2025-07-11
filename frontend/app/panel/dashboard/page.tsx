@@ -1,11 +1,11 @@
 "use client";
 
-import type { APIResponse } from "@/lib/types";
+import type { APIResponse, InfoResponse } from "@/lib/types";
 import { useEffect, useState } from "react";
 import { Gauge } from "lucide-react";
 import { toast } from "sonner";
 import { SubPage } from "../sub-page";
-import { type InfoResponse, InfoContext } from "@/contexts/api-context";
+import { InfoContext } from "@/contexts/api-context";
 import { sendGetRequest } from "@/lib/utils";
 import { InfoCard } from "./info-card";
 import { PlayersCard } from "./players-card";

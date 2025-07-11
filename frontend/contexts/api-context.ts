@@ -1,4 +1,4 @@
-import type { APIResponse, GameMode } from "@/lib/types";
+import type { APIResponse, InfoResponse } from "@/lib/types";
 import React from "react";
 
 function getAPIContext<R>() {
@@ -7,17 +7,4 @@ function getAPIContext<R>() {
   return ctx;
 }
 
-// /api/info
-export interface InfoResponse {
-  favicon: string | null
-  motd: string
-  ip: string
-  port: number
-  onlinePlayers: {
-    name: string
-    uuid: string
-    isOp: boolean
-    gameMode: GameMode
-  }[]
-}
 export const InfoContext = getAPIContext<InfoResponse>();
