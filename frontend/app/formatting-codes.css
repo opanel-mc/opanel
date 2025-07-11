@@ -4,8 +4,6 @@
 /* see https://minecraft.fandom.com/wiki/Formatting_codes */
 
 .cc-root {
-  @apply font-[Consolas];
-
   .cc-0 {
     @apply text-[#000];
   }
