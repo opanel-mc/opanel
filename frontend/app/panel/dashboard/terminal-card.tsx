@@ -16,22 +16,22 @@ export function TerminalCard({
   const terminalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // const client = new WebSocketClient();
-    // client.onMessage((msg) => {
-    //   if(!terminalRef.current) return;
+    const client = new WebSocketClient();
+    client.onMessage((msg) => {
+      if(!terminalRef.current) return;
 
-    //   const elem = terminalRef.current;
-    //   if(!elem.getAttribute("data-initialized")) {
-    //     elem.setAttribute("data-initialized", "true");
-    //     elem.innerHTML = "";
-    //   }
+      const elem = terminalRef.current;
+      if(!elem.getAttribute("data-initialized")) {
+        elem.setAttribute("data-initialized", "true");
+        elem.innerHTML = "";
+      }
 
-    //   const p = document.createElement("p");
-    //   p.innerText = msg;
-    //   elem.appendChild(p);
-    // });
+      const p = document.createElement("p");
+      p.innerText = msg;
+      elem.appendChild(p);
+    });
     
-    // return () => client.close();
+    return () => client.close();
   }, []);
 
   return (

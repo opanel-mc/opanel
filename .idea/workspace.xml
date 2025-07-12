@@ -5,33 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/AuthServlet.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/IconServlet.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/InfoServlet.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/MonitorServlet.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/PlayersServlet.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/BaseServlet.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/StaticFileServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/terminal/WebSocketServlet.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CONTRIBUTING.md" beforeDir="false" afterPath="$PROJECT_DIR$/CONTRIBUTING.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/core/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/AuthHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/IconHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/InfoHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/MonitorHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/PlayersHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/utils/ServerHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/StaticFileHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/BaseServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/BaseServlet.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/WebServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/WebServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/app/panel/dashboard/info-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/dashboard/info-card.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/app/panel/dashboard/terminal-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/dashboard/terminal-card.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/lib/api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/api.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/lib/global.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/global.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

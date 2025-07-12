@@ -43,9 +43,6 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     protected void sendResponse(HttpServletResponse res, int code, String msg) {
-        res.addHeader("Access-Control-Allow-Headers", "X-Credential-Token");
-        res.addHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-        res.addHeader("Access-Control-Allow-Origin", "*");
         res.addHeader("X-Powered-By", "OPanel");
         res.setStatus(code);
         res.setContentType("application/json");
