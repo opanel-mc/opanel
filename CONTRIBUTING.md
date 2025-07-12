@@ -23,7 +23,7 @@ opanel
 
 As soon as the initialization of the plugin / mod, the program will start a web server on the specified port (default `3000`), which contains the frontend app and the backend API.
 
-Under the development environment, the development frontend app is served at port `3001`, and it will connect to the backend API with a hard-coded url `http://localhost:3000` (See `frontend/lib/global.ts`). So when developing the frontend app, your backend server should always be on the port `3000`.
+Under the development environment, the development frontend app is served at port `3001`, and it will connect to the backend API with a hard-coded url `http://localhost:3000` (See `frontend/lib/api.ts`). So when developing the frontend app, your backend server should always be on the port `3000`.
 
 ## Requirements
 

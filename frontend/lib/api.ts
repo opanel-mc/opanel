@@ -1,7 +1,12 @@
 import type { APIResponse } from "./types";
 import axios from "axios";
 import { getCookie } from "cookies-next/client";
-import { apiUrl } from "./global";
+
+export const apiUrl = (
+  process.env.NODE_ENV === "development"
+  ? `http://localhost:3000`
+  : ""
+);
 
 export async function sendGetRequest<R>(route: string): Promise<APIResponse<R>> {
   return (await axios.request({

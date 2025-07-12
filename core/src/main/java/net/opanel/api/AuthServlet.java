@@ -1,26 +1,26 @@
 package net.opanel.api;
 
-import com.google.gson.Gson;
-import com.sun.net.httpserver.HttpExchange;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import net.opanel.OPanel;
-import net.opanel.utils.ServerHandler;
 import net.opanel.utils.Utils;
+import net.opanel.web.BaseServlet;
 
 import java.io.IOException;
 import java.util.HashMap;
 
-public class AuthHandler extends ServerHandler {
+public class AuthServlet extends BaseServlet {
     public static final String route = "/api/auth";
 
-    public AuthHandler(OPanel plugin) {
+    public AuthServlet(OPanel plugin) {
         super(plugin);
     }
 
     @Override
-    public void handle(HttpExchange req) throws IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse res) throws IOException {
         RequestBodyType reqBody = getRequestBody(req, RequestBodyType.class);
         if(reqBody.accessKey == null) {
-            sendResponse(req, 400);
+            sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
@@ -30,11 +30,11 @@ public class AuthHandler extends ServerHandler {
         final String hashedRealKey = Utils.md5(Utils.md5(realKey)); // hashed 2
 
         if(hashedSubmittedKey.equals(hashedRealKey)) {
-            HashMap<String, Object> res = new HashMap<>();
-            res.put("token", hashedRealKey); // hashed 2
-            sendResponse(req, res);
+            HashMap<String, Object> obj = new HashMap<>();
+            obj.put("token", hashedRealKey); // hashed 2
+            sendResponse(res, obj);
         } else {
-            sendResponse(req, 401);
+            sendResponse(res, HttpServletResponse.SC_UNAUTHORIZED);
         }
     }
 

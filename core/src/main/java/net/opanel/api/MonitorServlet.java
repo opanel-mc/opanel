@@ -1,38 +1,40 @@
 package net.opanel.api;
 
-import com.sun.net.httpserver.HttpExchange;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import net.opanel.OPanel;
-import net.opanel.utils.ServerHandler;
+import net.opanel.web.BaseServlet;
 import oshi.SystemInfo;
 import oshi.hardware.GlobalMemory;
 
 import java.util.HashMap;
 
-public class MonitorHandler extends ServerHandler {
+public class MonitorServlet extends BaseServlet {
+
     public static final String route = "/api/monitor";
     private static final long gb = 1024 * 1024 * 1024;
 
-    public MonitorHandler(OPanel plugin) {
+    public MonitorServlet(OPanel plugin) {
         super(plugin);
     }
 
     @Override
-    public void handle(HttpExchange req) {
-        if(req.getRequestMethod().equals("OPTIONS")) {
-            sendResponse(req, 200);
+    protected void doGet(HttpServletRequest req, HttpServletResponse res) {
+        if(req.getMethod().equals("OPTIONS")) {
+            sendResponse(res, HttpServletResponse.SC_OK);
             return;
         }
 
         if(!authCookie(req)) {
-            sendResponse(req, 401);
+            sendResponse(res, HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
-        HashMap<String, Object> res = new HashMap<>();
-        res.put("cpu", getCpuRate());
-        res.put("mem", getMemRate());
+        HashMap<String, Object> obj = new HashMap<>();
+        obj.put("cpu", getCpuRate());
+        obj.put("mem", getMemRate());
 
-        sendResponse(req, res);
+        sendResponse(res, obj);
     }
 
     public double getCpuRate() {
@@ -42,7 +44,6 @@ public class MonitorHandler extends ServerHandler {
     }
 
     public double getMemRate() {
-
         SystemInfo si = new SystemInfo();
         GlobalMemory gm = si.getHardware().getMemory();
 

@@ -8,7 +8,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from "@/components/ui/tooltip";
-import { apiUrl } from "@/lib/global";
+import { apiUrl } from "@/lib/api";
 import { InfoContext } from "@/contexts/api-context";
 import { MinecraftText } from "@/components/mc-text";
 

@@ -1,32 +1,38 @@
 package net.opanel.web;
 
-import com.sun.net.httpserver.HttpServer;
 import net.opanel.OPanel;
 import net.opanel.api.*;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 
 public class WebServer {
     public final int PORT;
 
     private final OPanel plugin;
-    private HttpServer server;
+    private Server server;
 
     public WebServer(OPanel plugin) {
         this.plugin = plugin;
         PORT = plugin.getConfig().webServerPort;
     }
 
-    public void start() throws IOException {
-        server = HttpServer.create(new InetSocketAddress(PORT), 0);
-        server.createContext(AuthHandler.route, new AuthHandler(plugin));
-        server.createContext(InfoHandler.route, new InfoHandler(plugin));
-        server.createContext(IconHandler.route, new IconHandler(plugin));
-        server.createContext(PlayersHandler.route, new PlayersHandler(plugin));
-        server.createContext(MonitorHandler.route, new MonitorHandler(plugin));
-        server.createContext("/", new StaticFileHandler(plugin));
-        server.setExecutor(null);
+    public void start() throws Exception {
+        server = new Server(PORT);
+        ServletContextHandler ctx = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        ctx.setContextPath("/");
+        server.setHandler(ctx);
+
+        // WebSocket
+        // ...
+        // API
+        ctx.addServlet(new ServletHolder(new AuthServlet(plugin)), AuthServlet.route);
+        ctx.addServlet(new ServletHolder(new InfoServlet(plugin)), InfoServlet.route);
+        ctx.addServlet(new ServletHolder(new IconServlet(plugin)), IconServlet.route);
+        ctx.addServlet(new ServletHolder(new PlayersServlet(plugin)), PlayersServlet.route);
+        ctx.addServlet(new ServletHolder(new MonitorServlet(plugin)), MonitorServlet.route);
+        // Frontend
+        ctx.addServlet(new ServletHolder(new StaticFileServlet(plugin)), "/");
 
         server.start();
         plugin.logger.info("Web server is ready on port "+ PORT);

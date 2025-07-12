@@ -1,24 +1,23 @@
 package net.opanel.web;
 
-import com.sun.net.httpserver.HttpExchange;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import net.opanel.OPanel;
-import net.opanel.utils.ServerHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
-public class StaticFileHandler extends ServerHandler {
+public class StaticFileServlet extends BaseServlet {
     private final static String ROOT_PATH = "web";
     private final static String DEFAULT_FILE = "index.html";
 
-    public StaticFileHandler(OPanel plugin) {
+    public StaticFileServlet(OPanel plugin) {
         super(plugin);
     }
 
     @Override
-    public void handle(HttpExchange req) {
-        final String reqPath = req.getRequestURI().getPath();
+    protected void doGet(HttpServletRequest req, HttpServletResponse res) {
+        final String reqPath = req.getRequestURI();
         if(reqPath.startsWith("/api")) return;
 
         final boolean hasExtension = reqPath.lastIndexOf(".") > reqPath.lastIndexOf("/");
@@ -27,15 +26,15 @@ public class StaticFileHandler extends ServerHandler {
         if(!hasExtension) {
             resourcePath = (
                     resourcePath.endsWith("/")
-                    ? (resourcePath + DEFAULT_FILE)
-                    : (resourcePath +"/"+ DEFAULT_FILE)
+                            ? (resourcePath + DEFAULT_FILE)
+                            : (resourcePath +"/"+ DEFAULT_FILE)
             );
         }
 
         InputStream stream = getClass().getClassLoader().getResourceAsStream(resourcePath);
 
         if(stream == null) {
-            sendResponse(req, 404);
+            sendResponse(res, HttpServletResponse.SC_NOT_FOUND);
             return;
         }
 
@@ -43,9 +42,9 @@ public class StaticFileHandler extends ServerHandler {
             byte[] bytes = stream.readAllBytes();
             stream.close();
 
-            sendContentResponse(req, bytes, getMimeType(resourcePath));
+            sendContentResponse(res, bytes, getMimeType(resourcePath));
         } catch (IOException e) {
-            sendResponse(req, 500);
+            sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             e.printStackTrace();
         }
     }

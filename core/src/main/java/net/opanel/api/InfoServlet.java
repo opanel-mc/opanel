@@ -1,10 +1,11 @@
 package net.opanel.api;
 
-import com.sun.net.httpserver.HttpExchange;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import net.opanel.OPanel;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelServer;
-import net.opanel.utils.ServerHandler;
+import net.opanel.web.BaseServlet;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -12,32 +13,32 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 
-public class InfoHandler extends ServerHandler {
+public class InfoServlet extends BaseServlet {
     public static final String route = "/api/info";
 
-    public InfoHandler(OPanel plugin) {
+    public InfoServlet(OPanel plugin) {
         super(plugin);
     }
 
     @Override
-    public void handle(HttpExchange req) {
-        if(req.getRequestMethod().equals("OPTIONS")) {
-            sendResponse(req, 200);
+    protected void doGet(HttpServletRequest req, HttpServletResponse res) {
+        if(req.getMethod().equals("OPTIONS")) {
+            sendResponse(res, HttpServletResponse.SC_OK);
             return;
         }
 
         if(!authCookie(req)) {
-            sendResponse(req, 401);
+            sendResponse(res, HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
         final OPanelServer server = plugin.getServer();
 
-        HashMap<String, Object> res = new HashMap<>();
-        res.put("favicon", server.getFavicon() != null ? IconHandler.route : null);
-        res.put("motd", Base64.getEncoder().encodeToString(server.getMotd().getBytes(StandardCharsets.UTF_8)));
-        res.put("ip", server.getIP());
-        res.put("port", server.getPort());
+        HashMap<String, Object> obj = new HashMap<>();
+        obj.put("favicon", server.getFavicon() != null ? IconServlet.route : null);
+        obj.put("motd", Base64.getEncoder().encodeToString(server.getMotd().getBytes(StandardCharsets.UTF_8)));
+        obj.put("ip", server.getIP());
+        obj.put("port", server.getPort());
 
         List<HashMap<String, Object>> players = new ArrayList<>();
         for(OPanelPlayer player : server.getOnlinePlayers()) {
@@ -48,8 +49,8 @@ public class InfoHandler extends ServerHandler {
             playerInfo.put("gameMode", player.getGameMode().getName());
             players.add(playerInfo);
         }
-        res.put("onlinePlayers", players);
+        obj.put("onlinePlayers", players);
 
-        sendResponse(req, res);
+        sendResponse(res, obj);
     }
 }

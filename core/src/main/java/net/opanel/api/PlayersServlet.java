@@ -1,37 +1,38 @@
 package net.opanel.api;
 
-import com.sun.net.httpserver.HttpExchange;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import net.opanel.OPanel;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelServer;
-import net.opanel.utils.ServerHandler;
+import net.opanel.web.BaseServlet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class PlayersHandler extends ServerHandler {
+public class PlayersServlet extends BaseServlet {
     public static final String route = "/api/players";
 
-    public PlayersHandler(OPanel plugin) {
+    public PlayersServlet(OPanel plugin) {
         super(plugin);
     }
 
     @Override
-    public void handle(HttpExchange req) {
-        if(req.getRequestMethod().equals("OPTIONS")) {
-            sendResponse(req, 200);
+    protected void doGet(HttpServletRequest req, HttpServletResponse res) {
+        if(req.getMethod().equals("OPTIONS")) {
+            sendResponse(res, HttpServletResponse.SC_OK);
             return;
         }
 
         if(!authCookie(req)) {
-            sendResponse(req, 401);
+            sendResponse(res, HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
         final OPanelServer server = plugin.getServer();
 
-        HashMap<String, Object> res = new HashMap<>();
+        HashMap<String, Object> obj = new HashMap<>();
         List<HashMap<String, Object>> players = new ArrayList<>();
         for(OPanelPlayer player : server.getPlayers()) {
             HashMap<String, Object> playerInfo = new HashMap<>();
@@ -41,8 +42,8 @@ public class PlayersHandler extends ServerHandler {
             playerInfo.put("gameMode", player.getGameMode().getName());
             players.add(playerInfo);
         }
-        res.put("players", players);
+        obj.put("players", players);
 
-        sendResponse(req, res);
+        sendResponse(res, obj);
     }
 }
