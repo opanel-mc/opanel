@@ -28,7 +28,7 @@ import {
   FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { sendPostRequest } from "@/lib/utils";
+import { sendPostRequest } from "@/lib/api";
 
 const formSchema = z.object({
   accessKey: z.string(),

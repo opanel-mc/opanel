@@ -6,7 +6,7 @@ import { Gauge } from "lucide-react";
 import { toast } from "sonner";
 import { SubPage } from "../sub-page";
 import { InfoContext } from "@/contexts/api-context";
-import { sendGetRequest } from "@/lib/utils";
+import { sendGetRequest } from "@/lib/api";
 import { InfoCard } from "./info-card";
 import { PlayersCard } from "./players-card";
 import { RecommendedCard } from "./recommended-card";

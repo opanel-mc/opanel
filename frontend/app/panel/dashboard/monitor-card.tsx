@@ -6,7 +6,8 @@ import { Area, AreaChart, CartesianGrid } from "recharts";
 import { ChartLine } from "lucide-react";
 import { FunctionalCard } from "@/components/functional-card";
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { cn, getCurrentState, sendGetRequest } from "@/lib/utils";
+import { cn, getCurrentState } from "@/lib/utils";
+import { sendGetRequest } from "@/lib/api";
 
 const chartConfig = {
   memory: {

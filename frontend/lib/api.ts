@@ -1,0 +1,24 @@
+import type { APIResponse } from "./types";
+import axios from "axios";
+import { getCookie } from "cookies-next/client";
+import { apiUrl } from "./global";
+
+export async function sendGetRequest<R>(route: string): Promise<APIResponse<R>> {
+  return (await axios.request({
+    method: "get",
+    url: apiUrl + route,
+    headers: { "X-Credential-Token": getCookie("token") }
+  })).data as APIResponse<R>;
+}
+
+export async function sendPostRequest<R, T = any>(route: string, body?: T): Promise<APIResponse<R>> {
+  const data = body ? JSON.stringify(body) : "";
+  
+  return (await axios.request({
+    method: "post",
+    maxBodyLength: Infinity,
+    url: apiUrl + route,
+    headers: { "Content-Type": "text/plain" },
+    data
+  })).data as APIResponse<R>;
+}
