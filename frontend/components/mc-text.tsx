@@ -1,12 +1,8 @@
 import { useEffect, useRef } from "react";
-import localFont from "next/font/local";
 import { parseText } from "@/lib/formatting-codes/text";
 import { enableObfuscate } from "@/lib/formatting-codes/obfuscate";
 import { cn } from "@/lib/utils";
-
-const minecraftAE = localFont({
-  src: [{ path: "../assets/fonts/MinecraftAE.ttf", style: "normal" }]
-});
+import { minecraftAE } from "@/lib/fonts";
 
 export function MinecraftText({
   children,

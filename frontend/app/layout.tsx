@@ -1,17 +1,10 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
 import "./formatting-codes.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
-
-const notoSansSC = localFont({
-  src: [
-    { path: "../assets/fonts/NotoSansSC-VariableFont_wght.ttf", style: "normal" },
-    { path: "../assets/fonts/NotoSans-VariableFont_wdth,wght.ttf", style: "normal" },
-  ]
-});
+import { notoSansSC } from "@/lib/fonts";
 
 export const metadata: Metadata = {
   title: "OPanel",

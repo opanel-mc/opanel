@@ -29,6 +29,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { sendPostRequest } from "@/lib/api";
+import { minecraftAE } from "@/lib/fonts";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   accessKey: z.string(),
@@ -73,7 +75,7 @@ export default function Login() {
   return (
     <div className="flex flex-col">
       <div className="text-center space-y-4 mb-8">
-        <h1 className="text-4xl font-bold text-theme">OPanel</h1>
+        <h1 className={cn("text-4xl font-bold text-theme", minecraftAE.className)}>OPanel</h1>
         <p className="text-lg text-muted-foreground">Minecraft 服务器管理面板</p>
       </div>
       <Card className="w-96">
