@@ -15,9 +15,19 @@ export function TerminalCard({
   const { push } = useRouter();
   const terminalRef = useRef<HTMLDivElement>(null);
 
+  const pushLog = (log: string) => {
+    if(!terminalRef.current) return;
+
+    const elem = terminalRef.current;
+    const p = document.createElement("p");
+    p.innerText = log;
+    elem.appendChild(p);
+    elem.scrollTo({ top: elem.scrollHeight });
+  }
+
   useEffect(() => {
     const client = new WebSocketClient();
-    client.onMessage((msg) => {
+    client.onOpen(() => {
       if(!terminalRef.current) return;
 
       const elem = terminalRef.current;
@@ -25,10 +35,18 @@ export function TerminalCard({
         elem.setAttribute("data-initialized", "true");
         elem.innerHTML = "";
       }
-
-      const p = document.createElement("p");
-      p.innerText = msg;
-      elem.appendChild(p);
+    });
+    client.onMessage((type, data) => {
+      switch(type) {
+        case "init":
+          for(const item of data) {
+            pushLog(item);
+          }
+          break;
+        case "log":
+          pushLog(data);
+          break;
+      }
     });
     
     return () => client.close();

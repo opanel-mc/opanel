@@ -1,10 +1,9 @@
 package net.opanel;
 
+import net.opanel.terminal.LogListenerManager;
 import net.opanel.common.OPanelServer;
 import net.opanel.logger.Loggable;
 import net.opanel.web.WebServer;
-
-import java.io.IOException;
 
 public class OPanel {
     private final OPanelConfiguration config;
@@ -12,6 +11,7 @@ public class OPanel {
 
     private WebServer webServer;
     private OPanelServer server;
+    private LogListenerManager logListenerManager;
 
     public OPanel(OPanelConfiguration config, Loggable logger) {
         this.config = config;
@@ -35,5 +35,13 @@ public class OPanel {
 
     public OPanelServer getServer() {
         return server;
+    }
+
+    public void setLogListenerManager(LogListenerManager manager) {
+        logListenerManager = manager;
+    }
+
+    public LogListenerManager getLogListenerManager() {
+        return logListenerManager;
     }
 }

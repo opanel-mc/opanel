@@ -20,12 +20,23 @@ export class WebSocketClient {
     });
   }
 
-  public onMessage(cb: (msg: string) => void) {
+  public onOpen(cb: () => void) {
+    if(!this.socket) throw new Error("WebSocket not initialized.");
+
+    this.socket?.addEventListener("open", () => cb());
+  }
+
+  public onMessage(cb: (type: "init" | "log", data: any) => void) {
     if(!this.socket) throw new Error("WebSocket not initialized.");
 
     this.socket.addEventListener("message", (e) => {
       console.log("[Terminal] "+ e.data);
-      cb(e.data);
+      const { type, data } = JSON.parse(e.data);
+      if(type === "init" && !(data instanceof Array)) {
+        throw new Error("Received an incorrect initial packet.");
+      }
+
+      cb(type, data);
     });
   }
 
