@@ -1,44 +1,37 @@
-import { io, type Socket } from "socket.io-client";
-
-export const wsUrl = (
-  process.env.NODE_ENV === "development"
-  ? `ws://localhost:3000`
-  : `ws://${window.location.host}`
-);
+import { wsUrl } from "../api";
 
 export class WebSocketClient {
-  private socket: Socket | null = null;
+  private socket: WebSocket | null = null;
 
   constructor() {
-    this.socket = io(wsUrl);
+    this.socket = new WebSocket(wsUrl + "/terminal");
     this.init();
   }
 
   private init() {
-    this.socket?.on("connect", () => {
-      console.log("Terminal connected. ID:"+ this.socket?.id);
+    this.socket?.addEventListener("open", () => {
+      console.log("Terminal connected.");
     });
-    this.socket?.on("connect_error", (err) => {
-      if(!this.socket?.active) {
-        console.log("Terminal connection failed. Error:"+ err.message);
-      }
+    this.socket?.addEventListener("error", (err) => {
+      console.log("Terminal connection failed. ", err);
     });
-    this.socket?.on("disconnect", () => {
+    this.socket?.addEventListener("close", () => {
       console.log("Terminal disconnected.");
     });
   }
 
   public onMessage(cb: (msg: string) => void) {
     if(!this.socket) throw new Error("WebSocket not initialized.");
-    this.socket.on("server-message", (msg) => {
-      console.log("[Terminal] "+ msg);
-      cb(msg);
+
+    this.socket.addEventListener("message", (e) => {
+      console.log("[Terminal] "+ e.data);
+      cb(e.data);
     });
   }
 
   public send(msg: string) {
     if(!this.socket) throw new Error("WebSocket not initialized.");
-    this.socket.emit("client-message", msg);
+    this.socket.send(msg);
   }
 
   public close() {

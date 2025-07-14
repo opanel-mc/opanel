@@ -8,6 +8,12 @@ export const apiUrl = (
   : ""
 );
 
+export const wsUrl = (
+  process.env.NODE_ENV === "development"
+  ? `ws://localhost:3000`
+  : `ws://${window.location.host}`
+);
+
 export async function sendGetRequest<R>(route: string): Promise<APIResponse<R>> {
   return (await axios.request({
     method: "get",

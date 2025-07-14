@@ -1,15 +1,19 @@
 package net.opanel.web;
 
 import jakarta.servlet.DispatcherType;
+import jakarta.websocket.DeploymentException;
+import jakarta.websocket.server.ServerEndpointConfig;
 import net.opanel.OPanel;
 import net.opanel.api.*;
-import net.opanel.terminal.WebSocketServlet;
+import net.opanel.terminal.TerminalEndpoint;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.eclipse.jetty.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer;
 
+import java.time.Duration;
 import java.util.EnumSet;
 
 public class WebServer {
@@ -36,14 +40,28 @@ public class WebServer {
         cors.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM, "X-Requested-With,Content-Type,X-Credential-Token");
         ctx.addFilter(cors, "/*", EnumSet.of(DispatcherType.REQUEST));
 
+        // WebSocket
+        TerminalEndpoint.Configurator.setPlugin(plugin);
+        JakartaWebSocketServletContainerInitializer.configure(ctx, (servletContext, serverContainer) -> {
+            serverContainer.setDefaultMaxSessionIdleTimeout(-1); // infinity idle timeout
+            try {
+                serverContainer.addEndpoint(
+                        ServerEndpointConfig.Builder
+                                .create(TerminalEndpoint.class, TerminalEndpoint.route)
+                                .configurator(new TerminalEndpoint.Configurator())
+                                .build()
+                );
+            } catch (DeploymentException e) {
+                e.printStackTrace();
+            }
+        });
+
         // API
         ctx.addServlet(new ServletHolder(new AuthServlet(plugin)), AuthServlet.route);
         ctx.addServlet(new ServletHolder(new InfoServlet(plugin)), InfoServlet.route);
         ctx.addServlet(new ServletHolder(new IconServlet(plugin)), IconServlet.route);
         ctx.addServlet(new ServletHolder(new PlayersServlet(plugin)), PlayersServlet.route);
         ctx.addServlet(new ServletHolder(new MonitorServlet(plugin)), MonitorServlet.route);
-        // WebSocket
-        ctx.addServlet(new ServletHolder(new WebSocketServlet(plugin)), "/socket.io/*");
         // Frontend
         ctx.addServlet(new ServletHolder(new StaticFileServlet(plugin)), "/");
 

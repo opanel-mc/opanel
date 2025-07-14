@@ -9,7 +9,7 @@
   ],
   "license": "CC0-1.0",
   "icon": "assets/opanel/icon.png",
-  "environment": "*",
+  "environment": "server",
   "entrypoints": {
     "main": [
       "net.opanel.fabric_1_21_5.Main"

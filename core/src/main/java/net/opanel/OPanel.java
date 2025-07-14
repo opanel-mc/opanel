@@ -4,6 +4,8 @@ import net.opanel.common.OPanelServer;
 import net.opanel.logger.Loggable;
 import net.opanel.web.WebServer;
 
+import java.io.IOException;
+
 public class OPanel {
     private final OPanelConfiguration config;
     public final Loggable logger;
@@ -15,6 +17,7 @@ public class OPanel {
         this.config = config;
         this.logger = logger;
 
+        // Setup web server
         webServer = new WebServer(this);
     }
 

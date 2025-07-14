@@ -8,8 +8,9 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.11.0'
     implementation 'com.github.oshi:oshi-core:6.8.2'
     implementation 'jakarta.servlet:jakarta.servlet-api:5.0.0'
-    implementation 'io.socket:socket.io-server:4.1.0'
     implementation 'org.eclipse.jetty:jetty-server:11.0.15'
     implementation 'org.eclipse.jetty:jetty-servlet:11.0.15'
     implementation 'org.eclipse.jetty:jetty-servlets:11.0.15'
+    implementation 'jakarta.websocket:jakarta.websocket-api:2.1.1'
+    implementation 'org.eclipse.jetty.websocket:websocket-jakarta-server:11.0.15'
 }
