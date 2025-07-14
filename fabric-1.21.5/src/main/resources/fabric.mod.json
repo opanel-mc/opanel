@@ -11,7 +11,7 @@
   "icon": "assets/opanel/icon.png",
   "environment": "server",
   "entrypoints": {
-    "main": [
+    "server": [
       "net.opanel.fabric_1_21_5.Main"
     ]
   },
