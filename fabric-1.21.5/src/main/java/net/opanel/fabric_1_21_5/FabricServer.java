@@ -1,7 +1,10 @@
 package net.opanel.fabric_1_21_5;
 
+import net.minecraft.command.CommandSource;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerMetadata;
+import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelServer;
@@ -71,5 +74,12 @@ public class FabricServer implements OPanelServer {
             }
         }
         return null;
+    }
+
+    @Override
+    public void sendCommand(String command) {
+        CommandManager manager = server.getCommandManager();
+        ServerCommandSource source = server.getCommandSource();
+        manager.executeWithPrefix(source, command);
     }
 }

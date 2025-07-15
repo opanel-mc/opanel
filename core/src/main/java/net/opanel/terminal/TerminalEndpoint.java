@@ -1,6 +1,7 @@
 package net.opanel.terminal;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
 import jakarta.websocket.server.ServerEndpointConfig;
@@ -27,10 +28,7 @@ public class TerminalEndpoint {
         logListenerManager = plugin.getLogListenerManager();
 
         logListenerManager.addListener(line -> {
-            HashMap<String, Object> packet = new HashMap<>();
-            packet.put("type", "log");
-            packet.put("data", line);
-            broadcast(packet);
+            broadcast(new TerminalPacket<>(TerminalPacket.LOG, line));
         });
     }
 
@@ -40,15 +38,28 @@ public class TerminalEndpoint {
         sessions.add(session);
 
         // Send recent logs
-        HashMap<String, Object> initialPacket = new HashMap<>();
-        initialPacket.put("type", "init");
-        initialPacket.put("data", logListenerManager.getRecentLogs());
-        sendMessage(session, initialPacket);
+        sendMessage(session, new TerminalPacket<>(TerminalPacket.INIT, logListenerManager.getRecentLogs()));
     }
 
     @OnMessage
     public void onMessage(String message, Session session) {
-        //
+        try {
+            Gson gson = new Gson();
+            TerminalPacket packet = gson.fromJson(message, TerminalPacket.class);
+
+            switch(packet.type) {
+                case TerminalPacket.COMMAND -> {
+                    if(!(packet.data instanceof String command)) {
+                        sendErrorMessage(session, "Unexpected type of data.");
+                        return;
+                    }
+                    plugin.getServer().sendCommand(command);
+                }
+                default -> sendErrorMessage(session, "Unexpected type of packet.");
+            }
+        } catch (JsonSyntaxException e) {
+            sendErrorMessage(session, "Json syntax error: "+ e.getMessage());
+        }
     }
 
     @OnClose
@@ -57,7 +68,7 @@ public class TerminalEndpoint {
         sessions.remove(session);
     }
 
-    private void sendMessage(Session session, HashMap<String, Object> packet) {
+    private <T> void sendMessage(Session session, TerminalPacket<T> packet) {
         try {
             Gson gson = new Gson();
             session.getBasicRemote().sendObject(gson.toJson(packet));
@@ -66,7 +77,11 @@ public class TerminalEndpoint {
         }
     }
 
-    private void broadcast(HashMap<String, Object> packet) {
+    private void sendErrorMessage(Session session, String err) {
+        sendMessage(session, new TerminalPacket<>(TerminalPacket.ERROR, err));
+    }
+
+    private <T> void broadcast(TerminalPacket<T> packet) {
         sessions.forEach(session -> {
             sendMessage(session, packet);
         });

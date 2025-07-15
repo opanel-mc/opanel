@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
-    <list size="1">
-      <item index="0" class="java.lang.String" itemvalue="org.bukkit.event.EventHandler" />
+    <list size="4">
+      <item index="0" class="java.lang.String" itemvalue="jakarta.websocket.OnClose" />
+      <item index="1" class="java.lang.String" itemvalue="jakarta.websocket.OnMessage" />
+      <item index="2" class="java.lang.String" itemvalue="jakarta.websocket.OnOpen" />
+      <item index="3" class="java.lang.String" itemvalue="org.bukkit.event.EventHandler" />
     </list>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />

@@ -56,7 +56,7 @@ export function InfoCard({
           </div>
         </div>
         <div className="flex-1">
-          {ctx && <MinecraftText>{atob(ctx.motd)}</MinecraftText>}
+          {ctx && <MinecraftText>{"§7"+ atob(ctx.motd)}</MinecraftText>}
         </div>
       </div>
     </Card>

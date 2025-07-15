@@ -2,7 +2,7 @@
 
 import type { MonitorResponse } from "@/lib/types";
 import { useEffect, useState } from "react";
-import { Area, AreaChart, CartesianGrid } from "recharts";
+import { Area, AreaChart, CartesianGrid, YAxis } from "recharts";
 import { ChartLine } from "lucide-react";
 import { FunctionalCard } from "@/components/functional-card";
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
@@ -70,6 +70,7 @@ export function MonitorCard({
             stroke="var(--color-foreground)"
             strokeWidth="2"
             isAnimationActive={false}/>
+          <YAxis hide domain={[100, 100]}/>
           <ChartTooltip
             cursor={false}
             content={<ChartTooltipContent hideLabel indicator="line"/>}/>

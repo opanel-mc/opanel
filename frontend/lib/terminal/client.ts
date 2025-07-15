@@ -1,4 +1,10 @@
+import { toast } from "sonner";
 import { wsUrl } from "../api";
+
+export interface TerminalPacket {
+  type: "init" | "log" | "error" | "command"
+  data: any
+}
 
 export class WebSocketClient {
   private socket: WebSocket | null = null;
@@ -30,19 +36,24 @@ export class WebSocketClient {
     if(!this.socket) throw new Error("WebSocket not initialized.");
 
     this.socket.addEventListener("message", (e) => {
-      console.log("[Terminal] "+ e.data);
-      const { type, data } = JSON.parse(e.data);
+      const { type, data } = JSON.parse(e.data) satisfies TerminalPacket;
+      console.log("[Terminal] "+ data);
+
       if(type === "init" && !(data instanceof Array)) {
         throw new Error("Received an incorrect initial packet.");
+      }
+      if(type === "error") {
+        toast.error("Packet Error", { description: data });
+        throw new Error("Packet error: "+ data);
       }
 
       cb(type, data);
     });
   }
 
-  public send(msg: string) {
+  public send(msg: TerminalPacket) {
     if(!this.socket) throw new Error("WebSocket not initialized.");
-    this.socket.send(msg);
+    this.socket.send(JSON.stringify(msg));
   }
 
   public close() {
