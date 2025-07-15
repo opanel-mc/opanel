@@ -4,8 +4,8 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
-        <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="gradleJvm" value="21" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
@@ -14,6 +14,7 @@
             <option value="$PROJECT_DIR$/fabric-1.21.5" />
           </set>
         </option>
+        <option name="resolveExternalAnnotations" value="true" />
       </GradleProjectSettings>
     </option>
   </component>

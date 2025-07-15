@@ -80,6 +80,7 @@ public class TerminalEndpoint {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public <T> T getEndpointInstance(Class<T> endpointClass) throws InstantiationException {
             if(TerminalEndpoint.class.equals(endpointClass)) {
                 if(pluginInstance == null) {
