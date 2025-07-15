@@ -39,6 +39,10 @@ export default function Terminal() {
     return () => document.body.removeEventListener("keydown", handleKeydown);
   }, [handleSend]);
 
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
   return (
     <SubPage title="后台" icon={<SquareTerminal />} className="h-[500px] flex flex-col gap-3">
       <TerminalConnector client={client}/>

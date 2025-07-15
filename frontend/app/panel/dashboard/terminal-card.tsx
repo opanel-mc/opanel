@@ -24,8 +24,9 @@ export function TerminalCard({
       innerClassName="p-2 pt-0 h-full flex flex-col gap-2 overflow-hidden">
       <TerminalConnector client={client}/>
       <Input
-        className="w-full rounded-sm"
+        className="w-full rounded-sm cursor-pointer"
         placeholder="发送消息 / 指令..."
+        title="转至后台页面"
         onClick={() => push("/panel/terminal")}/>
     </FunctionalCard>
   );
