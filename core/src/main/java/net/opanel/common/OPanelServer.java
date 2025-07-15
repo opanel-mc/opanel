@@ -10,5 +10,5 @@ public interface OPanelServer {
     List<OPanelPlayer> getOnlinePlayers();
     List<OPanelPlayer> getPlayers();
     OPanelPlayer getPlayer(String name);
-    void sendCommand(String command);
+    void sendServerCommand(String command);
 }

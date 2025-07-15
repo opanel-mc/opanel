@@ -77,7 +77,7 @@ public class FabricServer implements OPanelServer {
     }
 
     @Override
-    public void sendCommand(String command) {
+    public void sendServerCommand(String command) {
         CommandManager manager = server.getCommandManager();
         ServerCommandSource source = server.getCommandSource();
         manager.executeWithPrefix(source, command);

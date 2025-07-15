@@ -53,7 +53,7 @@ public class TerminalEndpoint {
                         sendErrorMessage(session, "Unexpected type of data.");
                         return;
                     }
-                    plugin.getServer().sendCommand(command);
+                    plugin.getServer().sendServerCommand(command);
                 }
                 default -> sendErrorMessage(session, "Unexpected type of packet.");
             }

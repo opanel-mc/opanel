@@ -3,13 +3,13 @@ import axios from "axios";
 import { getCookie } from "cookies-next/client";
 
 export const apiUrl = (
-  process.env.NODE_ENV === "development"
+  (process.env.NODE_ENV === "development")
   ? `http://localhost:3000`
   : ""
 );
 
 export const wsUrl = (
-  process.env.NODE_ENV === "development"
+  (process.env.NODE_ENV === "development" || !globalThis["window"])
   ? `ws://localhost:3000`
   : `ws://${window.location.host}`
 );
