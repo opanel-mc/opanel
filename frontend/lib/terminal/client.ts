@@ -1,6 +1,14 @@
 import { toast } from "sonner";
 import { wsUrl } from "../api";
 
+export interface ConsoleLog {
+  time: number
+  level: "INFO" | "WARN" | "ERROR" | "FATAL" | "DEBUG" | "TRACE"
+  thread: string
+  source: string
+  line: string
+}
+
 export interface TerminalPacket {
   type: "init" | "log" | "error" | "command"
   data: any
@@ -37,7 +45,8 @@ export class WebSocketClient {
 
     this.socket.addEventListener("message", (e) => {
       const { type, data } = JSON.parse(e.data) satisfies TerminalPacket;
-      console.log("[Terminal] "+ data);
+      const log = data as ConsoleLog;
+      console.log("[Terminal] "+ log.line);
 
       if(type === "init" && !(data instanceof Array)) {
         throw new Error("Received an incorrect initial packet.");
@@ -47,7 +56,7 @@ export class WebSocketClient {
         throw new Error("Packet error: "+ data);
       }
 
-      cb(type, data);
+      cb(type, log);
     });
   }
 

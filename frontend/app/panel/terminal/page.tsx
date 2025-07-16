@@ -45,7 +45,7 @@ export default function Terminal() {
 
   return (
     <SubPage title="后台" icon={<SquareTerminal />} className="h-[500px] flex flex-col gap-3">
-      <TerminalConnector client={client}/>
+      <TerminalConnector client={client} className="flex-1"/>
       <div className="flex gap-1">
         <Input
           className="flex-1 w-full rounded-sm font-[Consolas]"

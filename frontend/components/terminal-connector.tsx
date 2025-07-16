@@ -1,6 +1,43 @@
-import { useEffect, useRef } from "react";
-import { WebSocketClient } from "@/lib/terminal/client";
+import { useEffect, useRef, useState } from "react";
+import { format } from "date-format-parse";
+import { type ConsoleLog, WebSocketClient } from "@/lib/terminal/client";
 import { cn } from "@/lib/utils";
+
+function Log({
+  time,
+  level,
+  thread,
+  source,
+  line
+}: ConsoleLog) {
+  const sourceStrArr = source.split(".");
+  const sourceName = sourceStrArr[sourceStrArr.length - 1];
+
+  let threadLevelStyle;
+  switch(level) {
+    case "INFO":
+      threadLevelStyle = "text-green-700 dark:text-green-500";
+      break;
+    case "WARN":
+    case "DEBUG":
+    case "TRACE":
+      threadLevelStyle = "text-yellow-700 dark:text-yellow-600";
+      break;
+    case "ERROR":
+    case "FATAL":
+      threadLevelStyle = "text-red-700 dark:text-red-400";
+      break;
+  }
+
+  return (
+    <p className="text-xs text-nowrap font-[Consolas] space-x-1">
+      <span className="text-blue-500 dark:text-blue-400">{`[${format(new Date(time), "HH:mm:ss")}]`}</span>
+      <span className={threadLevelStyle}>{`[${thread}/${level}]`}</span>
+      <span className="text-emerald-600 dark:text-emerald-500">{`(${sourceName})`}</span>
+      <span>{line}</span>
+    </p>
+  );
+}
 
 export function TerminalConnector({
   client,
@@ -10,15 +47,21 @@ export function TerminalConnector({
   className?: string
 }) {
   const terminalRef = useRef<HTMLDivElement>(null);
+  const [logs, setLogs] = useState<ConsoleLog[]>([]);
 
-  const pushLog = (log: string) => {
+  const pushLog = (log: ConsoleLog) => {
     if(!terminalRef.current) return;
 
+    setLogs((current) => [...current, log]);
+
     const elem = terminalRef.current;
-    const p = document.createElement("p");
-    p.innerText = log;
-    elem.appendChild(p);
     elem.scrollTo({ top: elem.scrollHeight });
+  };
+
+  const clearLogs = () => {
+    if(!terminalRef.current) return;
+
+    terminalRef.current.innerHTML = "";
   };
 
   useEffect(() => {
@@ -36,11 +79,15 @@ export function TerminalConnector({
           break;
       }
     });
+
+    return () => clearLogs();
   }, [client]);
   
   return (
     <div
-      className={cn(className, "flex-1 w-full border rounded-sm bg-background overflow-auto p-2 [&>p]:text-xs [&>p]:font-[Consolas]")}
-      ref={terminalRef}/>
+      className={cn(className, "border rounded-sm bg-background overflow-auto p-2")}
+      ref={terminalRef}>
+      {logs.map((log, i) => <Log {...log} key={i}/>)}
+    </div>
   );
 }

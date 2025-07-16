@@ -1,5 +1,6 @@
 package net.opanel.fabric_1_21_5.terminal;
 
+import net.opanel.terminal.ConsoleLog;
 import net.opanel.terminal.LogListenerManager;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Filter;
@@ -19,8 +20,8 @@ import java.util.function.Consumer;
 
 @Plugin(name = "LogListenerAppender", category = "Core", elementType = "appender")
 public class LogListenerManagerImpl extends AbstractAppender implements LogListenerManager {
-    private final List<String> logs = new ArrayList<>();
-    private final Set<Consumer<String>> listeners = new HashSet<>();
+    private final List<ConsoleLog> logs = new ArrayList<>();
+    private final Set<Consumer<ConsoleLog>> listeners = new HashSet<>();
 
     protected LogListenerManagerImpl(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions, Property[] properties) {
         super(name, filter, layout, ignoreExceptions, properties);
@@ -30,10 +31,16 @@ public class LogListenerManagerImpl extends AbstractAppender implements LogListe
     public void append(LogEvent e) {
         if(e.getLevel() != Level.INFO) return;
 
+        final long time = e.getTimeMillis();
+        final String level = e.getLevel().name();
+        final String thread = e.getThreadName();
+        final String source = e.getLoggerName();
         final String line = e.getMessage().getFormattedMessage();
-        logs.add(line);
+        final ConsoleLog log = new ConsoleLog(time, level, thread, source, line);
+
+        logs.add(log);
         listeners.forEach(listener -> {
-             listener.accept(line);
+             listener.accept(log);
         });
     }
 
@@ -47,7 +54,7 @@ public class LogListenerManagerImpl extends AbstractAppender implements LogListe
     }
 
     @Override
-    public void addListener(Consumer<String> listener) {
+    public void addListener(Consumer<ConsoleLog> listener) {
         listeners.add(listener);
     }
 
@@ -57,7 +64,7 @@ public class LogListenerManagerImpl extends AbstractAppender implements LogListe
     }
 
     @Override
-    public List<String> getRecentLogs() {
+    public List<ConsoleLog> getRecentLogs() {
         return logs;
     }
 }

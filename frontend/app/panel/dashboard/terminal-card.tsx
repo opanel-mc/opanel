@@ -22,7 +22,7 @@ export function TerminalCard({
       moreLink="/panel/terminal"
       className={className}
       innerClassName="p-2 pt-0 h-full flex flex-col gap-2 overflow-hidden">
-      <TerminalConnector client={client}/>
+      <TerminalConnector client={client} className="flex-1"/>
       <Input
         className="w-full rounded-sm cursor-pointer"
         placeholder="发送消息 / 指令..."
