@@ -32,6 +32,7 @@
     "socket.io-client": "^4.8.1",
     "sonner": "^2.0.6",
     "tailwind-merge": "^3.3.1",
+    "textarea-caret": "^3.1.0",
     "zod": "^3.25.67"
   },
   "devDependencies": {
@@ -41,6 +42,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/textarea-caret": "^3.0.4",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
     "tailwindcss": "^4",

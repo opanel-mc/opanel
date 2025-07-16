@@ -5,8 +5,8 @@ import { ArrowUp, SquareTerminal, X } from "lucide-react";
 import { SubPage } from "../sub-page";
 import { useTerminal } from "@/hooks/use-terminal";
 import { TerminalConnector } from "@/components/terminal-connector";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { AutocompleteInput } from "@/components/autocomplete-input";
 
 export default function Terminal() {
   const client = useTerminal();
@@ -47,9 +47,10 @@ export default function Terminal() {
     <SubPage title="后台" icon={<SquareTerminal />} className="h-[500px] flex flex-col gap-3">
       <TerminalConnector client={client} className="flex-1"/>
       <div className="flex gap-1">
-        <Input
+        <AutocompleteInput
           className="flex-1 w-full rounded-sm font-[Consolas]"
           placeholder="发送消息 / 指令..."
+          itemList={[]}
           ref={inputRef}/>
         <Button
           variant="ghost"
