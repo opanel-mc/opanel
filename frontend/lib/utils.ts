@@ -38,3 +38,33 @@ export function getCurrentState<T>(setState: React.Dispatch<React.SetStateAction
     });
   });
 }
+
+/**
+ * @example
+ * ```ts
+ * getInputtedArgumentStr("do hello world", 5); // "he"
+ * getInputtedArgumentStr("do hello world", 13); // "worl"
+ * ```
+ */
+export function getInputtedArgumentStr(str: string, cursor: number): string {
+  if(cursor > str.length) throw new Error("Cursor position is out of the length of the string.");
+
+  const trimmed = str.substring(0, cursor);
+  const arr = trimmed.split(" ");
+  return arr[arr.length - 1];
+}
+
+/**
+ * @example
+ * ```ts
+ * getCurrentArgumentNumber("do hello world", 5); // 2
+ * getCurrentArgumentNumber("do hello world", 13); // 3
+ * ```
+ */
+export function getCurrentArgumentNumber(str: string, cursor: number): number {
+  if(cursor > str.length) throw new Error("Cursor position is out of the length of the string.");
+
+  const trimmed = str.substring(0, cursor);
+  const arr = trimmed.split(" ");
+  return arr.length;
+}

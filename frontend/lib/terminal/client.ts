@@ -10,7 +10,16 @@ export interface ConsoleLog {
 }
 
 export interface TerminalPacket {
-  type: "init" | "log" | "error" | "command"
+  type: (
+    /* server packet */
+    "init"
+    | "log"
+    | "error"
+    /* client packet */
+    | "command"
+    /* common packet */
+    | "autocomplete"
+  )
   data: any
 }
 
@@ -40,7 +49,7 @@ export class WebSocketClient {
     this.socket?.addEventListener("open", () => cb());
   }
 
-  public onMessage(cb: (type: "init" | "log", data: any) => void) {
+  public onMessage(cb: (type: "init" | "log" | "autocomplete", data: any) => void) {
     if(!this.socket) throw new Error("WebSocket not initialized.");
 
     this.socket.addEventListener("message", (e) => {

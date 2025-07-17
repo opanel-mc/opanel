@@ -8,7 +8,7 @@ import {
 import getCaretCoordinates from "textarea-caret";
 import { InputContext } from "@/contexts/input-context";
 import { Input } from "./ui/input";
-import { cn, getCurrentState } from "@/lib/utils";
+import { cn, getCurrentState, getInputtedArgumentStr } from "@/lib/utils";
 
 function AutocompleteItem({
   name,
@@ -29,6 +29,7 @@ function AutocompleteItem({
 
 export function AutocompleteInput({
   itemList,
+  onInput,
   ref: inputRef,
   ...props
 }: ComponentProps<"input"> & {
@@ -43,6 +44,10 @@ export function AutocompleteInput({
   const isInvisible = value.length === 0 || advisedList.length === 0;
 
   useEffect(() => {
+    setAdvisedList(itemList);
+  }, [itemList]);
+
+  useEffect(() => {
     if(!inputRef.current) return;
     const input = inputRef.current;
     const rect = input.getBoundingClientRect();
@@ -51,8 +56,9 @@ export function AutocompleteInput({
     setLeft(input.offsetLeft + getCaretCoordinates(input, input.selectionStart ?? 0).left);
 
     const advised = [];
+    const cursorPos = input.selectionStart;
     for(const item of itemList) {
-      if(item.startsWith(value)) {
+      if(item.startsWith(getInputtedArgumentStr(value, cursorPos ?? 0))) {
         advised.push(item);
       }
     }
@@ -71,7 +77,7 @@ export function AutocompleteInput({
         case "Tab":
           if(cSelected === null || !inputRef.current) return;
           e.preventDefault();
-          const toComplete = advised[cSelected].replace(cValue, "");
+          const toComplete = advised[cSelected].replace(getInputtedArgumentStr(cValue, inputRef.current.selectionStart ?? 0), "");
           inputRef.current.value = cValue + toComplete;
           setValue(cValue + toComplete);
           break;
@@ -91,13 +97,16 @@ export function AutocompleteInput({
   }, []);
 
   return (
-    <InputContext.Provider value={{ value }}>
+    <InputContext.Provider value={{ value: getInputtedArgumentStr(value, inputRef.current?.selectionStart ?? 0) }}>
       <Input
         {...props}
-        onInput={(e) => setValue((e.target as HTMLInputElement).value)}
+        onInput={(e) => {
+          setValue((e.target as HTMLInputElement).value);
+          if(onInput) onInput(e);
+        }}
         ref={inputRef}/>
       <div
-        className={cn("absolute flex flex-col bg-popover min-w-40 w-fit p-1 border rounded-sm overflow-auto", isInvisible ? "hidden" : "")}
+        className={cn("absolute flex flex-col bg-popover min-w-40 w-fit max-h-32 p-1 border rounded-sm overflow-y-auto", isInvisible ? "hidden" : "")}
         style={{ top, left }}>
         {advisedList.map((item, i) => <AutocompleteItem name={item} selected={selected === i} key={i}/>)}
       </div>

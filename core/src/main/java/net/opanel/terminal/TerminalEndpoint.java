@@ -6,12 +6,11 @@ import jakarta.websocket.*;
 import jakarta.websocket.server.ServerEndpoint;
 import jakarta.websocket.server.ServerEndpointConfig;
 import net.opanel.OPanel;
+import net.opanel.common.OPanelPlayer;
 import net.opanel.logger.Loggable;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @ServerEndpoint(value = TerminalEndpoint.route, configurator = TerminalEndpoint.Configurator.class)
 public class TerminalEndpoint {
@@ -54,6 +53,21 @@ public class TerminalEndpoint {
                         return;
                     }
                     plugin.getServer().sendServerCommand(command);
+                }
+                case TerminalPacket.AUTOCOMPLETE -> {
+                    if(!(packet.data instanceof Number arg)) {
+                        sendErrorMessage(session, "Unexpected type of data.");
+                        return;
+                    }
+
+                    if(arg.equals(1.0)) {
+                        sendMessage(session, new TerminalPacket<>(TerminalPacket.AUTOCOMPLETE, plugin.getServer().getCommands()));
+                        return;
+                    }
+                    sendMessage(session, new TerminalPacket<>(
+                            TerminalPacket.AUTOCOMPLETE,
+                            plugin.getServer().getOnlinePlayers().stream().map(OPanelPlayer::getName).toList()
+                    ));
                 }
                 default -> sendErrorMessage(session, "Unexpected type of packet.");
             }

@@ -3,6 +3,7 @@ package net.opanel.terminal;
 public class TerminalPacket<T> {
     public static final String INIT = "init";
     public static final String LOG = "log";
+    public static final String AUTOCOMPLETE = "autocomplete";
     public static final String ERROR = "error";
     public static final String COMMAND = "command";
 

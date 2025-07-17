@@ -1,16 +1,24 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import {
+  type KeyboardEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from "react";
 import { ArrowUp, SquareTerminal, X } from "lucide-react";
 import { SubPage } from "../sub-page";
 import { useTerminal } from "@/hooks/use-terminal";
 import { TerminalConnector } from "@/components/terminal-connector";
 import { Button } from "@/components/ui/button";
 import { AutocompleteInput } from "@/components/autocomplete-input";
+import { getCurrentArgumentNumber } from "@/lib/utils";
 
 export default function Terminal() {
   const client = useTerminal();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [autocompleteList, setAutocompleteList] = useState<string[]>([]);
 
   const handleClear = () => {
     if(!inputRef.current) return;
@@ -26,22 +34,33 @@ export default function Terminal() {
     handleClear();
   }, [client]);
 
+  const handleKeydown = (e: KeyboardEvent) => {
+    if(!inputRef.current || !client) return;
+    const elem = inputRef.current;
+
+    if(document.activeElement !== elem) return;
+
+    switch(e.key) {
+      case "Enter":
+        handleSend();
+        break;
+    }
+  };
+
+  const handleInput = useCallback(() => {
+    if(!inputRef.current || !client) return;
+    const elem = inputRef.current;
+
+    client.send({ type: "autocomplete", data: getCurrentArgumentNumber(elem.value, elem.selectionStart ?? 0) });
+  }, [client]);
+
   useEffect(() => {
-    const handleKeydown = (e: KeyboardEvent) => {
-      switch(e.key) {
-        case "Enter":
-          handleSend();
-          break;
+    client?.onMessage((type, data) => {
+      if(type === "autocomplete") {
+        setAutocompleteList(data);
       }
-    };
-
-    document.body.addEventListener("keydown", handleKeydown);
-    return () => document.body.removeEventListener("keydown", handleKeydown);
-  }, [handleSend]);
-
-  useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+    });
+  }, [client]);
 
   return (
     <SubPage title="后台" icon={<SquareTerminal />} className="h-[500px] flex flex-col gap-3">
@@ -50,7 +69,10 @@ export default function Terminal() {
         <AutocompleteInput
           className="flex-1 w-full rounded-sm font-[Consolas]"
           placeholder="发送消息 / 指令..."
-          itemList={[]}
+          autoFocus
+          itemList={autocompleteList}
+          onKeyDown={(e) => handleKeydown(e)}
+          onInput={() => handleInput()}
           ref={inputRef}/>
         <Button
           variant="ghost"

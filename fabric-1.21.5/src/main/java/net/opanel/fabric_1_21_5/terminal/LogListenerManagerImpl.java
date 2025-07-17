@@ -29,7 +29,7 @@ public class LogListenerManagerImpl extends AbstractAppender implements LogListe
 
     @Override
     public void append(LogEvent e) {
-        if(e.getLevel() != Level.INFO) return;
+        if(e.getLevel() != Level.INFO && e.getLevel() != Level.WARN && e.getLevel() != Level.ERROR) return;
 
         final long time = e.getTimeMillis();
         final String level = e.getLevel().name();

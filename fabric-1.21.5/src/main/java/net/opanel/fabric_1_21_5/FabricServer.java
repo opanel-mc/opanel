@@ -1,5 +1,7 @@
 package net.opanel.fabric_1_21_5;
 
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.tree.CommandNode;
 import net.minecraft.command.CommandSource;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerMetadata;
@@ -81,5 +83,15 @@ public class FabricServer implements OPanelServer {
         CommandManager manager = server.getCommandManager();
         ServerCommandSource source = server.getCommandSource();
         manager.executeWithPrefix(source, command);
+    }
+
+    @Override
+    public List<String> getCommands() {
+        List<String> commands = new ArrayList<>();
+        CommandDispatcher<ServerCommandSource> dispatcher = server.getCommandManager().getDispatcher();
+        for(CommandNode<ServerCommandSource> node : dispatcher.getRoot().getChildren()) {
+            commands.add(node.getName());
+        }
+        return commands;
     }
 }
