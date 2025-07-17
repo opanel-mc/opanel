@@ -55,12 +55,7 @@ export function TerminalConnector({
   const [logs, setLogs] = useState<ConsoleLog[]>([]);
 
   const pushLog = (log: ConsoleLog) => {
-    if(!terminalRef.current) return;
-
     setLogs((current) => [...current, log]);
-
-    const elem = terminalRef.current;
-    elem.scrollTo({ top: elem.scrollHeight });
   };
 
   const clearLogs = () => {
@@ -68,6 +63,13 @@ export function TerminalConnector({
 
     terminalRef.current.innerHTML = "";
   };
+
+  useEffect(() => {
+    if(!terminalRef.current) return;
+
+    const elem = terminalRef.current;
+    elem.scrollTo({ top: elem.scrollHeight });
+  }, [logs]);
 
   useEffect(() => {
     if(!client) return;
