@@ -7,18 +7,21 @@ import {
   useRef,
   useState
 } from "react";
-import { ArrowUp, SquareTerminal, X } from "lucide-react";
+import { ArrowUp, SquareTerminal, Trash2, X } from "lucide-react";
 import { SubPage } from "../sub-page";
 import { useTerminal } from "@/hooks/use-terminal";
 import { TerminalConnector } from "@/components/terminal-connector";
 import { Button } from "@/components/ui/button";
 import { AutocompleteInput } from "@/components/autocomplete-input";
 import { getCurrentArgumentNumber } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
+import { toast } from "sonner";
 
 export default function Terminal() {
   const client = useTerminal();
   const inputRef = useRef<HTMLInputElement>(null);
   const [autocompleteList, setAutocompleteList] = useState<string[]>([]);
+  const [historyList, setHistoryList] = useState<string[]>([]);
 
   const handleClear = () => {
     if(!inputRef.current) return;
@@ -29,8 +32,14 @@ export default function Terminal() {
   const handleSend = useCallback(() => {
     if(!inputRef.current || !client) return;
 
-    const msg = inputRef.current.value;
-    client.send({ type: "command", data: msg });
+    const command = inputRef.current.value;
+    if(command.length === 0) {
+      toast.warning("请输入指令以发送");
+      return;
+    }
+
+    client.send({ type: "command", data: command });
+    setHistoryList((current) => [...current, command]);
     handleClear();
   }, [client]);
 
@@ -52,7 +61,10 @@ export default function Terminal() {
     if(!inputRef.current || !client) return;
     const elem = inputRef.current;
 
-    client.send({ type: "autocomplete", data: getCurrentArgumentNumber(elem.value, elem.selectionStart ?? 0) });
+    client.send({
+      type: "autocomplete",
+      data: getCurrentArgumentNumber(elem.value, elem.selectionStart ?? 0)
+    });
   }, [client]);
 
   useEffect(() => {
@@ -64,32 +76,61 @@ export default function Terminal() {
   }, [client]);
 
   return (
-    <SubPage title="后台" icon={<SquareTerminal />} className="h-[500px] flex flex-col gap-3">
-      <TerminalConnector client={client} className="flex-1"/>
-      <div className="flex gap-1">
-        <AutocompleteInput
-          className="flex-1 w-full rounded-sm font-[Consolas]"
-          placeholder="发送消息 / 指令..."
-          autoFocus
-          itemList={autocompleteList}
-          onKeyDown={(e) => handleKeydown(e)}
-          onInput={() => handleInput()}
-          ref={inputRef}/>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="cursor-pointer"
-          title="清空"
-          onClick={() => handleClear()}>
-          <X />
-        </Button>
-        <Button
-          size="icon"
-          className="cursor-pointer"
-          title="发送"
-          onClick={() => handleSend()}>
-          <ArrowUp />
-        </Button>
+    <SubPage title="后台" icon={<SquareTerminal />} className="grid grid-cols-5 gap-3">
+      <div className="h-[500px] max-h-[500px] col-span-4 flex flex-col gap-3">
+        <TerminalConnector client={client} className="flex-1"/>
+        <div className="flex gap-1">
+          <AutocompleteInput
+            className="flex-1 w-full rounded-sm font-[Consolas]"
+            placeholder="发送消息 / 指令..."
+            autoFocus
+            itemList={autocompleteList}
+            onKeyDown={(e) => handleKeydown(e)}
+            onInput={() => handleInput()}
+            ref={inputRef}/>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="cursor-pointer"
+            title="清空"
+            onClick={() => handleClear()}>
+            <X />
+          </Button>
+          <Button
+            size="icon"
+            className="cursor-pointer"
+            title="发送"
+            onClick={() => handleSend()}>
+            <ArrowUp />
+          </Button>
+        </div>
+      </div>
+      <div className="flex flex-col gap-2">
+        <div className="px-3 flex justify-between items-center">
+          <h2 className="text-md font-semibold">历史记录</h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="cursor-pointer"
+            onClick={() => setHistoryList([])}>
+            <Trash2 />
+          </Button>
+        </div>
+        <Card className="flex-1 rounded-sm p-1 flex flex-col gap-0 overflow-y-auto">
+          {historyList.map((command, i) => (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="block px-2 py-0 rounded-xs text-left font-[Consolas] text-nowrap text-ellipsis overflow-hidden cursor-pointer"
+              onClick={() => {
+                if(inputRef.current) inputRef.current.value = command;
+              }}
+              onDoubleClick={() => handleSend()}
+              key={i}>
+              {command}
+            </Button>
+          ))}
+        </Card>
       </div>
     </SubPage>
   );
