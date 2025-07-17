@@ -14,4 +14,5 @@ public interface OPanelServer {
     void sendServerCommand(String command);
     List<String> getCommands();
     HashMap<String, Object> getGamerules();
+    void setGamerules(HashMap<String, Object> gamerules);
 }

@@ -1,6 +1,7 @@
 package net.opanel.fabric_1_21_5;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.CommandNode;
 import net.minecraft.command.CommandSource;
 import net.minecraft.nbt.NbtCompound;
@@ -111,5 +112,26 @@ public class FabricServer implements OPanelServer {
             }
         }
         return gamerules;
+    }
+
+    @Override
+    public void setGamerules(HashMap<String, Object> gamerules) {
+        final GameRules gameRulesObj = server.getGameRules();
+        gameRulesObj.accept(new GameRules.Visitor() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T extends GameRules.Rule<T>> void visit(GameRules.Key<T> key, GameRules.Type<T> type) {
+                GameRules.Visitor.super.visit(key, type);
+                gamerules.forEach((ruleName, value) -> {
+                    if(key.getName().equals(ruleName)) {
+                        if(value instanceof Boolean) {
+                            gameRulesObj.get(key).setValue((T) new GameRules.BooleanRule((GameRules.Type<GameRules.BooleanRule>) type, (boolean) value), server);
+                        } else if(value instanceof Number) {
+                            gameRulesObj.get(key).setValue((T) new GameRules.IntRule((GameRules.Type<GameRules.IntRule>) type, Double.valueOf((double) value).intValue()), server);
+                        }
+                    }
+                });
+            }
+        });
     }
 }

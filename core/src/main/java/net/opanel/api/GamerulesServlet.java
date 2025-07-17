@@ -7,6 +7,7 @@ import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelServer;
 import net.opanel.web.BaseServlet;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,5 +37,21 @@ public class GamerulesServlet extends BaseServlet {
         obj.put("gamerules", server.getGamerules());
 
         sendResponse(res, obj);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        RequestBodyType reqBody = getRequestBody(req, RequestBodyType.class);
+        if(reqBody.gamerules == null) {
+            sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        plugin.getServer().setGamerules(reqBody.gamerules);
+        sendResponse(res, HttpServletResponse.SC_OK);
+    }
+
+    private class RequestBodyType {
+        HashMap<String, Object> gamerules;
     }
 }

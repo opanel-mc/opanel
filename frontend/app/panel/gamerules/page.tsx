@@ -21,7 +21,7 @@ import {
   generateFormSchema,
   type ServerGamerules
 } from "@/lib/gamerules/gamerule";
-import { sendGetRequest } from "@/lib/api";
+import { sendGetRequest, sendPostRequest } from "@/lib/api";
 import { objectToMap } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
@@ -42,12 +42,13 @@ export default function Gamerules() {
     try {
       const res = await sendGetRequest<GamerulesResponse>("/api/gamerules");
       setServerGamerules(res.gamerules);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
-      toast.error("无法获取服务器游戏规则信息", { description: `错误：${e}` });
+      toast.error("无法获取服务器游戏规则信息");
     }
   };
 
-  const handleSubmit = (data: z.infer<typeof formSchema>) => {
+  const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     // Transform strings to numbers
     for(const key in data) {
       const value = data[key];
@@ -55,9 +56,14 @@ export default function Gamerules() {
         data[key] = parseInt(value);
       }
     }
-    // Send the change
-    /** @todo */
-    console.log(data);
+    
+    try {
+      await sendPostRequest("/api/gamerules", { gamerules: data });
+      toast.success("保存成功");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+      toast.error("保存失败", { description: "无法保存游戏规则" });
+    }
   };
 
   useEffect(() => {
@@ -111,7 +117,8 @@ export default function Gamerules() {
                           <Input
                             {...field}
                             type="number"
-                            className="w-28"/>
+                            className="w-28"
+                            autoComplete="off"/>
                         )
                       }
                     </FormControl>
@@ -122,7 +129,10 @@ export default function Gamerules() {
           })}
           <div className="space-x-2 [&>*]:cursor-pointer">
             <Button type="submit">保存</Button>
-            <Button variant="outline">重置</Button>
+            <Button
+              type="reset"
+              variant="outline"
+              onClick={() => window.location.reload()}>重置</Button>
           </div>
         </form>
       </Form>
