@@ -19,6 +19,7 @@ public class IconServlet extends BaseServlet {
         byte[] favicon = server.getFavicon();
         if(favicon == null) {
             sendResponse(res, HttpServletResponse.SC_NOT_FOUND);
+            return;
         }
 
         sendContentResponse(res, favicon, "image/png");

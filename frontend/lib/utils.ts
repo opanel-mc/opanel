@@ -68,3 +68,11 @@ export function getCurrentArgumentNumber(str: string, cursor: number): number {
   const arr = trimmed.split(" ");
   return arr.length;
 }
+
+export function objectToMap<V>(obj: { [key: string]: V }): Map<string, V> {
+  const map = new Map<string, V>();
+  for(const key in obj) {
+    map.set(key, obj[key]);
+  }
+  return map;
+}

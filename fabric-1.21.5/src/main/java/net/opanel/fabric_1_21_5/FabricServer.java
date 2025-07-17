@@ -3,16 +3,19 @@ package net.opanel.fabric_1_21_5;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.CommandNode;
 import net.minecraft.command.CommandSource;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerMetadata;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.GameRules;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelServer;
 import net.opanel.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -93,5 +96,20 @@ public class FabricServer implements OPanelServer {
             commands.add(node.getName());
         }
         return commands;
+    }
+
+    @Override
+    public HashMap<String, Object> getGamerules() {
+        final NbtCompound gamerulesNbt = server.getGameRules().toNbt();
+        HashMap<String, Object> gamerules = new HashMap<>();
+        for(String key : gamerulesNbt.getKeys()) {
+            final String valueStr = gamerulesNbt.getString(key, "");
+            if(valueStr.equals("true") || valueStr.equals("false")) {
+                gamerules.put(key, Boolean.valueOf(valueStr));
+            } else {
+                gamerules.put(key, Integer.valueOf(valueStr));
+            }
+        }
+        return gamerules;
     }
 }

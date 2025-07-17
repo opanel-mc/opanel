@@ -1,3 +1,5 @@
+import type { ServerGamerules } from "./gamerules/gamerule";
+
 export type APIResponse<T> = {
   code: number
   error: string
@@ -28,4 +30,9 @@ export interface InfoResponse {
 export interface MonitorResponse {
   mem: number
   cpu: number
+}
+
+// /api/gamerules
+export interface GamerulesResponse {
+  gamerules: ServerGamerules
 }
