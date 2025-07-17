@@ -20,6 +20,8 @@ public class Main implements DedicatedServerModInitializer {
         Configuration<OPanelConfiguration> config = ConfigManager.get().register(MODID, OPanelConfiguration.defaultConfig, OPanelConfiguration.class);
         instance = new OPanel(config.get(), new LoggerImpl(LOGGER));
 
+        initLogListenerAppender();
+
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStart);
     }
 
@@ -33,8 +35,6 @@ public class Main implements DedicatedServerModInitializer {
 
     private void onServerStart(MinecraftServer server) {
         instance.setServer(new FabricServer(server));
-
-        initLogListenerAppender();
 
         try {
             instance.getWebServer().start(); // default port 3000

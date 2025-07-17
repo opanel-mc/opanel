@@ -8,8 +8,11 @@ function Log({
   level,
   thread,
   source,
-  line
-}: ConsoleLog) {
+  line,
+  simple
+}: ConsoleLog & {
+  simple?: boolean
+}) {
   const sourceStrArr = source.split(".");
   const sourceName = sourceStrArr[sourceStrArr.length - 1];
 
@@ -32,8 +35,8 @@ function Log({
   return (
     <p className="text-xs text-nowrap font-[Consolas] space-x-1">
       <span className="text-blue-500 dark:text-blue-400">{`[${format(new Date(time), "HH:mm:ss")}]`}</span>
-      <span className={threadLevelStyle}>{`[${thread}/${level}]`}</span>
-      <span className="text-emerald-600 dark:text-emerald-500">{`(${sourceName})`}</span>
+      {!simple && <span className={threadLevelStyle}>{`[${thread}/${level}]`}</span>}
+      {!simple && <span className="text-emerald-600 dark:text-emerald-500">{`(${sourceName})`}</span>}
       <span>{line}</span>
     </p>
   );
@@ -41,9 +44,11 @@ function Log({
 
 export function TerminalConnector({
   client,
+  simple,
   className
 }: {
   client: WebSocketClient | null
+  simple?: boolean
   className?: string
 }) {
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -87,7 +92,7 @@ export function TerminalConnector({
     <div
       className={cn(className, "border rounded-sm bg-background overflow-auto p-2")}
       ref={terminalRef}>
-      {logs.map((log, i) => <Log {...log} key={i}/>)}
+      {logs.map((log, i) => <Log {...log} simple={simple} key={i}/>)}
     </div>
   );
 }

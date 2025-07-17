@@ -4,6 +4,9 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+/node_modules/
+/package.json
+/package-lock.json
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

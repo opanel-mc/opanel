@@ -1,7 +1,8 @@
-import React, {
+import {
+  type ComponentProps,
+  RefObject,
   useContext,
   useEffect,
-  useRef,
   useState
 } from "react";
 import getCaretCoordinates from "textarea-caret";
@@ -28,11 +29,12 @@ function AutocompleteItem({
 
 export function AutocompleteInput({
   itemList,
+  ref: inputRef,
   ...props
-}: React.ComponentProps<"input"> & {
+}: ComponentProps<"input"> & {
   itemList: string[]
+  ref: RefObject<HTMLInputElement | null>
 }) {
-  const inputRef = useRef<HTMLInputElement>(null);
   const [value, setValue] = useState("");
   const [top, setTop] = useState(0);
   const [left, setLeft] = useState(0);
@@ -57,7 +59,7 @@ export function AutocompleteInput({
     setAdvisedList(advised);
     
     setSelected(advised.length > 0 ? 0 : null);
-  }, [value, itemList]);
+  }, [value, itemList, inputRef]);
 
   useEffect(() => {
     document.body.addEventListener("keydown", async (e) => {
@@ -85,6 +87,7 @@ export function AutocompleteInput({
           break;
       }
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

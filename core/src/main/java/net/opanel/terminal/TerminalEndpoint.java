@@ -34,7 +34,7 @@ public class TerminalEndpoint {
 
     @OnOpen
     public void onOpen(Session session) {
-        logger.info("Terminal connection established. Session: "+ session.getId());
+        // logger.info("Terminal connection established. Session: "+ session.getId());
         sessions.add(session);
 
         // Send recent logs
@@ -64,7 +64,7 @@ public class TerminalEndpoint {
 
     @OnClose
     public void onClose(Session session) {
-        logger.info("Terminal connection closed. Session: "+ session.getId());
+        // logger.info("Terminal connection closed. Session: "+ session.getId());
         sessions.remove(session);
     }
 
