@@ -9,21 +9,29 @@ import getCaretCoordinates from "textarea-caret";
 import { InputContext } from "@/contexts/input-context";
 import { Input } from "./ui/input";
 import { cn, getCurrentState, getInputtedArgumentStr } from "@/lib/utils";
+import { Button } from "./ui/button";
 
 function AutocompleteItem({
   name,
-  selected
+  selected,
+  index
 }: {
   name: string
   selected: boolean
+  index: number
 }) {
-  const { value } = useContext(InputContext);
+  const { value, setSelected, complete } = useContext(InputContext);
 
   return (
-    <div className="p-1 rounded-xs text-sm font-[Consolas] data-[selected=true]:bg-muted" data-selected={selected}>
+    <Button
+      variant="ghost"
+      className="block h-fit p-1 rounded-xs text-sm text-left font-[Consolas] cursor-pointer hover:bg-transparent active:bg-muted data-[selected=true]:!bg-muted"
+      data-selected={selected}
+      onClick={() => setSelected(index)}
+      onDoubleClick={() => complete()}>
       <span className="font-bold">{value}</span>
       <span>{name.replace(value, "")}</span>
-    </div>
+    </Button>
   );
 }
 
@@ -43,6 +51,20 @@ export function AutocompleteInput({
   const [selected, setSelected] = useState<number | null>(null); // index
   const isInvisible = value.length === 0 || advisedList.length === 0;
 
+  const complete = async () => {
+    if(!inputRef.current) return;
+
+    const advised = await getCurrentState(setAdvisedList);
+    const cSelected = await getCurrentState(setSelected);
+    const cValue = await getCurrentState(setValue);
+
+    if(cSelected === null) return;
+    
+    const toComplete = advised[cSelected].replace(getInputtedArgumentStr(cValue, inputRef.current.selectionStart ?? 0), "");
+    inputRef.current.value = cValue + toComplete;
+    setValue(cValue + toComplete);
+  };
+
   useEffect(() => {
     setAdvisedList(itemList);
   }, [itemList]);
@@ -52,9 +74,11 @@ export function AutocompleteInput({
     const input = inputRef.current;
     const rect = input.getBoundingClientRect();
 
+    // Set the position of autocomplete container
     setTop(rect.top + rect.height + 2); // y offset 2px
     setLeft(input.offsetLeft + getCaretCoordinates(input, input.selectionStart ?? 0).left);
 
+    // Update advised item list
     const advised = [];
     const cursorPos = input.selectionStart;
     for(const item of itemList) {
@@ -64,6 +88,7 @@ export function AutocompleteInput({
     }
     setAdvisedList(advised);
     
+    // Select the first item by default
     setSelected(advised.length > 0 ? 0 : null);
   }, [value, itemList, inputRef]);
 
@@ -71,15 +96,12 @@ export function AutocompleteInput({
     document.body.addEventListener("keydown", async (e) => {
       const advised = await getCurrentState(setAdvisedList);
       const cSelected = await getCurrentState(setSelected);
-      const cValue = await getCurrentState(setValue);
 
       switch(e.key) {
         case "Tab":
           if(cSelected === null || !inputRef.current) return;
           e.preventDefault();
-          const toComplete = advised[cSelected].replace(getInputtedArgumentStr(cValue, inputRef.current.selectionStart ?? 0), "");
-          inputRef.current.value = cValue + toComplete;
-          setValue(cValue + toComplete);
+          complete();
           break;
         case "ArrowUp":
           if(cSelected === null) return;
@@ -97,7 +119,11 @@ export function AutocompleteInput({
   }, []);
 
   return (
-    <InputContext.Provider value={{ value: getInputtedArgumentStr(value, inputRef.current?.selectionStart ?? 0) }}>
+    <InputContext.Provider value={{
+      value: getInputtedArgumentStr(value, inputRef.current?.selectionStart ?? 0),
+      setSelected,
+      complete
+    }}>
       <Input
         {...props}
         onInput={(e) => {
@@ -108,7 +134,7 @@ export function AutocompleteInput({
       <div
         className={cn("absolute flex flex-col bg-popover min-w-40 w-fit max-h-32 p-1 border rounded-sm overflow-y-auto", isInvisible ? "hidden" : "")}
         style={{ top, left }}>
-        {advisedList.map((item, i) => <AutocompleteItem name={item} selected={selected === i} key={i}/>)}
+        {advisedList.map((item, i) => <AutocompleteItem name={item} selected={selected === i} index={i} key={i}/>)}
       </div>
     </InputContext.Provider>
   );

@@ -6,15 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/common/OPanelServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/common/OPanelServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/terminal/TerminalEndpoint.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/terminal/TerminalEndpoint.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/terminal/TerminalPacket.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/terminal/TerminalPacket.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/FabricServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/FabricServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/terminal/LogListenerManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/terminal/LogListenerManagerImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/app/panel/terminal/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/terminal/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/components/autocomplete-input.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/components/autocomplete-input.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/lib/terminal/client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/terminal/client.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/lib/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/utils.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

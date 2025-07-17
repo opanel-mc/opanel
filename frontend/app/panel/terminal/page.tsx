@@ -43,6 +43,7 @@ export default function Terminal() {
     switch(e.key) {
       case "Enter":
         handleSend();
+        setAutocompleteList([]);
         break;
     }
   };
