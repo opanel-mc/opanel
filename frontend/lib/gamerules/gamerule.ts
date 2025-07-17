@@ -19,7 +19,7 @@ export function generateFormSchema(gamerules: ServerGamerules): z.ZodObject<z.Zo
     schemeList[key] = (
       typeof gamerules[key] === "boolean"
       ? z.boolean()
-      : z.number()
+      : z.number().or(z.string())
     );
   }
   return z.object(schemeList);

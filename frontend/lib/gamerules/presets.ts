@@ -1,4 +1,4 @@
-import { BedDouble, Bomb, BookMarked, BowArrow, Boxes, BugOff, Cat, Clock, ClockFading, CloudSunRain, Flame, Gauge, GitBranch, Handshake, HeartPlus, Hourglass, Link, MapPin, Megaphone, MountainSnow, Radius, ShieldUser, Snowflake, Swords, Trophy, Volume2, Waves, WavesLadder } from "lucide-react";
+import { Axe, BedDouble, Bomb, BookMarked, BowArrow, Boxes, BugOff, Cat, Clock, ClockFading, CloudSunRain, Flame, Gauge, GitBranch, HandCoins, Handshake, HeartMinus, HeartPlus, Hourglass, Link, MapPin, Megaphone, Minimize2, MountainSnow, Pickaxe, Radius, ShieldCheck, Skull, Snowflake, Sprout, Sword, Trophy, Volume2, Waves, WavesLadder } from "lucide-react";
 
 /** @see https://zh.minecraft.wiki/w/%E6%B8%B8%E6%88%8F%E8%A7%84%E5%88%99#%E6%B8%B8%E6%88%8F%E8%A7%84%E5%88%99%E5%88%97%E8%A1%A8 */
 const gamerulePresets = [
@@ -49,7 +49,7 @@ const gamerulePresets = [
     id: "disableRaids",
     name: "禁用袭击",
     type: "boolean",
-    icon: Swords
+    icon: Axe
   },
   {
     id: "doDaylightCycle",
@@ -91,6 +91,7 @@ const gamerulePresets = [
     name: "生物战利品掉落",
     description: "控制生物死亡后是否掉落资源，包括经验球。",
     type: "boolean",
+    icon: Sword
   },
   {
     id: "doMobSpawning",
@@ -103,28 +104,33 @@ const gamerulePresets = [
     id: "doPatrolSpawning",
     name: "生成灾厄巡逻队",
     type: "boolean",
+    icon: Axe
   },
   {
     id: "doTileDrops",
     name: "方块掉落",
     description: "控制破坏方块后是否掉落资源，包括经验球。",
     type: "boolean",
+    icon: Pickaxe
   },
   {
     id: "doTraderSpawning",
     name: "生成流浪商人",
     type: "boolean",
+    icon: HandCoins
   },
   {
     id: "doVinesSpread",
     name: "藤蔓蔓延",
     description: "控制藤蔓方块是否会随机向相邻的方块蔓延。不会影响其他藤蔓类方块（例如垂泪藤和缠怨藤等）。",
     type: "boolean",
+    icon: Sprout
   },
   {
     id: "doWardenSpawning",
     name: "生成监守者",
     type: "boolean",
+    icon: Sword
   },
   {
     id: "doWeatherCycle",
@@ -148,6 +154,7 @@ const gamerulePresets = [
     id: "fallDamage",
     name: "摔落伤害",
     type: "boolean",
+    icon: HeartMinus
   },
   {
     id: "fireDamage",
@@ -179,12 +186,14 @@ const gamerulePresets = [
     id: "keepInventory",
     name: "死亡后保留物品栏",
     type: "boolean",
+    icon: ShieldCheck
   },
   {
     id: "lavaSourceConversion",
     name: "允许流动熔岩转化为熔岩源",
     description: "流动熔岩在两面与熔岩源相邻时转化为熔岩源。",
     type: "boolean",
+    icon: Waves
   },
   {
     id: "locatorBar",
@@ -197,7 +206,7 @@ const gamerulePresets = [
     id: "logAdminCommands",
     name: "通告管理员命令",
     type: "boolean",
-    icon: ShieldUser
+    icon: Megaphone
   },
   {
     id: "maxCommandChainLength",
@@ -217,6 +226,7 @@ const gamerulePresets = [
     id: "maxEntityCramming",
     name: "实体挤压上限",
     type: "number",
+    icon: Minimize2
   },
   {
     id: "minecartMaxSpeed",
@@ -294,6 +304,7 @@ const gamerulePresets = [
     id: "showDeathMessages",
     name: "显示死亡消息",
     type: "boolean",
+    icon: Skull
   },
   {
     id: "snowAccumulationHeight",
@@ -340,6 +351,7 @@ const gamerulePresets = [
     name: "无差别愤怒",
     description: "愤怒的中立生物将攻击附近的所有玩家，而不再限于激怒它们的玩家。禁用“宽恕死亡玩家”可达到最佳效果。",
     type: "boolean",
+    icon: Sword
   },
   {
     id: "waterSourceConversion",

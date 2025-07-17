@@ -14,7 +14,8 @@ import {
   FormDescription,
   FormField,
   FormItem,
-  FormLabel
+  FormLabel,
+  FormMessage
 } from "@/components/ui/form";
 import {
   generateFormSchema,
@@ -24,8 +25,7 @@ import { sendGetRequest } from "@/lib/api";
 import { objectToMap } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
-import { Tooltip, TooltipContent } from "@/components/ui/tooltip";
-import { TooltipTrigger } from "@radix-ui/react-tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import gamerulePresets from "@/lib/gamerules/presets";
 
@@ -35,7 +35,7 @@ export default function Gamerules() {
   const formSchema = useMemo(() => generateFormSchema(serverGamerules), [serverGamerules]);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: serverGamerules
+    values: serverGamerules
   });
 
   const fetchServerGamerules = async () => {
@@ -47,9 +47,17 @@ export default function Gamerules() {
     }
   };
 
-  /** @todo */
-  const handleSubmit = () => {
-
+  const handleSubmit = (data: z.infer<typeof formSchema>) => {
+    // Transform strings to numbers
+    for(const key in data) {
+      const value = data[key];
+      if(typeof value === "string") {
+        data[key] = parseInt(value);
+      }
+    }
+    // Send the change
+    /** @todo */
+    console.log(data);
   };
 
   useEffect(() => {
@@ -59,7 +67,7 @@ export default function Gamerules() {
   return (
     <SubPage title="游戏规则" icon={<PencilRuler />} className="pb-16">
       <Form {...form}>
-        <form className="space-y-5" onSubmit={() => handleSubmit()}>
+        <form className="space-y-5" onSubmit={form.handleSubmit(handleSubmit)}>
           {Array.from(gamerulesMap).map(([key, value]) => {
             const preset = gamerulePresets.find(({ id, type }) => (id === key && typeof value === type));
 
@@ -70,6 +78,8 @@ export default function Gamerules() {
 
             return (
               <FormField
+                /** @see https://github.com/react-hook-form/react-hook-form/issues/10977#issuecomment-1737917718 */
+                defaultValue=""
                 control={form.control}
                 name={key}
                 render={({ field }) => (
@@ -85,6 +95,7 @@ export default function Gamerules() {
                         <TooltipContent>{preset.name}</TooltipContent>
                       </Tooltip>
                       {preset.description && <FormDescription>{preset.description}</FormDescription>}
+                      <FormMessage />
                     </div>
                     <FormControl>
                       {
@@ -93,12 +104,13 @@ export default function Gamerules() {
                           <Switch
                             {...field}
                             defaultChecked={value as boolean}
+                            onCheckedChange={field.onChange}
                             className="cursor-pointer"/>
                         )
                         : (
                           <Input
                             {...field}
-                            defaultValue={value as number}
+                            type="number"
                             className="w-28"/>
                         )
                       }
