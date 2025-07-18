@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import {
   type ColumnDef,
   flexRender,
@@ -96,6 +96,14 @@ export function DataTable<D, V>({
         <div className="flex gap-3 items-center [&>button]:cursor-pointer">
           <Button
             variant="outline"
+            size="icon"
+            title="跳转至第一页"
+            onClick={() => table.firstPage()}
+            disabled={!table.getCanPreviousPage()}>
+            <ChevronsLeft />
+          </Button>
+          <Button
+            variant="outline"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}>
             <ChevronLeft />
@@ -107,6 +115,14 @@ export function DataTable<D, V>({
             disabled={!table.getCanNextPage()}>
             下一页
             <ChevronRight />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            title="跳转至最后一页"
+            onClick={() => table.lastPage()}
+            disabled={!table.getCanNextPage()}>
+            <ChevronsRight />
           </Button>
           <span className="text-muted-foreground text-sm">第 {paginationState.pageIndex + 1} 页 / 共 {table.getPageCount()} 页</span>
         </div>

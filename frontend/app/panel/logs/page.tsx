@@ -1,13 +1,25 @@
 "use client";
 
 import { toast } from "sonner";
-import { ScrollText } from "lucide-react";
+import { ScrollText, Trash2 } from "lucide-react";
 import { SubPage } from "../sub-page";
 import { DataTable } from "@/components/data-table";
 import { columns } from "./columns";
 import { useEffect, useState } from "react";
-import { sendGetRequest } from "@/lib/api";
+import { sendDeleteRequest, sendGetRequest } from "@/lib/api";
 import { LogsResponse } from "@/lib/types";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from "@/components/ui/alert-dialog";
 
 export default function Logs() {
   const [logs, setLogs] = useState<string[]>([]);
@@ -22,12 +34,45 @@ export default function Logs() {
     }
   };
 
+  const handleClearLogs = async () => {
+    try {
+      await sendDeleteRequest("/api/logs");
+      toast.success("已清空除当前日志外的所有日志");
+      window.location.reload();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+      toast.error("清空日志失败");
+    }
+  };
+
   useEffect(() => {
     fetchServerLogs();
   }, []);
 
   return (
-    <SubPage title="日志" icon={<ScrollText />}>
+    <SubPage title="日志" icon={<ScrollText />} className="flex flex-col gap-5">
+      <div className="flex justify-end">
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="destructive"
+              className="cursor-pointer">
+              <Trash2 />
+              清空日志
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>确定要清空所有日志文件吗？</AlertDialogTitle>
+              <AlertDialogDescription>此操作不会清除当前的服务器日志，但被清空的日志文件将不可恢复。</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>取消</AlertDialogCancel>
+              <AlertDialogAction onClick={() => handleClearLogs()}>确定</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
       <DataTable
         columns={columns}
         data={

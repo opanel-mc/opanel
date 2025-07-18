@@ -60,7 +60,21 @@ public class LogsServlet extends BaseServlet {
 
         final String reqPath = req.getPathInfo();
         final Loggable logger = plugin.logger;
-        if(reqPath == null || reqPath.equals("/") || !reqPath.startsWith("/")) {
+        if(reqPath == null || reqPath.equals("/")) {
+            try {
+                for(String fileName : logger.getLogFileList()) {
+                    if(fileName.endsWith(".log.gz")) {
+                        logger.deleteLog(fileName);
+                    }
+                }
+                sendResponse(res, HttpServletResponse.SC_OK);
+            } catch (IOException e) {
+                sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+            }
+            return;
+        }
+
+        if(!reqPath.startsWith("/")) {
             sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
