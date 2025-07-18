@@ -1,9 +1,6 @@
 package net.opanel.utils;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,8 +40,15 @@ public class Utils {
 
     public static String readTextFile(Path filePath) throws IOException {
         StringBuilder sb = new StringBuilder();
-        try(Stream<String> lines = Files.lines(filePath)) {
-            lines.forEach(sb::append);
+        try(
+                FileReader fr = new FileReader(filePath.toString());
+                BufferedReader reader = new BufferedReader(fr)
+        ) {
+            String line;
+            while((line = reader.readLine()) != null) {
+                sb.append(line);
+                sb.append("\n");
+            }
         }
         return sb.toString();
     }
@@ -57,7 +61,11 @@ public class Utils {
                 InputStreamReader isr = new InputStreamReader(gis, StandardCharsets.UTF_8);
                 BufferedReader reader = new BufferedReader(isr)
         ) {
-            reader.lines().forEach(sb::append);
+            String line;
+            while((line = reader.readLine()) != null) {
+                sb.append(line);
+                sb.append("\n");
+            }
         }
         return sb.toString();
     }

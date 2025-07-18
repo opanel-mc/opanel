@@ -41,7 +41,7 @@ public class LogsServlet extends BaseServlet {
             String fileName = reqPath.substring(1);
             try {
                 HashMap<String, Object> obj = new HashMap<>();
-                obj.put("log", logger.getLogContent(fileName).replaceAll("\t", "\n"));
+                obj.put("log", logger.getLogContent(fileName));
                 sendResponse(res, obj);
             } catch (IOException e) {
                 sendResponse(res, HttpServletResponse.SC_NOT_FOUND, e.getMessage());
