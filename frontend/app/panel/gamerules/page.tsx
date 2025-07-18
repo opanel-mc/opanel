@@ -71,7 +71,7 @@ export default function Gamerules() {
   }, []);
   
   return (
-    <SubPage title="游戏规则" icon={<PencilRuler />} className="pb-16">
+    <SubPage title="游戏规则" icon={<PencilRuler />}>
       <Form {...form}>
         <form className="space-y-5" onSubmit={form.handleSubmit(handleSubmit)}>
           {Array.from(gamerulesMap).map(([key, value]) => {

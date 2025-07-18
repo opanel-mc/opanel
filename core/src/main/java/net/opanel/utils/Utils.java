@@ -1,8 +1,16 @@
 package net.opanel.utils;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.Base64;
+import java.util.stream.Stream;
+import java.util.zip.GZIPInputStream;
 
 public class Utils {
     /**
@@ -31,5 +39,26 @@ public class Utils {
     public static String bytesToBase64URL(byte[] bytes) {
         final String base64 = Base64.getEncoder().encodeToString(bytes);
         return "data:image/png;base64,"+ base64; // png by default
+    }
+
+    public static String readTextFile(Path filePath) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        try(Stream<String> lines = Files.lines(filePath)) {
+            lines.forEach(sb::append);
+        }
+        return sb.toString();
+    }
+
+    public static String decompressTextGzip(Path gzipPath) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        try(
+                FileInputStream fis = new FileInputStream(gzipPath.toString());
+                GZIPInputStream gis = new GZIPInputStream(fis);
+                InputStreamReader isr = new InputStreamReader(gis, StandardCharsets.UTF_8);
+                BufferedReader reader = new BufferedReader(isr)
+        ) {
+            reader.lines().forEach(sb::append);
+        }
+        return sb.toString();
     }
 }

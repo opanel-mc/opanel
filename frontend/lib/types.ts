@@ -36,3 +36,11 @@ export interface MonitorResponse {
 export interface GamerulesResponse {
   gamerules: ServerGamerules
 }
+
+// /api/logs
+export interface LogsResponse {
+  logs: string[]
+}
+export interface LogResponse {
+  log: string
+}

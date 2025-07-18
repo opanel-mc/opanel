@@ -7,15 +7,18 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 
 export function SubPage({
   children,
   title,
+  subTitle,
   icon,
   className
 }: Readonly<{
   children?: React.ReactNode
   title: string
+  subTitle?: string
   icon?: React.ReactNode
   className?: string
 }>) {
@@ -29,18 +32,24 @@ export function SubPage({
             <BreadcrumbList>
               <BreadcrumbItem>OPanel</BreadcrumbItem>
               <BreadcrumbSeparator />
+              {subTitle && (
+                <>
+                  <BreadcrumbItem>{title}</BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                </>
+              )}
               <BreadcrumbItem>
-                <BreadcrumbPage>{title}</BreadcrumbPage>
+                <BreadcrumbPage>{subTitle ?? title}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
         </div>
         <div className="flex items-center gap-5">
           {icon}
-          <h1 className="text-3xl font-bold">{title}</h1>
+          <h1 className="text-3xl font-bold">{subTitle ?? title}</h1>
         </div>
       </div>
-      <div className={className}>
+      <div className={cn(className, "pb-16")}>
         {children}
       </div>
     </div>

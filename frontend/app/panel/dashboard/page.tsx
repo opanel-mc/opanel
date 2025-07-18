@@ -20,8 +20,9 @@ export default function Dashboard() {
     try {
       const res = await sendGetRequest<InfoResponse>("/api/info");
       setInfo(res);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
-      toast.error("无法连接到服务器", { description: `错误：${e}` });
+      toast.error("无法连接到服务器");
     }
   };
 
