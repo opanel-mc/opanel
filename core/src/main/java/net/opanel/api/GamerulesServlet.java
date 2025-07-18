@@ -41,6 +41,11 @@ public class GamerulesServlet extends BaseServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        if(!authCookie(req)) {
+            sendResponse(res, HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
         RequestBodyType reqBody = getRequestBody(req, RequestBodyType.class);
         if(reqBody.gamerules == null) {
             sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);

@@ -28,7 +28,7 @@ import {
   FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { sendPostRequest } from "@/lib/api";
+import { sendPostRequestWithoutToken } from "@/lib/api";
 import { minecraftAE } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
 
@@ -50,7 +50,7 @@ export default function Login() {
     const hashedKey = md5(accessKey); // hashed 1
     
     try {
-      const res = await sendPostRequest<{ token: string }>("/api/auth", { accessKey: hashedKey });
+      const res = await sendPostRequestWithoutToken<{ token: string }>("/api/auth", { accessKey: hashedKey });
       setCookie("token", res.token);
       toast.success("登录成功");
       router.push("/panel");

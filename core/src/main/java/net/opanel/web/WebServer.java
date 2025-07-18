@@ -36,7 +36,7 @@ public class WebServer {
         // CORS configuration
         FilterHolder cors = new FilterHolder(new CrossOriginFilter());
         cors.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "http://localhost:3001"); // for dev
-        cors.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET,POST,HEAD,OPTIONS");
+        cors.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "GET,POST,DELETE,HEAD,OPTIONS");
         cors.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM, "X-Requested-With,Content-Type,X-Credential-Token");
         ctx.addFilter(cors, "/*", EnumSet.of(DispatcherType.REQUEST));
 

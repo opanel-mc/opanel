@@ -22,7 +22,7 @@ export async function sendGetRequest<R>(route: string): Promise<APIResponse<R>> 
   })).data as APIResponse<R>;
 }
 
-export async function sendPostRequest<R, T = any>(route: string, body?: T): Promise<APIResponse<R>> {
+export async function sendPostRequestWithoutToken<R, T = any>(route: string, body?: T): Promise<APIResponse<R>> {
   const data = body ? JSON.stringify(body) : "";
   
   return (await axios.request({
@@ -32,4 +32,28 @@ export async function sendPostRequest<R, T = any>(route: string, body?: T): Prom
     headers: { "Content-Type": "text/plain" },
     data
   })).data as APIResponse<R>;
+}
+
+export async function sendPostRequest<R, T = any>(route: string, body?: T): Promise<APIResponse<R>> {
+  const data = body ? JSON.stringify(body) : "";
+  
+  return (await axios.request({
+    method: "post",
+    maxBodyLength: Infinity,
+    url: apiUrl + route,
+    headers: { "Content-Type": "text/plain", "X-Credential-Token": getCookie("token") },
+    data
+  })).data as APIResponse<R>;
+}
+
+export async function sendDeleteRequest<T = any>(route: string, body?: T): Promise<APIResponse<never>> {
+  const data = body ? JSON.stringify(body) : "";
+  
+  return (await axios.request({
+    method: "delete",
+    maxBodyLength: Infinity,
+    url: apiUrl + route,
+    headers: { "Content-Type": "text/plain", "X-Credential-Token": getCookie("token") },
+    data
+  })).data as APIResponse<never>;
 }

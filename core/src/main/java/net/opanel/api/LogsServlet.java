@@ -22,11 +22,6 @@ public class LogsServlet extends BaseServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) {
-        if(req.getMethod().equals("OPTIONS")) {
-            sendResponse(res, HttpServletResponse.SC_OK);
-            return;
-        }
-
         if(!authCookie(req)) {
             sendResponse(res, HttpServletResponse.SC_UNAUTHORIZED);
             return;
@@ -46,7 +41,7 @@ public class LogsServlet extends BaseServlet {
             String fileName = reqPath.substring(1);
             try {
                 HashMap<String, Object> obj = new HashMap<>();
-                obj.put("log", logger.getLogContent(fileName));
+                obj.put("log", logger.getLogContent(fileName).replaceAll("\t", "\n"));
                 sendResponse(res, obj);
             } catch (IOException e) {
                 sendResponse(res, HttpServletResponse.SC_NOT_FOUND, e.getMessage());
@@ -54,5 +49,27 @@ public class LogsServlet extends BaseServlet {
         } else {
             sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
         }
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse res) {
+        if(!authCookie(req)) {
+            sendResponse(res, HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        final String reqPath = req.getPathInfo();
+        final Loggable logger = plugin.logger;
+        if(reqPath == null || reqPath.equals("/") || !reqPath.startsWith("/")) {
+            sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        try {
+            logger.deleteLog(reqPath.substring(1));
+        } catch (IOException e) {
+            sendResponse(res, HttpServletResponse.SC_NOT_FOUND, e.getMessage());
+        }
+        sendResponse(res, HttpServletResponse.SC_OK);
     }
 }

@@ -9,4 +9,5 @@ public interface Loggable {
     void error(String msg);
     List<String> getLogFileList() throws IOException;
     String getLogContent(String fileName) throws IOException;
+    void deleteLog(String fileName) throws IOException;
 }

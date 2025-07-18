@@ -69,4 +69,13 @@ public class LoggerImpl implements Loggable {
         }
         throw new IOException("Unexpected file extension.");
     }
+
+    @Override
+    public void deleteLog(String fileName) throws IOException {
+        final Path filePath = Paths.get(logFolderPath.toString(), fileName);
+        if(!Files.exists(filePath)) {
+            throw new IOException("Cannot find the specified log file.");
+        }
+        Files.delete(filePath);
+    }
 }

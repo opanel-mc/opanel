@@ -108,7 +108,7 @@ export function DataTable<D, V>({
             下一页
             <ChevronRight />
           </Button>
-          <span className="text-muted-foreground text-sm">第 {paginationState.pageIndex} 页 / 共 {table.getPageCount()} 页</span>
+          <span className="text-muted-foreground text-sm">第 {paginationState.pageIndex + 1} 页 / 共 {table.getPageCount()} 页</span>
         </div>
       )}
     </div>
