@@ -10,6 +10,7 @@ import java.io.InputStream;
 public class StaticFileServlet extends BaseServlet {
     private final static String ROOT_PATH = "web";
     private final static String DEFAULT_FILE = "index.html";
+    private final static String DEFAULT_RSC_FILE = "index.txt";
 
     public StaticFileServlet(OPanel plugin) {
         super(plugin);
@@ -29,6 +30,12 @@ public class StaticFileServlet extends BaseServlet {
                             ? (resourcePath + DEFAULT_FILE)
                             : (resourcePath +"/"+ DEFAULT_FILE)
             );
+        }
+
+        /** @see https://github.com/vercel/next.js/discussions/59394 */
+        // Support for next.js RSC files
+        if(reqPath.contains(".txt") && req.getParameter("_rsc") != null) {
+            resourcePath = ROOT_PATH + reqPath.replace(".txt", "/"+ DEFAULT_RSC_FILE);
         }
 
         InputStream stream = getClass().getClassLoader().getResourceAsStream(resourcePath);
@@ -58,6 +65,7 @@ public class StaticFileServlet extends BaseServlet {
         if(fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) return "image/jpeg";
         if(fileName.endsWith(".gif")) return "image/gif";
         if(fileName.endsWith(".svg")) return "image/svg+xml";
+        if(fileName.endsWith(".txt")) return "text/plain";
         return "application/octet-stream";
     }
 }
