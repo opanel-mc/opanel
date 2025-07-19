@@ -24,11 +24,13 @@ export function DataTable<D, V>({
   columns,
   data,
   pagination,
+  fallbackMessage,
   className
 }: {
   columns: ColumnDef<D, V>[]
   data: D[]
   pagination?: boolean
+  fallbackMessage?: string
   className?: string
 }) {
   const [paginationState, setPaginationState] = useState({ pageIndex: 0, pageSize: 10 });
@@ -82,9 +84,9 @@ export function DataTable<D, V>({
                 ))
               )
               : (
-                <TableRow>
+                <TableRow className="hover:bg-transparent">
                   <TableCell colSpan={columns.length} className="h-24 text-center">
-                    No results.
+                    {fallbackMessage ?? "暂无数据"}
                   </TableCell>
                 </TableRow>
               )

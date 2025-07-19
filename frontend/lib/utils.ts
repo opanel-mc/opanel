@@ -76,3 +76,16 @@ export function objectToMap<V>(obj: { [key: string]: V }): Map<string, V> {
   }
   return map;
 }
+
+export function getGameModeText(gamemode: GameMode): string {
+  switch(gamemode) {
+    case GameMode.ADVENTURE:
+      return "冒险";
+    case GameMode.SURVIVAL:
+      return "生存";
+    case GameMode.CREATIVE:
+      return "创造";
+    case GameMode.SPECTATOR:
+      return "旁观";
+  }
+}

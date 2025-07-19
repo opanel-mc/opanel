@@ -4,9 +4,9 @@ import java.net.InetSocketAddress;
 
 public interface OPanelPlayer {
     String getName();
-    String getDisplayName();
     String getUUID();
-    InetSocketAddress getAddress();
+    boolean isOnline();
     boolean isOp();
+    boolean isBanned();
     OPanelGameMode getGameMode();
 }

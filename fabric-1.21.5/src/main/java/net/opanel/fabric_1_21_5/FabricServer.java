@@ -1,24 +1,34 @@
 package net.opanel.fabric_1_21_5;
 
+import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.tree.CommandNode;
 import net.minecraft.command.CommandSource;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtSizeTracker;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.PlayerManager;
 import net.minecraft.server.ServerMetadata;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.UserCache;
+import net.minecraft.util.WorldSavePath;
+import net.minecraft.world.GameMode;
 import net.minecraft.world.GameRules;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelServer;
 import net.opanel.utils.Utils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class FabricServer implements OPanelServer {
     private final MinecraftServer server;
@@ -58,17 +68,42 @@ public class FabricServer implements OPanelServer {
     public List<OPanelPlayer> getOnlinePlayers() {
         List<OPanelPlayer> list = new ArrayList<>();
         List<ServerPlayerEntity> players = server.getPlayerManager().getPlayerList();
-        for(ServerPlayerEntity player : players) {
-            list.add(new FabricPlayer(player));
+        for(ServerPlayerEntity serverPlayer : players) {
+            FabricPlayer player = FabricPlayer.from(serverPlayer);
+            if(player == null) continue;
+
+            list.add(player);
         }
         return list;
     }
 
-    /** @todo */
     @Override
     public List<OPanelPlayer> getPlayers() {
-        List<OPanelPlayer> list = new ArrayList<>();
+        final Path playerDataPath = server.getSavePath(WorldSavePath.PLAYERDATA);
+        // load online players
+        List<OPanelPlayer> list = new ArrayList<>(getOnlinePlayers());
 
+        // load offline players
+        try(Stream<Path> stream = Files.list(playerDataPath)) {
+            stream.filter(item -> !Files.isDirectory(item) && item.toString().endsWith(".dat"))
+                    .forEach(item -> {
+                        try {
+                            final String uuid = item.getFileName().toString().replace(".dat", "");
+                            ServerPlayerEntity serverPlayer = server.getPlayerManager().getPlayer(UUID.fromString(uuid));
+                            if(serverPlayer != null && !serverPlayer.isDisconnected()) return;
+
+                            FabricPlayer player = FabricPlayer.from(server, item, UUID.fromString(uuid));
+                            if(player == null) return;
+
+                            list.add(player);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+        } catch (IOException e) {
+            e.printStackTrace();
+            return list;
+        }
         return list;
     }
 

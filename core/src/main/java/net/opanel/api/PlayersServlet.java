@@ -33,8 +33,10 @@ public class PlayersServlet extends BaseServlet {
             HashMap<String, Object> playerInfo = new HashMap<>();
             playerInfo.put("name", player.getName());
             playerInfo.put("uuid", player.getUUID());
+            playerInfo.put("isOnline", player.isOnline());
             playerInfo.put("isOp", player.isOp());
-            playerInfo.put("gameMode", player.getGameMode().getName());
+            playerInfo.put("isBanned", player.isBanned());
+            playerInfo.put("gamemode", player.getGameMode().getName());
             players.add(playerInfo);
         }
         obj.put("players", players);

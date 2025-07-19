@@ -4,7 +4,25 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="" />
+    <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/InfoServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/InfoServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/PlayersServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/PlayersServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/common/OPanelPlayer.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/common/OPanelPlayer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/WebServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/WebServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.5/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.5/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/FabricPlayer.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/FabricPlayer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/FabricServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/FabricServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/dashboard/players-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/dashboard/players-card.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/logs/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/logs/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/players/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/players/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/sub-page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/sub-page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/components/data-table.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/components/data-table.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/utils.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

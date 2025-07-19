@@ -13,7 +13,6 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.eclipse.jetty.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer;
 
-import java.time.Duration;
 import java.util.EnumSet;
 
 public class WebServer {

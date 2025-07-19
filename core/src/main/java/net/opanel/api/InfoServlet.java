@@ -41,7 +41,7 @@ public class InfoServlet extends BaseServlet {
             playerInfo.put("name", player.getName());
             playerInfo.put("uuid", player.getUUID());
             playerInfo.put("isOp", player.isOp());
-            playerInfo.put("gameMode", player.getGameMode().getName());
+            playerInfo.put("gamemode", player.getGameMode().getName());
             players.add(playerInfo);
         }
         obj.put("onlinePlayers", players);

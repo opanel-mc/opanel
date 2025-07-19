@@ -82,6 +82,7 @@ export default function Logs() {
           }))
         }
         pagination
+        fallbackMessage="暂无日志"
         className="max-h-[500px] overflow-y-auto"/>
     </SubPage>
   );

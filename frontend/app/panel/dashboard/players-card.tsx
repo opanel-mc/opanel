@@ -40,7 +40,7 @@ export function PlayersCard({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {ctx && ctx.onlinePlayers.map(({ name, uuid, isOp, gameMode }, i) => (
+          {ctx && ctx.onlinePlayers.map(({ name, uuid, isOp, gamemode }, i) => (
             <TableRow key={i}>
               <TableCell className="font-semibold">
                 <Tooltip>
@@ -48,7 +48,7 @@ export function PlayersCard({
                   <TooltipContent>{uuid}</TooltipContent>
                 </Tooltip>
               </TableCell>
-              <TableCell className="text-center">{gameModeToString(gameMode)}</TableCell>
+              <TableCell className="text-center">{gameModeToString(gamemode)}</TableCell>
               <TableCell className="[&>svg]:float-right">
                 {
                   isOp

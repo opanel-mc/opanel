@@ -1,3 +1,4 @@
+import { Player } from "@/app/panel/players/columns";
 import type { ServerGamerules } from "./gamerules/gamerule";
 
 export type APIResponse<T> = {
@@ -22,7 +23,7 @@ export interface InfoResponse {
     name: string
     uuid: string
     isOp: boolean
-    gameMode: GameMode
+    gamemode: GameMode
   }[]
 }
 
@@ -43,4 +44,9 @@ export interface LogsResponse {
 }
 export interface LogResponse {
   log: string
+}
+
+// /api/players
+export interface PlayersResponse {
+  players: Player[]
 }
