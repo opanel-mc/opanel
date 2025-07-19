@@ -10,6 +10,7 @@ public interface OPanelServer {
     int getPort();
     List<OPanelPlayer> getOnlinePlayers();
     List<OPanelPlayer> getPlayers();
+    int getMaxPlayerCount();
     OPanelPlayer getPlayer(String name);
     void sendServerCommand(String command);
     List<String> getCommands();

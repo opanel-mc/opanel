@@ -108,6 +108,11 @@ public class FabricServer implements OPanelServer {
     }
 
     @Override
+    public int getMaxPlayerCount() {
+        return server.getMaxPlayerCount();
+    }
+
+    @Override
     public OPanelPlayer getPlayer(String name) {
         for(OPanelPlayer player : getPlayers()) {
             if(player.getName().equals(name)) {

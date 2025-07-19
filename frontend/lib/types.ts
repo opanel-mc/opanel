@@ -19,6 +19,7 @@ export interface InfoResponse {
   motd: string
   ip: string
   port: number
+  maxPlayerCount: number
   onlinePlayers: {
     name: string
     uuid: string
@@ -48,5 +49,6 @@ export interface LogResponse {
 
 // /api/players
 export interface PlayersResponse {
+  maxPlayerCount: number
   players: Player[]
 }

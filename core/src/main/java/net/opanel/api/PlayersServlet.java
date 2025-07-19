@@ -28,6 +28,8 @@ public class PlayersServlet extends BaseServlet {
         final OPanelServer server = plugin.getServer();
 
         HashMap<String, Object> obj = new HashMap<>();
+        obj.put("maxPlayerCount", server.getMaxPlayerCount());
+
         List<HashMap<String, Object>> players = new ArrayList<>();
         for(OPanelPlayer player : server.getPlayers()) {
             HashMap<String, Object> playerInfo = new HashMap<>();

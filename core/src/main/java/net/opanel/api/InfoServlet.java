@@ -34,6 +34,7 @@ public class InfoServlet extends BaseServlet {
         obj.put("motd", Base64.getEncoder().encodeToString(server.getMotd().getBytes(StandardCharsets.UTF_8)));
         obj.put("ip", server.getIP());
         obj.put("port", server.getPort());
+        obj.put("maxPlayerCount", server.getMaxPlayerCount());
 
         List<HashMap<String, Object>> players = new ArrayList<>();
         for(OPanelPlayer player : server.getOnlinePlayers()) {
