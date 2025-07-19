@@ -8,6 +8,7 @@ import {
   useState
 } from "react";
 import { ArrowUp, SquareTerminal, Trash2, X } from "lucide-react";
+import { toast } from "sonner";
 import { SubPage } from "../sub-page";
 import { useTerminal } from "@/hooks/use-terminal";
 import { TerminalConnector } from "@/components/terminal-connector";
@@ -15,13 +16,21 @@ import { Button } from "@/components/ui/button";
 import { AutocompleteInput } from "@/components/autocomplete-input";
 import { getCurrentArgumentNumber } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
-import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import { defaultLogLevel, type ConsoleLogLevel } from "@/lib/terminal/log-levels";
 
 export default function Terminal() {
   const client = useTerminal();
   const inputRef = useRef<HTMLInputElement>(null);
   const [autocompleteList, setAutocompleteList] = useState<string[]>([]);
   const [historyList, setHistoryList] = useState<string[]>([]);
+  const [logLevel, setLogLevel] = useState(defaultLogLevel);
 
   const handleClear = () => {
     if(!inputRef.current) return;
@@ -78,8 +87,20 @@ export default function Terminal() {
   return (
     <SubPage title="后台" icon={<SquareTerminal />} className="grid grid-cols-5 gap-3">
       <div className="h-[500px] max-h-[500px] col-span-4 flex flex-col gap-3">
-        <TerminalConnector client={client} className="flex-1"/>
-        <div className="flex gap-1">
+        <TerminalConnector client={client} level={logLevel} className="flex-1"/>
+        <div className="flex gap-2">
+          <Select
+            defaultValue={defaultLogLevel}
+            onValueChange={(value) => setLogLevel(value as ConsoleLogLevel)}>
+            <SelectTrigger className="w-24 font-[Consolas]" title="日志等级">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="font-[Consolas]">
+              <SelectItem value="INFO">INFO</SelectItem>
+              <SelectItem value="WARN">WARN</SelectItem>
+              <SelectItem value="ERROR">ERROR</SelectItem>
+            </SelectContent>
+          </Select>
           <AutocompleteInput
             className="flex-1 w-full rounded-sm font-[Consolas]"
             placeholder="发送消息 / 指令..."

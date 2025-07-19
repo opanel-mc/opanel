@@ -1,9 +1,10 @@
+import type { ConsoleLogLevel } from "./log-levels";
 import { toast } from "sonner";
 import { wsUrl } from "../api";
 
 export interface ConsoleLog {
   time: number
-  level: "INFO" | "WARN" | "ERROR" | "FATAL" | "DEBUG" | "TRACE"
+  level: ConsoleLogLevel
   thread: string
   source: string
   line: string
