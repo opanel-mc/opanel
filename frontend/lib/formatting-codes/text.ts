@@ -14,14 +14,20 @@ function purify(text: string): string {
 /**
  * Parses a Minecraft text string with formatting codes into HTML elements.
  */
-export function parseText(text: string): HTMLSpanElement {
+export function parseText(text: string, maxLines = 1): HTMLSpanElement {
   const pure = purify(text);
   const root = document.createElement("span");
   root.className = "cc-root";
   let currentNode = root;
+  let lines = 1;
 
   for(let i = 0; i < pure.length; i++) {
     const char = pure[i];
+    if(char === "\n" && lines < maxLines) { // new line
+      currentNode.appendChild(document.createElement("br"));
+      lines++;
+      continue;
+    }
     if(char === secSign) {
       const code = pure[i + 1];
 

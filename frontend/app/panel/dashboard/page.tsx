@@ -9,7 +9,6 @@ import { InfoContext } from "@/contexts/api-context";
 import { sendGetRequest } from "@/lib/api";
 import { InfoCard } from "./info-card";
 import { PlayersCard } from "./players-card";
-import { RecommendedCard } from "./recommended-card";
 import { MonitorCard } from "./monitor-card";
 import { TerminalCard } from "./terminal-card";
 
@@ -33,9 +32,8 @@ export default function Dashboard() {
   return (
     <SubPage title="仪表盘" icon={<Gauge />} className="h-[500px] grid grid-rows-3 grid-cols-3 gap-3 pb-20 [&>*]:p-4">
       <InfoContext.Provider value={info}>
-        <InfoCard className="row-start-1"/>
+        <InfoCard className="row-start-1 col-span-2"/>
         <PlayersCard className="row-span-2 row-start-2"/>
-        <RecommendedCard className="row-start-1"/>
         <MonitorCard className="row-span-2 row-start-2"/>
         <TerminalCard className="row-span-3 rounded-md"></TerminalCard>
       </InfoContext.Provider>

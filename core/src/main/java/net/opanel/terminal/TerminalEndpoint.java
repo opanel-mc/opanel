@@ -19,7 +19,7 @@ public class TerminalEndpoint {
     private final Loggable logger;
     private final LogListenerManager logListenerManager;
 
-    private final Set<Session> sessions = new HashSet<>();
+    private static final Set<Session> sessions = new HashSet<>();
 
     public TerminalEndpoint(OPanel plugin) {
         this.plugin = plugin;
@@ -99,6 +99,13 @@ public class TerminalEndpoint {
         sessions.forEach(session -> {
             sendMessage(session, packet);
         });
+    }
+
+    public static void closeAllSessions() throws IOException {
+        for(Session session : sessions) {
+            session.close(new CloseReason(CloseReason.CloseCodes.getCloseCode(1000), "Server is stopping."));
+        }
+        sessions.clear();
     }
 
     public static class Configurator extends ServerEndpointConfig.Configurator {

@@ -23,6 +23,7 @@ public class Main implements DedicatedServerModInitializer {
         initLogListenerAppender();
 
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStart);
+        ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStop);
     }
 
     private void initLogListenerAppender() {
@@ -41,5 +42,9 @@ public class Main implements DedicatedServerModInitializer {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void onServerStop(MinecraftServer server) {
+        instance.stop();
     }
 }

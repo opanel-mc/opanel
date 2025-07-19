@@ -44,4 +44,12 @@ public class OPanel {
     public LogListenerManager getLogListenerManager() {
         return logListenerManager;
     }
+
+    public void stop() {
+        try {
+            webServer.stop();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

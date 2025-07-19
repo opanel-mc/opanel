@@ -5,9 +5,11 @@ import { cn } from "@/lib/utils";
 import { minecraftAE } from "@/lib/fonts";
 
 export function MinecraftText({
+  maxLines,
   children,
   className
 }: {
+  maxLines?: number
   children: string
   className?: string
 }) {
@@ -16,10 +18,10 @@ export function MinecraftText({
   useEffect(() => {
     if(!containerRef.current) return;
     containerRef.current.innerHTML = "";
-    containerRef.current.appendChild(parseText(children));
+    containerRef.current.appendChild(parseText(children, maxLines));
 
     enableObfuscate(containerRef.current);
-  }, [children]);
+  }, [children, maxLines]);
 
   return <div className={cn(className, minecraftAE.className)} ref={containerRef}/>;
 }

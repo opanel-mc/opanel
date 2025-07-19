@@ -166,4 +166,15 @@ public class FabricServer implements OPanelServer {
             }
         });
     }
+
+    @Override
+    public void reload() {
+        // directly execute /reload
+        server.getCommandManager().executeWithPrefix(server.getCommandSource(), "reload");
+    }
+
+    @Override
+    public void stop() {
+        server.stop(false);
+    }
 }

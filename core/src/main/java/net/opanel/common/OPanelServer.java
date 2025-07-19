@@ -15,4 +15,6 @@ public interface OPanelServer {
     List<String> getCommands();
     HashMap<String, Object> getGamerules();
     void setGamerules(HashMap<String, Object> gamerules);
+    void reload();
+    void stop();
 }

@@ -11,8 +11,10 @@ import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.eclipse.jetty.util.component.LifeCycle;
 import org.eclipse.jetty.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer;
 
+import java.io.IOException;
 import java.util.EnumSet;
 
 public class WebServer {
@@ -58,6 +60,7 @@ public class WebServer {
         // API
         ctx.addServlet(new ServletHolder(new AuthServlet(plugin)), AuthServlet.route);
         ctx.addServlet(new ServletHolder(new InfoServlet(plugin)), InfoServlet.route);
+        ctx.addServlet(new ServletHolder(new ControlServlet(plugin)), ControlServlet.route);
         ctx.addServlet(new ServletHolder(new IconServlet(plugin)), IconServlet.route);
         ctx.addServlet(new ServletHolder(new PlayersServlet(plugin)), PlayersServlet.route);
         ctx.addServlet(new ServletHolder(new MonitorServlet(plugin)), MonitorServlet.route);
@@ -68,5 +71,21 @@ public class WebServer {
 
         server.start();
         plugin.logger.info("Web server is ready on port "+ PORT);
+
+        server.addEventListener(new LifeCycle.Listener() {
+            @Override
+            public void lifeCycleStopping(LifeCycle event) {
+                try {
+                    TerminalEndpoint.closeAllSessions();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public void stop() throws Exception {
+        server.stop();
+        plugin.logger.info("Web server is stopped.");
     }
 }

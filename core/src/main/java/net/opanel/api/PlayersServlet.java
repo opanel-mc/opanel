@@ -75,7 +75,7 @@ public class PlayersServlet extends BaseServlet {
         }
 
         final OPanelPlayer player = server.getPlayer(uuid);
-        switch (reqPath.substring(1)) {
+        switch(reqPath.substring(1)) {
             case "op" -> player.giveOp();
             case "deop" -> player.depriveOp();
             case "kick" -> {
