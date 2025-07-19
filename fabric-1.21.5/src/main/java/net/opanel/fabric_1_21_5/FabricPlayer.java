@@ -1,148 +1,93 @@
 package net.opanel.fabric_1_21_5;
 
 import com.mojang.authlib.GameProfile;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.NbtSizeTracker;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.BannedPlayerEntry;
+import net.minecraft.server.BannedPlayerList;
 import net.minecraft.server.PlayerManager;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import net.minecraft.util.UserCache;
-import net.minecraft.util.WorldSavePath;
 import net.minecraft.world.GameMode;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
-import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.nio.file.Path;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.Date;
 
 public class FabricPlayer implements OPanelPlayer {
-    private String name;
-    private String uuid;
-    private boolean isOnline;
-    private boolean isOp;
-    private boolean isBanned;
-    private OPanelGameMode gamemode;
+    private final ServerPlayerEntity player;
+    private final PlayerManager playerManager;
+    private final GameProfile profile;
 
-    private FabricPlayer() {}
-
-    @Nullable
-    public static FabricPlayer from(ServerPlayerEntity serverPlayer) {
-        if(serverPlayer == null) return null;
-
-        FabricPlayer player = new FabricPlayer();
-        player.setName(serverPlayer.getName().getString());
-        player.setUUID(serverPlayer.getUuidAsString());
-        player.setIsOnline(true);
-        player.setIsOp(serverPlayer.hasPermissionLevel(2));
-        player.setIsBanned(false);
-        GameMode gamemode = serverPlayer.getGameMode();
-        switch(gamemode) {
-            case ADVENTURE -> player.setGameMode(OPanelGameMode.ADVENTURE);
-            case SURVIVAL -> player.setGameMode(OPanelGameMode.SURVIVAL);
-            case CREATIVE -> player.setGameMode(OPanelGameMode.CREATIVE);
-            case SPECTATOR -> player.setGameMode(OPanelGameMode.SPECTATOR);
-        }
-        return player;
-    }
-
-    @Nullable
-    public static FabricPlayer from(MinecraftServer server, Path playerDataPath, UUID uuid) throws IOException {
-        final UserCache userCache = server.getUserCache();
-        final PlayerManager playerManager = server.getPlayerManager();
-
-        if(userCache == null) return null;
-
-        ServerPlayerEntity serverPlayer = playerManager.getPlayer(uuid);
-        if(serverPlayer != null && !serverPlayer.isDisconnected()) {
-            return FabricPlayer.from(serverPlayer);
-        }
-
-        FabricPlayer player = new FabricPlayer();
-        player.setUUID(uuid);
-
-        Optional<GameProfile> profileOpt = userCache.getByUuid(uuid);
-        if(profileOpt.isEmpty()) return null;
-
-        GameProfile profile = profileOpt.get();
-        player.setName(profile.getName());
-        player.setIsOp(playerManager.isOperator(profile));
-        player.setIsBanned(playerManager.getUserBanList().contains(profile));
-
-        NbtCompound nbt = NbtIo.readCompressed(playerDataPath, NbtSizeTracker.of(2097152L));
-        int gamemodeId = nbt.getInt("playerGameType", 0);
-        GameMode gamemode = GameMode.byIndex(gamemodeId);
-        switch(gamemode) {
-            case ADVENTURE -> player.setGameMode(OPanelGameMode.ADVENTURE);
-            case SURVIVAL -> player.setGameMode(OPanelGameMode.SURVIVAL);
-            case CREATIVE -> player.setGameMode(OPanelGameMode.CREATIVE);
-            case SPECTATOR -> player.setGameMode(OPanelGameMode.SPECTATOR);
-        }
-        return player;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setUUID(UUID uuid) {
-        setUUID(uuid.toString());
-    }
-
-    public void setUUID(String uuid) {
-        this.uuid = uuid;
-    }
-
-    public void setIsOnline(boolean isOnline) {
-        this.isOnline = isOnline;
-    }
-
-    public void setIsOp(boolean isOp) {
-        this.isOp = isOp;
-    }
-
-    public void setIsBanned(boolean isBanned) {
-        this.isBanned = isBanned;
-    }
-
-    public void setGameMode(OPanelGameMode gamemode) {
-        this.gamemode = gamemode;
+    public FabricPlayer(ServerPlayerEntity player) {
+        this.player = player;
+        playerManager = player.getServer().getPlayerManager();
+        profile = player.getGameProfile();
     }
 
     @Override
     public String getName() {
-        return name;
+        if(player == null) return "";
+        return player.getName().getString();
     }
 
     @Override
     public String getUUID() {
-        return uuid;
+        if(player == null) return null;
+        return player.getUuidAsString();
     }
 
     @Override
     public boolean isOnline() {
-        return isOnline;
+        return true;
     }
 
     @Override
     public boolean isOp() {
-        return isOp;
+        if(player == null) return false;
+
+        return playerManager.isOperator(profile);
     }
 
     @Override
     public boolean isBanned() {
-        return isBanned;
+        return false;
     }
 
     @Override
     public OPanelGameMode getGameMode() {
-        return gamemode;
+        if(player == null) return null;
+
+        GameMode gamemode = player.getGameMode();
+        switch(gamemode) {
+            case ADVENTURE -> { return OPanelGameMode.ADVENTURE; }
+            case SURVIVAL -> { return OPanelGameMode.SURVIVAL; }
+            case CREATIVE -> { return OPanelGameMode.CREATIVE; }
+            case SPECTATOR -> { return OPanelGameMode.SPECTATOR; }
+        }
+        return null;
+    }
+
+    @Override
+    public void giveOp() {
+        if(isOp()) return;
+        playerManager.addToOperators(profile);
+    }
+
+    @Override
+    public void depriveOp() {
+        if(!isOp()) return;
+        playerManager.removeFromOperators(profile);
+    }
+
+    @Override
+    public void kick(String reason) {
+        player.networkHandler.disconnect(Text.of(reason));
+    }
+
+    @Override
+    public void ban(String reason) {
+        BannedPlayerList bannedList = playerManager.getUserBanList();
+        BannedPlayerEntry entry = new BannedPlayerEntry(profile, new Date(), null, null, reason);
+        bannedList.add(entry);
+        kick(reason);
     }
 }

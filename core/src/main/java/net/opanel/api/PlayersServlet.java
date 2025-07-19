@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class PlayersServlet extends BaseServlet {
-    public static final String route = "/api/players";
+    public static final String route = "/api/players/*";
 
     public PlayersServlet(OPanel plugin) {
         super(plugin);
@@ -25,7 +25,13 @@ public class PlayersServlet extends BaseServlet {
             return;
         }
 
+        final String reqPath = req.getPathInfo();
         final OPanelServer server = plugin.getServer();
+
+        if(reqPath != null && !reqPath.equals("/")) {
+            sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
 
         HashMap<String, Object> obj = new HashMap<>();
         obj.put("maxPlayerCount", server.getMaxPlayerCount());
@@ -44,5 +50,44 @@ public class PlayersServlet extends BaseServlet {
         obj.put("players", players);
 
         sendResponse(res, obj);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse res) {
+        if(!authCookie(req)) {
+            sendResponse(res, HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        final String reqPath = req.getPathInfo();
+        final OPanelServer server = plugin.getServer();
+
+        if(reqPath == null || reqPath.equals("/")) {
+            sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        String uuid = req.getParameter("uuid");
+        String reason = req.getParameter("r"); // only for `kick` and `ban`
+        if(uuid == null) {
+            sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        final OPanelPlayer player = server.getPlayer(uuid);
+        switch (reqPath.substring(1)) {
+            case "op" -> player.giveOp();
+            case "deop" -> player.depriveOp();
+            case "kick" -> {
+                if(!player.isOnline()) {
+                    sendResponse(res, HttpServletResponse.SC_FORBIDDEN);
+                    return;
+                }
+                player.kick(reason);
+            }
+            case "ban" -> player.ban(reason);
+        }
+
+        sendResponse(res, HttpServletResponse.SC_OK);
     }
 }

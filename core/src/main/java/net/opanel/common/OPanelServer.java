@@ -1,7 +1,6 @@
 package net.opanel.common;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public interface OPanelServer {
     byte[] getFavicon();
@@ -11,7 +10,7 @@ public interface OPanelServer {
     List<OPanelPlayer> getOnlinePlayers();
     List<OPanelPlayer> getPlayers();
     int getMaxPlayerCount();
-    OPanelPlayer getPlayer(String name);
+    OPanelPlayer getPlayer(String uuid);
     void sendServerCommand(String command);
     List<String> getCommands();
     HashMap<String, Object> getGamerules();

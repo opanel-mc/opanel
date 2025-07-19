@@ -1,7 +1,5 @@
 package net.opanel.common;
 
-import java.net.InetSocketAddress;
-
 public interface OPanelPlayer {
     String getName();
     String getUUID();
@@ -9,4 +7,8 @@ public interface OPanelPlayer {
     boolean isOp();
     boolean isBanned();
     OPanelGameMode getGameMode();
+    void giveOp();
+    void depriveOp();
+    void kick(String reason);
+    void ban(String reason);
 }

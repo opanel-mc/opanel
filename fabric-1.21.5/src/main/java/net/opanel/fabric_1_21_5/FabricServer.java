@@ -69,9 +69,7 @@ public class FabricServer implements OPanelServer {
         List<OPanelPlayer> list = new ArrayList<>();
         List<ServerPlayerEntity> players = server.getPlayerManager().getPlayerList();
         for(ServerPlayerEntity serverPlayer : players) {
-            FabricPlayer player = FabricPlayer.from(serverPlayer);
-            if(player == null) continue;
-
+            FabricPlayer player = new FabricPlayer(serverPlayer);
             list.add(player);
         }
         return list;
@@ -87,18 +85,12 @@ public class FabricServer implements OPanelServer {
         try(Stream<Path> stream = Files.list(playerDataPath)) {
             stream.filter(item -> !Files.isDirectory(item) && item.toString().endsWith(".dat"))
                     .forEach(item -> {
-                        try {
-                            final String uuid = item.getFileName().toString().replace(".dat", "");
-                            ServerPlayerEntity serverPlayer = server.getPlayerManager().getPlayer(UUID.fromString(uuid));
-                            if(serverPlayer != null && !serverPlayer.isDisconnected()) return;
+                        final String uuid = item.getFileName().toString().replace(".dat", "");
+                        ServerPlayerEntity serverPlayer = server.getPlayerManager().getPlayer(UUID.fromString(uuid));
+                        if(serverPlayer != null && !serverPlayer.isDisconnected()) return;
 
-                            FabricPlayer player = FabricPlayer.from(server, item, UUID.fromString(uuid));
-                            if(player == null) return;
-
-                            list.add(player);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        FabricOfflinePlayer player = new FabricOfflinePlayer(server, item, UUID.fromString(uuid));
+                        list.add(player);
                     });
         } catch (IOException e) {
             e.printStackTrace();
@@ -113,9 +105,9 @@ public class FabricServer implements OPanelServer {
     }
 
     @Override
-    public OPanelPlayer getPlayer(String name) {
+    public OPanelPlayer getPlayer(String uuid) {
         for(OPanelPlayer player : getPlayers()) {
-            if(player.getName().equals(name)) {
+            if(player.getUUID().equals(uuid)) {
                 return player;
             }
         }
