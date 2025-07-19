@@ -34,7 +34,7 @@ public class StaticFileServlet extends BaseServlet {
 
         /** @see https://github.com/vercel/next.js/discussions/59394 */
         // Support for next.js RSC files
-        if(reqPath.contains(".txt") && req.getParameter("_rsc") != null) {
+        if(reqPath.contains(".txt") && !reqPath.contains(DEFAULT_RSC_FILE) && req.getParameter("_rsc") != null) {
             resourcePath = ROOT_PATH + reqPath.replace(".txt", "/"+ DEFAULT_RSC_FILE);
         }
 
