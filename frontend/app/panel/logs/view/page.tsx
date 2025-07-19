@@ -2,12 +2,15 @@
 
 import type { LogResponse } from "@/lib/types";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Download, Trash2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import Editor, { type OnMount } from "@monaco-editor/react";
 import { useTheme } from "next-themes";
 import { SubPage } from "@/app/panel/sub-page";
 import { sendGetRequest } from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import { deleteLog, downloadLog } from "../log-utils";
 
 export default function LogView() {
   const searchParams = useSearchParams();
@@ -43,6 +46,30 @@ export default function LogView() {
 
   return (
     <SubPage title="日志" subTitle={log ?? ""}>
+      <div className="mb-3 flex justify-between items-center">
+        <span className="text-sm text-muted-foreground">
+          文件类型：{log?.endsWith(".log.gz") ? "gzip (已解压)" : "log"}
+        </span>
+        <div className="[&>*]:cursor-pointer">
+          <Button
+            variant="ghost"
+            size="icon"
+            title="下载日志"
+            onClick={() => downloadLog(log ?? "")}>
+            <Download />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            title="删除日志"
+            onClick={async () => {
+              await deleteLog(log ?? "");
+              push("/panel/logs");
+            }}>
+            <Trash2 />
+          </Button>
+        </div>
+      </div>
       <Editor
         height="500px"
         defaultLanguage="txt"

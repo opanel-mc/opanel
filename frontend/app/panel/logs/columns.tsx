@@ -1,11 +1,8 @@
 import type { ColumnDef } from "@tanstack/react-table"
-import type { LogResponse } from "@/lib/types";
 import Link from "next/link";
-import download from "downloadjs";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Download, Trash2 } from "lucide-react";
-import { sendDeleteRequest, sendGetRequest } from "@/lib/api";
+import { deleteLog, downloadLog } from "./log-utils";
 
 export interface Log {
   name: string
@@ -46,16 +43,9 @@ export const columns: ColumnDef<Log>[] = [
           variant="ghost"
           size="icon"
           title="下载日志"
-          onClick={async () => {
+          onClick={() => {
             const name = row.getValue<string>("name") ?? "";
-            const fileName = name.endsWith(".log.gz") ? name.replace(".log.gz", ".log") : name;
-            try {
-              const res = await sendGetRequest<LogResponse>(`/api/logs/${name}`);
-              download(res.log, fileName, "text/plain");
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            } catch (e) {
-              toast.error("下载失败", { description: `无法下载日志${fileName}` });
-            }
+            downloadLog(name);
           }}>
           <Download />
         </Button>
@@ -65,14 +55,8 @@ export const columns: ColumnDef<Log>[] = [
           title="删除日志"
           onClick={async () => {
             const name = row.getValue<string>("name") ?? "";
-            try {
-              await sendDeleteRequest(`/api/logs/${name}`);
-              toast.success("删除成功");
-              window.location.reload();
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            } catch (e) {
-              toast.error("删除失败");
-            }
+            await deleteLog(name);
+            window.location.reload();
           }}>
           <Trash2 />
         </Button>
