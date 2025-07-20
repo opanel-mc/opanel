@@ -45,6 +45,7 @@ public class PlayersServlet extends BaseServlet {
             playerInfo.put("isOp", player.isOp());
             playerInfo.put("isBanned", player.isBanned());
             playerInfo.put("gamemode", player.getGameMode().getName());
+            playerInfo.put("banReason", player.getBanReason());
             players.add(playerInfo);
         }
         obj.put("players", players);
@@ -86,6 +87,7 @@ public class PlayersServlet extends BaseServlet {
                 player.kick(reason);
             }
             case "ban" -> player.ban(reason);
+            case "pardon" -> player.pardon();
         }
 
         sendResponse(res, HttpServletResponse.SC_OK);

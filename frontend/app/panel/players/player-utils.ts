@@ -37,3 +37,12 @@ export async function ban(uuid: string, reason?: string) {
     toast.error("无法封禁该玩家");
   }
 }
+
+export async function pardon(uuid: string) {
+  try {
+    await sendPostRequest(`/api/players/pardon?uuid=${uuid}`);
+    toast.success("已解封该玩家");
+  } catch (e) {
+    toast.error("无法解封该玩家");
+  }
+}

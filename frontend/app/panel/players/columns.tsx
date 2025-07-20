@@ -1,13 +1,19 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { GameMode } from "@/lib/types";
-import { Ban, BrushCleaning, Check, ShieldBan, ShieldUser } from "lucide-react";
+import { Ban, BrushCleaning, Check, ShieldBan, ShieldOff, ShieldUser } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn, getGameModeText } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
-import { ban, depriveOp, giveOp, kick } from "./player-utils";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger
+} from "@/components/ui/context-menu";
+import { ban, depriveOp, giveOp, kick, pardon } from "./player-utils";
 import { Prompt } from "@/components/prompt";
+import { skinUrl } from "@/lib/api";
 
 export interface Player {
   name: string
@@ -16,6 +22,7 @@ export interface Player {
   isOp: boolean
   isBanned: boolean
   gamemode?: GameMode
+  banReason?: string
 }
 
 export const playerColumns: ColumnDef<Player>[] = [
@@ -23,13 +30,17 @@ export const playerColumns: ColumnDef<Player>[] = [
     accessorKey: "name",
     header: "玩家名",
     cell: ({ row }) => {
+      const name = row.getValue<string>("name");
       const uuid = row.getValue<string>("uuid");
       return (
         <ContextMenu>
           <ContextMenuTrigger>
             <Tooltip>
               <TooltipTrigger>
-                <span className="font-semibold">{row.getValue("name")}</span>
+                <div className="flex items-center gap-2">
+                  <img src={skinUrl + name} alt={name} width={17} height={17}/>
+                  <span className="font-semibold">{name}</span>
+                </div>
               </TooltipTrigger>
               <TooltipContent>{uuid}</TooltipContent>
             </Tooltip>
@@ -64,11 +75,6 @@ export const playerColumns: ColumnDef<Player>[] = [
     }
   },
   {
-    accessorKey: "uuid",
-    header: "",
-    cell: ""
-  },
-  {
     accessorKey: "isOnline",
     header: () => <div className="text-center">状态</div>,
     cell: ({ row }) => {
@@ -82,6 +88,11 @@ export const playerColumns: ColumnDef<Player>[] = [
         </div>
       );
     }
+  },
+  {
+    accessorKey: "uuid",
+    header: "",
+    cell: ""
   },
   {
     accessorKey: "gamemode",
@@ -156,9 +167,30 @@ export const bannedColumns: ColumnDef<Player>[] = [
   {
     accessorKey: "name",
     header: "玩家名",
-    cell: ({ row }) => (
-      <span className="font-semibold">{row.getValue("name")}</span>
-    )
+    cell: ({ row }) => {
+      const name = row.getValue<string>("name");
+      const uuid = row.getValue<string>("uuid");
+      return (
+        <Tooltip>
+          <TooltipTrigger>
+            <div className="flex items-center gap-2">
+              <img src={skinUrl + name} alt={name} width={17} height={17}/>
+              <span className="font-semibold">{name}</span>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>{uuid}</TooltipContent>
+        </Tooltip>
+      );
+    }
+  },
+  {
+    accessorKey: "banReason",
+    header: "封禁原因"
+  },
+  {
+    accessorKey: "uuid",
+    header: "",
+    cell: ""
   },
   {
     accessorKey: "isOp",
@@ -174,8 +206,21 @@ export const bannedColumns: ColumnDef<Player>[] = [
   },
   {
     header: " ",
-    cell: () => {
-      /** @todo */
+    cell: ({ row }) => {
+      const uuid = row.getValue<string>("uuid");
+      return (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="float-right h-4 cursor-pointer hover:!bg-transparent"
+          title="解除封禁"
+          onClick={async () => {
+            await pardon(uuid);
+            window.location.reload();
+          }}>
+          <ShieldOff className="stroke-green-600"/>
+        </Button>
+      );
     }
   }
 ];

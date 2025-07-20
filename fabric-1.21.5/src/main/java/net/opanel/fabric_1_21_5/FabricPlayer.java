@@ -90,4 +90,10 @@ public class FabricPlayer implements OPanelPlayer {
         bannedList.add(entry);
         kick(reason);
     }
+
+    @Override
+    public String getBanReason() { return null; }
+
+    @Override
+    public void pardon() { }
 }

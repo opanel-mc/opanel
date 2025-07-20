@@ -118,4 +118,16 @@ public class FabricOfflinePlayer implements OPanelPlayer {
         BannedPlayerEntry entry = new BannedPlayerEntry(profile, new Date(), null, null, reason);
         bannedList.add(entry);
     }
+
+    @Override
+    public String getBanReason() {
+        if(!isBanned()) return null;
+        return playerManager.getUserBanList().get(profile).getReason();
+    }
+
+    @Override
+    public void pardon() {
+        if(!isBanned()) return;
+        playerManager.getUserBanList().remove(profile);
+    }
 }

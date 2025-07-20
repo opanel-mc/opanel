@@ -14,6 +14,9 @@ export const wsUrl = (
   : `ws://${window.location.host}`
 );
 
+/** @see https://mineskin.eu */
+export const skinUrl = "https://mineskin.eu/helm/";
+
 export async function sendGetRequest<R>(route: string): Promise<APIResponse<R>> {
   return (await axios.request({
     method: "get",

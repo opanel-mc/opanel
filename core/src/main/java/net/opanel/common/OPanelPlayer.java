@@ -11,4 +11,6 @@ public interface OPanelPlayer {
     void depriveOp();
     void kick(String reason);
     void ban(String reason);
+    String getBanReason();
+    void pardon();
 }
