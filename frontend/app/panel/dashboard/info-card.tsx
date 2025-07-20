@@ -41,12 +41,8 @@ export function InfoCard({
       <div className="flex-1 flex flex-col gap-2">
         <div className="flex gap-4 [&>*]:space-x-2">
           <div>
-            <span className="font-semibold">IP:</span>
-            {
-              (ctx && ctx.ip)
-              ? <span>{ctx.ip}</span>
-              : <span className="text-muted-foreground italic">未设置</span>
-            }
+            <span className="font-semibold">版本:</span>
+            <span>{ctx?.version}</span>
           </div>
           <div>
             <span className="font-semibold">端口:</span>

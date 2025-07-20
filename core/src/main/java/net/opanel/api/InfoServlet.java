@@ -32,7 +32,7 @@ public class InfoServlet extends BaseServlet {
         HashMap<String, Object> obj = new HashMap<>();
         obj.put("favicon", server.getFavicon() != null ? IconServlet.route : null);
         obj.put("motd", Base64.getEncoder().encodeToString(server.getMotd().getBytes(StandardCharsets.UTF_8)));
-        obj.put("ip", server.getIP());
+        obj.put("version", server.getVersion());
         obj.put("port", server.getPort());
         obj.put("maxPlayerCount", server.getMaxPlayerCount());
 
@@ -41,8 +41,8 @@ public class InfoServlet extends BaseServlet {
             HashMap<String, Object> playerInfo = new HashMap<>();
             playerInfo.put("name", player.getName());
             playerInfo.put("uuid", player.getUUID());
-            playerInfo.put("isOp", player.isOp());
             playerInfo.put("gamemode", player.getGameMode().getName());
+            playerInfo.put("ping", player.getPing());
             players.add(playerInfo);
         }
         obj.put("onlinePlayers", players);

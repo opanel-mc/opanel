@@ -96,4 +96,9 @@ public class FabricPlayer implements OPanelPlayer {
 
     @Override
     public void pardon() { }
+
+    @Override
+    public int getPing() {
+        return player.networkHandler.getLatency();
+    }
 }

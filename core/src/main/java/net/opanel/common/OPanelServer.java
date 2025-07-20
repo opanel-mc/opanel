@@ -5,7 +5,7 @@ import java.util.*;
 public interface OPanelServer {
     byte[] getFavicon();
     String getMotd();
-    String getIP();
+    String getVersion();
     int getPort();
     List<OPanelPlayer> getOnlinePlayers();
     List<OPanelPlayer> getPlayers();

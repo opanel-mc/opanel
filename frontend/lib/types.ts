@@ -17,14 +17,14 @@ export enum GameMode {
 export interface InfoResponse {
   favicon: string | null
   motd: string
-  ip: string
+  version: string
   port: number
   maxPlayerCount: number
   onlinePlayers: {
     name: string
     uuid: string
-    isOp: boolean
     gamemode: GameMode
+    ping: number
   }[]
 }
 

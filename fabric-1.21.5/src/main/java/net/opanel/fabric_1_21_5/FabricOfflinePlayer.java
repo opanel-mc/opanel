@@ -130,4 +130,9 @@ public class FabricOfflinePlayer implements OPanelPlayer {
         if(!isBanned()) return;
         playerManager.getUserBanList().remove(profile);
     }
+
+    @Override
+    public int getPing() {
+        throw new IllegalStateException("The player is offline.");
+    }
 }

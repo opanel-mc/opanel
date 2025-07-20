@@ -13,4 +13,5 @@ public interface OPanelPlayer {
     void ban(String reason);
     String getBanReason();
     void pardon();
+    int getPing();
 }

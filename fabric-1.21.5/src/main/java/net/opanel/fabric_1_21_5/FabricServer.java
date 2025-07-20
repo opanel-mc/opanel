@@ -55,8 +55,8 @@ public class FabricServer implements OPanelServer {
     }
 
     @Override
-    public String getIP() {
-        return server.getServerIp();
+    public String getVersion() {
+        return server.getVersion();
     }
 
     @Override
