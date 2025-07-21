@@ -1,0 +1,13 @@
+stages:
+  - build
+
+build-job:
+  stage: build
+  script:
+    - node -v && npm -v
+    - cd frontend
+    - echo "Installing dependencies..."
+    - npm i
+    - echo "Test building frontend..."
+    - next build
+  allow_failure: false
