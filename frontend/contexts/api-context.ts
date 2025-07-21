@@ -8,3 +8,6 @@ function getAPIContext<R>() {
 }
 
 export const InfoContext = getAPIContext<InfoResponse>();
+
+export const MonitorContext = React.createContext<{ memory: number, cpu: number, tps: number }[]>(undefined!);
+MonitorContext.displayName = "APIContext";

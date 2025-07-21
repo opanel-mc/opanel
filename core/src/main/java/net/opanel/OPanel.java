@@ -3,6 +3,7 @@ package net.opanel;
 import net.opanel.terminal.LogListenerManager;
 import net.opanel.common.OPanelServer;
 import net.opanel.logger.Loggable;
+import net.opanel.utils.TPS;
 import net.opanel.web.WebServer;
 
 public class OPanel {
@@ -19,6 +20,10 @@ public class OPanel {
 
         // Setup web server
         webServer = new WebServer(this);
+    }
+
+    public void onTick() {
+        TPS.onTick();
     }
 
     public OPanelConfiguration getConfig() {

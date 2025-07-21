@@ -2,6 +2,7 @@ package net.opanel.fabric_1_21_5;
 
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
 import net.opanel.*;
 import net.opanel.fabric_1_21_5.terminal.LogListenerManagerImpl;
@@ -24,6 +25,7 @@ public class Main implements DedicatedServerModInitializer {
 
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStart);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStop);
+        ServerTickEvents.START_SERVER_TICK.register(this::onServerTick);
     }
 
     private void initLogListenerAppender() {
@@ -46,5 +48,9 @@ public class Main implements DedicatedServerModInitializer {
 
     private void onServerStop(MinecraftServer server) {
         instance.stop();
+    }
+
+    private void onServerTick(MinecraftServer server) {
+        instance.onTick();
     }
 }

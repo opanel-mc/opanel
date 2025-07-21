@@ -32,6 +32,7 @@ export interface InfoResponse {
 export interface MonitorResponse {
   mem: number
   cpu: number
+  tps: number
 }
 
 // /api/gamerules

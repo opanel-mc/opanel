@@ -1,13 +1,12 @@
 "use-client";
 
-import type { MonitorResponse } from "@/lib/types";
-import { useEffect, useState } from "react";
+import { useContext } from "react";
 import { Area, AreaChart, CartesianGrid, YAxis } from "recharts";
 import { ChartLine } from "lucide-react";
 import { FunctionalCard } from "@/components/functional-card";
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { cn, getCurrentState } from "@/lib/utils";
-import { sendGetRequest } from "@/lib/api";
+import { cn } from "@/lib/utils";
+import { MonitorContext } from "@/contexts/api-context";
 
 const chartConfig = {
   memory: {
@@ -18,31 +17,12 @@ const chartConfig = {
   }
 } satisfies ChartConfig;
 
-const requestInterval = 2000;
-
 export function MonitorCard({
   className,
 }: Readonly<{
   className?: string
 }>) {
-  const [data, setData] = useState(new Array(50).fill({ memory: 0, cpu: 0 }));
-
-  const requestMonitor = async () => {
-    const currentData = await getCurrentState(setData);
-    const newData = [...currentData];
-    const { mem, cpu } = await sendGetRequest<MonitorResponse>("/api/monitor");
-    newData.shift();
-    newData.push({ memory: mem, cpu });
-    setData(newData);
-  };
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      requestMonitor();
-    }, requestInterval);
-
-    return () => clearInterval(timer);
-  }, []);
+  const data = useContext(MonitorContext);
 
   return (
     <FunctionalCard
@@ -70,7 +50,7 @@ export function MonitorCard({
             stroke="var(--color-foreground)"
             strokeWidth="2"
             isAnimationActive={false}/>
-          <YAxis hide domain={[100, 100]}/>
+          <YAxis hide domain={[0, 100]}/>
           <ChartTooltip
             cursor={false}
             content={<ChartTooltipContent hideLabel indicator="line"/>}/>

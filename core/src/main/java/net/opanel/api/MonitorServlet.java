@@ -3,6 +3,7 @@ package net.opanel.api;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import net.opanel.OPanel;
+import net.opanel.utils.TPS;
 import net.opanel.web.BaseServlet;
 import oshi.SystemInfo;
 import oshi.hardware.GlobalMemory;
@@ -12,7 +13,6 @@ import java.util.HashMap;
 public class MonitorServlet extends BaseServlet {
 
     public static final String route = "/api/monitor";
-    private static final long gb = 1024 * 1024 * 1024;
 
     public MonitorServlet(OPanel plugin) {
         super(plugin);
@@ -28,6 +28,7 @@ public class MonitorServlet extends BaseServlet {
         HashMap<String, Object> obj = new HashMap<>();
         obj.put("cpu", getCpuRate());
         obj.put("mem", getMemRate());
+        obj.put("tps", TPS.getRecentTPS());
 
         sendResponse(res, obj);
     }

@@ -1,19 +1,24 @@
 "use client";
 
-import type { APIResponse, InfoResponse } from "@/lib/types";
+import type { APIResponse, InfoResponse, MonitorResponse } from "@/lib/types";
 import { useEffect, useState } from "react";
 import { Gauge } from "lucide-react";
 import { toast } from "sonner";
 import { SubPage } from "../sub-page";
-import { InfoContext } from "@/contexts/api-context";
+import { InfoContext, MonitorContext } from "@/contexts/api-context";
 import { sendGetRequest } from "@/lib/api";
 import { InfoCard } from "./info-card";
 import { PlayersCard } from "./players-card";
 import { MonitorCard } from "./monitor-card";
 import { TerminalCard } from "./terminal-card";
+import { TPSCard } from "./tps-card";
+import { getCurrentState } from "@/lib/utils";
+
+const requestMonitorInterval = 2000;
 
 export default function Dashboard() {
   const [info, setInfo] = useState<APIResponse<InfoResponse>>();
+  const [monitorData, setMonitorData] = useState(new Array(50).fill({ memory: 0, cpu: 0, tps: 20 }));
 
   const fetchServerInfo = async () => {
     try {
@@ -25,17 +30,37 @@ export default function Dashboard() {
     }
   };
 
+  const requestMonitor = async () => {
+    const currentData = await getCurrentState(setMonitorData);
+    const newData = [...currentData];
+    const { mem, cpu, tps } = await sendGetRequest<MonitorResponse>("/api/monitor");
+    newData.shift();
+    newData.push({ memory: mem, cpu, tps });
+    setMonitorData(newData);
+  };
+
   useEffect(() => {
     fetchServerInfo();
   }, []);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      requestMonitor();
+    }, requestMonitorInterval);
+
+    return () => clearInterval(timer);
+  }, []);
+
   return (
-    <SubPage title="仪表盘" icon={<Gauge />} className="h-[500px] grid grid-rows-3 grid-cols-3 gap-3 pb-20 [&>*]:p-4">
+    <SubPage title="仪表盘" icon={<Gauge />} className="h-[600px] grid grid-rows-4 grid-cols-3 gap-3 pb-20 [&>*]:p-4">
       <InfoContext.Provider value={info}>
-        <InfoCard className="row-start-1 col-span-2"/>
-        <PlayersCard className="row-span-2 row-start-2"/>
-        <MonitorCard className="row-span-2 row-start-2"/>
-        <TerminalCard className="row-span-3 rounded-md"></TerminalCard>
+        <MonitorContext.Provider value={monitorData}>
+          <InfoCard className="row-start-1 col-span-2"/>
+          <PlayersCard className="row-span-3 row-start-2"/>
+          <MonitorCard className="row-span-2 row-start-2"/>
+          <TPSCard className="row-start-4"/>
+          <TerminalCard className="row-span-4"></TerminalCard>
+        </MonitorContext.Provider>
       </InfoContext.Provider>
     </SubPage>
   );
