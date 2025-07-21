@@ -1,4 +1,5 @@
 import type { ConsoleLogLevel } from "./log-levels";
+import { getCookie, hasCookie } from "cookies-next/client";
 import { toast } from "sonner";
 import { wsUrl } from "../api";
 
@@ -17,6 +18,7 @@ export interface TerminalPacket {
     | "log"
     | "error"
     /* client packet */
+    | "auth"
     | "command"
     /* common packet */
     | "autocomplete"
@@ -28,6 +30,8 @@ export class WebSocketClient {
   private socket: WebSocket | null = null;
 
   constructor() {
+    if(!hasCookie("token")) throw new Error("No authentication token found.");
+
     this.socket = new WebSocket(wsUrl + "/terminal");
     this.init();
   }
@@ -35,6 +39,9 @@ export class WebSocketClient {
   private init() {
     this.socket?.addEventListener("open", () => {
       console.log("Terminal connected.");
+      // Send authentication token
+      // or the server will not accept any messages
+      this.send({ type: "auth", data: getCookie("token") });
     });
     this.socket?.addEventListener("error", (err) => {
       console.log("Terminal connection failed. ", err);

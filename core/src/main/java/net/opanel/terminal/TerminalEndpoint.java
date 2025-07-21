@@ -8,6 +8,7 @@ import jakarta.websocket.server.ServerEndpointConfig;
 import net.opanel.OPanel;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.logger.Loggable;
+import net.opanel.utils.Utils;
 
 import java.io.IOException;
 import java.util.*;
@@ -21,33 +22,53 @@ public class TerminalEndpoint {
 
     private static final Set<Session> sessions = new HashSet<>();
 
+    // To avoid duplicated log listener from registering,
+    // which can lead to plenty duplicated logs in the frontend terminal
+    private static boolean hasLogListenerRegistered = false;
+
     public TerminalEndpoint(OPanel plugin) {
         this.plugin = plugin;
         logger = plugin.logger;
         logListenerManager = plugin.getLogListenerManager();
 
-        logListenerManager.addListener(line -> {
-            broadcast(new TerminalPacket<>(TerminalPacket.LOG, line));
-        });
+        if(!hasLogListenerRegistered) {
+            logListenerManager.addListener(line -> {
+                broadcast(new TerminalPacket<>(TerminalPacket.LOG, line));
+            });
+            hasLogListenerRegistered = true;
+        }
     }
 
     @OnOpen
     public void onOpen(Session session) {
         // logger.info("Terminal connection established. Session: "+ session.getId());
-        sessions.add(session);
 
-        // Send recent logs
-        sendMessage(session, new TerminalPacket<>(TerminalPacket.INIT, logListenerManager.getRecentLogs()));
     }
 
     @OnMessage
-    public void onMessage(String message, Session session) {
+    public void onMessage(String message, Session session) throws IOException {
         try {
             Gson gson = new Gson();
             TerminalPacket packet = gson.fromJson(message, TerminalPacket.class);
 
             switch(packet.type) {
+                case TerminalPacket.AUTH -> {
+                    String token = (String) packet.data; // hashed 2
+                    final String hashedRealKey = Utils.md5(Utils.md5(plugin.getConfig().accessKey)); // hashed 2
+                    if(token != null && token.equals(hashedRealKey)) {
+                        // Register session
+                        sessions.add(session);
+                        // Send recent logs
+                        sendMessage(session, new TerminalPacket<>(TerminalPacket.INIT, logListenerManager.getRecentLogs()));
+                    } else {
+                        session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "Unauthorized."));
+                    }
+                }
                 case TerminalPacket.COMMAND -> {
+                    if(!sessions.contains(session)) {
+                        session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "Unauthorized."));
+                        return;
+                    }
                     if(!(packet.data instanceof String command)) {
                         sendErrorMessage(session, "Unexpected type of data.");
                         return;
@@ -55,6 +76,10 @@ public class TerminalEndpoint {
                     plugin.getServer().sendServerCommand(command);
                 }
                 case TerminalPacket.AUTOCOMPLETE -> {
+                    if(!sessions.contains(session)) {
+                        session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "Unauthorized."));
+                        return;
+                    }
                     if(!(packet.data instanceof Number arg)) {
                         sendErrorMessage(session, "Unexpected type of data.");
                         return;
@@ -103,7 +128,7 @@ public class TerminalEndpoint {
 
     public static void closeAllSessions() throws IOException {
         for(Session session : sessions) {
-            session.close(new CloseReason(CloseReason.CloseCodes.getCloseCode(1000), "Server is stopping."));
+            session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, "Server is stopping."));
         }
         sessions.clear();
     }
