@@ -9,5 +9,5 @@ build-job:
     - echo "Installing dependencies..."
     - npm i
     - echo "Test building frontend..."
-    - next build
+    - npm run build
   allow_failure: false
