@@ -12,6 +12,7 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
+  SidebarIndicator,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -96,7 +97,8 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     isActive={pathname.startsWith(item.url)}
                     asChild>
-                    <Link href={item.url}>
+                    <Link href={item.url} className="pl-3">
+                      {pathname.startsWith(item.url) && <SidebarIndicator className="left-2"/>}
                       <item.icon />
                       <span>{item.name}</span>
                     </Link>
@@ -115,7 +117,8 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     isActive={pathname.startsWith(item.url)}
                     asChild>
-                    <Link href={item.url}>
+                    <Link href={item.url} className="pl-3">
+                      {pathname.startsWith(item.url) && <SidebarIndicator className="left-2"/>}
                       <item.icon />
                       <span>{item.name}</span>
                     </Link>
@@ -134,7 +137,8 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     isActive={pathname.startsWith(item.url)}
                     asChild>
-                    <Link href={item.url}>
+                    <Link href={item.url} className="pl-3">
+                      {pathname.startsWith(item.url) && <SidebarIndicator className="left-2"/>}
                       <item.icon />
                       <span>{item.name}</span>
                     </Link>

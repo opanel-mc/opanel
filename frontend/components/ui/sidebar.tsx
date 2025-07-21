@@ -698,6 +698,15 @@ function SidebarMenuSubButton({
   )
 }
 
+function SidebarIndicator({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
+  return <div
+    {...props}
+    className={cn("group-data-[state=collapsed]:hidden absolute w-[3px] h-5 rounded-sm bg-theme -translate-x-[3px]", className)}/>
+}
+
 export {
   Sidebar,
   SidebarContent,
@@ -722,5 +731,6 @@ export {
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
+  SidebarIndicator,
   useSidebar,
 }

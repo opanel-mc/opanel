@@ -23,8 +23,8 @@ import { Button } from "./ui/button";
 export function DataTable<D, V>({
   columns,
   data,
-  pagination,
-  fallbackMessage,
+  pagination = false,
+  fallbackMessage = "暂无数据",
   className
 }: {
   columns: ColumnDef<D, V>[]
@@ -86,7 +86,7 @@ export function DataTable<D, V>({
               : (
                 <TableRow className="hover:bg-transparent">
                   <TableCell colSpan={columns.length} className="h-24 text-center">
-                    {fallbackMessage ?? "暂无数据"}
+                    {fallbackMessage}
                   </TableCell>
                 </TableRow>
               )
