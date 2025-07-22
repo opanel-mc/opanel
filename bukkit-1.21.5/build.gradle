@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'com.gradleup.shadow' version '8.3.8'
 }
 
 repositories {
@@ -18,7 +18,13 @@ dependencies {
 }
 
 shadowJar {
+    archiveBaseName = baseName
     archiveClassifier = ''
+
+    relocate 'com.google.gson', 'net.opanel.deps.gson'
+    relocate 'org.objectweb.asm', 'net.opanel.deps.objectweb.asm'
 }
 
-build.dependsOn(shadowJar)
+tasks.named('build') {
+    dependsOn tasks.named('shadowJar')
+}
