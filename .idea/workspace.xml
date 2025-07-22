@@ -5,54 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/404.html" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/404.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/404/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/404/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/SwXLHaf4HD44VRxckwzhl/_buildManifest.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/SwXLHaf4HD44VRxckwzhl/_ssgManifest.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/196-d424b2a7584428d2.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/354-cd527c8c3646bb70.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/872-5687d4cc520ad30c.js" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/872-5687d4cc520ad30c.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/app/about/page-25918945d964db59.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/app/login/page-b4d95a87e5be6a7e.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/app/panel/dashboard/page-8e51bbfe1fd3f8d5.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/app/panel/gamerules/page-11792d98ba210c0b.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/app/panel/layout-b335a1d184dcf1c9.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/app/panel/logs/page-6dc9122b50d7854e.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/app/panel/logs/view/page-10795f315583ead4.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/app/panel/players/page-5e0f936931ff27c6.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/app/panel/plugins/page-bc977acde2b30d05.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/app/panel/settings/page-4e2909d8ab4cf555.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/app/panel/terminal/page-1ef139801c6824f5.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/app/panel/worlds/page-7367e2e4e8b8c664.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/polyfills-42372ed130431b0a.js" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/chunks/polyfills-42372ed130431b0a.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/_next/static/css/36a0f447d0ea15a1.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/about/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/about/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/about/index.txt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/about/index.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/index.txt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/index.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/login/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/login/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/login/index.txt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/login/index.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/panel/dashboard/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/panel/dashboard/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/panel/dashboard/index.txt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/panel/dashboard/index.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/panel/gamerules/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/panel/gamerules/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/panel/gamerules/index.txt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/panel/gamerules/index.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/panel/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/panel/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/panel/index.txt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/panel/index.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/panel/logs/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/panel/logs/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/panel/logs/index.txt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/panel/logs/index.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/panel/logs/view/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/panel/logs/view/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/panel/logs/view/index.txt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/panel/logs/view/index.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/panel/players/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/panel/players/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/panel/players/index.txt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/panel/players/index.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/panel/plugins/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/panel/plugins/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/panel/plugins/index.txt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/panel/plugins/index.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/panel/settings/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/panel/settings/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/panel/settings/index.txt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/panel/settings/index.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/panel/terminal/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/panel/terminal/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/panel/terminal/index.txt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/panel/terminal/index.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/panel/worlds/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/panel/worlds/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/resources/web/panel/worlds/index.txt" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/resources/web/panel/worlds/index.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.5/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.5/build.gradle" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
