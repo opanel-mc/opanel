@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.Base64;
-import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
 public class Utils {
@@ -39,6 +38,10 @@ public class Utils {
     }
 
     public static String readTextFile(Path filePath) throws IOException {
+        if(!Files.exists(filePath)) {
+            throw new IOException("Cannot find the specified file.");
+        }
+
         StringBuilder sb = new StringBuilder();
         try(
                 FileReader fr = new FileReader(filePath.toString());
@@ -51,6 +54,19 @@ public class Utils {
             }
         }
         return sb.toString();
+    }
+
+    public static void setTextFileContent(Path filePath, String content) throws IOException {
+        if(!Files.exists(filePath)) {
+            throw new IOException("Cannot find the specified file.");
+        }
+
+        String[] splitted = content.split("\n");
+        try(FileWriter fw = new FileWriter(filePath.toString())) {
+            for(int i = 0; i < splitted.length; i++) {
+                fw.write(splitted[i] +"\n");
+            }
+        }
     }
 
     public static String decompressTextGzip(Path gzipPath) throws IOException {

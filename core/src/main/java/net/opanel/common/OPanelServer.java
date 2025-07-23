@@ -1,5 +1,6 @@
 package net.opanel.common;
 
+import java.io.IOException;
 import java.util.*;
 
 public interface OPanelServer {
@@ -17,4 +18,6 @@ public interface OPanelServer {
     void setGamerules(HashMap<String, Object> gamerules);
     void reload();
     void stop();
+    String getPropertiesContent() throws IOException;
+    void setPropertiesContent(String newContent) throws IOException;
 }

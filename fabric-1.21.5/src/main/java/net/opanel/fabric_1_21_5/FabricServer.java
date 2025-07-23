@@ -13,14 +13,18 @@ import net.minecraft.util.WorldSavePath;
 import net.minecraft.world.GameRules;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelServer;
+import net.opanel.utils.Utils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Stream;
 
 public class FabricServer implements OPanelServer {
+    private static final Path serverPropertiesPath = Paths.get("").resolve("server.properties");
+
     private final MinecraftServer server;
 
     public FabricServer(MinecraftServer server) {
@@ -166,5 +170,21 @@ public class FabricServer implements OPanelServer {
     @Override
     public void stop() {
         server.stop(false);
+    }
+
+    @Override
+    public String getPropertiesContent() throws IOException {
+        if(!Files.exists(serverPropertiesPath)) {
+            throw new IOException("Cannot find server.properties");
+        }
+        return Utils.readTextFile(serverPropertiesPath);
+    }
+
+    @Override
+    public void setPropertiesContent(String newContent) throws IOException {
+        if(!Files.exists(serverPropertiesPath)) {
+            throw new IOException("Cannot find server.properties");
+        }
+        Utils.setTextFileContent(serverPropertiesPath, newContent);
     }
 }

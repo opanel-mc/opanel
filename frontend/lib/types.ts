@@ -1,5 +1,6 @@
-import { Player } from "@/app/panel/players/columns";
+import type { OnMount } from "@monaco-editor/react";
 import type { ServerGamerules } from "./gamerules/gamerule";
+import { Player } from "@/app/panel/players/columns";
 
 export type APIResponse<T> = {
   code: number
@@ -12,6 +13,8 @@ export enum GameMode {
   CREATIVE = "creative",
   SPECTATOR = "spectator"
 }
+
+export type EditorRefType = Parameters<OnMount>[0];
 
 // /api/info
 export interface InfoResponse {
@@ -33,6 +36,11 @@ export interface MonitorResponse {
   mem: number
   cpu: number
   tps: number
+}
+
+// /api/control/properties
+export interface ServerPropertiesResponse {
+  properties: string
 }
 
 // /api/gamerules

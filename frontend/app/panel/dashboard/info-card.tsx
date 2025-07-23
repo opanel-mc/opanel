@@ -1,7 +1,7 @@
 "use client";
 
 import { useContext } from "react";
-import { Power, RotateCw } from "lucide-react";
+import { Power, RotateCw, Settings } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { apiUrl, sendPostRequest } from "@/lib/api";
@@ -23,6 +23,7 @@ import {
 
 import PackIcon from "@/assets/images/pack.png";
 import { toast } from "sonner";
+import { ServerSheet } from "./server-sheet";
 
 export function InfoCard({
   className,
@@ -59,6 +60,14 @@ export function InfoCard({
           {ctx ? "正在运行" : "未运行"}
         </Badge>
         <div className="space-x-1 self-end [&>*]:cursor-pointer">
+          <ServerSheet asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              title="编辑server.properties">
+              <Settings />
+            </Button>
+          </ServerSheet>
           <Button
             variant="ghost"
             size="icon"

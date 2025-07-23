@@ -1,11 +1,11 @@
 "use client";
 
-import type { LogResponse } from "@/lib/types";
+import type { EditorRefType, LogResponse } from "@/lib/types";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Download, Trash2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import Editor, { type OnMount } from "@monaco-editor/react";
+import Editor from "@monaco-editor/react";
 import { useTheme } from "next-themes";
 import { SubPage } from "@/app/panel/sub-page";
 import { sendGetRequest } from "@/lib/api";
@@ -17,7 +17,7 @@ export default function LogView() {
   const { push } = useRouter();
   const [content, setContent] = useState("");
   const { theme } = useTheme();
-  const editorRef = useRef<Parameters<OnMount>[0]>(null);
+  const editorRef = useRef<EditorRefType>(null);
   const log = searchParams.get("log");
 
   const fetchLogContent = useCallback(async () => {
