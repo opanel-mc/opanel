@@ -1,5 +1,5 @@
 import type { EditorRefType, ServerPropertiesResponse } from "@/lib/types";
-import { useEffect, useRef, useState, type PropsWithChildren } from "react";
+import { useRef, useState, type PropsWithChildren } from "react";
 import { Editor } from "@monaco-editor/react";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
@@ -50,13 +50,9 @@ export function ServerSheet({
       toast.error("无法保存server.properties");
     }
   };
-
-  useEffect(() => {
-    fetchConfigFile();
-  }, []);
   
   return (
-    <Sheet>
+    <Sheet onOpenChange={(open) => open && fetchConfigFile()}>
       <SheetTrigger asChild={asChild}>{children}</SheetTrigger>
       <SheetContent>
         <SheetHeader>
