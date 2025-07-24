@@ -4,11 +4,11 @@ import { Ban, BrushCleaning, Check, ShieldOff } from "lucide-react";
 import { getGameModeText } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { ban, kick, pardon } from "./player-utils";
 import { Prompt } from "@/components/prompt";
 import { avatarUrl } from "@/lib/api";
-import { PlayerSheet } from "./player-sheet";
 import { OnlineBadge } from "@/components/online-badge";
+import { ban, kick, pardon } from "./player-utils";
+import { PlayerSheet } from "./player-sheet";
 
 export interface Player {
   name: string

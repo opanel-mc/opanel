@@ -1,6 +1,6 @@
+import type { ConsoleLog, WebSocketClient } from "@/lib/terminal/client";
 import { useEffect, useRef, useState } from "react";
 import { format } from "date-format-parse";
-import { type ConsoleLog, WebSocketClient } from "@/lib/terminal/client";
 import { cn } from "@/lib/utils";
 import { defaultLogLevel, getLogLevelId, type ConsoleLogLevel } from "@/lib/terminal/log-levels";
 

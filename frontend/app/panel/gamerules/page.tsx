@@ -1,13 +1,12 @@
 "use client";
 
+import type { z } from "zod";
 import type { GamerulesResponse } from "@/lib/types";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { PencilRuler } from "lucide-react";
-import { SubPage } from "../sub-page";
 import {
   Form,
   FormControl,
@@ -28,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import gamerulePresets from "@/lib/gamerules/presets";
+import { SubPage } from "../sub-page";
 
 export default function Gamerules() {
   const [serverGamerules, setServerGamerules] = useState<ServerGamerules>({});
@@ -42,7 +42,6 @@ export default function Gamerules() {
     try {
       const res = await sendGetRequest<GamerulesResponse>("/api/gamerules");
       setServerGamerules(res.gamerules);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       toast.error("无法获取服务器游戏规则信息");
     }
@@ -60,7 +59,6 @@ export default function Gamerules() {
     try {
       await sendPostRequest("/api/gamerules", { gamerules: data });
       toast.success("保存成功");
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       toast.error("保存失败", { description: "无法保存游戏规则" });
     }

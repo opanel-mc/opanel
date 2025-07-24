@@ -1,15 +1,15 @@
 "use client";
 
+import type { LogsResponse } from "@/lib/types";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ScrollText, Trash2 } from "lucide-react";
-import { SubPage } from "../sub-page";
 import { DataTable } from "@/components/data-table";
-import { columns } from "./columns";
 import { sendDeleteRequest, sendGetRequest } from "@/lib/api";
-import { LogsResponse } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/alert";
+import { columns } from "./columns";
+import { SubPage } from "../sub-page";
 
 export default function Logs() {
   const [logs, setLogs] = useState<string[]>([]);
@@ -18,7 +18,6 @@ export default function Logs() {
     try {
       const res = await sendGetRequest<LogsResponse>("/api/logs");
       setLogs(res.logs);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       toast.error("无法获取日志列表");
     }
@@ -29,7 +28,6 @@ export default function Logs() {
       await sendDeleteRequest("/api/logs");
       toast.success("已清空除当前日志外的所有日志");
       window.location.reload();
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       toast.error("清空日志失败");
     }

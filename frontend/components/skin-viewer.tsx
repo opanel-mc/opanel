@@ -1,6 +1,6 @@
+import { useEffect, useRef } from "react";
 import MinecraftSkinViewer from "minecraft-skin-viewer";
 import { capeUrl, skinUrl } from "@/lib/api";
-import { useEffect, useRef } from "react";
 
 export function SkinViewer({
   uuid

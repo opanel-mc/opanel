@@ -10,9 +10,10 @@ import { InfoContext } from "@/contexts/api-context";
 import { MinecraftText } from "@/components/mc-text";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ServerSheet } from "./server-sheet";
 import { Alert } from "@/components/alert";
+import { ServerSheet } from "./server-sheet";
 
+// eslint-disable-next-line import/order
 import PackIcon from "@/assets/images/pack.png";
 
 export function InfoCard({

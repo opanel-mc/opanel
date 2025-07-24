@@ -29,8 +29,8 @@ import { OnlineBadge } from "@/components/online-badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { ban, depriveOp, giveOp, kick, pardon, setGameMode } from "./player-utils";
 import { Prompt } from "@/components/prompt";
+import { ban, depriveOp, giveOp, kick, pardon, setGameMode } from "./player-utils";
 
 const formSchema = z.object({
   gamemode: z.enum(Object.values(GameMode) as [string, ...string[]]),

@@ -1,6 +1,6 @@
 import type { OnMount } from "@monaco-editor/react";
 import type { ServerGamerules } from "./gamerules/gamerule";
-import { Player } from "@/app/panel/players/columns";
+import type { Player } from "@/app/panel/players/columns";
 
 export type APIResponse<T> = {
   code: number

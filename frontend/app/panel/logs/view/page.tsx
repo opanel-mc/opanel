@@ -24,7 +24,6 @@ export default function LogView() {
     try {
       const res = await sendGetRequest<LogResponse>(`/api/logs/${log}`);
       setContent(res.log);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       toast.error("无法获取日志内容");
     }

@@ -1,7 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table"
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Download, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { deleteLog, downloadLog } from "./log-utils";
 
 export interface Log {

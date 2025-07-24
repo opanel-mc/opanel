@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { LogResponse } from "@/lib/types";
 import download from "downloadjs";
 import { toast } from "sonner";

@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+import type { GameMode } from "@/lib/types";
 import { toast } from "sonner";
 import { sendPostRequest } from "@/lib/api";
-import { GameMode } from "@/lib/types";
 import { gameModeToString } from "@/lib/utils";
 
 export async function giveOp(uuid: string, doToast = true) {

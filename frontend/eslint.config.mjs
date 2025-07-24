@@ -15,7 +15,25 @@ const eslintConfig = [
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
       "@next/next/no-img-element": "off",
-      "@typescript-eslint/no-unused-expressions": "off"
+      "@typescript-eslint/no-unused-expressions": "off",
+      "@typescript-eslint/no-unused-vars": ["error", {
+        "args": "none",
+        "caughtErrors": "none"
+      }],
+      "@typescript-eslint/consistent-type-imports": "warn",
+      "import/order": ["warn", {
+        groups: [
+          "type",
+          "builtin",
+          "external",
+          "internal",
+          "sibling"
+        ],
+        "newlines-between": "ignore"
+      }],
+      "import/first": "error",
+      "import/no-duplicates": "error",
+      "import/no-named-as-default": "off",
     }
   }
 ];

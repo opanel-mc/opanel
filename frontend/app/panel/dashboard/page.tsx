@@ -4,15 +4,15 @@ import type { APIResponse, InfoResponse, MonitorResponse } from "@/lib/types";
 import { useEffect, useState } from "react";
 import { Gauge } from "lucide-react";
 import { toast } from "sonner";
-import { SubPage } from "../sub-page";
 import { InfoContext, MonitorContext } from "@/contexts/api-context";
 import { sendGetRequest } from "@/lib/api";
+import { getCurrentState } from "@/lib/utils";
 import { InfoCard } from "./info-card";
 import { PlayersCard } from "./players-card";
 import { MonitorCard } from "./monitor-card";
 import { TerminalCard } from "./terminal-card";
 import { TPSCard } from "./tps-card";
-import { getCurrentState } from "@/lib/utils";
+import { SubPage } from "../sub-page";
 
 const requestMonitorInterval = 2000;
 
@@ -24,7 +24,6 @@ export default function Dashboard() {
     try {
       const res = await sendGetRequest<InfoResponse>("/api/info");
       setInfo(res);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       toast.error("无法连接到服务器");
     }

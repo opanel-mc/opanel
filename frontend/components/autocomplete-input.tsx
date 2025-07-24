@@ -1,14 +1,14 @@
 import {
   type ComponentProps,
-  RefObject,
+  type RefObject,
   useContext,
   useEffect,
   useState
 } from "react";
 import getCaretCoordinates from "textarea-caret";
 import { InputContext } from "@/contexts/input-context";
-import { Input } from "./ui/input";
 import { cn, getCurrentState, getInputtedArgumentStr } from "@/lib/utils";
+import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 
 function AutocompleteItem({

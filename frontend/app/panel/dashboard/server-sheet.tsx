@@ -30,7 +30,6 @@ export function ServerSheet({
     try {
       const res = await sendGetRequest<ServerPropertiesResponse>(`/api/control/properties`);
       setValue(res.properties);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       toast.error("无法获取server.properties");
     }
@@ -45,7 +44,6 @@ export function ServerSheet({
     try {
       await sendPostRequest(`/api/control/properties`, editorRef.current.getValue());
       toast.success("保存成功", { description: "重启服务器以使改动生效" });
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       toast.error("无法保存server.properties");
     }

@@ -9,7 +9,6 @@ import {
 } from "react";
 import { ArrowUp, SquareTerminal, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
-import { SubPage } from "../sub-page";
 import { useTerminal } from "@/hooks/use-terminal";
 import { TerminalConnector } from "@/components/terminal-connector";
 import { Button } from "@/components/ui/button";
@@ -24,6 +23,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { defaultLogLevel, type ConsoleLogLevel } from "@/lib/terminal/log-levels";
+import { SubPage } from "../sub-page";
 
 export default function Terminal() {
   const client = useTerminal();
