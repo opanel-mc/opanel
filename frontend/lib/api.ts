@@ -14,8 +14,12 @@ export const wsUrl = (
   : `ws://${window.location.host}`
 );
 
-/** @see https://mineskin.eu */
-export const skinUrl = "https://mineskin.eu/helm/";
+/** @see https://crafatar.com */
+export const avatarUrl = "https://crafatar.com/avatars/";
+/** @see https://crafatar.com */
+export const skinUrl = "https://crafatar.com/skins/";
+/** @see https://crafatar.com */
+export const capeUrl = "https://crafatar.com/capes/";
 
 export async function sendGetRequest<R>(route: string): Promise<APIResponse<R>> {
   return (await axios.request({

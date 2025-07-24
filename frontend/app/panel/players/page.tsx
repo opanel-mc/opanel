@@ -36,7 +36,7 @@ export default function Players() {
       subTitle={currentTab === "player-list" ? "玩家列表" : "封禁列表"}
       icon={<Users />}
       className="flex flex-col gap-3">
-      <span className="text-sm text-muted-foreground">右键玩家名以进行更多操作。</span>
+      <span className="text-sm text-muted-foreground">点击玩家名以进行更多操作。</span>
       <Tabs defaultValue="player-list" onValueChange={setCurrentTab}>
         <TabsList className="[&>*]:cursor-pointer">
           <TabsTrigger value="player-list">

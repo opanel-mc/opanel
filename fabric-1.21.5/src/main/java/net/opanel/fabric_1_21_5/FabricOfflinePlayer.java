@@ -95,6 +95,22 @@ public class FabricOfflinePlayer implements OPanelPlayer {
     }
 
     @Override
+    public void setGameMode(OPanelGameMode gamemode) {
+        try {
+            NbtCompound nbt = NbtIo.readCompressed(playerDataPath, NbtSizeTracker.of(2097152L)); // 2 MB
+            switch(gamemode) {
+                case ADVENTURE -> nbt.putInt("playerGameType", 2);
+                case SURVIVAL -> nbt.putInt("playerGameType", 0);
+                case CREATIVE -> nbt.putInt("playerGameType", 1);
+                case SPECTATOR -> nbt.putInt("playerGameType", 3);
+            }
+            NbtIo.writeCompressed(nbt, playerDataPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void giveOp() {
         if(isOp()) return;
         playerManager.addToOperators(profile);

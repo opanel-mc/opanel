@@ -67,6 +67,18 @@ public class FabricPlayer implements OPanelPlayer {
     }
 
     @Override
+    public void setGameMode(OPanelGameMode gamemode) {
+        if(player == null) return;
+
+        switch(gamemode) {
+            case ADVENTURE -> player.changeGameMode(GameMode.ADVENTURE);
+            case SURVIVAL -> player.changeGameMode(GameMode.SURVIVAL);
+            case CREATIVE -> player.changeGameMode(GameMode.CREATIVE);
+            case SPECTATOR -> player.changeGameMode(GameMode.SPECTATOR);
+        }
+    }
+
+    @Override
     public void giveOp() {
         if(isOp()) return;
         playerManager.addToOperators(profile);

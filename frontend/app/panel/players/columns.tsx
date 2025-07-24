@@ -1,19 +1,14 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { GameMode } from "@/lib/types";
-import { Ban, BrushCleaning, Check, ShieldBan, ShieldOff, ShieldUser } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { cn, getGameModeText } from "@/lib/utils";
+import { Ban, BrushCleaning, Check, ShieldOff } from "lucide-react";
+import { getGameModeText } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger
-} from "@/components/ui/context-menu";
-import { ban, depriveOp, giveOp, kick, pardon } from "./player-utils";
+import { ban, kick, pardon } from "./player-utils";
 import { Prompt } from "@/components/prompt";
-import { skinUrl } from "@/lib/api";
+import { avatarUrl } from "@/lib/api";
+import { PlayerSheet } from "./player-sheet";
+import { OnlineBadge } from "@/components/online-badge";
 
 export interface Player {
   name: string
@@ -30,47 +25,19 @@ export const playerColumns: ColumnDef<Player>[] = [
     accessorKey: "name",
     header: "玩家名",
     cell: ({ row }) => {
-      const name = row.getValue<string>("name");
-      const uuid = row.getValue<string>("uuid");
+      const { name, uuid } = row.original;
       return (
-        <ContextMenu>
-          <ContextMenuTrigger>
-            <Tooltip>
-              <TooltipTrigger>
-                <div className="flex items-center gap-2">
-                  <img src={skinUrl + name} alt={name} width={17} height={17}/>
-                  <span className="font-semibold">{name}</span>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>{uuid}</TooltipContent>
-            </Tooltip>
-          </ContextMenuTrigger>
-          <ContextMenuContent>
-            {
-              row.getValue<boolean>("isOp")
-              ? (
-                <ContextMenuItem
-                  onClick={async () => {
-                    await depriveOp(uuid);
-                    window.location.reload();
-                  }}>
-                  <ShieldBan />
-                  解除OP
-                </ContextMenuItem>
-              )
-              : (
-                <ContextMenuItem
-                  onClick={async () => {
-                    await giveOp(uuid);
-                    window.location.reload();
-                  }}>
-                  <ShieldUser />
-                  给予OP
-                </ContextMenuItem>
-              )
-            }
-          </ContextMenuContent>
-        </ContextMenu>
+        <Tooltip>
+          <TooltipTrigger>
+            <PlayerSheet player={row.original} asChild>
+              <div className="flex items-center gap-2 cursor-pointer">
+                <img src={avatarUrl + uuid} alt={name} width={17} height={17}/>
+                <span className="font-semibold">{name}</span>
+              </div>
+            </PlayerSheet>
+          </TooltipTrigger>
+          <TooltipContent>{uuid}</TooltipContent>
+        </Tooltip>
       );
     }
   },
@@ -78,13 +45,10 @@ export const playerColumns: ColumnDef<Player>[] = [
     accessorKey: "isOnline",
     header: () => <div className="text-center">状态</div>,
     cell: ({ row }) => {
-      const isOnline = row.getValue<boolean>("isOnline");
+      const { isOnline } = row.original;
       return (
         <div className="text-center">
-          <Badge variant="outline">
-            <div className={cn("w-2 h-2 rounded-full", isOnline ? "bg-green-600" : "bg-muted-foreground")}/>
-            {isOnline ? "在线" : "离线"}
-          </Badge>
+          <OnlineBadge isOnline={isOnline}/>
         </div>
       );
     }
@@ -98,7 +62,7 @@ export const playerColumns: ColumnDef<Player>[] = [
     accessorKey: "gamemode",
     header: () => <div className="text-center">游戏模式</div>,
     cell: ({ row }) => {
-      const gamemode = row.getValue<GameMode>("gamemode");
+      const { gamemode } = row.original;
       if(!gamemode) return <></>;
       return <div className="text-center">{getGameModeText(gamemode)}</div>;
     }
@@ -106,19 +70,16 @@ export const playerColumns: ColumnDef<Player>[] = [
   {
     accessorKey: "isOp",
     header: "OP",
-    cell: ({ row }) => {
-      const isOp = row.getValue<boolean>("isOp");
-      return (
-        isOp
-        ? <Check size={18} color="var(--color-muted-foreground)"/>
-        : <></>
-      );
-    }
+    cell: ({ row }) => (
+      row.original.isOp
+      ? <Check size={18} color="var(--color-muted-foreground)"/>
+      : <></>
+    )
   },
   {
     header: " ",
     cell: ({ row }) => {
-      const uuid = row.getValue<string>("uuid");
+      const { uuid } = row.original;
       return (
         <div className="flex justify-end [&>*]:h-4 [&>*]:cursor-pointer [&>*]:hover:!bg-transparent">
           {row.getValue<boolean>("isOnline") && (
@@ -168,15 +129,16 @@ export const bannedColumns: ColumnDef<Player>[] = [
     accessorKey: "name",
     header: "玩家名",
     cell: ({ row }) => {
-      const name = row.getValue<string>("name");
-      const uuid = row.getValue<string>("uuid");
+      const { name, uuid } = row.original;
       return (
         <Tooltip>
           <TooltipTrigger>
-            <div className="flex items-center gap-2">
-              <img src={skinUrl + name} alt={name} width={17} height={17}/>
-              <span className="font-semibold">{name}</span>
-            </div>
+            <PlayerSheet player={row.original} asChild>
+              <div className="flex items-center gap-2 cursor-pointer">
+                <img src={avatarUrl + uuid} alt={name} width={17} height={17}/>
+                <span className="font-semibold">{name}</span>
+              </div>
+            </PlayerSheet>
           </TooltipTrigger>
           <TooltipContent>{uuid}</TooltipContent>
         </Tooltip>
@@ -195,32 +157,26 @@ export const bannedColumns: ColumnDef<Player>[] = [
   {
     accessorKey: "isOp",
     header: "OP",
-    cell: ({ row }) => {
-      const isOp = row.getValue<boolean>("isOp");
-      return (
-        isOp
-        ? <Check size={18} color="var(--color-muted-foreground)"/>
-        : <></>
-      );
-    }
+    cell: ({ row }) => (
+      row.original.isOp
+      ? <Check size={18} color="var(--color-muted-foreground)"/>
+      : <></>
+    )
   },
   {
     header: " ",
-    cell: ({ row }) => {
-      const uuid = row.getValue<string>("uuid");
-      return (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="float-right h-4 cursor-pointer hover:!bg-transparent"
-          title="解除封禁"
-          onClick={async () => {
-            await pardon(uuid);
-            window.location.reload();
-          }}>
-          <ShieldOff className="stroke-green-600"/>
-        </Button>
-      );
-    }
+    cell: ({ row }) => (
+      <Button
+        variant="ghost"
+        size="icon"
+        className="float-right h-4 cursor-pointer hover:!bg-transparent"
+        title="解除封禁"
+        onClick={async () => {
+          await pardon(row.original.uuid);
+          window.location.reload();
+        }}>
+        <ShieldOff className="stroke-green-600"/>
+      </Button>
+    )
   }
 ];

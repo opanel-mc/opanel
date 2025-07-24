@@ -7,6 +7,7 @@ public interface OPanelPlayer {
     boolean isOp();
     boolean isBanned();
     OPanelGameMode getGameMode();
+    void setGameMode(OPanelGameMode gamemode);
     void giveOp();
     void depriveOp();
     void kick(String reason);

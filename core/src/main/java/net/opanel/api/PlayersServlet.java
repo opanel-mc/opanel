@@ -3,6 +3,7 @@ package net.opanel.api;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import net.opanel.OPanel;
+import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelServer;
 import net.opanel.web.BaseServlet;
@@ -70,6 +71,7 @@ public class PlayersServlet extends BaseServlet {
 
         String uuid = req.getParameter("uuid");
         String reason = req.getParameter("r"); // only for `kick` and `ban`
+        String gamemode = req.getParameter("gm"); // only for `gamemode`
         if(uuid == null) {
             sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
             return;
@@ -88,6 +90,13 @@ public class PlayersServlet extends BaseServlet {
             }
             case "ban" -> player.ban(reason);
             case "pardon" -> player.pardon();
+            case "gamemode" -> {
+                if(gamemode == null) {
+                    sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
+                    return;
+                }
+                player.setGameMode(OPanelGameMode.fromString(gamemode));
+            }
         }
 
         sendResponse(res, HttpServletResponse.SC_OK);

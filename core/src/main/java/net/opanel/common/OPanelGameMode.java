@@ -15,4 +15,14 @@ public enum OPanelGameMode {
     public String getName() {
         return name;
     }
+
+    public static OPanelGameMode fromString(String gamemode) {
+        switch (gamemode) {
+            case "adventure" -> { return ADVENTURE; }
+            case "survival" -> { return SURVIVAL; }
+            case "creative" -> { return CREATIVE; }
+            case "spectator" -> { return SPECTATOR; }
+        }
+        return null;
+    }
 }
