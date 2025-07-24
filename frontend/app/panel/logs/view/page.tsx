@@ -75,6 +75,12 @@ export default function LogView() {
         defaultLanguage="txt"
         defaultValue={content}
         theme={theme === "dark" ? "vs-dark" : "vs"}
+        options={{
+          readOnly: true,
+          readOnlyMessage: {
+            value: "日志不可编辑"
+          }
+        }}
         onMount={(editor) => editorRef.current = editor}/>
     </SubPage>
   );
