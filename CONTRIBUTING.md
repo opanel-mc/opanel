@@ -83,6 +83,8 @@ And the development frontend app is served at port `3001`. Open `http://localhos
 
 1. Build the frontend app
 
+Inside the `frontend` folder, execute
+
 ```cmd
 npm run build
 ```
@@ -91,10 +93,11 @@ This step will automatically bundle the frontend and copy the bundled files into
 
 2. Build the server plugin
 
-#### Fabric
+Inside the project root folder, execute
 
-<!-- todo -->
+```cmd
+.\gradlew clean
+.\gradlew build
+```
 
-#### Bukkit
-
-<!-- todo -->
+And the built jar files will be at the `build/libs` folder of each modules. For example, the built jar file of `fabric-1.21.5` is `fabric-1.21.5/build/libs/opanel-fabric-1.21.5-build-<version>.jar`.

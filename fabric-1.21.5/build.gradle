@@ -65,7 +65,7 @@ remapJar {
     dependsOn shadowJar
     mustRunAfter shadowJar
     inputFile = shadowJar.archiveFile
-    archiveBaseName = baseName
+    archiveBaseName = baseName +"-build"
 }
 
 processResources {

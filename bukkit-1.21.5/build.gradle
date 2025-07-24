@@ -18,7 +18,7 @@ dependencies {
 }
 
 shadowJar {
-    archiveBaseName = baseName
+    archiveBaseName = baseName +"-build"
     archiveClassifier = ''
 
     relocate 'com.google.gson', 'net.opanel.deps.gson'
