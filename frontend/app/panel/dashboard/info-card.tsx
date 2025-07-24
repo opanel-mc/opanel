@@ -2,6 +2,7 @@
 
 import { useContext } from "react";
 import { Power, RotateCw, Settings } from "lucide-react";
+import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { apiUrl, sendPostRequest } from "@/lib/api";
@@ -9,21 +10,10 @@ import { InfoContext } from "@/contexts/api-context";
 import { MinecraftText } from "@/components/mc-text";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
-} from "@/components/ui/alert-dialog";
+import { ServerSheet } from "./server-sheet";
+import { Alert } from "@/components/alert";
 
 import PackIcon from "@/assets/images/pack.png";
-import { toast } from "sonner";
-import { ServerSheet } from "./server-sheet";
 
 export function InfoCard({
   className,
@@ -79,34 +69,21 @@ export function InfoCard({
             })}>
             <RotateCw />
           </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                title="停止服务器">
-                <Power />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>确定要停止服务器吗？</AlertDialogTitle>
-                <AlertDialogDescription>
-                  此操作将保存所有服务器信息并关闭服务器，OPanel也将无法访问，之后您可以从后台手动启动服务器。
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>取消</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    sendPostRequest("/api/control/stop");
-                    toast.loading("正在停止服务器...");
-                  }}>
-                  确定
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <Alert
+            title="确定要停止服务器吗？"
+            description="此操作将保存所有服务器信息并关闭服务器，OPanel也将无法访问，之后您可以从后台手动启动服务器。"
+            onAction={() => {
+              sendPostRequest("/api/control/stop");
+              toast.loading("正在停止服务器...");
+            }}
+            asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              title="停止服务器">
+              <Power />
+            </Button>
+          </Alert>
         </div>
       </div>
     </Card>

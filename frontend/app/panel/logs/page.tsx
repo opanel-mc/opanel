@@ -1,25 +1,15 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ScrollText, Trash2 } from "lucide-react";
 import { SubPage } from "../sub-page";
 import { DataTable } from "@/components/data-table";
 import { columns } from "./columns";
-import { useEffect, useState } from "react";
 import { sendDeleteRequest, sendGetRequest } from "@/lib/api";
 import { LogsResponse } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
-} from "@/components/ui/alert-dialog";
+import { Alert } from "@/components/alert";
 
 export default function Logs() {
   const [logs, setLogs] = useState<string[]>([]);
@@ -52,26 +42,18 @@ export default function Logs() {
   return (
     <SubPage title="日志" icon={<ScrollText />} className="flex flex-col gap-5">
       <div className="flex justify-end">
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              variant="destructive"
-              className="cursor-pointer">
-              <Trash2 />
-              清空日志
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>确定要清空所有日志文件吗？</AlertDialogTitle>
-              <AlertDialogDescription>此操作不会清除当前的服务器日志，但被清空的日志文件将不可恢复。</AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>取消</AlertDialogCancel>
-              <AlertDialogAction onClick={() => handleClearLogs()}>确定</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <Alert
+          title="确定要清空所有日志文件吗？"
+          description="此操作不会清除当前的服务器日志，但被清空的日志文件将不可恢复。"
+          onAction={() => handleClearLogs()}
+          asChild>
+          <Button
+            variant="destructive"
+            className="cursor-pointer">
+            <Trash2 />
+            清空日志
+          </Button>
+        </Alert>
       </div>
       <DataTable
         columns={columns}
