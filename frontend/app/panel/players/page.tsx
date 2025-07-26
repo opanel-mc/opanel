@@ -1,13 +1,13 @@
 "use client";
 
-import type { PlayersResponse } from "@/lib/types";
+import type { Player, PlayersResponse } from "@/lib/types";
 import { useEffect, useState } from "react";
 import { Users } from "lucide-react";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DataTable } from "@/components/data-table";
 import { sendGetRequest } from "@/lib/api";
-import { bannedColumns, type Player, playerColumns } from "./columns";
+import { bannedColumns, playerColumns } from "./columns";
 import { SubPage } from "../sub-page";
 
 export default function Players() {

@@ -28,7 +28,7 @@ const serverGroupItems = [
   },
   {
     name: "存档",
-    url: "/panel/worlds",
+    url: "/panel/saves",
     icon: Earth
   },
   {

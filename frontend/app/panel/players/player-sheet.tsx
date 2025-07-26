@@ -1,4 +1,3 @@
-import type { Player } from "./columns";
 import { type PropsWithChildren } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,7 +22,7 @@ import {
   FormLabel,
   FormMessage
 } from "@/components/ui/form";
-import { GameMode } from "@/lib/types";
+import { GameMode, type Player } from "@/lib/types";
 import { SkinViewer } from "@/components/skin-viewer";
 import { OnlineBadge } from "@/components/online-badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

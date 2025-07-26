@@ -4,6 +4,8 @@
 /* see https://minecraft.fandom.com/wiki/Formatting_codes */
 
 .cc-root {
+  @apply text-lg;
+
   .cc-0 {
     @apply text-[#000];
   }
@@ -69,7 +71,8 @@
   }
 
   .cc-l {
-    @apply font-bold;
+    /* weight 600 */
+    @apply font-semibold;
   }
 
   .cc-m {
@@ -82,5 +85,9 @@
 
   .cc-o {
     @apply italic;
+  }
+
+  .cc-k {
+    font-family: var(--font-minecraft-ae-old);
   }
 }

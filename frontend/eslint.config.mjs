@@ -26,8 +26,6 @@ const eslintConfig = [
           "type",
           "builtin",
           "external",
-          "internal",
-          "sibling"
         ],
         "newlines-between": "ignore"
       }],

@@ -69,7 +69,8 @@ export default function Gamerules() {
   }, []);
   
   return (
-    <SubPage title="游戏规则" icon={<PencilRuler />}>
+    <SubPage title="游戏规则" icon={<PencilRuler />} className="flex flex-col gap-3">
+      <span className="text-sm text-muted-foreground">编辑游戏规则后需保存以生效。</span>
       <Form {...form}>
         <form className="space-y-5" onSubmit={form.handleSubmit(handleSubmit)}>
           {Array.from(gamerulesMap).map(([key, value]) => {

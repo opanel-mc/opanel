@@ -5,7 +5,30 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="Changes">
+      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/SavesServlet.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/common/OPanelSave.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/FabricSave.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/ControlServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/ControlServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/LogsServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/LogsServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/common/OPanelServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/common/OPanelServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/utils/Utils.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/utils/Utils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/StaticFileServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/StaticFileServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/WebServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/WebServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/FabricServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/FabricServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/formatting-codes.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/formatting-codes.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/dashboard/info-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/dashboard/info-card.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/gamerules/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/gamerules/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/players/columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/players/columns.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/players/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/players/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/players/player-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/players/player-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/worlds/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/components/app-sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/components/app-sidebar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/components/mc-text.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/components/mc-text.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/eslint.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/eslint.config.mjs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/fonts.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/fonts.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/types.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -124,6 +147,7 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\opanel\fabric-1.21.5\run" />
       <recent name="D:\opanel\core\lib" />
     </key>
   </component>

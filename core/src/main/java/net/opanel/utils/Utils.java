@@ -2,8 +2,8 @@ package net.opanel.utils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.zip.GZIPInputStream;
@@ -84,5 +84,24 @@ public class Utils {
             }
         }
         return sb.toString();
+    }
+
+    public static void deleteDirectoryRecursively(Path dirPath) throws IOException {
+        if(!Files.exists(dirPath)) {
+            throw new IOException("The given path doesn't exist.");
+        }
+        Files.walkFileTree(dirPath, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path subDir, IOException e) throws IOException {
+                Files.delete(subDir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 }

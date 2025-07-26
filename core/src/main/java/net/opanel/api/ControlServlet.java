@@ -70,6 +70,8 @@ public class ControlServlet extends BaseServlet {
                     server.setPropertiesContent(newContent);
                 } catch (IOException e) {
                     e.printStackTrace();
+                    sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+                    return;
                 }
             }
             default -> {

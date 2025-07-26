@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/alert";
 import { ServerSheet } from "./server-sheet";
 
-// eslint-disable-next-line import/order
 import PackIcon from "@/assets/images/pack.png";
 
 export function InfoCard({

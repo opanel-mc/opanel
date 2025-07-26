@@ -62,12 +62,13 @@ public class WebServer {
         ctx.addServlet(new ServletHolder(new InfoServlet(plugin)), InfoServlet.route);
         ctx.addServlet(new ServletHolder(new ControlServlet(plugin)), ControlServlet.route);
         ctx.addServlet(new ServletHolder(new IconServlet(plugin)), IconServlet.route);
+        ctx.addServlet(new ServletHolder(new SavesServlet(plugin)), SavesServlet.route);
         ctx.addServlet(new ServletHolder(new PlayersServlet(plugin)), PlayersServlet.route);
         ctx.addServlet(new ServletHolder(new MonitorServlet(plugin)), MonitorServlet.route);
         ctx.addServlet(new ServletHolder(new GamerulesServlet(plugin)), GamerulesServlet.route);
         ctx.addServlet(new ServletHolder(new LogsServlet(plugin)), LogsServlet.route);
         // Frontend
-        ctx.addServlet(new ServletHolder(new StaticFileServlet(plugin)), "/");
+        ctx.addServlet(new ServletHolder(new StaticFileServlet(plugin)), StaticFileServlet.route);
 
         server.start();
         plugin.logger.info("Web server is ready on port "+ PORT);

@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class StaticFileServlet extends BaseServlet {
+    public static final String route = "/";
+
     private final static String ROOT_PATH = "web";
     private final static String DEFAULT_FILE = "index.html";
     private final static String DEFAULT_RSC_FILE = "index.txt";

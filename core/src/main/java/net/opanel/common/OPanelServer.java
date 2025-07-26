@@ -8,6 +8,8 @@ public interface OPanelServer {
     String getMotd();
     String getVersion();
     int getPort();
+    List<OPanelSave> getSaves();
+    OPanelSave getSave(String saveName);
     List<OPanelPlayer> getOnlinePlayers();
     List<OPanelPlayer> getPlayers();
     int getMaxPlayerCount();

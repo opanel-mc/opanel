@@ -1,5 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import type { GameMode } from "@/lib/types";
+import type { Player } from "@/lib/types";
 import { Ban, BrushCleaning, Check, ShieldOff } from "lucide-react";
 import { getGameModeText } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -9,16 +9,6 @@ import { avatarUrl } from "@/lib/api";
 import { OnlineBadge } from "@/components/online-badge";
 import { ban, kick, pardon } from "./player-utils";
 import { PlayerSheet } from "./player-sheet";
-
-export interface Player {
-  name: string
-  uuid: string
-  isOnline: boolean
-  isOp: boolean
-  isBanned: boolean
-  gamemode?: GameMode
-  banReason?: string
-}
 
 export const playerColumns: ColumnDef<Player>[] = [
   {

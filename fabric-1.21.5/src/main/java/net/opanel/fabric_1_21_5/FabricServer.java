@@ -2,7 +2,6 @@ package net.opanel.fabric_1_21_5;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.CommandNode;
-import net.fabricmc.fabric.api.gamerule.v1.FabricGameRuleVisitor;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerMetadata;
@@ -13,6 +12,7 @@ import net.minecraft.util.WorldSavePath;
 import net.minecraft.world.GameRules;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelServer;
+import net.opanel.common.OPanelSave;
 import net.opanel.utils.Utils;
 
 import java.io.IOException;
@@ -59,6 +59,34 @@ public class FabricServer implements OPanelServer {
     }
 
     @Override
+    public List<OPanelSave> getSaves() {
+        List<OPanelSave> list = new ArrayList<>();
+        try(Stream<Path> stream = Files.list(Paths.get(""))) {
+            stream.filter(path -> (
+                    Files.exists(path.resolve("level.dat"))
+                    && !Files.isDirectory(path.resolve("level.dat"))
+                    ))
+                    .map(Path::toAbsolutePath)
+                    .forEach(path -> {
+                        FabricSave save = new FabricSave(server, path);
+                        list.add(save);
+                    });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public OPanelSave getSave(String saveName) {
+        final Path savePath = Paths.get("").resolve(saveName);
+        if(!Files.exists(savePath) || !Files.exists(savePath.resolve("level.dat"))) {
+            return null;
+        }
+        return new FabricSave(server, savePath.toAbsolutePath());
+    }
+
+    @Override
     public List<OPanelPlayer> getOnlinePlayers() {
         List<OPanelPlayer> list = new ArrayList<>();
         List<ServerPlayerEntity> players = server.getPlayerManager().getPlayerList();
@@ -83,8 +111,12 @@ public class FabricServer implements OPanelServer {
                         ServerPlayerEntity serverPlayer = server.getPlayerManager().getPlayer(UUID.fromString(uuid));
                         if(serverPlayer != null && !serverPlayer.isDisconnected()) return;
 
-                        FabricOfflinePlayer player = new FabricOfflinePlayer(server, item, UUID.fromString(uuid));
-                        list.add(player);
+                        try {
+                            FabricOfflinePlayer player = new FabricOfflinePlayer(server, item, UUID.fromString(uuid));
+                            list.add(player);
+                        } catch (NullPointerException e) {
+                            //
+                        }
                     });
         } catch (IOException e) {
             e.printStackTrace();

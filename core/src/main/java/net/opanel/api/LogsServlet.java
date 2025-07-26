@@ -83,6 +83,7 @@ public class LogsServlet extends BaseServlet {
             logger.deleteLog(reqPath.substring(1));
         } catch (IOException e) {
             sendResponse(res, HttpServletResponse.SC_NOT_FOUND, e.getMessage());
+            return;
         }
         sendResponse(res, HttpServletResponse.SC_OK);
     }

@@ -1,6 +1,5 @@
 import type { OnMount } from "@monaco-editor/react";
 import type { ServerGamerules } from "./gamerules/gamerule";
-import type { Player } from "@/app/panel/players/columns";
 
 export type APIResponse<T> = {
   code: number
@@ -12,6 +11,24 @@ export enum GameMode {
   SURVIVAL = "survival",
   CREATIVE = "creative",
   SPECTATOR = "spectator"
+}
+
+export interface Save {
+  name: string
+  displayName: string
+  path: string
+  isCurrent: boolean
+  defaultGameMode: GameMode
+}
+
+export interface Player {
+  name: string
+  uuid: string
+  isOnline: boolean
+  isOp: boolean
+  isBanned: boolean
+  gamemode?: GameMode
+  banReason?: string
 }
 
 export type EditorRefType = Parameters<OnMount>[0];
@@ -54,6 +71,11 @@ export interface LogsResponse {
 }
 export interface LogResponse {
   log: string
+}
+
+// /api/saves
+export interface SavesResponse {
+  saves: Save[]
 }
 
 // /api/players

@@ -4,6 +4,7 @@ import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.WorldSavePath;
 import net.opanel.*;
 import net.opanel.fabric_1_21_5.terminal.LogListenerManagerImpl;
 import org.apache.logging.log4j.LogManager;
