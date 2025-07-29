@@ -92,13 +92,18 @@ public class SavesServlet extends BaseServlet {
                 return;
             }
 
+            final Path targetPath = Paths.get("").resolve(fileName.replaceAll(".zip", ""));
+            if(Files.exists(targetPath)) {
+                sendResponse(res, HttpServletResponse.SC_CONFLICT);
+                return;
+            }
+
             // Copy to tmp dir
             final Path filePath = OPanel.TMP_DIR_PATH.resolve(fileName);
             try(InputStream is = filePart.getInputStream()) {
                 Files.copy(is, filePath, StandardCopyOption.REPLACE_EXISTING);
             }
             // Unzip
-            final Path targetPath = Paths.get("").resolve(fileName.replaceAll(".zip", ""));
             ZipUtility zipUtility = new ZipUtility(filePath, targetPath);
             zipUtility.unzip();
             // Delete zip file

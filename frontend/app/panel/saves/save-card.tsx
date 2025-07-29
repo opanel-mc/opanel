@@ -1,5 +1,5 @@
 import type { Save } from "@/lib/types";
-import { Trash2 } from "lucide-react";
+import { FolderPen, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { cn, gameModeToString } from "@/lib/utils";
@@ -50,7 +50,13 @@ export function SaveCard({
       </Tooltip>
       <div className="flex justify-between items-center">
         <span className="text-sm pl-1">{gameModeToString(defaultGameMode)}</span>
-        <div className="space-x-2 [&_button]:cursor-pointer">
+        <div className="[&_button]:cursor-pointer">
+          <Button
+            variant="ghost"
+            size="icon"
+            title="编辑存档">
+            <FolderPen />
+          </Button>
           <Alert
             title={`确定要删除存档 "${name}" 吗？`}
             description="此操作不可逆，被删除的存档将无法恢复。"

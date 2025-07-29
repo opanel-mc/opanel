@@ -37,6 +37,7 @@ public abstract class BaseServlet extends HttpServlet {
             case HttpServletResponse.SC_UNAUTHORIZED -> obj.put("error", "Unauthorized");
             case HttpServletResponse.SC_FORBIDDEN -> obj.put("error", "Forbidden");
             case HttpServletResponse.SC_NOT_FOUND -> obj.put("error", "Not found");
+            case HttpServletResponse.SC_CONFLICT -> obj.put("error", "Conflict");
             case HttpServletResponse.SC_INTERNAL_SERVER_ERROR -> obj.put("error", "Server internal error");
         }
         sendResponse(res, code, new Gson().toJson(obj));
