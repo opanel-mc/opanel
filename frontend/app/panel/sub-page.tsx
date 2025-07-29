@@ -14,8 +14,9 @@ export function SubPage({
   title,
   subTitle,
   icon,
-  className
-}: Readonly<{
+  className,
+  ...props
+}: Readonly<React.ComponentProps<"div"> & {
   children?: React.ReactNode
   title: string
   subTitle?: string
@@ -49,7 +50,7 @@ export function SubPage({
           <h1 className="text-3xl font-bold">{subTitle ?? title}</h1>
         </div>
       </div>
-      <div className={cn(className, "pb-16")}>
+      <div className={cn(className, "pb-16")} {...props}>
         {children}
       </div>
     </div>
