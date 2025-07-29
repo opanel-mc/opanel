@@ -59,7 +59,8 @@ export function SaveCard({
             <Button
               variant="ghost"
               size="icon"
-              disabled={isCurrent}>
+              disabled={isCurrent}
+              title="删除存档">
               <Trash2 />
             </Button>
           </Alert>

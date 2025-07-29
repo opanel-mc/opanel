@@ -30,7 +30,7 @@ export class WebSocketClient {
   private socket: WebSocket | null = null;
 
   constructor() {
-    if(!hasCookie("token")) throw new Error("No authentication token found.");
+    if(!hasCookie("token")) window.location.href = "/login";
 
     this.socket = new WebSocket(wsUrl + "/terminal");
     this.init();

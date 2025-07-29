@@ -25,7 +25,7 @@ export function InfoCard({
   return (
     <Card className={cn(className, "flex flex-row rounded-md")}>
       <img
-        className="aspect-square h-full rounded-xs"
+        className="aspect-square h-full rounded-xs image-pixelated"
         src={(ctx && ctx.favicon) ? (apiUrl + ctx.favicon) : PackIcon.src}
         alt="favicon"/>
       

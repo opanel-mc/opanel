@@ -126,3 +126,9 @@
     }
   }
 }
+
+@layer components {
+  .image-pixelated {
+    image-rendering: pixelated;
+  }
+}

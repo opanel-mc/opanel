@@ -75,7 +75,7 @@ export default function Login() {
   return (
     <div className="flex flex-col">
       <div className="text-center space-y-4 mb-8">
-        <h1 className={cn("text-4xl font-bold text-theme", minecraftAE.className)}>OPanel</h1>
+        <h1 className={cn("text-4xl font-semibold text-theme", minecraftAE.className)}>OPanel</h1>
         <p className="text-lg text-muted-foreground">Minecraft 服务器管理面板</p>
       </div>
       <Card className="w-96">
