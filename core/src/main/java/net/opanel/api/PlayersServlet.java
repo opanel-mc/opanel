@@ -36,6 +36,7 @@ public class PlayersServlet extends BaseServlet {
 
         HashMap<String, Object> obj = new HashMap<>();
         obj.put("maxPlayerCount", server.getMaxPlayerCount());
+        obj.put("whitelist", server.isWhitelistEnabled());
 
         List<HashMap<String, Object>> players = new ArrayList<>();
         for(OPanelPlayer player : server.getPlayers()) {

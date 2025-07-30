@@ -81,5 +81,6 @@ export interface SavesResponse {
 // /api/players
 export interface PlayersResponse {
   maxPlayerCount: number
+  whitelist: boolean
   players: Player[]
 }

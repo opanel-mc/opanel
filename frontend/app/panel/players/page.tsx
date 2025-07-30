@@ -9,10 +9,12 @@ import { DataTable } from "@/components/data-table";
 import { sendGetRequest } from "@/lib/api";
 import { bannedColumns, playerColumns } from "./columns";
 import { SubPage } from "../sub-page";
+import { Badge } from "@/components/ui/badge";
 
 export default function Players() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [maxPlayerCount, setMaxPlayerCount] = useState<number>(0);
+  const [isWhitelistEnabled, setIsWhitelistEnabled] = useState(false);
   const [currentTab, setCurrentTab] = useState<string>("player-list");
 
   const fetchPlayerList = async () => {
@@ -20,6 +22,7 @@ export default function Players() {
       const res = await sendGetRequest<PlayersResponse>("/api/players");
       setPlayers(res.players);
       setMaxPlayerCount(res.maxPlayerCount);
+      setIsWhitelistEnabled(res.whitelist);
     } catch (e: any) {
       toast.error("无法获取玩家列表", { description: e.message });
     }
@@ -37,14 +40,17 @@ export default function Players() {
       className="flex flex-col gap-3">
       <span className="text-sm text-muted-foreground">点击玩家名以进行更多操作。</span>
       <Tabs defaultValue="player-list" onValueChange={setCurrentTab}>
-        <TabsList className="[&>*]:cursor-pointer">
-          <TabsTrigger value="player-list">
-            {`玩家列表 (${players.filter(({ isOnline }) => isOnline).length} / ${maxPlayerCount})`}
-          </TabsTrigger>
-          <TabsTrigger value="banned-list">
-            {`封禁列表 (${players.filter(({ isBanned }) => isBanned).length})`}
-          </TabsTrigger>
-        </TabsList>
+        <div className="flex justify-between items-center">
+          <TabsList className="[&>*]:cursor-pointer">
+            <TabsTrigger value="player-list">
+              {`玩家列表 (${players.filter(({ isOnline }) => isOnline).length} / ${maxPlayerCount})`}
+            </TabsTrigger>
+            <TabsTrigger value="banned-list">
+              {`封禁列表 (${players.filter(({ isBanned }) => isBanned).length})`}
+            </TabsTrigger>
+          </TabsList>
+          {isWhitelistEnabled && <Badge variant="secondary">已启用白名单</Badge>}
+        </div>
         <TabsContent value="player-list">
           <DataTable
             columns={playerColumns}

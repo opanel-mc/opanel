@@ -141,6 +141,11 @@ public class FabricServer implements OPanelServer {
     }
 
     @Override
+    public boolean isWhitelistEnabled() {
+        return server.getPlayerManager().isWhitelistEnabled();
+    }
+
+    @Override
     public void sendServerCommand(String command) {
         CommandManager manager = server.getCommandManager();
         ServerCommandSource source = server.getCommandSource();
