@@ -24,8 +24,8 @@ export default function Dashboard() {
     try {
       const res = await sendGetRequest<InfoResponse>("/api/info");
       setInfo(res);
-    } catch (e) {
-      toast.error("无法连接到服务器");
+    } catch (e: any) {
+      toast.error("无法连接到服务器", { description: e.message });
     }
   };
 

@@ -45,6 +45,7 @@ export class WebSocketClient {
     });
     this.socket?.addEventListener("error", (err) => {
       console.log("Terminal connection failed. ", err);
+      toast.error("无法连接到终端WebSocket");
     });
     this.socket?.addEventListener("close", () => {
       console.log("Terminal disconnected.");

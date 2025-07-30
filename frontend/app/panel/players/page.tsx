@@ -20,8 +20,8 @@ export default function Players() {
       const res = await sendGetRequest<PlayersResponse>("/api/players");
       setPlayers(res.players);
       setMaxPlayerCount(res.maxPlayerCount);
-    } catch (e) {
-      toast.error("无法获取玩家列表");
+    } catch (e: any) {
+      toast.error("无法获取玩家列表", { description: e.message });
     }
   };
 

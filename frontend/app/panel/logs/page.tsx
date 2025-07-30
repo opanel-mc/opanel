@@ -18,8 +18,8 @@ export default function Logs() {
     try {
       const res = await sendGetRequest<LogsResponse>("/api/logs");
       setLogs(res.logs);
-    } catch (e) {
-      toast.error("无法获取日志列表");
+    } catch (e: any) {
+      toast.error("无法获取日志列表", { description: e.message });
     }
   };
 
@@ -28,8 +28,8 @@ export default function Logs() {
       await sendDeleteRequest("/api/logs");
       toast.success("已清空除当前日志外的所有日志");
       window.location.reload();
-    } catch (e) {
-      toast.error("清空日志失败");
+    } catch (e: any) {
+      toast.error("清空日志失败", { description: e.message });
     }
   };
 

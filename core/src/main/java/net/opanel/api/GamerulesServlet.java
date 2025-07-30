@@ -46,7 +46,7 @@ public class GamerulesServlet extends BaseServlet {
             return;
         }
 
-        RequestBodyType reqBody = getRequestBody(req, RequestBodyType.class);
+        GamerulesEditRequestBodyType reqBody = getRequestBody(req, GamerulesEditRequestBodyType.class);
         if(reqBody.gamerules == null) {
             sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
             return;
@@ -56,7 +56,7 @@ public class GamerulesServlet extends BaseServlet {
         sendResponse(res, HttpServletResponse.SC_OK);
     }
 
-    private class RequestBodyType {
+    private static class GamerulesEditRequestBodyType {
         HashMap<String, Object> gamerules;
     }
 }

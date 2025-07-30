@@ -11,7 +11,6 @@ import net.opanel.common.OPanelSave;
 import net.opanel.utils.Utils;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -35,6 +34,12 @@ public class FabricSave implements OPanelSave {
         }
     }
 
+    private void saveNbt() throws IOException {
+        NbtCompound dataNbt = new NbtCompound();
+        dataNbt.put("Data", nbt);
+        NbtIo.writeCompressed(dataNbt, savePath.resolve("level.dat"));
+    }
+
     @Override
     public String getName() {
         return savePath.getFileName().toString();
@@ -42,7 +47,13 @@ public class FabricSave implements OPanelSave {
 
     @Override
     public String getDisplayName() {
-        return nbt.getString("LevelName", "world");
+        return nbt.getString("LevelName", "world").replaceAll("\u00C2", "");
+    }
+
+    @Override
+    public void setDisplayName(String displayName) throws IOException {
+        nbt.putString("LevelName", displayName);
+        saveNbt();
     }
 
     @Override
@@ -65,6 +76,17 @@ public class FabricSave implements OPanelSave {
             case SPECTATOR -> { return OPanelGameMode.SPECTATOR; }
         }
         return null;
+    }
+
+    @Override
+    public void setDefaultGameMode(OPanelGameMode gamemode) throws IOException {
+        switch (gamemode) {
+            case ADVENTURE -> nbt.putInt("GameType", 2);
+            case SURVIVAL -> nbt.putInt("GameType", 0);
+            case CREATIVE -> nbt.putInt("GameType", 1);
+            case SPECTATOR -> nbt.putInt("GameType", 3);
+        }
+        saveNbt();
     }
 
     @Override

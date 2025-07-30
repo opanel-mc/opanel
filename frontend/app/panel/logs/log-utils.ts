@@ -8,8 +8,8 @@ export async function downloadLog(name: string) {
   try {
     const res = await sendGetRequest<LogResponse>(`/api/logs/${name}`);
     download(res.log, fileName, "text/plain");
-  } catch (e) {
-    toast.error("下载失败", { description: `无法下载日志${fileName}` });
+  } catch (e: any) {
+    toast.error(`无法下载日志 ${fileName}`, { description: e.message });
   }
 }
 
@@ -17,7 +17,7 @@ export async function deleteLog(name: string) {
   try {
     await sendDeleteRequest(`/api/logs/${name}`);
     toast.success("删除成功");
-  } catch (e) {
-    toast.error("删除失败");
+  } catch (e: any) {
+    toast.error("删除失败", { description: e.message });
   }
 }

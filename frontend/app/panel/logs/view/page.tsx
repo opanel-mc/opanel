@@ -24,8 +24,8 @@ export default function LogView() {
     try {
       const res = await sendGetRequest<LogResponse>(`/api/logs/${log}`);
       setContent(res.log);
-    } catch (e) {
-      toast.error("无法获取日志内容");
+    } catch (e: any) {
+      toast.error("无法获取日志内容", { description: e.message });
     }
   }, [log]);
 

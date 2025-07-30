@@ -32,8 +32,8 @@ export default function Saves() {
         }
       }
       setSaves(list);
-    } catch (e) {
-      toast.error("无法获取存档列表");
+    } catch (e: any) {
+      toast.error("无法获取存档列表", { description: e.message });
     }
   };
 
@@ -95,7 +95,7 @@ export default function Saves() {
           )}
         </div>
         <div className="pt-2 grid grid-cols-3 gap-4">
-          {saves.map((save, i) => <SaveCard {...save} key={i}/>)}
+          {saves.map((save, i) => <SaveCard save={save} key={i}/>)}
         </div>
       </div>
     </SubPage>

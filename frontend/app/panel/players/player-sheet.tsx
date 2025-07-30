@@ -1,4 +1,4 @@
-import { type PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -177,7 +177,9 @@ export function PlayerSheet({
             <SheetFooter>
               <Button
                 type="submit"
-                className="cursor-pointer">确定</Button>
+                className="cursor-pointer">
+                确定
+              </Button>
               <SheetClose asChild>
                 <Button
                   variant="outline"

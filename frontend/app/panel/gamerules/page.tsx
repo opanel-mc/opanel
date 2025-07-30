@@ -42,8 +42,8 @@ export default function Gamerules() {
     try {
       const res = await sendGetRequest<GamerulesResponse>("/api/gamerules");
       setServerGamerules(res.gamerules);
-    } catch (e) {
-      toast.error("无法获取服务器游戏规则信息");
+    } catch (e: any) {
+      toast.error("无法获取服务器游戏规则信息", { description: e.message });
     }
   };
 
@@ -59,8 +59,8 @@ export default function Gamerules() {
     try {
       await sendPostRequest("/api/gamerules", { gamerules: data });
       toast.success("保存成功");
-    } catch (e) {
-      toast.error("保存失败", { description: "无法保存游戏规则" });
+    } catch (e: any) {
+      toast.error("无法保存游戏规则", { description: e.message });
     }
   };
 

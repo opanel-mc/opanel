@@ -9,23 +9,29 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Button } from "@/components/ui/button";
 import { sendDeleteRequest } from "@/lib/api";
 import { Alert } from "@/components/alert";
+import { SaveSheet } from "./save-sheet";
 
 export function SaveCard({
-  name,
-  displayName,
-  path,
-  isCurrent,
-  defaultGameMode,
+  save,
   className
-}: Save & {
+}: {
+  save: Save
   className?: string
 }) {
+  const {
+    name,
+    displayName,
+    path,
+    isCurrent,
+    defaultGameMode
+  } = save;
+
   const handleDelete = async () => {
     try {
       await sendDeleteRequest(`/api/saves/${name}`);
       window.location.reload();
-    } catch (e) {
-      toast.success(`无法删除存档 ${name}`);
+    } catch (e: any) {
+      toast.success(`无法删除存档 ${name}`, { description: e.message });
     }
   };
 
@@ -51,12 +57,14 @@ export function SaveCard({
       <div className="flex justify-between items-center">
         <span className="text-sm pl-1">{gameModeToString(defaultGameMode)}</span>
         <div className="[&_button]:cursor-pointer">
-          <Button
-            variant="ghost"
-            size="icon"
-            title="编辑存档">
-            <FolderPen />
-          </Button>
+          <SaveSheet save={save} asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              title="编辑存档">
+              <FolderPen />
+            </Button>
+          </SaveSheet>
           <Alert
             title={`确定要删除存档 "${name}" 吗？`}
             description="此操作不可逆，被删除的存档将无法恢复。"

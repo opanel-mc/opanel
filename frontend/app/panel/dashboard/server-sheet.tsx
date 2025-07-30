@@ -30,8 +30,8 @@ export function ServerSheet({
     try {
       const res = await sendGetRequest<ServerPropertiesResponse>(`/api/control/properties`);
       setValue(res.properties);
-    } catch (e) {
-      toast.error("无法获取server.properties");
+    } catch (e: any) {
+      toast.error("无法获取server.properties", { description: e.message });
     }
   };
 
@@ -44,8 +44,8 @@ export function ServerSheet({
     try {
       await sendPostRequest(`/api/control/properties`, editorRef.current.getValue());
       toast.success("保存成功", { description: "重启服务器以使改动生效" });
-    } catch (e) {
-      toast.error("无法保存server.properties");
+    } catch (e: any) {
+      toast.error("无法保存server.properties", { description: e.message });
     }
   };
   
