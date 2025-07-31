@@ -2,7 +2,7 @@ import type { PropsWithChildren } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Ban, BrushCleaning, ShieldOff } from "lucide-react";
+import { Ban, BrushCleaning, ShieldOff, UserMinus, UserPlus } from "lucide-react";
 import {
   Sheet,
   SheetClose,
@@ -29,7 +29,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Prompt } from "@/components/prompt";
-import { ban, depriveOp, giveOp, kick, pardon, setGameMode } from "./player-utils";
+import { addToWhitelist, ban, depriveOp, giveOp, kick, pardon, removeFromWhitelist, setGameMode } from "./player-utils";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   gamemode: z.enum(Object.values(GameMode) as [string, ...string[]]),
@@ -122,7 +123,32 @@ export function PlayerSheet({
                 )}/>
               <div className="space-y-3">
                 <Label>管理</Label>
-                <div className="flex gap-2 [&>*]:flex-1 [&>*]:cursor-pointer">
+                <div className="grid grid-rows-2 grid-cols-2 gap-2 [&>*]:cursor-pointer">
+                  {player.isWhitelisted !== undefined && (
+                    player.isWhitelisted
+                    ? (
+                      <Button
+                        variant="outline"
+                        onClick={async () => {
+                          await removeFromWhitelist(player.name, player.uuid);
+                          window.location.reload();
+                        }}>
+                        <UserMinus />
+                        移出白名单
+                      </Button>
+                    )
+                    : (
+                      <Button
+                        variant="outline"
+                        onClick={async () => {
+                          await addToWhitelist(player.name, player.uuid);
+                          window.location.reload();
+                        }}>
+                        <UserPlus />
+                        加入白名单
+                      </Button>
+                    )
+                  )}
                   <Prompt
                     title="踢出玩家"
                     description="将玩家踢出服务器，之后玩家可重新加入服务器"
@@ -135,6 +161,7 @@ export function PlayerSheet({
                     asChild>
                     <Button
                       variant="outline"
+                      className={player.isWhitelisted === undefined ? "col-start-1" : "col-start-2"}
                       disabled={!player.isOnline}>
                       <BrushCleaning />
                       踢出服务器
@@ -153,7 +180,9 @@ export function PlayerSheet({
                           window.location.reload();
                         }}
                         asChild>
-                        <Button variant="destructive">
+                        <Button
+                          variant="destructive"
+                          className={player.isWhitelisted === undefined ? "col-start-2" : "col-span-2"}>
                           <Ban />
                           封禁玩家
                         </Button>
@@ -162,6 +191,7 @@ export function PlayerSheet({
                     : (
                       <Button
                         variant="outline"
+                        className={player.isWhitelisted === undefined ? "col-start-2" : "col-span-2"}
                         onClick={async () => {
                           await pardon(player.uuid);
                           window.location.reload();

@@ -50,11 +50,26 @@ public class WhitelistServlet extends BaseServlet {
         final OPanelServer server = plugin.getServer();
         final OPanelWhitelist whitelist = server.getWhitelist();
 
+        String name = req.getParameter("name");
+        String uuid = req.getParameter("uuid");
+
         try {
             switch(reqPath.substring(1)) {
                 case "write" -> whitelist.write(getRequestBody(req, new TypeToken<List<OPanelWhitelist.OPanelWhitelistEntry>>() {}.getType()));
-                case "add" -> {}
-                case "remove" -> {}
+                case "add" -> {
+                    if(name == null || uuid == null) {
+                        sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
+                        return;
+                    }
+                    whitelist.add(new OPanelWhitelist.OPanelWhitelistEntry(name, uuid));
+                }
+                case "remove" -> {
+                    if(name == null || uuid == null) {
+                        sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
+                        return;
+                    }
+                    whitelist.remove(new OPanelWhitelist.OPanelWhitelistEntry(name, uuid));
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();

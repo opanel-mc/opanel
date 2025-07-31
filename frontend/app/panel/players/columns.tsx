@@ -1,14 +1,14 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Player } from "@/lib/types";
 import { useEffect } from "react";
-import { Ban, BrushCleaning, Check, ShieldOff } from "lucide-react";
+import { Ban, BrushCleaning, Check, ShieldOff, UserMinus, UserPlus } from "lucide-react";
 import { getGameModeText } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Prompt } from "@/components/prompt";
 import { avatarUrl } from "@/lib/api";
 import { OnlineBadge } from "@/components/online-badge";
-import { ban, kick, pardon } from "./player-utils";
+import { addToWhitelist, ban, kick, pardon, removeFromWhitelist } from "./player-utils";
 import { PlayerSheet } from "./player-sheet";
 
 export const playerColumns: ColumnDef<Player>[] = [
@@ -96,10 +96,37 @@ export const playerColumns: ColumnDef<Player>[] = [
   {
     header: " ",
     cell: ({ row }) => {
-      const { uuid } = row.original;
+      const { name, uuid, isOnline, isWhitelisted } = row.original;
       return (
         <div className="flex justify-end [&>*]:h-4 [&>*]:cursor-pointer [&>*]:hover:!bg-transparent">
-          {row.getValue<boolean>("isOnline") && (
+          {isWhitelisted !== undefined && (
+            isWhitelisted
+            ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                title="移出白名单"
+                onClick={async () => {
+                  await removeFromWhitelist(name, uuid);
+                  window.location.reload();
+                }}>
+                <UserMinus />
+              </Button>
+            )
+            : (
+              <Button
+                variant="ghost"
+                size="icon"
+                title="加入白名单"
+                onClick={async () => {
+                  await addToWhitelist(name, uuid);
+                  window.location.reload();
+                }}>
+                <UserPlus />
+              </Button>
+            )
+          )}
+          {isOnline && (
             <Prompt
               title="踢出玩家"
               description="将玩家踢出服务器，之后玩家可重新加入服务器"

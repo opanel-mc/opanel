@@ -56,3 +56,21 @@ export async function setGameMode(uuid: string, gamemode: GameMode, doToast = tr
     toast.error("无法设置该玩家的游戏模式", { description: e.message });
   }
 }
+
+export async function addToWhitelist(name: string, uuid: string, doToast = true) {
+  try {
+    await sendPostRequest(`/api/whitelist/add?name=${name}&uuid=${uuid}`);
+    doToast && toast.success("已将该玩家加入白名单");
+  } catch (e: any) {
+    toast.error("无法将该玩家加入白名单", { description: e.message });
+  }
+}
+
+export async function removeFromWhitelist(name: string, uuid: string, doToast = true) {
+  try {
+    await sendPostRequest(`/api/whitelist/remove?name=${name}&uuid=${uuid}`);
+    doToast && toast.success("已将该玩家移出白名单");
+  } catch (e: any) {
+    toast.error("无法将该玩家移出白名单", { description: e.message });
+  }
+}
