@@ -14,7 +14,7 @@ import {
   SheetTrigger
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { sendGetRequest, sendPostRequest } from "@/lib/api";
+import { sendGetRequest, sendPostRequest, toastError } from "@/lib/api";
 
 export function WhitelistSheet({
   children,
@@ -31,7 +31,10 @@ export function WhitelistSheet({
       const res = await sendGetRequest<WhitelistResponse>("/api/whitelist");
       setValue(JSON.stringify(res.whitelist, undefined, 2));
     } catch (e: any) {
-      toast.error("无法获取白名单", { description: e.message });
+      toastError(e, "无法获取白名单", [
+        [401, "未登录"],
+        [500, "服务器内部错误"]
+      ]);
     }
   };
 
@@ -45,7 +48,10 @@ export function WhitelistSheet({
       await sendPostRequest("/api/whitelist/write", JSON.parse(editorRef.current.getValue()));
       toast.success("保存成功");
     } catch (e: any) {
-      toast.error("无法保存白名单", { description: e.message });
+      toastError(e, "无法保存白名单", [
+        [401, "未登录"],
+        [500, "服务器内部错误"]
+      ]);
     }
   };
 

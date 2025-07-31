@@ -21,11 +21,6 @@ public class GamerulesServlet extends BaseServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse res) {
-        if(req.getMethod().equals("OPTIONS")) {
-            sendResponse(res, HttpServletResponse.SC_OK);
-            return;
-        }
-
         if(!authCookie(req)) {
             sendResponse(res, HttpServletResponse.SC_UNAUTHORIZED);
             return;

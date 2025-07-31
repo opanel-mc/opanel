@@ -3,9 +3,8 @@
 import type { APIResponse, InfoResponse, MonitorResponse } from "@/lib/types";
 import { useEffect, useState } from "react";
 import { Gauge } from "lucide-react";
-import { toast } from "sonner";
 import { InfoContext, MonitorContext } from "@/contexts/api-context";
-import { sendGetRequest } from "@/lib/api";
+import { sendGetRequest, toastError } from "@/lib/api";
 import { getCurrentState } from "@/lib/utils";
 import { InfoCard } from "./info-card";
 import { PlayersCard } from "./players-card";
@@ -25,7 +24,10 @@ export default function Dashboard() {
       const res = await sendGetRequest<InfoResponse>("/api/info");
       setInfo(res);
     } catch (e: any) {
-      toast.error("无法连接到服务器", { description: e.message });
+      toastError(e, "无法连接到服务器", [
+        [401, "未登录"],
+        [500, "服务器内部错误"]
+      ]);
     }
   };
 

@@ -14,7 +14,7 @@ import {
   SheetTrigger
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { sendGetRequest, sendPostRequest } from "@/lib/api";
+import { sendGetRequest, sendPostRequest, toastError } from "@/lib/api";
 
 export function ServerSheet({
   children,
@@ -31,7 +31,10 @@ export function ServerSheet({
       const res = await sendGetRequest<ServerPropertiesResponse>(`/api/control/properties`);
       setValue(res.properties);
     } catch (e: any) {
-      toast.error("无法获取server.properties", { description: e.message });
+      toastError(e, "无法获取server.properties", [
+        [401, "未登录"],
+        [500, "服务器内部错误"]
+      ]);
     }
   };
 
@@ -45,7 +48,10 @@ export function ServerSheet({
       await sendPostRequest(`/api/control/properties`, editorRef.current.getValue());
       toast.success("保存成功", { description: "重启服务器以使改动生效" });
     } catch (e: any) {
-      toast.error("无法保存server.properties", { description: e.message });
+      toastError(e, "无法保存server.properties", [
+        [401, "未登录"],
+        [500, "服务器内部错误"]
+      ]);
     }
   };
   

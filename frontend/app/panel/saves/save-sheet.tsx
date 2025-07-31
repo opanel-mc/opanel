@@ -2,7 +2,6 @@ import type { PropsWithChildren } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
 import { GameMode, type Save } from "@/lib/types";
 import {
   Sheet,
@@ -32,7 +31,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { MinecraftText } from "@/components/mc-text";
-import { sendPostRequest } from "@/lib/api";
+import { sendPostRequest, toastError } from "@/lib/api";
 
 const formSchema = z.object({
   displayName: z.string().nonempty("存档名称不得为空"),
@@ -60,7 +59,10 @@ export function SaveSheet({
       await sendPostRequest(`/api/saves/${save.name}`, values);
       window.location.reload();
     } catch (e: any) {
-      toast.error("无法保存存档信息", { description: e.message });
+      toastError(e, "无法保存存档信息", [
+        [401, "未登录"],
+        [500, "服务器内部错误"]
+      ]);
     }
   };
 

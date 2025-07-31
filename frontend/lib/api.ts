@@ -1,6 +1,7 @@
 import type { APIResponse } from "./types";
-import axios from "axios";
+import axios, { type AxiosError } from "axios";
 import { getCookie } from "cookies-next/client";
+import { toast } from "sonner";
 
 export const apiUrl = (
   (process.env.NODE_ENV === "development")
@@ -20,6 +21,16 @@ export const avatarUrl = "https://crafatar.com/avatars/";
 export const skinUrl = "https://crafatar.com/skins/";
 /** @see https://crafatar.com */
 export const capeUrl = "https://crafatar.com/capes/";
+
+export function toastError(e: AxiosError, message: string, descriptions: [number, string][]) {
+  for(const [status, description] of descriptions) {
+    if(e.status === status) {
+      toast.error(message, { description });
+      return;
+    }
+  }
+  toast.error(message, { description: e.message });
+}
 
 export async function sendGetRequest<R>(route: string): Promise<APIResponse<R>> {
   return (await axios.request({

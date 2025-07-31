@@ -3,10 +3,9 @@
 import type { Player, PlayersResponse } from "@/lib/types";
 import { useEffect, useState } from "react";
 import { UserPen, Users } from "lucide-react";
-import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DataTable } from "@/components/data-table";
-import { sendGetRequest } from "@/lib/api";
+import { sendGetRequest, toastError } from "@/lib/api";
 import { bannedColumns, playerColumns } from "./columns";
 import { SubPage } from "../sub-page";
 import { Button } from "@/components/ui/button";
@@ -25,7 +24,11 @@ export default function Players() {
       setMaxPlayerCount(res.maxPlayerCount);
       setIsWhitelistEnabled(res.whitelist);
     } catch (e: any) {
-      toast.error("无法获取玩家列表", { description: e.message });
+      toastError(e, "无法获取玩家列表", [
+        [400, "请求参数错误"],
+        [401, "未登录"],
+        [500, "服务器内部错误"]
+      ]);
     }
   };
 

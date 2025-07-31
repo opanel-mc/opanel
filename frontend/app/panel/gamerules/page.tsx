@@ -20,7 +20,7 @@ import {
   generateFormSchema,
   type ServerGamerules
 } from "@/lib/gamerules/gamerule";
-import { sendGetRequest, sendPostRequest } from "@/lib/api";
+import { sendGetRequest, sendPostRequest, toastError } from "@/lib/api";
 import { objectToMap } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
@@ -43,7 +43,9 @@ export default function Gamerules() {
       const res = await sendGetRequest<GamerulesResponse>("/api/gamerules");
       setServerGamerules(res.gamerules);
     } catch (e: any) {
-      toast.error("无法获取服务器游戏规则信息", { description: e.message });
+      toastError(e, "无法获取服务器游戏规则信息", [
+        [401, "未登录"]
+      ]);
     }
   };
 
@@ -60,7 +62,10 @@ export default function Gamerules() {
       await sendPostRequest("/api/gamerules", { gamerules: data });
       toast.success("保存成功");
     } catch (e: any) {
-      toast.error("无法保存游戏规则", { description: e.message });
+      toastError(e, "无法保存游戏规则", [
+        [400, "请求参数错误"],
+        [401, "未登录"]
+      ]);
     }
   };
 

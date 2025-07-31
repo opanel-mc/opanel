@@ -39,6 +39,7 @@ public class ControlServlet extends BaseServlet {
                     sendResponse(res, obj);
                 } catch (IOException e) {
                     e.printStackTrace();
+                    sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
                 return;
             }

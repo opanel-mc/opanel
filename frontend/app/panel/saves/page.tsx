@@ -6,7 +6,7 @@ import { Earth, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { SubPage } from "../sub-page";
 import { SaveCard } from "./save-card";
-import { sendGetRequest, uploadFile } from "@/lib/api";
+import { sendGetRequest, toastError, uploadFile } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 
@@ -31,7 +31,10 @@ export default function Saves() {
       }
       setSaves(list);
     } catch (e: any) {
-      toast.error("无法获取存档列表", { description: e.message });
+      toastError(e, "无法获取存档列表", [
+        [400, "请求参数错误"],
+        [401, "未登录"]
+      ]);
     }
   };
 
@@ -53,7 +56,12 @@ export default function Saves() {
       });
       window.location.reload();
     } catch (e: any) {
-      toast.error("上传失败", { description: e.message });
+      toastError(e, "上传失败", [
+        [400, "存档格式不正确，请上传一个zip文件"],
+        [401, "未登录"],
+        [409, "存档名称冲突"],
+        [500, "服务器内部错误"]
+      ]);
     }
   };
 

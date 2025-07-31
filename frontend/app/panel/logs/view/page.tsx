@@ -4,11 +4,10 @@ import type { EditorRefType, LogResponse } from "@/lib/types";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Download, Trash2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { toast } from "sonner";
 import Editor from "@monaco-editor/react";
 import { useTheme } from "next-themes";
 import { SubPage } from "@/app/panel/sub-page";
-import { sendGetRequest } from "@/lib/api";
+import { sendGetRequest, toastError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { deleteLog, downloadLog } from "../log-utils";
 
@@ -25,7 +24,12 @@ export default function LogView() {
       const res = await sendGetRequest<LogResponse>(`/api/logs/${log}`);
       setContent(res.log);
     } catch (e: any) {
-      toast.error("无法获取日志内容", { description: e.message });
+      toastError(e, "无法获取日志内容", [
+        [400, "请求参数错误"],
+        [401, "未登录"],
+        [404, "找不到该日志"],
+        [500, "服务器内部错误"]
+      ]);
     }
   }, [log]);
 
