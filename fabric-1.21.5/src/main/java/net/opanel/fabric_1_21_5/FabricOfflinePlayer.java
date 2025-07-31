@@ -10,11 +10,13 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.UserCache;
+import net.minecraft.util.WorldSavePath;
 import net.minecraft.world.GameMode;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
 import java.util.Optional;
@@ -27,11 +29,15 @@ public class FabricOfflinePlayer implements OPanelPlayer {
 
     private final UUID uuid;
 
-    public FabricOfflinePlayer(MinecraftServer server, Path playerDataPath, UUID uuid) {
+    public FabricOfflinePlayer(MinecraftServer server, UUID uuid) {
         playerManager = server.getPlayerManager();
-        this.playerDataPath = playerDataPath;
+        playerDataPath = server.getSavePath(WorldSavePath.PLAYERDATA).resolve(uuid +".dat");
         UserCache userCache = server.getUserCache();
         this.uuid = uuid;
+
+        if(!Files.exists(playerDataPath)) {
+            throw new NullPointerException("Player data file for UUID "+ uuid +" unavailable.");
+        }
 
         if(userCache == null) {
             throw new NullPointerException("Cannot get server user cache.");

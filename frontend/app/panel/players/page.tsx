@@ -2,14 +2,15 @@
 
 import type { Player, PlayersResponse } from "@/lib/types";
 import { useEffect, useState } from "react";
-import { Users } from "lucide-react";
+import { UserPen, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DataTable } from "@/components/data-table";
 import { sendGetRequest } from "@/lib/api";
 import { bannedColumns, playerColumns } from "./columns";
 import { SubPage } from "../sub-page";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { WhitelistSheet } from "./whitelist-sheet";
 
 export default function Players() {
   const [players, setPlayers] = useState<Player[]>([]);
@@ -49,7 +50,16 @@ export default function Players() {
               {`封禁列表 (${players.filter(({ isBanned }) => isBanned).length})`}
             </TabsTrigger>
           </TabsList>
-          {isWhitelistEnabled && <Badge variant="secondary">已启用白名单</Badge>}
+          {isWhitelistEnabled && (
+            <WhitelistSheet asChild>
+              <Button
+                variant="outline"
+                className="cursor-pointer">
+                <UserPen />
+                白名单
+              </Button>
+            </WhitelistSheet>
+          )}
         </div>
         <TabsContent value="player-list">
           <DataTable

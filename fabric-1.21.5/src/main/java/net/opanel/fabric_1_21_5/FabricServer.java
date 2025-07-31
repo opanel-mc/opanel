@@ -1,5 +1,7 @@
 package net.opanel.fabric_1_21_5;
 
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.CommandNode;
 import net.minecraft.nbt.NbtCompound;
@@ -13,9 +15,12 @@ import net.minecraft.world.GameRules;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelServer;
 import net.opanel.common.OPanelSave;
+import net.opanel.common.OPanelWhitelist;
 import net.opanel.utils.Utils;
 
+import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -112,7 +117,7 @@ public class FabricServer implements OPanelServer {
                         if(serverPlayer != null && !serverPlayer.isDisconnected()) return;
 
                         try {
-                            FabricOfflinePlayer player = new FabricOfflinePlayer(server, item, UUID.fromString(uuid));
+                            FabricOfflinePlayer player = new FabricOfflinePlayer(server, UUID.fromString(uuid));
                             list.add(player);
                         } catch (NullPointerException e) {
                             //
@@ -143,6 +148,11 @@ public class FabricServer implements OPanelServer {
     @Override
     public boolean isWhitelistEnabled() {
         return server.getPlayerManager().isWhitelistEnabled();
+    }
+
+    @Override
+    public OPanelWhitelist getWhitelist() {
+        return new FabricWhitelist(server.getPlayerManager().getWhitelist());
     }
 
     @Override
@@ -218,10 +228,10 @@ public class FabricServer implements OPanelServer {
     }
 
     @Override
-    public void setPropertiesContent(String newContent) throws IOException {
+    public void writePropertiesContent(String newContent) throws IOException {
         if(!Files.exists(serverPropertiesPath)) {
             throw new IOException("Cannot find server.properties");
         }
-        Utils.setTextFileContent(serverPropertiesPath, newContent);
+        Utils.writeTextFile(serverPropertiesPath, newContent);
     }
 }

@@ -35,6 +35,7 @@ public class InfoServlet extends BaseServlet {
         obj.put("version", server.getVersion());
         obj.put("port", server.getPort());
         obj.put("maxPlayerCount", server.getMaxPlayerCount());
+        obj.put("whitelist", server.isWhitelistEnabled());
 
         List<HashMap<String, Object>> players = new ArrayList<>();
         for(OPanelPlayer player : server.getOnlinePlayers()) {

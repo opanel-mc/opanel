@@ -1,7 +1,7 @@
 "use client";
 
 import { useContext } from "react";
-import { Power, RotateCw, Settings } from "lucide-react";
+import { Power, RotateCw, Settings, UserPen } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -11,6 +11,7 @@ import { MinecraftText } from "@/components/mc-text";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/alert";
+import { WhitelistSheet } from "../players/whitelist-sheet";
 import { ServerSheet } from "./server-sheet";
 
 import PackIcon from "@/assets/images/pack.png";
@@ -50,6 +51,16 @@ export function InfoCard({
           {ctx ? "正在运行" : "未运行"}
         </Badge>
         <div className="space-x-1 self-end [&>*]:cursor-pointer">
+          {ctx?.whitelist && (
+            <WhitelistSheet asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                title="编辑白名单">
+                <UserPen />
+              </Button>
+            </WhitelistSheet>
+          )}
           <ServerSheet asChild>
             <Button
               variant="ghost"

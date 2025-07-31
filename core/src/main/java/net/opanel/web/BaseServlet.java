@@ -10,6 +10,7 @@ import net.opanel.utils.Utils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 
 public abstract class BaseServlet extends HttpServlet {
@@ -71,6 +72,19 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     protected <T> T getRequestBody(HttpServletRequest req, Class<T> type) throws IOException {
+        try (BufferedReader reader = req.getReader()) {
+            String line;
+            StringBuilder requestBody = new StringBuilder();
+            while((line = reader.readLine()) != null) {
+                requestBody.append(line);
+            }
+
+            Gson gson = new Gson();
+            return gson.fromJson(requestBody.toString(), type);
+        }
+    }
+
+    protected <T> T getRequestBody(HttpServletRequest req, Type type) throws IOException {
         try (BufferedReader reader = req.getReader()) {
             String line;
             StringBuilder requestBody = new StringBuilder();

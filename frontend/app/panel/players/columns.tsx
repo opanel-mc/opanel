@@ -1,5 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Player } from "@/lib/types";
+import { useEffect } from "react";
 import { Ban, BrushCleaning, Check, ShieldOff } from "lucide-react";
 import { getGameModeText } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -58,12 +59,38 @@ export const playerColumns: ColumnDef<Player>[] = [
     }
   },
   {
+    accessorKey: "isWhitelisted",
+    header: () => <div className="text-center">白名单</div>,
+    cell: ({ row, column }) => {
+      /* Fuck you react */
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useEffect(() => {
+        // this is actually a setState call
+        column.toggleVisibility(row.original.isWhitelisted !== undefined);
+      }, [row, column]);
+
+      return (
+        <div className="flex justify-center">
+          {
+            row.original.isWhitelisted
+            ? <Check size={18} color="var(--color-muted-foreground)"/>
+            : <></>
+          }
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "isOp",
-    header: "OP",
+    header: () => <div className="text-center">OP</div>,
     cell: ({ row }) => (
-      row.original.isOp
-      ? <Check size={18} color="var(--color-muted-foreground)"/>
-      : <></>
+      <div className="flex justify-center">
+        {
+          row.original.isOp
+          ? <Check size={18} color="var(--color-muted-foreground)"/>
+          : <></>
+        }
+      </div>
     )
   },
   {
@@ -146,11 +173,15 @@ export const bannedColumns: ColumnDef<Player>[] = [
   },
   {
     accessorKey: "isOp",
-    header: "OP",
+    header: () => <div className="text-center">OP</div>,
     cell: ({ row }) => (
-      row.original.isOp
-      ? <Check size={18} color="var(--color-muted-foreground)"/>
-      : <></>
+      <div className="flex justify-center">
+        {
+          row.original.isOp
+          ? <Check size={18} color="var(--color-muted-foreground)"/>
+          : <></>
+        }
+      </div>
     )
   },
   {

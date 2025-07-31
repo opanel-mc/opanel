@@ -29,7 +29,13 @@ export interface Player {
   isBanned: boolean
   gamemode?: GameMode
   banReason?: string
+  isWhitelisted?: boolean
 }
+
+export type Whitelist = {
+  name: string
+  uuid: string
+}[]
 
 export type EditorRefType = Parameters<OnMount>[0];
 
@@ -40,6 +46,7 @@ export interface InfoResponse {
   version: string
   port: number
   maxPlayerCount: number
+  whitelist: boolean
   onlinePlayers: {
     name: string
     uuid: string
@@ -83,4 +90,9 @@ export interface PlayersResponse {
   maxPlayerCount: number
   whitelist: boolean
   players: Player[]
+}
+
+// /api/whitelist
+export interface WhitelistResponse {
+  whitelist: Whitelist
 }

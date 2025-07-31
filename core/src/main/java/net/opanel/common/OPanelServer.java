@@ -15,6 +15,7 @@ public interface OPanelServer {
     int getMaxPlayerCount();
     OPanelPlayer getPlayer(String uuid);
     boolean isWhitelistEnabled();
+    OPanelWhitelist getWhitelist();
     void sendServerCommand(String command);
     List<String> getCommands();
     HashMap<String, Object> getGamerules();
@@ -22,5 +23,5 @@ public interface OPanelServer {
     void reload();
     void stop();
     String getPropertiesContent() throws IOException;
-    void setPropertiesContent(String newContent) throws IOException;
+    void writePropertiesContent(String newContent) throws IOException;
 }

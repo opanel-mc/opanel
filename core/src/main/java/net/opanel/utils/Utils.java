@@ -56,7 +56,7 @@ public class Utils {
         return sb.toString();
     }
 
-    public static void setTextFileContent(Path filePath, String content) throws IOException {
+    public static void writeTextFile(Path filePath, String content) throws IOException {
         if(!Files.exists(filePath)) {
             throw new IOException("Cannot find the specified file.");
         }

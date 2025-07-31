@@ -67,7 +67,7 @@ public class ControlServlet extends BaseServlet {
             case "properties" -> {
                 try {
                     String newContent = getRequestBody(req, String.class);
-                    server.setPropertiesContent(newContent);
+                    server.writePropertiesContent(newContent);
                 } catch (IOException e) {
                     e.printStackTrace();
                     sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
