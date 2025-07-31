@@ -19,6 +19,8 @@ import {
 } from "./ui/sidebar";
 import { Button } from "./ui/button";
 import { ThemeToggle } from "./theme-toggle";
+import { cn } from "@/lib/utils";
+import { minecraftAE } from "@/lib/fonts";
 
 const serverGroupItems = [
   {
@@ -85,7 +87,7 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <h1 className="m-2 text-lg font-bold group-data-[state=collapsed]:hidden">OPanel</h1>
+        <h1 className={cn("m-2 text-lg text-theme font-semibold group-data-[state=collapsed]:hidden", minecraftAE.className)}>OPanel</h1>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
