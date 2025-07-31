@@ -23,5 +23,9 @@ export function MinecraftText({
     enableObfuscate(containerRef.current);
   }, [children, maxLines]);
 
-  return <div className={cn(className, minecraftAE.className, unifont.className, minecraftAEOld.variable)} ref={containerRef}/>;
+  return (
+    <div
+      className={cn("[&_*]:leading-0.5", className, minecraftAE.className, unifont.className, minecraftAEOld.variable)}
+      ref={containerRef}/>
+  );
 }

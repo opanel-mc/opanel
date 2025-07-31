@@ -1,7 +1,7 @@
 "use client";
 
 import { useContext } from "react";
-import { Power, RotateCw, Settings, UserPen } from "lucide-react";
+import { PenLine, Power, RotateCw, Settings, UserPen } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,7 @@ import { WhitelistSheet } from "../players/whitelist-sheet";
 import { ServerSheet } from "./server-sheet";
 
 import PackIcon from "@/assets/images/pack.png";
+import { MotdEditor } from "./motd-editor";
 
 export function InfoCard({
   className,
@@ -61,6 +62,14 @@ export function InfoCard({
               </Button>
             </WhitelistSheet>
           )}
+          <MotdEditor motd={atob(ctx?.motd ?? "")} asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              title="编辑Motd">
+              <PenLine />
+            </Button>
+          </MotdEditor>
           <ServerSheet asChild>
             <Button
               variant="ghost"

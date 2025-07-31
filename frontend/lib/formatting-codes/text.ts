@@ -2,9 +2,14 @@ const secSign = "§";
 const colorCodes = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
 const formattingCodes = ["k", "l", "m", "n", "o"];
 
+/** @see https://minecraft.fandom.com/wiki/Formatting_codes Compatibility with older versions */
 function purify(text: string): string {
-  /** @see https://minecraft.fandom.com/wiki/Formatting_codes Compatibility with older versions */
   return text.replaceAll("\u00c2", "");
+}
+
+/** @see https://minecraft.fandom.com/wiki/Formatting_codes Compatibility with older versions */
+export function transformText(text: string): string {
+  return text.replaceAll("§", "\u00c2\u00a7");
 }
 
 // function convert(text: string): string {

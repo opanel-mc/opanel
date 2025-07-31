@@ -1,7 +1,5 @@
 package net.opanel.fabric_1_21_5;
 
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.CommandNode;
 import net.minecraft.nbt.NbtCompound;
@@ -9,6 +7,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerMetadata;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.dedicated.DedicatedServer;
+import net.minecraft.server.dedicated.ServerPropertiesHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.WorldSavePath;
 import net.minecraft.world.GameRules;
@@ -18,9 +18,8 @@ import net.opanel.common.OPanelSave;
 import net.opanel.common.OPanelWhitelist;
 import net.opanel.utils.Utils;
 
-import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,9 +30,11 @@ public class FabricServer implements OPanelServer {
     private static final Path serverPropertiesPath = Paths.get("").resolve("server.properties");
 
     private final MinecraftServer server;
+    private final DedicatedServer dedicatedServer;
 
     public FabricServer(MinecraftServer server) {
         this.server = server;
+        dedicatedServer = (DedicatedServer) server;
     }
 
     @Override
@@ -51,6 +52,25 @@ public class FabricServer implements OPanelServer {
     @Override
     public String getMotd() {
         return server.getServerMotd();
+    }
+
+    @Override
+    public void setMotd(String motd) {
+        server.setMotd(motd);
+        final ServerPropertiesHandler properties = dedicatedServer.getProperties();
+        try {
+            // Force modifying motd field through reflect because it is final
+            Field motdField = properties.getClass().getDeclaredField("motd");
+            motdField.setAccessible(true);
+            motdField.set(properties, motd);
+            /**
+             * I can't figure out why this line of code cannot save the motd to server.properties.
+             * @todo
+             */
+            properties.saveProperties(Paths.get("").resolve("server.properties"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
