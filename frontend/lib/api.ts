@@ -64,3 +64,16 @@ export async function sendDeleteRequest<T = any>(route: string, body?: T): Promi
     data
   })).data as APIResponse<never>;
 }
+
+export async function uploadFile(route: string, file: File, onProgress?: (progress: number) => void): Promise<APIResponse<never>> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  return (await axios.request({
+    method: "post",
+    url: apiUrl + route,
+    headers: { "Content-Type": "multipart/form-data", "X-Credential-Token": getCookie("token") },
+    data: formData,
+    onUploadProgress: (e) => onProgress && onProgress(e.progress ?? 0)
+  })).data as APIResponse<never>;
+}

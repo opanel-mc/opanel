@@ -30,7 +30,6 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Prompt } from "@/components/prompt";
 import { addToWhitelist, ban, depriveOp, giveOp, kick, pardon, removeFromWhitelist, setGameMode } from "./player-utils";
-import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   gamemode: z.enum(Object.values(GameMode) as [string, ...string[]]),

@@ -2,13 +2,11 @@
 
 import type { Save, SavesResponse } from "@/lib/types";
 import { type DragEvent, useEffect, useState } from "react";
-import { getCookie } from "cookies-next/client";
 import { Earth, Upload } from "lucide-react";
 import { toast } from "sonner";
-import { upload } from "upload";
 import { SubPage } from "../sub-page";
 import { SaveCard } from "./save-card";
-import { apiUrl, sendGetRequest } from "@/lib/api";
+import { sendGetRequest, uploadFile } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 
@@ -49,15 +47,14 @@ export default function Saves() {
     }
 
     setUploadName(file.name);
-    await upload(apiUrl +"/api/saves", { file }, {
-      headers: {
-        "X-Credential-Token": getCookie("token") as string
-      },
-      onProgress: (progress) => {
+    try {
+      await uploadFile("/api/saves", file, (progress) => {
         setUploadProgress(progress < 1 ? progress : null);
-      }
-    });
-    window.location.reload();
+      });
+      window.location.reload();
+    } catch (e: any) {
+      toast.error("上传失败", { description: e.message });
+    }
   };
 
   useEffect(() => {
