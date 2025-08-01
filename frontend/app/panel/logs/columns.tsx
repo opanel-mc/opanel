@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Download, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { deleteLog, downloadLog } from "./log-utils";
+import { emitter } from "@/lib/emitter";
 
 export interface Log {
   name: string
@@ -56,7 +57,7 @@ export const columns: ColumnDef<Log>[] = [
           onClick={async () => {
             const name = row.getValue<string>("name") ?? "";
             await deleteLog(name);
-            window.location.reload();
+            emitter.emit("refresh-data");
           }}>
           <Trash2 />
         </Button>

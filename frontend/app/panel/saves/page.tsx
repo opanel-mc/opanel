@@ -9,6 +9,7 @@ import { SaveCard } from "./save-card";
 import { sendGetRequest, toastError, uploadFile } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
+import { emitter } from "@/lib/emitter";
 
 export default function Saves() {
   const [saves, setSaves] = useState<Save[]>([]);
@@ -54,10 +55,10 @@ export default function Saves() {
       await uploadFile("/api/saves", file, (progress) => {
         setUploadProgress(progress < 1 ? progress : null);
       });
-      window.location.reload();
+      fetchServerWorlds();
     } catch (e: any) {
       toastError(e, "上传失败", [
-        [400, "存档格式不正确，请上传一个zip文件"],
+        [400, "存档格式不正确，请上传一个包含地图存档的zip文件"],
         [401, "未登录"],
         [409, "存档名称冲突"],
         [500, "服务器内部错误"]
@@ -67,6 +68,8 @@ export default function Saves() {
 
   useEffect(() => {
     fetchServerWorlds();
+
+    emitter.on("refresh-data", () => fetchServerWorlds());
   }, []);
 
   return (

@@ -30,6 +30,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Prompt } from "@/components/prompt";
 import { addToWhitelist, ban, depriveOp, giveOp, kick, pardon, removeFromWhitelist, setGameMode } from "./player-utils";
+import { emitter } from "@/lib/emitter";
 
 const formSchema = z.object({
   gamemode: z.enum(Object.values(GameMode) as [string, ...string[]]),
@@ -61,7 +62,7 @@ export function PlayerSheet({
       ? await depriveOp(player.uuid, false)
       : await giveOp(player.uuid, false);
     }
-    window.location.reload();
+    emitter.emit("refresh-data");
   };
 
   return (
@@ -130,7 +131,7 @@ export function PlayerSheet({
                         variant="outline"
                         onClick={async () => {
                           await removeFromWhitelist(player.name, player.uuid);
-                          window.location.reload();
+                          emitter.emit("refresh-data");
                         }}>
                         <UserMinus />
                         移出白名单
@@ -141,7 +142,7 @@ export function PlayerSheet({
                         variant="outline"
                         onClick={async () => {
                           await addToWhitelist(player.name, player.uuid);
-                          window.location.reload();
+                          emitter.emit("refresh-data");
                         }}>
                         <UserPlus />
                         加入白名单
@@ -155,7 +156,7 @@ export function PlayerSheet({
                     placeholder="请输入踢出原因..."
                     onAction={async (reason) => {
                       await kick(player.uuid, reason);
-                      window.location.reload();
+                      emitter.emit("refresh-data");
                     }}
                     asChild>
                     <Button
@@ -176,7 +177,7 @@ export function PlayerSheet({
                         placeholder="请输入封禁原因..."
                         onAction={async (reason) => {
                           await ban(player.uuid, reason);
-                          window.location.reload();
+                          emitter.emit("refresh-data");
                         }}
                         asChild>
                         <Button
@@ -193,7 +194,7 @@ export function PlayerSheet({
                         className={player.isWhitelisted === undefined ? "col-start-2" : "col-span-2"}
                         onClick={async () => {
                           await pardon(player.uuid);
-                          window.location.reload();
+                          emitter.emit("refresh-data");
                         }}>
                         <ShieldOff />
                         解除封禁
@@ -204,11 +205,13 @@ export function PlayerSheet({
               </div>
             </div>
             <SheetFooter>
-              <Button
-                type="submit"
-                className="cursor-pointer">
-                确定
-              </Button>
+              <SheetClose asChild>
+                <Button
+                  type="submit"
+                  className="cursor-pointer">
+                  确定
+                </Button>
+              </SheetClose>
               <SheetClose asChild>
                 <Button
                   variant="outline"

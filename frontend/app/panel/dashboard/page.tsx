@@ -12,6 +12,7 @@ import { MonitorCard } from "./monitor-card";
 import { TerminalCard } from "./terminal-card";
 import { TPSCard } from "./tps-card";
 import { SubPage } from "../sub-page";
+import { emitter } from "@/lib/emitter";
 
 const requestMonitorInterval = 2000;
 
@@ -42,6 +43,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchServerInfo();
+
+    emitter.on("refresh-data", () => fetchServerInfo());
   }, []);
 
   useEffect(() => {

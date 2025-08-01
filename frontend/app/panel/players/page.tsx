@@ -11,6 +11,7 @@ import { SubPage } from "../sub-page";
 import { Button } from "@/components/ui/button";
 import { WhitelistSheet } from "./whitelist-sheet";
 import { setWhitelistEnabled } from "./player-utils";
+import { emitter } from "@/lib/emitter";
 
 export default function Players() {
   const [players, setPlayers] = useState<Player[]>([]);
@@ -35,6 +36,8 @@ export default function Players() {
 
   useEffect(() => {
     fetchPlayerList();
+
+    emitter.on("refresh-data", () => fetchPlayerList());
   }, []);
 
   return (
@@ -72,7 +75,7 @@ export default function Players() {
                 className="cursor-pointer"
                 onClick={async () => {
                   await setWhitelistEnabled(true);
-                  window.location.reload();
+                  fetchPlayerList();
                 }}>
                 <Contact />
                 启用白名单

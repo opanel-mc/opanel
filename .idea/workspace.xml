@@ -4,7 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="Changes" />
+    <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="Changes">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/SavesServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/SavesServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/about/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/about/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/logs/columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/logs/columns.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/logs/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/logs/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/players/columns.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/players/columns.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/players/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/players/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/players/player-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/players/player-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/saves/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/saves/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/saves/save-card.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/saves/save-card.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/saves/save-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/saves/save-sheet.tsx" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

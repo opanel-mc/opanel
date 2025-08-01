@@ -24,6 +24,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { sendPostRequest, toastError } from "@/lib/api";
 import { purify, transformText } from "@/lib/formatting-codes/text";
+import { emitter } from "@/lib/emitter";
 
 const formSchema = z.object({
   motd: z.string()
@@ -47,7 +48,7 @@ export function MotdEditor({
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await sendPostRequest("/api/info/motd", btoa(transformText(values.motd)));
-      window.location.reload();
+      emitter.emit("refresh-data");
     } catch (e: any) {
       toastError(e, "修改Motd失败", [
         [400, "请求参数错误"],

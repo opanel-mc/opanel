@@ -32,6 +32,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { MinecraftText } from "@/components/mc-text";
 import { sendPostRequest, toastError } from "@/lib/api";
+import { emitter } from "@/lib/emitter";
 
 const formSchema = z.object({
   displayName: z.string().nonempty("存档名称不得为空"),
@@ -57,7 +58,7 @@ export function SaveSheet({
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await sendPostRequest(`/api/saves/${save.name}`, values);
-      window.location.reload();
+      emitter.emit("refresh-data");
     } catch (e: any) {
       toastError(e, "无法保存存档信息", [
         [401, "未登录"],
@@ -129,11 +130,13 @@ export function SaveSheet({
                 )}/>
             </div>
             <SheetFooter>
-              <Button
-                type="submit"
-                className="cursor-pointer">
-                确定
-              </Button>
+              <SheetClose asChild>
+                <Button
+                  type="submit"
+                  className="cursor-pointer">
+                  确定
+                </Button>
+              </SheetClose>
               <SheetClose asChild>
                 <Button
                   variant="outline"

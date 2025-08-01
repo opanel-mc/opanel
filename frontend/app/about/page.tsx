@@ -24,6 +24,8 @@ import {
   TableRow
 } from "@/components/ui/table";
 import { version } from "@/lib/global";
+import { cn } from "@/lib/utils";
+import { minecraftAE } from "@/lib/fonts";
 
 const info = [
   {
@@ -45,12 +47,14 @@ const info = [
 
 export default function About() {
   return (
-    <Card className="w-3xl">
+    <Card className="w-3xl max-md:rounded-none">
       <CardHeader>
-        <CardTitle>关于 OPanel</CardTitle>
+        <CardTitle>关于</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
-        <p>OPanel 是一个开箱即用的 Minecraft 服务器管理面板，支持Bukkit、Fabric平台。</p>
+        <p>
+          <span className={cn("text-theme font-semibold", minecraftAE.className)}>OPanel</span> 是一个开箱即用的 Minecraft 服务器管理面板，支持Bukkit、Fabric平台。
+        </p>
         <Table>
           <TableBody>
             {info.map((item, i) => (

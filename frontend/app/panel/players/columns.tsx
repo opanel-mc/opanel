@@ -10,6 +10,7 @@ import { avatarUrl } from "@/lib/api";
 import { OnlineBadge } from "@/components/online-badge";
 import { addToWhitelist, ban, kick, pardon, removeFromWhitelist } from "./player-utils";
 import { PlayerSheet } from "./player-sheet";
+import { emitter } from "@/lib/emitter";
 
 export const playerColumns: ColumnDef<Player>[] = [
   {
@@ -108,7 +109,7 @@ export const playerColumns: ColumnDef<Player>[] = [
                 title="移出白名单"
                 onClick={async () => {
                   await removeFromWhitelist(name, uuid);
-                  window.location.reload();
+                  emitter.emit("refresh-data");
                 }}>
                 <UserMinus />
               </Button>
@@ -120,7 +121,7 @@ export const playerColumns: ColumnDef<Player>[] = [
                 title="加入白名单"
                 onClick={async () => {
                   await addToWhitelist(name, uuid);
-                  window.location.reload();
+                  emitter.emit("refresh-data");
                 }}>
                 <UserPlus />
               </Button>
@@ -134,7 +135,7 @@ export const playerColumns: ColumnDef<Player>[] = [
               placeholder="请输入踢出原因..."
               onAction={async (reason) => {
                 await kick(uuid, reason);
-                window.location.reload();
+                emitter.emit("refresh-data");
               }}
               asChild>
               <Button
@@ -152,7 +153,7 @@ export const playerColumns: ColumnDef<Player>[] = [
             placeholder="请输入封禁原因..."
             onAction={async (reason) => {
               await ban(uuid, reason);
-              window.location.reload();
+              emitter.emit("refresh-data");
             }}
             asChild>
             <Button
@@ -221,7 +222,7 @@ export const bannedColumns: ColumnDef<Player>[] = [
         title="解除封禁"
         onClick={async () => {
           await pardon(row.original.uuid);
-          window.location.reload();
+          emitter.emit("refresh-data");
         }}>
         <ShieldOff className="stroke-green-600"/>
       </Button>

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { sendDeleteRequest } from "@/lib/api";
 import { Alert } from "@/components/alert";
 import { SaveSheet } from "./save-sheet";
+import { emitter } from "@/lib/emitter";
 
 export function SaveCard({
   save,
@@ -29,7 +30,7 @@ export function SaveCard({
   const handleDelete = async () => {
     try {
       await sendDeleteRequest(`/api/saves/${name}`);
-      window.location.reload();
+      emitter.emit("refresh-data");
     } catch (e: any) {
       toast.success(`无法删除存档 ${name}`, { description: e.message });
     }

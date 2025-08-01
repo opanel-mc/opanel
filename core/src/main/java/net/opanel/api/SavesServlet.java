@@ -144,6 +144,14 @@ public class SavesServlet extends BaseServlet {
                     }
                 }
 
+                // Check if the uploaded folder is a valid save
+                // If not, delete the uploaded folder
+                if(!Files.exists(targetPath.resolve("level.dat"))) {
+                    Utils.deleteDirectoryRecursively(targetPath);
+                    sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
+                    return;
+                }
+
                 sendResponse(res, HttpServletResponse.SC_OK);
             } catch (Exception e) {
                 e.printStackTrace();

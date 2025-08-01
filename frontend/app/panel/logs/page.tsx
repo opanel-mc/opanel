@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/alert";
 import { columns } from "./columns";
 import { SubPage } from "../sub-page";
+import { emitter } from "@/lib/emitter";
 
 export default function Logs() {
   const [logs, setLogs] = useState<string[]>([]);
@@ -31,7 +32,7 @@ export default function Logs() {
     try {
       await sendDeleteRequest("/api/logs");
       toast.success("已清空除当前日志外的所有日志");
-      window.location.reload();
+      fetchServerLogs();
     } catch (e: any) {
       toastError(e, "清空日志失败", [
         [401, "未登录"],
@@ -42,6 +43,8 @@ export default function Logs() {
 
   useEffect(() => {
     fetchServerLogs();
+
+    emitter.on("refresh-data", () => fetchServerLogs());
   }, []);
 
   return (
