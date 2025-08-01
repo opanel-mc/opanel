@@ -76,9 +76,6 @@ export interface GamerulesResponse {
 export interface LogsResponse {
   logs: string[]
 }
-export interface LogResponse {
-  log: string
-}
 
 /** `/api/saves` */
 export interface SavesResponse {

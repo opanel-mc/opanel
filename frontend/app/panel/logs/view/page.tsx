@@ -1,6 +1,6 @@
 "use client";
 
-import type { EditorRefType, LogResponse } from "@/lib/types";
+import type { EditorRefType } from "@/lib/types";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Download, Trash2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -21,8 +21,8 @@ export default function LogView() {
 
   const fetchLogContent = useCallback(async () => {
     try {
-      const res = await sendGetRequest<LogResponse>(`/api/logs/${log}`);
-      setContent(res.log);
+      const res = await sendGetRequest<string>(`/api/logs/${log}`);
+      setContent(res);
     } catch (e: any) {
       toastError(e, "无法获取日志内容", [
         [400, "请求参数错误"],

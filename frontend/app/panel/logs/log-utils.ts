@@ -1,4 +1,3 @@
-import type { LogResponse } from "@/lib/types";
 import download from "downloadjs";
 import { toast } from "sonner";
 import { sendDeleteRequest, sendGetRequest, toastError } from "@/lib/api";
@@ -6,8 +5,8 @@ import { sendDeleteRequest, sendGetRequest, toastError } from "@/lib/api";
 export async function downloadLog(name: string) {
   const fileName = name.endsWith(".log.gz") ? name.replace(".log.gz", ".log") : name;
   try {
-    const res = await sendGetRequest<LogResponse>(`/api/logs/${name}`);
-    download(res.log, fileName, "text/plain");
+    const res = await sendGetRequest<string>(`/api/logs/${name}`);
+    download(res, fileName, "text/plain");
   } catch (e: any) {
     toastError(e, `无法下载日志 ${fileName}`, [
       [401, "未登录"],

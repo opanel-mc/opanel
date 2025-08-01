@@ -9,6 +9,7 @@ import net.opanel.logger.Loggable;
 import net.opanel.web.BaseServlet;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,9 +41,7 @@ public class LogsServlet extends BaseServlet {
         } else if(reqPath.startsWith("/")) {
             String fileName = reqPath.substring(1);
             try {
-                HashMap<String, Object> obj = new HashMap<>();
-                obj.put("log", logger.getLogContent(fileName));
-                sendResponse(res, obj);
+                sendContentResponse(res, logger.getLogContent(fileName).getBytes(StandardCharsets.UTF_8), "application/octet-stream");
             } catch (IOException e) {
                 sendResponse(res, HttpServletResponse.SC_NOT_FOUND, e.getMessage());
             }
