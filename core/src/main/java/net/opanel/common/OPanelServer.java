@@ -6,7 +6,7 @@ import java.util.*;
 public interface OPanelServer {
     byte[] getFavicon();
     String getMotd();
-    void setMotd(String motd);
+    void setMotd(String motd) throws IOException;
     String getVersion();
     int getPort();
     List<OPanelSave> getSaves();
