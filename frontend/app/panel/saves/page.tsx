@@ -99,7 +99,7 @@ export default function Saves() {
             </div>
           )}
         </div>
-        <div className="pt-2 grid grid-cols-3 gap-4">
+        <div className="pt-2 grid grid-cols-3 max-lg:flex flex-col gap-4">
           {saves.map((save, i) => <SaveCard save={save} key={i}/>)}
         </div>
       </div>

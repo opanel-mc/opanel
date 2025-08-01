@@ -36,7 +36,7 @@ function Log({
     <p className={cn("text-xs text-nowrap font-[Consolas] space-x-1", !visible ? "hidden" : "")}>
       <span className="text-blue-500 dark:text-blue-400">{`[${format(new Date(time), "HH:mm:ss")}]`}</span>
       {!simple && <span className={threadLevelStyle}>{`[${thread}/${level}]`}</span>}
-      {!simple && <span className="text-emerald-600 dark:text-emerald-500">{`(${sourceName})`}</span>}
+      {!simple && <span className="text-emerald-600 dark:text-emerald-500 max-md:hidden">{`(${sourceName})`}</span>}
       <span>{line}</span>
     </p>
   );

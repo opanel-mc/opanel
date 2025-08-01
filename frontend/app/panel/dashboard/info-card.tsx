@@ -17,6 +17,71 @@ import { MotdEditor } from "./motd-editor";
 
 import PackIcon from "@/assets/images/pack.png";
 
+function ControlButtonGroup({
+  className
+}: {
+  className?: string
+}) {
+  const ctx = useContext(InfoContext);
+
+  return (
+    <div className={cn("flex gap-1 [&>*]:cursor-pointer", className)}>
+      {ctx?.whitelist && (
+        <WhitelistSheet asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            title="编辑白名单">
+            <UserPen />
+          </Button>
+        </WhitelistSheet>
+      )}
+      <MotdEditor motd={atob(ctx?.motd ?? "")} asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          title="编辑Motd">
+          <PenLine />
+        </Button>
+      </MotdEditor>
+      <ServerSheet asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          title="编辑server.properties">
+          <Settings />
+        </Button>
+      </ServerSheet>
+      <Button
+        variant="ghost"
+        size="icon"
+        title="重载服务器"
+        onClick={() => toast.promise(sendPostRequest("/api/control/reload"), {
+          loading: "正在重载服务器...",
+          success: "重载完毕",
+          error: "重载失败"
+        })}>
+        <RotateCw />
+      </Button>
+      <Alert
+        title="确定要停止服务器吗？"
+        description="此操作将保存所有服务器信息并关闭服务器，OPanel也将无法访问，之后您可以从后台手动启动服务器。"
+        onAction={() => {
+          sendPostRequest("/api/control/stop");
+          toast.loading("正在停止服务器...");
+        }}
+        asChild>
+        <Button
+          variant="outline"
+          size="icon"
+          title="停止服务器">
+          <Power />
+        </Button>
+      </Alert>
+    </div>
+  );
+}
+
 export function InfoCard({
   className,
 }: Readonly<{
@@ -25,87 +90,37 @@ export function InfoCard({
   const ctx = useContext(InfoContext);
 
   return (
-    <Card className={cn(className, "flex flex-row rounded-md")}>
-      <img
-        className="aspect-square h-full rounded-xs image-pixelated"
-        src={(ctx && ctx.favicon) ? (apiUrl + ctx.favicon) : PackIcon.src}
-        alt="favicon"/>
-      
-      <div className="flex-1 flex flex-col gap-2">
-        <div className="flex gap-4 [&>*]:space-x-2">
-          <div>
-            <span className="font-semibold">版本:</span>
-            <span>{ctx?.version}</span>
+    <Card className={cn(className, "flex flex-col max-sm:gap-3")}>
+      <div className="min-sm:flex-1 flex gap-6 max-sm:border-b max-sm:pb-3">
+        <img
+          className="aspect-square h-full rounded-xs image-pixelated"
+          src={(ctx && ctx.favicon) ? (apiUrl + ctx.favicon) : PackIcon.src}
+          alt="favicon"/>
+        
+        <div className="flex-1 flex flex-col gap-2">
+          <div className="flex gap-4 [&>*]:space-x-2">
+            <div>
+              <span className="font-semibold text-nowrap">版本:</span>
+              <span>{ctx?.version}</span>
+            </div>
+            <div>
+              <span className="font-semibold text-nowrap">端口:</span>
+              <span className="text-emerald-500 font-[Consolas]">{ctx ? ctx.port : ""}</span>
+            </div>
           </div>
-          <div>
-            <span className="font-semibold">端口:</span>
-            <span className="text-emerald-500 font-[Consolas]">{ctx ? ctx.port : ""}</span>
+          <div className="h-fit text-sm">
+            {ctx && <MinecraftText maxLines={2}>{"§7"+ atob(ctx.motd)}</MinecraftText>}
           </div>
         </div>
-        <div className="h-fit text-sm">
-          {ctx && <MinecraftText maxLines={2}>{"§7"+ atob(ctx.motd)}</MinecraftText>}
+        <div className="flex flex-col justify-between">
+          <Badge className="self-end max-sm:hidden" variant="outline">
+            <div className={cn("w-2 h-2 rounded-full", ctx ? "bg-green-600" : "bg-red-700")}/>
+            {ctx ? "正在运行" : "未运行"}
+          </Badge>
+          <ControlButtonGroup className="self-end max-sm:hidden"/>
         </div>
       </div>
-      <div className="flex flex-col justify-between">
-        <Badge className="self-end" variant="outline">
-          <div className={cn("w-2 h-2 rounded-full", ctx ? "bg-green-600" : "bg-red-700")}/>
-          {ctx ? "正在运行" : "未运行"}
-        </Badge>
-        <div className="space-x-1 self-end [&>*]:cursor-pointer">
-          {ctx?.whitelist && (
-            <WhitelistSheet asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                title="编辑白名单">
-                <UserPen />
-              </Button>
-            </WhitelistSheet>
-          )}
-          <MotdEditor motd={atob(ctx?.motd ?? "")} asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              title="编辑Motd">
-              <PenLine />
-            </Button>
-          </MotdEditor>
-          <ServerSheet asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              title="编辑server.properties">
-              <Settings />
-            </Button>
-          </ServerSheet>
-          <Button
-            variant="ghost"
-            size="icon"
-            title="重载服务器"
-            onClick={() => toast.promise(sendPostRequest("/api/control/reload"), {
-              loading: "正在重载服务器...",
-              success: "重载完毕",
-              error: "重载失败"
-            })}>
-            <RotateCw />
-          </Button>
-          <Alert
-            title="确定要停止服务器吗？"
-            description="此操作将保存所有服务器信息并关闭服务器，OPanel也将无法访问，之后您可以从后台手动启动服务器。"
-            onAction={() => {
-              sendPostRequest("/api/control/stop");
-              toast.loading("正在停止服务器...");
-            }}
-            asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              title="停止服务器">
-              <Power />
-            </Button>
-          </Alert>
-        </div>
-      </div>
+      <ControlButtonGroup className="hidden flex-row-reverse self-start max-sm:flex"/>
     </Card>
   );
 }
