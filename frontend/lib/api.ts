@@ -5,14 +5,14 @@ import { toast } from "sonner";
 
 export const apiUrl = (
   (process.env.NODE_ENV === "development")
-  ? `http://localhost:3000`
-  : ""
+  ? `http://localhost:3000` // dev
+  : "" // prod
 );
 
 export const wsUrl = (
   (process.env.NODE_ENV === "development" || !globalThis["window"])
-  ? `ws://localhost:3000`
-  : `ws://${window.location.host}`
+  ? `ws://localhost:3000` // dev
+  : `ws://${window.location.host}` // prod
 );
 
 /** @see https://crafatar.com */
@@ -22,6 +22,11 @@ export const skinUrl = "https://crafatar.com/skins/";
 /** @see https://crafatar.com */
 export const capeUrl = "https://crafatar.com/capes/";
 
+/**
+ * Toast error message with specific descriptions based on http status codes.
+ * 
+ * By default, it will set the description to `e.message`.
+ */
 export function toastError(e: AxiosError, message: string, descriptions: [number, string][]) {
   for(const [status, description] of descriptions) {
     if(e.status === status) {

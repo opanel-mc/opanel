@@ -2,7 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import type { Player } from "@/lib/types";
 import { useEffect } from "react";
 import { Ban, BrushCleaning, Check, ShieldOff, UserMinus, UserPlus } from "lucide-react";
-import { getGameModeText } from "@/lib/utils";
+import { gameModeToString } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Prompt } from "@/components/prompt";
@@ -55,7 +55,7 @@ export const playerColumns: ColumnDef<Player>[] = [
     cell: ({ row }) => {
       const { gamemode } = row.original;
       if(!gamemode) return <></>;
-      return <div className="text-center">{getGameModeText(gamemode)}</div>;
+      return <div className="text-center">{gameModeToString(gamemode)}</div>;
     }
   },
   {

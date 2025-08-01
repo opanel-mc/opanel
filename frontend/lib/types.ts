@@ -39,7 +39,7 @@ export type Whitelist = {
 
 export type EditorRefType = Parameters<OnMount>[0];
 
-// /api/info
+/** `/api/info` */
 export interface InfoResponse {
   favicon: string | null
   motd: string
@@ -55,24 +55,24 @@ export interface InfoResponse {
   }[]
 }
 
-// /api/monitor
+/** `/api/monitor` */
 export interface MonitorResponse {
   mem: number
   cpu: number
   tps: number
 }
 
-// /api/control/properties
+/** `/api/control/properties` */
 export interface ServerPropertiesResponse {
   properties: string
 }
 
-// /api/gamerules
+/** `/api/gamerules` */
 export interface GamerulesResponse {
   gamerules: ServerGamerules
 }
 
-// /api/logs
+/** `/api/logs` */
 export interface LogsResponse {
   logs: string[]
 }
@@ -80,19 +80,19 @@ export interface LogResponse {
   log: string
 }
 
-// /api/saves
+/** `/api/saves` */
 export interface SavesResponse {
   saves: Save[]
 }
 
-// /api/players
+/** `/api/players` */
 export interface PlayersResponse {
   maxPlayerCount: number
   whitelist: boolean
   players: Player[]
 }
 
-// /api/whitelist
+/** `/api/whitelist` */
 export interface WhitelistResponse {
   whitelist: Whitelist
 }
