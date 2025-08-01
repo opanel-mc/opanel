@@ -57,20 +57,20 @@ public class FabricServer implements OPanelServer {
     @Override
     public void setMotd(String motd) {
         server.setMotd(motd);
-        final ServerPropertiesHandler properties = dedicatedServer.getProperties();
-        try {
-            // Force modifying motd field through reflect because it is final
-            Field motdField = properties.getClass().getDeclaredField("motd");
-            motdField.setAccessible(true);
-            motdField.set(properties, motd);
-            /**
-             * I can't figure out why this line of code cannot save the motd to server.properties.
-             * @todo
-             */
-            properties.saveProperties(Paths.get("").resolve("server.properties"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        final ServerPropertiesHandler properties = dedicatedServer.getProperties();
+//        try {
+//            // Force modifying motd field through reflect because it is final
+//            Field motdField = properties.getClass().getDeclaredField("motd");
+//            motdField.setAccessible(true);
+//            motdField.set(properties, motd);
+//            /**
+//             * I can't figure out why this line of code cannot save the motd to server.properties.
+//             * @todo
+//             */
+//            properties.saveProperties(Paths.get("").resolve("server.properties"));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override

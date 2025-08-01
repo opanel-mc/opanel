@@ -3,7 +3,7 @@ const colorCodes = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", 
 const formattingCodes = ["k", "l", "m", "n", "o"];
 
 /** @see https://minecraft.fandom.com/wiki/Formatting_codes Compatibility with older versions */
-function purify(text: string): string {
+export function purify(text: string): string {
   return text.replaceAll("\u00c2", "");
 }
 

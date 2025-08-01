@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { sendPostRequest, toastError } from "@/lib/api";
-import { transformText } from "@/lib/formatting-codes/text";
+import { purify, transformText } from "@/lib/formatting-codes/text";
 
 const formSchema = z.object({
   motd: z.string()
@@ -41,7 +41,7 @@ export function MotdEditor({
 }>) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    values: { motd }
+    values: { motd: purify(motd) }
   });
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -68,7 +68,7 @@ export function MotdEditor({
             <DialogHeader>
               <DialogTitle>编辑 Motd</DialogTitle>
               <DialogDescription>
-                在此编辑和预览服务器 Motd。
+                在此编辑和预览服务器 Motd。<span className="text-red-700 dark:text-red-400">注：此功能不稳定，原因未知。</span>
               </DialogDescription>
             </DialogHeader>
             <FormField
