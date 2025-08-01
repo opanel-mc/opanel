@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { sendGetRequest, sendPostRequest, toastError } from "@/lib/api";
+import { setWhitelistEnabled } from "./player-utils";
 
 export function WhitelistSheet({
   children,
@@ -77,6 +78,15 @@ export function WhitelistSheet({
             onMount={(editor) => editorRef.current = editor}/>
         </div>
         <SheetFooter>
+          <Button
+            variant="destructive"
+            className="cursor-pointer"
+            onClick={async () => {
+              await setWhitelistEnabled(false);
+              window.location.reload();
+            }}>
+            禁用白名单
+          </Button>
           <SheetClose asChild>
             <Button
               className="cursor-pointer"

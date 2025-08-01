@@ -13,9 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/alert";
 import { WhitelistSheet } from "../players/whitelist-sheet";
 import { ServerSheet } from "./server-sheet";
+import { MotdEditor } from "./motd-editor";
 
 import PackIcon from "@/assets/images/pack.png";
-import { MotdEditor } from "./motd-editor";
 
 export function InfoCard({
   className,

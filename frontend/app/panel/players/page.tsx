@@ -2,7 +2,7 @@
 
 import type { Player, PlayersResponse } from "@/lib/types";
 import { useEffect, useState } from "react";
-import { UserPen, Users } from "lucide-react";
+import { Contact, UserPen, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DataTable } from "@/components/data-table";
 import { sendGetRequest, toastError } from "@/lib/api";
@@ -10,6 +10,7 @@ import { bannedColumns, playerColumns } from "./columns";
 import { SubPage } from "../sub-page";
 import { Button } from "@/components/ui/button";
 import { WhitelistSheet } from "./whitelist-sheet";
+import { setWhitelistEnabled } from "./player-utils";
 
 export default function Players() {
   const [players, setPlayers] = useState<Player[]>([]);
@@ -53,16 +54,31 @@ export default function Players() {
               {`封禁列表 (${players.filter(({ isBanned }) => isBanned).length})`}
             </TabsTrigger>
           </TabsList>
-          {isWhitelistEnabled && (
-            <WhitelistSheet asChild>
+          {
+            isWhitelistEnabled
+            ? (
+              <WhitelistSheet asChild>
+                <Button
+                  variant="outline"
+                  className="cursor-pointer">
+                  <UserPen />
+                  编辑白名单
+                </Button>
+              </WhitelistSheet>
+            )
+            : (
               <Button
                 variant="outline"
-                className="cursor-pointer">
-                <UserPen />
-                白名单
+                className="cursor-pointer"
+                onClick={async () => {
+                  await setWhitelistEnabled(true);
+                  window.location.reload();
+                }}>
+                <Contact />
+                启用白名单
               </Button>
-            </WhitelistSheet>
-          )}
+            )
+          }
         </div>
         <TabsContent value="player-list">
           <DataTable

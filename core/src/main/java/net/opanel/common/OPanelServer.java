@@ -16,6 +16,7 @@ public interface OPanelServer {
     int getMaxPlayerCount();
     OPanelPlayer getPlayer(String uuid);
     boolean isWhitelistEnabled();
+    void setWhitelistEnabled(boolean enabled);
     OPanelWhitelist getWhitelist();
     void sendServerCommand(String command);
     List<String> getCommands();

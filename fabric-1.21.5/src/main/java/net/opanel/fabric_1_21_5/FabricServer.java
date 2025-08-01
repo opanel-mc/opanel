@@ -171,6 +171,11 @@ public class FabricServer implements OPanelServer {
     }
 
     @Override
+    public void setWhitelistEnabled(boolean enabled) {
+        server.getPlayerManager().setWhitelistEnabled(enabled);
+    }
+
+    @Override
     public OPanelWhitelist getWhitelist() {
         return new FabricWhitelist(server.getPlayerManager().getWhitelist());
     }

@@ -55,6 +55,8 @@ public class WhitelistServlet extends BaseServlet {
 
         try {
             switch(reqPath.substring(1)) {
+                case "enable" -> server.setWhitelistEnabled(true);
+                case "disable" -> server.setWhitelistEnabled(false);
                 case "write" -> whitelist.write(getRequestBody(req, new TypeToken<List<OPanelWhitelist.OPanelWhitelistEntry>>() {}.getType()));
                 case "add" -> {
                     if(name == null || uuid == null) {
@@ -71,6 +73,7 @@ public class WhitelistServlet extends BaseServlet {
                     whitelist.remove(new OPanelWhitelist.OPanelWhitelistEntry(name, uuid));
                 }
             }
+            sendResponse(res, HttpServletResponse.SC_OK);
         } catch (IOException e) {
             e.printStackTrace();
             sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

@@ -76,6 +76,18 @@ export async function setGameMode(uuid: string, gamemode: GameMode, doToast = tr
   }
 }
 
+export async function setWhitelistEnabled(enabled: boolean, doToast = true) {
+  try {
+    await sendPostRequest(`/api/whitelist/${enabled ? "enable" : "disable"}`);
+    doToast && toast.success(`已${enabled ? "启用" : "禁用"}白名单`);
+  } catch (e: any) {
+    toastError(e, `无法${enabled ? "启用" : "禁用"}白名单`, [
+      [401, "未登录"],
+      [500, "服务器内部错误"]
+    ]);
+  }
+}
+
 export async function addToWhitelist(name: string, uuid: string, doToast = true) {
   try {
     await sendPostRequest(`/api/whitelist/add?name=${name}&uuid=${uuid}`);
