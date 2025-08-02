@@ -6,6 +6,9 @@ function formatNumber(num: number): string {
   return num < 10 ? `0${num}` : num.toString();
 }
 
+/**
+ * Transform millisecond to readable time string
+ */
 export function millisToTime(ms: number): string {
   const hour = Math.floor(ms / hourUnit);
   ms -= hour * hourUnit;
@@ -16,6 +19,10 @@ export function millisToTime(ms: number): string {
   return `${formatNumber(hour)}:${formatNumber(minute)}:${formatNumber(second)}`;
 }
 
+/**
+ * Transform game tick to readable time string
+ * @see https://minecraft.fandom.com/wiki/Daylight_cycle
+ */
 export function gameTickToTime(gt: number): string {
   const hour = Math.floor(gt / 1000 + 6);
   const minute = Math.floor((gt % 1000) / 16.6);
