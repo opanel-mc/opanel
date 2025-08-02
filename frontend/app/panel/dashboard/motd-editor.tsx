@@ -78,7 +78,7 @@ export function MotdEditor({
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <div className="flex flex-col gap-3 overflow-hidden">
+                    <div className="flex flex-col gap-3 min-w-0">
                       <MinecraftText maxLines={2} className="wrap-anywhere">{"§7"+ field.value}</MinecraftText>
                       <Textarea
                         {...field}

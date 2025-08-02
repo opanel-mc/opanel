@@ -27,7 +27,7 @@ export function PlayersCard({
   return (
     <FunctionalCard
       icon={Users}
-      title={`在线玩家 (${ctx ? ctx.onlinePlayers.length : 0} / ${ctx?.maxPlayerCount})`}
+      title={`在线玩家 (${ctx ? ctx.onlinePlayers.length : 0} / ${ctx?.maxPlayerCount ?? 0})`}
       moreLink="/panel/players"
       className={className}
       innerClassName="p-4 pt-0">

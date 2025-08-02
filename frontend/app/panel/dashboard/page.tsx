@@ -7,6 +7,7 @@ import { InfoContext, MonitorContext } from "@/contexts/api-context";
 import { sendGetRequest, toastError } from "@/lib/api";
 import { getCurrentState } from "@/lib/utils";
 import { InfoCard } from "./info-card";
+import { TimeCard } from "./time-card";
 import { PlayersCard } from "./players-card";
 import { MonitorCard } from "./monitor-card";
 import { TerminalCard } from "./terminal-card";
@@ -56,11 +57,12 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <SubPage title="仪表盘" icon={<Gauge />} className="h-[600px] grid grid-rows-4 grid-cols-3 max-xl:flex flex-col gap-3 pb-20 [&>*]:p-4">
+    <SubPage title="仪表盘" icon={<Gauge />} className="h-[650px] grid grid-rows-4 grid-cols-3 max-xl:flex flex-col gap-3 pb-20 [&>*]:p-4">
       <InfoContext.Provider value={info}>
         <MonitorContext.Provider value={monitorData}>
           <InfoCard className="row-start-1 col-span-2"/>
-          <PlayersCard className="row-span-3 row-start-2"/>
+          <TimeCard className="row-start-4"/>
+          <PlayersCard className="row-span-2 row-start-2"/>
           <MonitorCard className="row-span-2 row-start-2"/>
           <TPSCard className="row-start-4"/>
           <TerminalCard className="row-span-4 max-sm:hidden"></TerminalCard>

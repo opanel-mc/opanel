@@ -26,4 +26,5 @@ public interface OPanelServer {
     void stop();
     String getPropertiesContent() throws IOException;
     void writePropertiesContent(String newContent) throws IOException;
+    long getIngameTime();
 }

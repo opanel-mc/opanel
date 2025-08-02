@@ -10,6 +10,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.dedicated.ServerPropertiesHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.WorldSavePath;
 import net.minecraft.world.GameRules;
 import net.opanel.common.OPanelPlayer;
@@ -257,5 +258,10 @@ public class FabricServer implements OPanelServer {
             throw new IOException("Cannot find server.properties");
         }
         Utils.writeTextFile(serverPropertiesPath, newContent);
+    }
+
+    @Override
+    public long getIngameTime() {
+        return server.getOverworld().getTimeOfDay();
     }
 }

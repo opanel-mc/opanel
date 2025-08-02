@@ -37,6 +37,14 @@ public class InfoServlet extends BaseServlet {
         obj.put("port", server.getPort());
         obj.put("maxPlayerCount", server.getMaxPlayerCount());
         obj.put("whitelist", server.isWhitelistEnabled());
+        obj.put("uptime", plugin.getUptimer().getCurrent());
+
+        HashMap<String, Object> ingameTimeObj = new HashMap<>();
+        ingameTimeObj.put("current", server.getIngameTime());
+        ingameTimeObj.put("doDaylightCycle", server.getGamerules().get("doDaylightCycle"));
+        /** @todo */
+        ingameTimeObj.put("tickMs", 50); // 1 gt -> ? ms
+        obj.put("ingameTime", ingameTimeObj);
 
         List<HashMap<String, Object>> players = new ArrayList<>();
         for(OPanelPlayer player : server.getOnlinePlayers()) {

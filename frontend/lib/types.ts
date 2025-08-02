@@ -47,6 +47,12 @@ export interface InfoResponse {
   port: number
   maxPlayerCount: number
   whitelist: boolean
+  uptime: number
+  ingameTime: {
+    current: number
+    doDaylightCycle: boolean
+    tickMs: number
+  }
   onlinePlayers: {
     name: string
     uuid: string

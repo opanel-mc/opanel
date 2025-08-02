@@ -18,6 +18,7 @@ public class OPanel {
     private final OPanelConfiguration config;
     public final Loggable logger;
 
+    private Uptimer uptimer;
     private WebServer webServer;
     private OPanelServer server;
     private LogListenerManager logListenerManager;
@@ -25,6 +26,7 @@ public class OPanel {
     public OPanel(OPanelConfiguration config, Loggable logger) {
         this.config = config;
         this.logger = logger;
+        uptimer = new Uptimer();
 
         // Initialize
         try {
@@ -54,6 +56,10 @@ public class OPanel {
 
     public OPanelConfiguration getConfig() {
         return config;
+    }
+
+    public Uptimer getUptimer() {
+        return uptimer;
     }
 
     public WebServer getWebServer() {
