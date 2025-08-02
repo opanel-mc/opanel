@@ -57,7 +57,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <SubPage title="仪表盘" icon={<Gauge />} className="h-[650px] grid grid-rows-4 grid-cols-3 max-xl:flex flex-col gap-3 pb-20 [&>*]:p-4">
+    <SubPage title="仪表盘" icon={<Gauge />} className="h-[650px] max-xl:h-fit grid grid-rows-4 grid-cols-3 max-xl:flex flex-col gap-3 pb-20 [&>*]:p-4">
       <InfoContext.Provider value={info}>
         <MonitorContext.Provider value={monitorData}>
           <InfoCard className="row-start-1 col-span-2"/>
