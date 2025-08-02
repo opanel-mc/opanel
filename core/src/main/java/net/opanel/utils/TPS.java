@@ -10,7 +10,7 @@ public class TPS {
         tickIndex = (tickIndex + 1) % TICK_LIST_SIZE;
     }
 
-    public static double getRecentTPS() {
+    public static double getRecentMSPT() {
         long totalTime = 0;
         int ticks = 0;
 
@@ -24,9 +24,11 @@ public class TPS {
             }
         }
 
-        double mspt = ((double) totalTime / ticks) / 1000000; // ns -> ms
-        double tps = 1000 / mspt;
+        return ((double) totalTime / ticks) / 1000000; // ns -> ms;
+    }
 
+    public static double getRecentTPS() {
+        double tps = 1000 / getRecentMSPT();
         return Math.min(20.0, tps);
     }
 }

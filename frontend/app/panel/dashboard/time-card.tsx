@@ -36,10 +36,10 @@ export function TimeCard({
 
     const timer = setInterval(() => {
       setIngameTime((current) => current + 16.6);
-    }, ctx.ingameTime.tickMs * 16.6);
+    }, ctx.ingameTime.mspt * 16.6);
 
     return () => clearInterval(timer);
-  }, [ctx?.ingameTime.doDaylightCycle, ctx?.ingameTime.tickMs]);
+  }, [ctx?.ingameTime.doDaylightCycle, ctx?.ingameTime.mspt]);
 
   return (
     <FunctionalCard

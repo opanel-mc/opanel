@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import net.opanel.OPanel;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelServer;
+import net.opanel.utils.TPS;
 import net.opanel.web.BaseServlet;
 
 import java.io.IOException;
@@ -42,8 +43,7 @@ public class InfoServlet extends BaseServlet {
         HashMap<String, Object> ingameTimeObj = new HashMap<>();
         ingameTimeObj.put("current", server.getIngameTime());
         ingameTimeObj.put("doDaylightCycle", server.getGamerules().get("doDaylightCycle"));
-        /** @todo */
-        ingameTimeObj.put("tickMs", 50); // 1 gt -> ? ms
+        ingameTimeObj.put("mspt", TPS.getRecentMSPT());
         obj.put("ingameTime", ingameTimeObj);
 
         List<HashMap<String, Object>> players = new ArrayList<>();

@@ -51,7 +51,7 @@ export interface InfoResponse {
   ingameTime: {
     current: number
     doDaylightCycle: boolean
-    tickMs: number
+    mspt: number
   }
   onlinePlayers: {
     name: string
