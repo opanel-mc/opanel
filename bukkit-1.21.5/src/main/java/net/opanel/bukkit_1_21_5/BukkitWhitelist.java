@@ -1,34 +1,53 @@
 package net.opanel.bukkit_1_21_5;
 
 import net.opanel.common.OPanelWhitelist;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.Server;
 
-import java.io.IOException;
-import java.util.List;
+import java.util.*;
 
-/** @todo */
 public class BukkitWhitelist implements OPanelWhitelist {
-    @Override
-    public List<String> getNames() throws IOException {
-        return List.of();
+    private final Server server;
+    private final Set<OfflinePlayer> whitelist;
+
+    public BukkitWhitelist(Server server, Set<OfflinePlayer> playerList) {
+        this.server = server;
+        whitelist = playerList;
     }
 
     @Override
-    public List<OPanelWhitelistEntry> getEntries() throws IOException {
-        return List.of();
+    public List<String> getNames() {
+        List<String> list = new ArrayList<>();
+        for(OfflinePlayer player : whitelist) {
+            list.add(player.getName());
+        }
+        return list;
     }
 
     @Override
-    public void write(List<OPanelWhitelistEntry> entries) throws IOException {
+    public List<OPanelWhitelistEntry> getEntries() {
+        List<OPanelWhitelistEntry> entries = new ArrayList<>();
+        for(OfflinePlayer player : whitelist) {
+            entries.add(new OPanelWhitelistEntry(player.getName(), player.getUniqueId().toString()));
+        }
+        return entries;
+    }
+
+    /** @todo */
+    @Override
+    public void write(List<OPanelWhitelistEntry> entries) {
 
     }
 
+    /** @todo */
     @Override
-    public void add(OPanelWhitelistEntry entry) throws IOException {
+    public void add(OPanelWhitelistEntry entry) {
 
     }
 
+    /** @todo */
     @Override
-    public void remove(OPanelWhitelistEntry entry) throws IOException {
+    public void remove(OPanelWhitelistEntry entry) {
 
     }
 }

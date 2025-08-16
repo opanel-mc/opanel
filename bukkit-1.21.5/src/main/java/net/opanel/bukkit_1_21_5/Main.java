@@ -1,5 +1,6 @@
 package net.opanel.bukkit_1_21_5;
 
+import de.tr7zw.changeme.nbtapi.NBT;
 import net.opanel.OPanel;
 import net.opanel.OPanelConfiguration;
 import org.bukkit.Bukkit;
@@ -20,6 +21,12 @@ public class Main extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        if(!NBT.preloadApi()) {
+            LOGGER.warning("Cannot start OPanel plugin: NBT-API is not initialized properly.");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
+
         final LoggerImpl logger = new LoggerImpl(LOGGER);
 
         saveDefaultConfig();
@@ -37,8 +44,8 @@ public class Main extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
-        serverTickListener.cancel();
-        instance.stop();
+        if(serverTickListener != null) serverTickListener.cancel();
+        if(instance != null) instance.stop();
     }
 
     /** @todo */

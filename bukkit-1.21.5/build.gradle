@@ -7,6 +7,10 @@ repositories {
         name = "papermc"
         url = uri("https://repo.papermc.io/repository/maven-public/")
     }
+    maven {
+        name = "CodeMC"
+        url = uri("https://repo.codemc.io/repository/maven-public/")
+    }
 }
 
 archivesBaseName = "${rootProject.name}-bukkit"
@@ -15,6 +19,7 @@ dependencies {
     implementation project(':core')
 
     compileOnly 'io.papermc.paper:paper-api:1.21.5-R0.1-SNAPSHOT'
+    implementation "de.tr7zw:item-nbt-api:2.15.1"
 }
 
 shadowJar {
@@ -23,6 +28,7 @@ shadowJar {
 
     relocate 'com.google.gson', 'net.opanel.deps.gson'
     relocate 'org.objectweb.asm', 'net.opanel.deps.objectweb.asm'
+    relocate 'de.tr7zw.changeme.nbtapi', 'net.opanel.deps.nbtapi'
 }
 
 tasks.named('build') {

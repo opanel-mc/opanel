@@ -80,7 +80,7 @@ public class FabricSave implements OPanelSave {
 
     @Override
     public void setDefaultGameMode(OPanelGameMode gamemode) throws IOException {
-        switch (gamemode) {
+        switch(gamemode) {
             case ADVENTURE -> nbt.putInt("GameType", 2);
             case SURVIVAL -> nbt.putInt("GameType", 0);
             case CREATIVE -> nbt.putInt("GameType", 1);
