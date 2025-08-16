@@ -19,8 +19,8 @@ public class Main implements DedicatedServerModInitializer {
 
     @Override
     public void onInitializeServer() {
-        Configuration<OPanelConfiguration> config = ConfigManager.get().register(MODID, OPanelConfiguration.defaultConfig, OPanelConfiguration.class);
-        instance = new OPanel(config.get(), new LoggerImpl(LOGGER));
+        Configuration<OPanelConfiguration> configSrc = ConfigManager.get().register(MODID, OPanelConfiguration.defaultConfig, OPanelConfiguration.class);
+        instance = new OPanel(configSrc.get(), new LoggerImpl(LOGGER));
 
         initLogListenerAppender();
 
