@@ -5,22 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="Changes">
-      <change afterPath="$PROJECT_DIR$/paper-1.21.5/src/main/java/net/opanel/paper_1_21_5/terminal/LogListenerManagerImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/paper-1.21.5/src/main/resources/META-INF/.mojang-mapped" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bukkit-1.21.5/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/paper-1.21.5/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bukkit-1.21.5/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/paper-1.21.5/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bukkit-1.21.5/src/main/java/net/opanel/bukkit_1_21_5/BukkitPlayer.java" beforeDir="false" afterPath="$PROJECT_DIR$/paper-1.21.5/src/main/java/net/opanel/paper_1_21_5/PaperPlayer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bukkit-1.21.5/src/main/java/net/opanel/bukkit_1_21_5/BukkitSave.java" beforeDir="false" afterPath="$PROJECT_DIR$/paper-1.21.5/src/main/java/net/opanel/paper_1_21_5/PaperSave.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bukkit-1.21.5/src/main/java/net/opanel/bukkit_1_21_5/BukkitServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/paper-1.21.5/src/main/java/net/opanel/paper_1_21_5/PaperServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bukkit-1.21.5/src/main/java/net/opanel/bukkit_1_21_5/BukkitWhitelist.java" beforeDir="false" afterPath="$PROJECT_DIR$/paper-1.21.5/src/main/java/net/opanel/paper_1_21_5/PaperWhitelist.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bukkit-1.21.5/src/main/java/net/opanel/bukkit_1_21_5/LoggerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/paper-1.21.5/src/main/java/net/opanel/paper_1_21_5/LoggerImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bukkit-1.21.5/src/main/java/net/opanel/bukkit_1_21_5/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/paper-1.21.5/src/main/java/net/opanel/paper_1_21_5/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bukkit-1.21.5/src/main/resources/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/paper-1.21.5/src/main/resources/config.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bukkit-1.21.5/src/main/resources/plugin.yml" beforeDir="false" afterPath="$PROJECT_DIR$/paper-1.21.5/src/main/resources/plugin.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/FabricServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/FabricServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CONTRIBUTING.md" beforeDir="false" afterPath="$PROJECT_DIR$/CONTRIBUTING.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
