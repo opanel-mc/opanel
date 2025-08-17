@@ -33,21 +33,28 @@ public class BukkitWhitelist implements OPanelWhitelist {
         return entries;
     }
 
-    /** @todo */
     @Override
     public void write(List<OPanelWhitelistEntry> entries) {
-
+        final List<OPanelWhitelistEntry> oldEntries = getEntries();
+        for(OPanelWhitelistEntry entry : oldEntries) {
+            remove(entry);
+        }
+        for(OPanelWhitelistEntry entry : entries) {
+            add(entry);
+        }
     }
 
-    /** @todo */
     @Override
     public void add(OPanelWhitelistEntry entry) {
-
+        if(getNames().contains(entry.name)) return;
+        server.getOfflinePlayer(entry.name).setWhitelisted(true);
+        server.reloadWhitelist();
     }
 
-    /** @todo */
     @Override
     public void remove(OPanelWhitelistEntry entry) {
-
+        if(!getNames().contains(entry.name)) return;
+        server.getOfflinePlayer(entry.name).setWhitelisted(false);
+        server.reloadWhitelist();
     }
 }

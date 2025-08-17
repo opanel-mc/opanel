@@ -4,10 +4,7 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtSizeTracker;
-import net.minecraft.server.BannedPlayerEntry;
-import net.minecraft.server.BannedPlayerList;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.PlayerManager;
+import net.minecraft.server.*;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.UserCache;
 import net.minecraft.util.WorldSavePath;
@@ -144,7 +141,9 @@ public class FabricOfflinePlayer implements OPanelPlayer {
     @Override
     public String getBanReason() {
         if(!isBanned()) return null;
-        return playerManager.getUserBanList().get(profile).getReason();
+        BannedPlayerEntry banEntry = playerManager.getUserBanList().get(profile);
+        if(banEntry == null) return null;
+        return banEntry.getReason();
     }
 
     @Override

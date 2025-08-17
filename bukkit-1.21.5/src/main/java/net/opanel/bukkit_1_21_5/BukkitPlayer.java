@@ -1,8 +1,11 @@
 package net.opanel.bukkit_1_21_5;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
+import io.papermc.paper.ban.BanListType;
+import net.kyori.adventure.text.Component;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
+import org.bukkit.BanEntry;
 import org.bukkit.GameMode;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
@@ -79,11 +82,14 @@ public class BukkitPlayer implements OPanelPlayer {
         player.setOp(false);
     }
 
-    /** @todo */
     @Override
     public void kick(String reason) {
         if(!isOnline()) return;
-        player.kick();
+        if (reason == null) {
+            player.kick();
+        } else {
+            player.kick(Component.text(reason));
+        }
     }
 
     @Override
@@ -92,18 +98,18 @@ public class BukkitPlayer implements OPanelPlayer {
         player.ban(reason, (Date) null, null, true);
     }
 
-    /** @todo */
     @Override
     public String getBanReason() {
         if(!isBanned()) return null;
-        return "";
+        BanEntry<PlayerProfile> banEntry = server.getBanList(BanListType.PROFILE).getBanEntry(profile);
+        if(banEntry == null) return null;
+        return banEntry.getReason();
     }
 
-    /** @todo */
     @Override
     public void pardon() {
         if(!isBanned()) return;
-        //
+        server.getBanList(BanListType.PROFILE).pardon(profile);
     }
 
     @Override

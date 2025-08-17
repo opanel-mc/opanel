@@ -43,6 +43,7 @@ public class FabricWhitelist implements OPanelWhitelist {
     public void write(List<OPanelWhitelistEntry> entries) throws IOException {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         Utils.writeTextFile(whitelistPath, gson.toJson(entries));
+        whitelist.load();
     }
 
     @Override

@@ -2,11 +2,8 @@ package net.opanel.fabric_1_21_5;
 
 import net.opanel.logger.Loggable;
 import net.opanel.utils.Utils;
-import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
