@@ -1,6 +1,5 @@
-package net.opanel.bukkit_1_21_5;
+package net.opanel.paper_1_21_5;
 
-import net.kyori.adventure.text.serializer.ComponentSerializer;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelSave;
@@ -20,12 +19,12 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class BukkitServer implements OPanelServer {
+public class PaperServer implements OPanelServer {
     private static final Path serverPropertiesPath = Paths.get("").resolve("server.properties");
 
     private final Server server;
 
-    public BukkitServer(Server server) {
+    public PaperServer(Server server) {
         this.server = server;
     }
 
@@ -63,7 +62,7 @@ public class BukkitServer implements OPanelServer {
 
     @Override
     public String getVersion() {
-        return server.getVersion();
+        return server.getBukkitVersion();
     }
 
     @Override
@@ -81,7 +80,7 @@ public class BukkitServer implements OPanelServer {
                     ))
                     .map(Path::toAbsolutePath)
                     .forEach(path -> {
-                        BukkitSave save = new BukkitSave(server, path);
+                        PaperSave save = new PaperSave(server, path);
                         list.add(save);
                     });
         } catch (IOException e) {
@@ -96,7 +95,7 @@ public class BukkitServer implements OPanelServer {
         if(!Files.exists(savePath) || !Files.exists(savePath.resolve("level.dat"))) {
             return null;
         }
-        return new BukkitSave(server, savePath.toAbsolutePath());
+        return new PaperSave(server, savePath.toAbsolutePath());
     }
 
     @Override
@@ -105,7 +104,7 @@ public class BukkitServer implements OPanelServer {
         List<OPanelPlayer> list = new ArrayList<>();
         Collection<Player> players = (Collection<Player>) server.getOnlinePlayers();
         for(Player serverPlayer : players) {
-            BukkitPlayer player = new BukkitPlayer(serverPlayer);
+            PaperPlayer player = new PaperPlayer(serverPlayer);
             list.add(player);
         }
         return list;
@@ -118,7 +117,7 @@ public class BukkitServer implements OPanelServer {
         for(OfflinePlayer offlinePlayer : players) {
             Player serverPlayer = offlinePlayer.getPlayer();
             if(serverPlayer == null) continue;
-            BukkitPlayer player = new BukkitPlayer(serverPlayer);
+            PaperPlayer player = new PaperPlayer(serverPlayer);
             list.add(player);
         }
         return list;
@@ -151,7 +150,7 @@ public class BukkitServer implements OPanelServer {
 
     @Override
     public OPanelWhitelist getWhitelist() {
-        return new BukkitWhitelist(server, server.getWhitelistedPlayers());
+        return new PaperWhitelist(server, server.getWhitelistedPlayers());
     }
 
     @Override
@@ -219,6 +218,6 @@ public class BukkitServer implements OPanelServer {
 
     @Override
     public long getIngameTime() {
-        return server.getWorlds().getFirst().getGameTime();
+        return server.getWorlds().getFirst().getTime();
     }
 }

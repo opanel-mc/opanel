@@ -1,22 +1,21 @@
-package net.opanel.bukkit_1_21_5;
+package net.opanel.spigot_1_21_5;
 
 import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelSave;
 import net.opanel.utils.Utils;
-import org.bukkit.GameMode;
 import org.bukkit.Server;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
-public class BukkitSave implements OPanelSave {
+public class SpigotSave implements OPanelSave {
     private final Server server;
     private final Path savePath;
     private ReadWriteNBT nbt;
 
-    public BukkitSave(Server server, Path path) {
+    public SpigotSave(Server server, Path path) {
         this.server = server;
         savePath = path;
         try {
@@ -58,12 +57,12 @@ public class BukkitSave implements OPanelSave {
 
     @Override
     public OPanelGameMode getDefaultGameMode() {
-        GameMode gamemode = GameMode.getByValue(nbt.getInteger("GameType"));
+        int gamemode = nbt.getInteger("GameType");
         switch(gamemode) {
-            case ADVENTURE -> { return OPanelGameMode.ADVENTURE; }
-            case SURVIVAL -> { return OPanelGameMode.SURVIVAL; }
-            case CREATIVE -> { return OPanelGameMode.CREATIVE; }
-            case SPECTATOR -> { return OPanelGameMode.SPECTATOR; }
+            case 2 -> { return OPanelGameMode.ADVENTURE; }
+            case 0 -> { return OPanelGameMode.SURVIVAL; }
+            case 1 -> { return OPanelGameMode.CREATIVE; }
+            case 3 -> { return OPanelGameMode.SPECTATOR; }
         }
         return null;
     }

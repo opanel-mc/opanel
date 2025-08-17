@@ -1,23 +1,22 @@
-package net.opanel.bukkit_1_21_5;
+package net.opanel.spigot_1_21_5;
 
-import com.destroystokyo.paper.profile.PlayerProfile;
-import io.papermc.paper.ban.BanListType;
-import net.kyori.adventure.text.Component;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
 import org.bukkit.BanEntry;
+import org.bukkit.BanList;
 import org.bukkit.GameMode;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
+import org.bukkit.profile.PlayerProfile;
 
 import java.util.Date;
 
-public class BukkitPlayer implements OPanelPlayer {
+public class SpigotPlayer implements OPanelPlayer {
     private final Player player;
     private final Server server;
     private final PlayerProfile profile;
 
-    public BukkitPlayer(Player player) {
+    public SpigotPlayer(Player player) {
         this.player = player;
         server = player.getServer();
         profile = player.getPlayerProfile();
@@ -85,11 +84,7 @@ public class BukkitPlayer implements OPanelPlayer {
     @Override
     public void kick(String reason) {
         if(!isOnline()) return;
-        if (reason == null) {
-            player.kick();
-        } else {
-            player.kick(Component.text(reason));
-        }
+        player.kickPlayer(reason);
     }
 
     @Override
@@ -101,7 +96,8 @@ public class BukkitPlayer implements OPanelPlayer {
     @Override
     public String getBanReason() {
         if(!isBanned()) return null;
-        BanEntry<PlayerProfile> banEntry = server.getBanList(BanListType.PROFILE).getBanEntry(profile);
+        BanList<PlayerProfile> banList = server.getBanList(BanList.Type.PROFILE);
+        BanEntry<PlayerProfile> banEntry = banList.getBanEntry(profile);
         if(banEntry == null) return null;
         return banEntry.getReason();
     }
@@ -109,7 +105,8 @@ public class BukkitPlayer implements OPanelPlayer {
     @Override
     public void pardon() {
         if(!isBanned()) return;
-        server.getBanList(BanListType.PROFILE).pardon(profile);
+        BanList<PlayerProfile> banList = server.getBanList(BanList.Type.PROFILE);
+        banList.pardon(profile);
     }
 
     @Override

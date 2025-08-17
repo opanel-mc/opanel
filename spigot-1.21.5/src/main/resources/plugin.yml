@@ -1,6 +1,6 @@
 name: OPanel
-version: ${project.version}
-main: net.opanel.bukkit_1_21_5.Main
+version: 1.0.0
+main: net.opanel.spigot_1_21_5.Main
 description: A Minecraft server management panel
 author: NriotHrreion
 website:

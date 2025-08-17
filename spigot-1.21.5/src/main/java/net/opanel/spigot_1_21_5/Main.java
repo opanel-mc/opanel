@@ -1,8 +1,9 @@
-package net.opanel.bukkit_1_21_5;
+package net.opanel.spigot_1_21_5;
 
 import de.tr7zw.changeme.nbtapi.NBT;
 import net.opanel.OPanel;
 import net.opanel.OPanelConfiguration;
+import net.opanel.spigot_1_21_5.terminal.LogListenerManagerImpl;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventHandler;
@@ -38,8 +39,10 @@ public class Main extends JavaPlugin implements Listener {
 
         instance = new OPanel(config, logger);
 
-        initLogListenerAppender();
+        initLogHandler();
         initServerTickListener();
+
+        Bukkit.getPluginManager().registerEvents(this, this);
     }
 
     @Override
@@ -48,9 +51,10 @@ public class Main extends JavaPlugin implements Listener {
         if(instance != null) instance.stop();
     }
 
-    /** @todo */
-    private void initLogListenerAppender() {
-
+    private void initLogHandler() {
+        final LogListenerManagerImpl logHandler = new LogListenerManagerImpl();
+        LOGGER.addHandler(logHandler);
+        instance.setLogListenerManager(logHandler);
     }
 
     private void initServerTickListener() {
@@ -59,7 +63,7 @@ public class Main extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onServerLoad(ServerLoadEvent event) {
-        instance.setServer(new BukkitServer(getServer()));
+        instance.setServer(new SpigotServer(getServer()));
 
         try {
             instance.getWebServer().start(); // default port 3000

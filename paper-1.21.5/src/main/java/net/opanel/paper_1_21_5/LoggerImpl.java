@@ -1,4 +1,4 @@
-package net.opanel.bukkit_1_21_5;
+package net.opanel.paper_1_21_5;
 
 import net.opanel.logger.Loggable;
 import net.opanel.utils.Utils;

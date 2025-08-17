@@ -1,4 +1,4 @@
-package net.opanel.bukkit_1_21_5;
+package net.opanel.spigot_1_21_5;
 
 import net.opanel.common.OPanelWhitelist;
 import org.bukkit.OfflinePlayer;
@@ -6,11 +6,11 @@ import org.bukkit.Server;
 
 import java.util.*;
 
-public class BukkitWhitelist implements OPanelWhitelist {
+public class SpigotWhitelist implements OPanelWhitelist {
     private final Server server;
     private final Set<OfflinePlayer> whitelist;
 
-    public BukkitWhitelist(Server server, Set<OfflinePlayer> playerList) {
+    public SpigotWhitelist(Server server, Set<OfflinePlayer> playerList) {
         this.server = server;
         whitelist = playerList;
     }
@@ -47,14 +47,14 @@ public class BukkitWhitelist implements OPanelWhitelist {
     @Override
     public void add(OPanelWhitelistEntry entry) {
         if(getNames().contains(entry.name)) return;
-        server.getOfflinePlayer(entry.name).setWhitelisted(true);
+        server.getOfflinePlayer(UUID.fromString(entry.uuid)).setWhitelisted(true);
         server.reloadWhitelist();
     }
 
     @Override
     public void remove(OPanelWhitelistEntry entry) {
         if(!getNames().contains(entry.name)) return;
-        server.getOfflinePlayer(entry.name).setWhitelisted(false);
+        server.getOfflinePlayer(UUID.fromString(entry.uuid)).setWhitelisted(false);
         server.reloadWhitelist();
     }
 }
