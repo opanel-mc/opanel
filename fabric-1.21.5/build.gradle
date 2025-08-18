@@ -33,10 +33,10 @@ repositories {
 }
 
 dependencies {
-    minecraft "com.mojang:minecraft:1.21.5"
-    mappings "net.fabricmc:yarn:1.21.5+build.1:v2"
-    modImplementation "net.fabricmc:fabric-loader:0.16.14"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:0.127.1+1.21.5"
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings "net.fabricmc:yarn:${minecraft_version}+build.1:v2"
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}+${minecraft_version}"
     include(modImplementation("space.nocp:configx:2.0.1"))
 
     shadowImplementation(project(":core")) {
@@ -66,13 +66,19 @@ remapJar {
     mustRunAfter shadowJar
     inputFile = shadowJar.archiveFile
     archiveBaseName = baseName +"-build"
+    destinationDirectory = file "../build/libs"
 }
 
-processResources {
-    inputs.property "version", project.version
+tasks.named('processResources', ProcessResources) {
+    var replaceProperties = [
+            version: project.version,
+            minecraft_version: minecraft_version,
+            fabric_loader_version: fabric_loader_version
+    ]
+    inputs.properties replaceProperties
 
     filesMatching("fabric.mod.json") {
-        expand "version": project.version
+        expand replaceProperties + [project: project]
     }
 }
 

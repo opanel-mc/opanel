@@ -1,7 +1,7 @@
 name: OPanel
-version: 1.0.0
+version: ${version}
 main: net.opanel.spigot_1_21_5.Main
 description: A Minecraft server management panel
 author: NriotHrreion
 website:
-api-version: '1.21.5'
+api-version: ${minecraft_version}

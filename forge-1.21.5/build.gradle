@@ -88,6 +88,7 @@ shadowJar {
 
     archiveBaseName = baseName +"-build"
     archiveClassifier = ''
+    destinationDirectory = file "../build/libs"
 
     relocate 'com.google.gson', 'net.opanel.deps.gson'
     relocate 'org.objectweb.asm', 'net.opanel.deps.objectweb.asm'
