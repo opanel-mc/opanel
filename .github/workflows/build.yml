@@ -1,0 +1,26 @@
+name: Build
+
+on: [push, pull_request]
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+    - uses: actions/checkout@v2
+    - run: cd frontend
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm i
+
+    - name: Test building frontend
+      run: npm run build
