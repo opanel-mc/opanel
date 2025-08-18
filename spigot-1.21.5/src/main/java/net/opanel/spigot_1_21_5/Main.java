@@ -4,6 +4,7 @@ import de.tr7zw.changeme.nbtapi.NBT;
 import net.opanel.OPanel;
 import net.opanel.OPanelConfiguration;
 import net.opanel.spigot_1_21_5.terminal.LogListenerManagerImpl;
+import org.apache.logging.log4j.LogManager;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventHandler;
@@ -11,14 +12,17 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
+import org.slf4j.LoggerFactory;
 
 import java.util.logging.Logger;
 
 public class Main extends JavaPlugin implements Listener {
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
     public final Logger LOGGER = getLogger();
     public OPanel instance;
 
     private BukkitTask serverTickListener;
+    private LogListenerManagerImpl logListenerAppender;
 
     @Override
     public void onEnable() {
@@ -39,7 +43,7 @@ public class Main extends JavaPlugin implements Listener {
 
         instance = new OPanel(config, logger);
 
-        initLogHandler();
+        initLogListenerAppender();
         initServerTickListener();
 
         Bukkit.getPluginManager().registerEvents(this, this);
@@ -47,14 +51,23 @@ public class Main extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
+        if(logListenerAppender != null) disposeLogListenerAppender();
         if(serverTickListener != null) serverTickListener.cancel();
         if(instance != null) instance.stop();
     }
 
-    private void initLogHandler() {
-        final LogListenerManagerImpl logHandler = new LogListenerManagerImpl();
-        LOGGER.addHandler(logHandler);
-        instance.setLogListenerManager(logHandler);
+    private void initLogListenerAppender() {
+        final org.apache.logging.log4j.core.Logger logger = (org.apache.logging.log4j.core.Logger) LogManager.getRootLogger();
+        logListenerAppender = LogListenerManagerImpl.createAppender("LogListenerAppender", true);
+        logListenerAppender.start();
+        logger.addAppender(logListenerAppender);
+        instance.setLogListenerManager(logListenerAppender);
+    }
+
+    private void disposeLogListenerAppender() {
+        final org.apache.logging.log4j.core.Logger logger = (org.apache.logging.log4j.core.Logger) LogManager.getRootLogger();
+        logger.removeAppender(logListenerAppender);
+        logListenerAppender.clearListeners();
     }
 
     private void initServerTickListener() {
@@ -63,12 +76,16 @@ public class Main extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onServerLoad(ServerLoadEvent event) {
-        instance.setServer(new SpigotServer(getServer()));
+        instance.setServer(new SpigotServer(this, getServer()));
 
         try {
             instance.getWebServer().start(); // default port 3000
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void runTask(Runnable task) {
+        Bukkit.getScheduler().runTask(this, task);
     }
 }

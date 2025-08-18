@@ -6,6 +6,7 @@ import net.opanel.common.OPanelServer;
 import net.opanel.common.OPanelWhitelist;
 import net.opanel.utils.Utils;
 import org.bukkit.*;
+import org.bukkit.command.CommandException;
 import org.bukkit.entity.Player;
 import org.bukkit.util.CachedServerIcon;
 
@@ -20,9 +21,11 @@ import java.util.stream.Stream;
 public class SpigotServer implements OPanelServer {
     private static final Path serverPropertiesPath = Paths.get("").resolve("server.properties");
 
+    private final Main plugin;
     private final Server server;
 
-    public SpigotServer(Server server) {
+    public SpigotServer(Main plugin, Server server) {
+        this.plugin = plugin;
         this.server = server;
     }
 
@@ -42,10 +45,7 @@ public class SpigotServer implements OPanelServer {
         // Call setMotd() first
         server.setMotd(motd);
         // Directly modify motd in server.properties
-        Properties properties = new Properties();
-        properties.load(new FileInputStream(serverPropertiesPath.toFile()));
-        properties.setProperty("motd", motd);
-        writePropertiesContent(properties.toString());
+        writePropertiesContent(getPropertiesContent().replaceAll("motd=.+", "motd="+ motd));
     }
 
     @Override
@@ -92,7 +92,7 @@ public class SpigotServer implements OPanelServer {
         List<OPanelPlayer> list = new ArrayList<>();
         Collection<Player> players = (Collection<Player>) server.getOnlinePlayers();
         for(Player serverPlayer : players) {
-            SpigotPlayer player = new SpigotPlayer(serverPlayer);
+            SpigotPlayer player = new SpigotPlayer(plugin, serverPlayer);
             list.add(player);
         }
         return list;
@@ -100,13 +100,16 @@ public class SpigotServer implements OPanelServer {
 
     @Override
     public List<OPanelPlayer> getPlayers() {
-        List<OPanelPlayer> list = new ArrayList<>(getOnlinePlayers());
+        List<OPanelPlayer> list = new ArrayList<>();
         OfflinePlayer[] players = server.getOfflinePlayers();
         for(OfflinePlayer offlinePlayer : players) {
-            Player serverPlayer = offlinePlayer.getPlayer();
-            if(serverPlayer == null) continue;
-            SpigotPlayer player = new SpigotPlayer(serverPlayer);
-            list.add(player);
+            if(offlinePlayer.isOnline()) {
+                Player serverPlayer = offlinePlayer.getPlayer();
+                if(serverPlayer == null) continue;
+                list.add(new SpigotPlayer(plugin, serverPlayer));
+            } else {
+                list.add(new SpigotOfflinePlayer(plugin, server, offlinePlayer));
+            }
         }
         return list;
     }
@@ -138,12 +141,12 @@ public class SpigotServer implements OPanelServer {
 
     @Override
     public OPanelWhitelist getWhitelist() {
-        return new SpigotWhitelist(server, server.getWhitelistedPlayers());
+        return new SpigotWhitelist(plugin, server, server.getWhitelistedPlayers());
     }
 
     @Override
     public void sendServerCommand(String command) {
-        server.dispatchCommand(server.getConsoleSender(), command);
+        plugin.runTask(() -> Bukkit.dispatchCommand(server.getConsoleSender(), command));
     }
 
     /** @todo */
@@ -168,21 +171,23 @@ public class SpigotServer implements OPanelServer {
     @Override
     @SuppressWarnings("unchecked")
     public void setGamerules(HashMap<String, Object> gamerules) {
-        final World world = server.getWorlds().getFirst();
-        gamerules.forEach((key, value) -> {
-            GameRule<?> rule = GameRule.getByName(key);
-            if(rule == null) return;
-            if(value instanceof Boolean) {
-                world.setGameRule((GameRule<Boolean>) rule, (Boolean) value);
-            } else if(value instanceof Number) {
-                world.setGameRule((GameRule<Integer>) rule, Double.valueOf((double) value).intValue());
-            }
+        plugin.runTask(() -> {
+            final World world = server.getWorlds().getFirst();
+            gamerules.forEach((key, value) -> {
+                GameRule<?> rule = GameRule.getByName(key);
+                if(rule == null) return;
+                if(value instanceof Boolean) {
+                    world.setGameRule((GameRule<Boolean>) rule, (Boolean) value);
+                } else if(value instanceof Number) {
+                    world.setGameRule((GameRule<Integer>) rule, Double.valueOf((double) value).intValue());
+                }
+            });
         });
     }
 
     @Override
     public void reload() {
-        server.reload();
+        sendServerCommand("reload");
     }
 
     @Override

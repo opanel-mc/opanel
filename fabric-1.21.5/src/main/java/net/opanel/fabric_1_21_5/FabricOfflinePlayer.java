@@ -90,11 +90,10 @@ public class FabricOfflinePlayer implements OPanelPlayer {
                 case CREATIVE -> { return OPanelGameMode.CREATIVE; }
                 case SPECTATOR -> { return OPanelGameMode.SPECTATOR; }
             }
-            return null;
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
         }
+        return null;
     }
 
     @Override

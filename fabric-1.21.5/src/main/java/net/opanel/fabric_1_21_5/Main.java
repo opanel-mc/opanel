@@ -17,6 +17,8 @@ public class Main implements DedicatedServerModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger(MODID);
     public OPanel instance;
 
+    private LogListenerManagerImpl logListenerAppender;
+
     @Override
     public void onInitializeServer() {
         Configuration<OPanelConfiguration> configSrc = ConfigManager.get().register(MODID, OPanelConfiguration.defaultConfig, OPanelConfiguration.class);
@@ -31,10 +33,16 @@ public class Main implements DedicatedServerModInitializer {
 
     private void initLogListenerAppender() {
         final org.apache.logging.log4j.core.Logger logger = (org.apache.logging.log4j.core.Logger) LogManager.getRootLogger();
-        final LogListenerManagerImpl appender = LogListenerManagerImpl.createAppender("LogListenerAppender", true);
-        appender.start();
-        logger.addAppender(appender);
-        instance.setLogListenerManager(appender);
+        logListenerAppender = LogListenerManagerImpl.createAppender("LogListenerAppender", true);
+        logListenerAppender.start();
+        logger.addAppender(logListenerAppender);
+        instance.setLogListenerManager(logListenerAppender);
+    }
+
+    private void disposeLogListenerAppender() {
+        final org.apache.logging.log4j.core.Logger logger = (org.apache.logging.log4j.core.Logger) LogManager.getRootLogger();
+        logger.removeAppender(logListenerAppender);
+        logListenerAppender.clearListeners();
     }
 
     private void onServerStart(MinecraftServer server) {
@@ -48,7 +56,8 @@ public class Main implements DedicatedServerModInitializer {
     }
 
     private void onServerStop(MinecraftServer server) {
-        instance.stop();
+        if(logListenerAppender != null) disposeLogListenerAppender();
+        if(instance != null) instance.stop();
     }
 
     private void onServerTick(MinecraftServer server) {

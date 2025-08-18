@@ -7,10 +7,12 @@ import org.bukkit.Server;
 import java.util.*;
 
 public class SpigotWhitelist implements OPanelWhitelist {
+    private final Main plugin;
     private final Server server;
     private final Set<OfflinePlayer> whitelist;
 
-    public SpigotWhitelist(Server server, Set<OfflinePlayer> playerList) {
+    public SpigotWhitelist(Main plugin, Server server, Set<OfflinePlayer> playerList) {
+        this.plugin = plugin;
         this.server = server;
         whitelist = playerList;
     }
@@ -47,14 +49,18 @@ public class SpigotWhitelist implements OPanelWhitelist {
     @Override
     public void add(OPanelWhitelistEntry entry) {
         if(getNames().contains(entry.name)) return;
-        server.getOfflinePlayer(UUID.fromString(entry.uuid)).setWhitelisted(true);
-        server.reloadWhitelist();
+        plugin.runTask(() -> {
+            server.getOfflinePlayer(UUID.fromString(entry.uuid)).setWhitelisted(true);
+            server.reloadWhitelist();
+        });
     }
 
     @Override
     public void remove(OPanelWhitelistEntry entry) {
         if(!getNames().contains(entry.name)) return;
-        server.getOfflinePlayer(UUID.fromString(entry.uuid)).setWhitelisted(false);
-        server.reloadWhitelist();
+        plugin.runTask(() -> {
+            server.getOfflinePlayer(UUID.fromString(entry.uuid)).setWhitelisted(false);
+            server.reloadWhitelist();
+        });
     }
 }
