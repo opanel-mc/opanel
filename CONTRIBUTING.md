@@ -13,7 +13,6 @@ opanel
 ├── core
 ├── fabric-...
 ├── spigot-...
-├── paper-...
 └── ...
 ```
 
@@ -21,7 +20,6 @@ opanel
 - Folder `core` is the core of the whole project, containing a bunch of core logics and features, such as web server and backend API.
 - Folders that starts with `fabric-` are implementations of Fabric mods for different Minecraft versions.
 - Folders that starts with `spigot-` are implementations of Spigot plugins for different Minecraft versions.
-- Folders that starts with `paper-` are implementations of Paper plugins for different Minecraft versions.
 
 As soon as the initialization of the plugin / mod, the program will start a web server on the specified port (default `3000`), which contains the frontend app and the backend API.
 
