@@ -6,7 +6,7 @@ A Minecraft server management panel
 
 ## Description
 
-OPanel is a management panel for Minecraft server administrators, and it comes as a server-side plugin that can be run on Spigot, Paper and Fabric servers. With the web panel, you can manage your server in a more reliable, intuitive and simple way!
+OPanel is a management panel for Minecraft server administrators, and it comes as a server-side plugin that can be run on Bukkit, Spigot, Paper, Fabric and Forge servers. With the web panel, you can manage your server in a more reliable, intuitive and simple way!
 
 ### Features
 

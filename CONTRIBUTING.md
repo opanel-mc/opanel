@@ -12,6 +12,7 @@ opanel
 │   └── ...
 ├── core
 ├── fabric-...
+├── forge-...
 ├── spigot-...
 └── ...
 ```
@@ -19,7 +20,8 @@ opanel
 - Folder `frontend` stores the sourcecode of the frontend app. The frontend is developed with [Next.js](https://nextjs.org) and [Shadcn UI](https://ui.shadcn.com).
 - Folder `core` is the core of the whole project, containing a bunch of core logics and features, such as web server and backend API.
 - Folders that starts with `fabric-` are implementations of Fabric mods for different Minecraft versions.
-- Folders that starts with `spigot-` are implementations of Spigot plugins for different Minecraft versions.
+- Folders that starts with `forge-` are implementations of Forge mods for different Minecraft versions.
+- Folders that starts with `spigot-` are implementations of Bukkit plugins for different Minecraft versions.
 
 As soon as the initialization of the plugin / mod, the program will start a web server on the specified port (default `3000`), which contains the frontend app and the backend API.
 
@@ -65,9 +67,9 @@ Run the task `fabric/runServer` in the gradle menu. After the server fully start
 
 **Note: Usually, we don't use the production version to develop the frontend app.**
 
-#### Spigot / Paper
+#### Forge / Bukkit (Spigot and Paper)
 
-Setup a spigot / paper test server in advance. Follow the following guides to build the jar files, and then copy the corresponding jar file into your plugins folder. After executing command `/reload`, the latest changes will be applied to your test server.
+Setup a forge / bukkit test server in advance. Follow the following guides to build the jar files, and then copy the corresponding jar file into your mods or plugins folder. After executing command `/reload` (`/reload confirm` if you are using Paper), the latest changes will be applied to your test server.
 
 ### Frontend
 
@@ -100,4 +102,4 @@ Inside the project root folder, execute
 .\gradlew build
 ```
 
-And the built jar files will be at the `build/libs` folder of each modules. For example, the built jar file of `fabric-1.21.5` is `fabric-1.21.5/build/libs/opanel-fabric-1.21.5-build-<version>.jar`.
+And the final built jar files will be at the `/build/libs` folder.
