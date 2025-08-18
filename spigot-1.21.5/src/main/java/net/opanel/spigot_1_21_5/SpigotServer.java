@@ -187,7 +187,11 @@ public class SpigotServer implements OPanelServer {
 
     @Override
     public void reload() {
-        sendServerCommand("reload");
+        if(Main.isPaper) {
+            sendServerCommand("reload confirm");
+        } else {
+            sendServerCommand("reload");
+        }
     }
 
     @Override

@@ -17,12 +17,24 @@ import org.slf4j.LoggerFactory;
 import java.util.logging.Logger;
 
 public class Main extends JavaPlugin implements Listener {
+    public static final boolean isPaper;
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
     public final Logger LOGGER = getLogger();
     public OPanel instance;
 
     private BukkitTask serverTickListener;
     private LogListenerManagerImpl logListenerAppender;
+
+    static {
+        boolean _isPaper;
+        try {
+            Class.forName("com.destroystokyo.paper.PaperConfig");
+            _isPaper = true;
+        } catch (ClassNotFoundException e) {
+            _isPaper = false;
+        }
+        isPaper = _isPaper;
+    }
 
     @Override
     public void onEnable() {

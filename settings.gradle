@@ -13,5 +13,4 @@ rootProject.name = 'opanel'
 
 include 'core'
 include 'fabric-1.21.5'
-include 'paper-1.21.5'
 include 'spigot-1.21.5'
