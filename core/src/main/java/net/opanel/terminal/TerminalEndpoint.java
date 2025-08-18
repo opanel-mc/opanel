@@ -73,7 +73,7 @@ public class TerminalEndpoint {
                         sendErrorMessage(session, "Unexpected type of data.");
                         return;
                     }
-                    plugin.getServer().sendServerCommand(command);
+                    plugin.getServer().sendServerCommand(command.replaceFirst("/", ""));
                 }
                 case TerminalPacket.AUTOCOMPLETE -> {
                     if(!sessions.contains(session)) {

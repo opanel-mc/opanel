@@ -6,11 +6,9 @@ import net.opanel.common.OPanelServer;
 import net.opanel.common.OPanelWhitelist;
 import net.opanel.utils.Utils;
 import org.bukkit.*;
-import org.bukkit.command.CommandException;
 import org.bukkit.entity.Player;
-import org.bukkit.util.CachedServerIcon;
+import org.bukkit.help.HelpTopic;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,6 +18,7 @@ import java.util.stream.Stream;
 
 public class SpigotServer implements OPanelServer {
     private static final Path serverPropertiesPath = Paths.get("").resolve("server.properties");
+    private static final Path serverIconPath = Paths.get("").resolve("server-icon.png");
 
     private final Main plugin;
     private final Server server;
@@ -29,10 +28,15 @@ public class SpigotServer implements OPanelServer {
         this.server = server;
     }
 
-    /** @todo */
     @Override
     public byte[] getFavicon() {
-        return null;
+        if(!Files.exists(serverIconPath)) return null;
+        try {
+            return Files.readAllBytes(serverIconPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
@@ -149,11 +153,13 @@ public class SpigotServer implements OPanelServer {
         plugin.runTask(() -> Bukkit.dispatchCommand(server.getConsoleSender(), command));
     }
 
-    /** @todo */
     @Override
     public List<String> getCommands() {
-//        return new ArrayList<>(server.getCommandMap().getKnownCommands().keySet());
-        return List.of();
+        List<String> commands = new ArrayList<>();
+        for(HelpTopic topic : server.getHelpMap().getHelpTopics()) {
+            commands.add(topic.getName().toLowerCase().replaceFirst("/", ""));
+        }
+        return commands;
     }
 
     @Override
