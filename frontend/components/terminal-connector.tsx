@@ -1,6 +1,7 @@
 import type { ConsoleLog, WebSocketClient } from "@/lib/terminal/client";
 import { useEffect, useRef, useState } from "react";
 import { format } from "date-format-parse";
+import Convert from "ansi-to-html";
 import { cn } from "@/lib/utils";
 import { defaultLogLevel, getLogLevelId, type ConsoleLogLevel } from "@/lib/terminal/log-levels";
 
@@ -36,8 +37,8 @@ function Log({
     <p className={cn("text-xs text-nowrap font-[Consolas] space-x-1", !visible ? "hidden" : "")}>
       <span className="text-blue-500 dark:text-blue-400">{`[${format(new Date(time), "HH:mm:ss")}]`}</span>
       {!simple && <span className={threadLevelStyle}>{`[${thread}/${level}]`}</span>}
-      {!simple && <span className="text-emerald-600 dark:text-emerald-500 max-md:hidden">{`(${sourceName})`}</span>}
-      <span>{line}</span>
+      {(!simple && sourceName) && <span className="text-emerald-600 dark:text-emerald-500 max-md:hidden">{`(${sourceName})`}</span>}
+      <span dangerouslySetInnerHTML={{ __html: new Convert().toHtml(line) }}/>
     </p>
   );
 }

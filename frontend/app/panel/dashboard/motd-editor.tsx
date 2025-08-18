@@ -69,7 +69,7 @@ export function MotdEditor({
             <DialogHeader>
               <DialogTitle>编辑 Motd</DialogTitle>
               <DialogDescription>
-                在此编辑和预览服务器 Motd。<span className="text-red-700 dark:text-red-400">注：此功能不稳定，原因未知。</span>
+                在此编辑和预览服务器 Motd。<span className="text-red-700 dark:text-red-400">注：此功能在Fabric不稳定，原因未知。</span>
               </DialogDescription>
             </DialogHeader>
             <FormField

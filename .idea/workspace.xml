@@ -5,16 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="Changes">
-      <change afterPath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/SpigotOfflinePlayer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/FabricOfflinePlayer.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/FabricOfflinePlayer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21.5/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/SpigotPlayer.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/SpigotPlayer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/SpigotServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/SpigotServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/SpigotWhitelist.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/SpigotWhitelist.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/terminal/LogListenerManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/terminal/LogListenerManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/dashboard/motd-editor.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/dashboard/motd-editor.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,20 +60,20 @@
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="opanel" type="f1a62948:ProjectNode" />
-                <item name="spigot-1.21.5" type="2d1252cf:ModuleNode" />
+                <item name="fabric-1.21.5" type="2d1252cf:ModuleNode" />
               </path>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="opanel" type="f1a62948:ProjectNode" />
-                <item name="spigot-1.21.5" type="2d1252cf:ModuleNode" />
+                <item name="fabric-1.21.5" type="2d1252cf:ModuleNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
               </path>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="opanel" type="f1a62948:ProjectNode" />
-                <item name="spigot-1.21.5" type="2d1252cf:ModuleNode" />
+                <item name="fabric-1.21.5" type="2d1252cf:ModuleNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
+                <item name="fabric" type="c8890929:TasksNode$1" />
               </path>
             </expand>
             <select />
@@ -152,11 +144,11 @@
       <recent name="D:\opanel\core\lib" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.opanel:spigot-1.21.5 [build]">
-    <configuration name="opanel:bukkit-1.21.5 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+  <component name="RunManager" selected="Gradle.opanel:fabric-1.21.5 [runServer]">
+    <configuration name="opanel:fabric-1.21.5 [runServer]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/bukkit-1.21.5" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/fabric-1.21.5" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -164,7 +156,7 @@
         </option>
         <option name="taskNames">
           <list>
-            <option value="build" />
+            <option value="runServer" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -180,7 +172,7 @@
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$/paper-1.21.5" />
         <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
+        <option name="scriptParameters" value="" />
         <option name="taskDescriptions">
           <list />
         </option>
@@ -224,7 +216,7 @@
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$/spigot-1.21.5" />
         <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
+        <option name="scriptParameters" value="" />
         <option name="taskDescriptions">
           <list />
         </option>
@@ -263,13 +255,20 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Gradle.opanel:fabric-1.21.5 [runServer]" />
+      <item itemvalue="Gradle.opanel:paper-1.21.5 [build]" />
+      <item itemvalue="Gradle.opanel:paper-1.21.5 [clean]" />
+      <item itemvalue="Gradle.opanel:spigot-1.21.5 [build]" />
+      <item itemvalue="Gradle.opanel:spigot-1.21.5 [clean]" />
+    </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.opanel:fabric-1.21.5 [runServer]" />
         <item itemvalue="Gradle.opanel:spigot-1.21.5 [build]" />
         <item itemvalue="Gradle.opanel:spigot-1.21.5 [clean]" />
         <item itemvalue="Gradle.opanel:paper-1.21.5 [build]" />
         <item itemvalue="Gradle.opanel:paper-1.21.5 [clean]" />
-        <item itemvalue="Gradle.opanel:bukkit-1.21.5 [build]" />
       </list>
     </recent_temporary>
   </component>
