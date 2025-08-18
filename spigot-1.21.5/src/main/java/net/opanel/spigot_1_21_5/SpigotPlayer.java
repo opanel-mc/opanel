@@ -4,21 +4,16 @@ import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.profile.PlayerProfile;
 
 import java.util.Date;
 
 public class SpigotPlayer implements OPanelPlayer {
     private final Main plugin;
     private final Player player;
-    private final Server server;
-    private final PlayerProfile profile;
 
     public SpigotPlayer(Main plugin, Player player) {
         this.plugin = plugin;
         this.player = player;
-        server = player.getServer();
-        profile = player.getPlayerProfile();
     }
 
     @Override
