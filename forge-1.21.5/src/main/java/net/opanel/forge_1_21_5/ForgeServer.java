@@ -2,12 +2,16 @@ package net.opanel.forge_1_21_5;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.CommandNode;
-import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.status.ServerStatus;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.dedicated.DedicatedServerProperties;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.storage.LevelResource;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelSave;
 import net.opanel.common.OPanelServer;
@@ -19,10 +23,8 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class ForgeServer implements OPanelServer {
     private static final Path serverPropertiesPath = Paths.get("").resolve("server.properties");
@@ -35,10 +37,16 @@ public class ForgeServer implements OPanelServer {
         dedicatedServer = (DedicatedServer) server;
     }
 
-    /** @todo */
     @Override
     public byte[] getFavicon() {
-        return null;
+        ServerStatus status = server.getStatus();
+        if(status == null) return null;
+
+        Optional<ServerStatus.Favicon> faviconOptional = status.favicon();
+        if(faviconOptional.isEmpty()) return null;
+
+        ServerStatus.Favicon favicon = faviconOptional.get();
+        return favicon.iconBytes();
     }
 
     @Override
@@ -74,28 +82,71 @@ public class ForgeServer implements OPanelServer {
         return server.getPort();
     }
 
-    /** @todo */
     @Override
     public List<OPanelSave> getSaves() {
-        return List.of();
+        List<OPanelSave> list = new ArrayList<>();
+        try(Stream<Path> stream = Files.list(Paths.get(""))) {
+            stream.filter(path -> (
+                            Files.exists(path.resolve("level.dat"))
+                                    && !Files.isDirectory(path.resolve("level.dat"))
+                    ))
+                    .map(Path::toAbsolutePath)
+                    .forEach(path -> {
+                        ForgeSave save = new ForgeSave(server, path);
+                        list.add(save);
+                    });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 
-    /** @todo */
     @Override
     public OPanelSave getSave(String saveName) {
-        return null;
+        final Path savePath = Paths.get("").resolve(saveName);
+        if(!Files.exists(savePath) || !Files.exists(savePath.resolve("level.dat"))) {
+            return null;
+        }
+        return new ForgeSave(server, savePath.toAbsolutePath());
     }
 
-    /** @todo */
     @Override
     public List<OPanelPlayer> getOnlinePlayers() {
-        return List.of();
+        List<OPanelPlayer> list = new ArrayList<>();
+        List<ServerPlayer> players = server.getPlayerList().getPlayers();
+        for(ServerPlayer serverPlayer : players) {
+            ForgePlayer player = new ForgePlayer(serverPlayer);
+            list.add(player);
+        }
+        return list;
     }
 
-    /** @todo */
     @Override
     public List<OPanelPlayer> getPlayers() {
-        return List.of();
+        final Path playerDataPath = server.getWorldPath(LevelResource.PLAYER_DATA_DIR);
+        // load online players
+        List<OPanelPlayer> list = new ArrayList<>(getOnlinePlayers());
+
+        // load offline players
+        try(Stream<Path> stream = Files.list(playerDataPath)) {
+            stream.filter(item -> !Files.isDirectory(item) && item.toString().endsWith(".dat"))
+                    .forEach(item -> {
+                        final String uuid = item.getFileName().toString().replace(".dat", "");
+                        ServerPlayer serverPlayer = server.getPlayerList().getPlayer(UUID.fromString(uuid));
+                        if(serverPlayer != null && !serverPlayer.hasDisconnected()) return;
+
+                        try {
+                            ForgeOfflinePlayer player = new ForgeOfflinePlayer(server, UUID.fromString(uuid));
+                            list.add(player);
+                        } catch (NullPointerException e) {
+                            //
+                        }
+                    });
+        } catch (IOException e) {
+            e.printStackTrace();
+            return list;
+        }
+        return list;
     }
 
     @Override
@@ -103,9 +154,13 @@ public class ForgeServer implements OPanelServer {
         return server.getMaxPlayers();
     }
 
-    /** @todo */
     @Override
     public OPanelPlayer getPlayer(String uuid) {
+        for(OPanelPlayer player : getPlayers()) {
+            if(player.getUUID().equals(uuid)) {
+                return player;
+            }
+        }
         return null;
     }
 
@@ -119,10 +174,9 @@ public class ForgeServer implements OPanelServer {
         server.getPlayerList().setUsingWhiteList(enabled);
     }
 
-    /** @todo */
     @Override
     public OPanelWhitelist getWhitelist() {
-        return null;
+        return new ForgeWhitelist(server.getPlayerList().getWhiteList());
     }
 
     @Override
@@ -142,16 +196,40 @@ public class ForgeServer implements OPanelServer {
         return commands;
     }
 
-    /** @todo */
     @Override
     public HashMap<String, Object> getGamerules() {
-        return new HashMap<>();
+        final CompoundTag gamerulesNbt = server.getGameRules().createTag();
+        HashMap<String, Object> gamerules = new HashMap<>();
+        for(String key : gamerulesNbt.keySet()) {
+            final String valueStr = gamerulesNbt.getStringOr(key, "");
+            if(valueStr.equals("true") || valueStr.equals("false")) {
+                gamerules.put(key, Boolean.valueOf(valueStr));
+            } else {
+                gamerules.put(key, Integer.valueOf(valueStr));
+            }
+        }
+        return gamerules;
     }
 
-    /** @todo */
     @Override
     public void setGamerules(HashMap<String, Object> gamerules) {
-
+        final GameRules gameRulesObj = server.getGameRules();
+        gameRulesObj.visitGameRuleTypes(new GameRules.GameRuleTypeVisitor() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T extends GameRules.Value<T>> void visit(GameRules.Key<T> key, GameRules.Type<T> type) {
+                GameRules.GameRuleTypeVisitor.super.visit(key, type);
+                gamerules.forEach((ruleName, value) -> {
+                    if(key.getId().equals(ruleName)) {
+                        if(value instanceof Boolean) {
+                            gameRulesObj.getRule(key).setFrom((T) new GameRules.BooleanValue((GameRules.Type<GameRules.BooleanValue>) type, (boolean) value), server);
+                        } else if(value instanceof Number) {
+                            gameRulesObj.getRule(key).setFrom((T) new GameRules.IntegerValue((GameRules.Type<GameRules.IntegerValue>) type, Double.valueOf((double) value).intValue()), server);
+                        }
+                    }
+                });
+            }
+        });
     }
 
     @Override
