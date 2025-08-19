@@ -1,10 +1,12 @@
 package net.opanel.fabric_1_21_5;
 
 import net.fabricmc.api.DedicatedServerModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
 import net.opanel.*;
+import net.opanel.fabric_1_21_5.command.OPanelCommand;
 import net.opanel.fabric_1_21_5.terminal.LogListenerManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
@@ -28,6 +30,8 @@ public class Main implements DedicatedServerModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStart);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStop);
         ServerTickEvents.START_SERVER_TICK.register(this::onServerTick);
+
+        CommandRegistrationCallback.EVENT.register(new OPanelCommand(instance));
     }
 
     private void initLogListenerAppender() {

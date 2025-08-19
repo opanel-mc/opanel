@@ -3,6 +3,7 @@ package net.opanel.spigot_1_21_5;
 import de.tr7zw.changeme.nbtapi.NBT;
 import net.opanel.OPanel;
 import net.opanel.OPanelConfiguration;
+import net.opanel.spigot_1_21_5.command.OPanelCommand;
 import net.opanel.spigot_1_21_5.terminal.LogListenerManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.bukkit.Bukkit;
@@ -59,6 +60,8 @@ public class Main extends JavaPlugin implements Listener {
         initServerTickListener();
 
         Bukkit.getPluginManager().registerEvents(this, this);
+
+        getCommand("opanel").setExecutor(new OPanelCommand(instance));
     }
 
     @Override

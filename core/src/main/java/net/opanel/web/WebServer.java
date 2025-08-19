@@ -11,6 +11,7 @@ import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
+import org.eclipse.jetty.util.Jetty;
 import org.eclipse.jetty.util.component.LifeCycle;
 import org.eclipse.jetty.websocket.jakarta.server.config.JakartaWebSocketServletContainerInitializer;
 
@@ -89,5 +90,13 @@ public class WebServer {
     public void stop() throws Exception {
         server.stop();
         plugin.logger.info("Web server is stopped.");
+    }
+
+    public boolean isRunning() {
+        return server.isRunning();
+    }
+
+    public String getJettyVersion() {
+        return Jetty.VERSION;
     }
 }
