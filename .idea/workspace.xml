@@ -5,9 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="Changes">
+      <change beforePath="$PROJECT_DIR$/.github/workflows/build.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/build.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/command/OPanelCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/command/OPanelCommand.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/src/main/resources/plugin.yml" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21.5/src/main/resources/plugin.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
