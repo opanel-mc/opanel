@@ -10,7 +10,7 @@ OPanel is a management panel for Minecraft server administrators, and it comes a
 
 ### Features
 
-OPanel server management panel includes:
+The feature of OPanel includes:
 
 - Dashboard that provides a comprehensive overview of the server
 - Saves manager that helps you easily upload or delete your saves through a simple interface.
@@ -19,6 +19,17 @@ OPanel server management panel includes:
 - Plugins manager. (In plan)
 - Server terminal that can directly send messages or execute commands from the web panel.
 - Server logs manager and viewer.
+
+## Usage
+
+Just simply download the corresponding jar file from [releases](https://github.com/nocpiun/opanel/releases), and drag it into your plugins / mods folder. After starting your server, you can access the web panel by `localhost:3000`.
+
+### Configuration
+
+You can configure OPanel through the config file generated inside your server folder.
+
+- `accessKey`: The access key that you use to access the web panel. _(Default: "123456")_
+- `webServerPort`: The port of the web panel. _(Default: 3000)_
 
 ## Contributing
 
