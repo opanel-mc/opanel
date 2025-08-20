@@ -1,4 +1,4 @@
-import type { OnMount } from "@monaco-editor/react";
+import type { Editor, OnMount } from "@monaco-editor/react";
 import type { ServerGamerules } from "./gamerules/gamerule";
 
 export type APIResponse<T> = {
@@ -38,6 +38,7 @@ export type Whitelist = {
 }[]
 
 export type EditorRefType = Parameters<OnMount>[0];
+export type EditorOptionsType = React.ComponentProps<typeof Editor>["options"];
 
 /** `/api/info` */
 export interface InfoResponse {

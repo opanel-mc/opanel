@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { sendGetRequest, sendPostRequest, toastError } from "@/lib/api";
+import { monacoSettingsOptions } from "@/lib/settings";
 
 export function ServerSheet({
   children,
@@ -72,7 +73,8 @@ export function ServerSheet({
             theme={theme === "dark" ? "vs-dark" : "vs"}
             options={{
               minimap: { enabled: false },
-              automaticLayout: true
+              automaticLayout: true,
+              ...monacoSettingsOptions
             }}
             onMount={(editor) => editorRef.current = editor}/>
         </div>

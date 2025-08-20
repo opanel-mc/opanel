@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { sendGetRequest, sendPostRequest, toastError } from "@/lib/api";
 import { setWhitelistEnabled } from "./player-utils";
+import { monacoSettingsOptions } from "@/lib/settings";
 
 export function WhitelistSheet({
   children,
@@ -73,7 +74,8 @@ export function WhitelistSheet({
             theme={theme === "dark" ? "vs-dark" : "vs"}
             options={{
               minimap: { enabled: false },
-              automaticLayout: true
+              automaticLayout: true,
+              ...monacoSettingsOptions
             }}
             onMount={(editor) => editorRef.current = editor}/>
         </div>

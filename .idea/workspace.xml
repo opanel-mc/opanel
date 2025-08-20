@@ -5,7 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="Changes">
-      <change beforePath="$PROJECT_DIR$/.github/workflows/build.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/build.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/dashboard/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/dashboard/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/dashboard/server-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/dashboard/server-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/logs/view/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/logs/view/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/players/whitelist-sheet.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/players/whitelist-sheet.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/settings/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/settings/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/components/terminal-connector.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/components/terminal-connector.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/terminal/log-levels.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/terminal/log-levels.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/types.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,20 +70,20 @@
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="opanel" type="f1a62948:ProjectNode" />
-                <item name="spigot-1.21.5" type="2d1252cf:ModuleNode" />
+                <item name="fabric-1.21.5" type="2d1252cf:ModuleNode" />
               </path>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="opanel" type="f1a62948:ProjectNode" />
-                <item name="spigot-1.21.5" type="2d1252cf:ModuleNode" />
+                <item name="fabric-1.21.5" type="2d1252cf:ModuleNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
               </path>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="opanel" type="f1a62948:ProjectNode" />
-                <item name="spigot-1.21.5" type="2d1252cf:ModuleNode" />
+                <item name="fabric-1.21.5" type="2d1252cf:ModuleNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
+                <item name="fabric" type="c8890929:TasksNode$1" />
               </path>
             </expand>
             <select />
@@ -138,11 +146,11 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "ci",
+    "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "D:/opanel/lib/servlet-api.jar",
-    "project.structure.last.edited": "项目",
+    "project.structure.last.edited": "模块",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
     "settings.editor.selected.configurable": "reference.settingsdialog.project.gradle"
@@ -154,7 +162,7 @@
       <recent name="D:\opanel\core\lib" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.opanel:spigot-1.21.5 [build]">
+  <component name="RunManager" selected="Gradle.opanel:fabric-1.21.5 [runServer]">
     <configuration name="opanel [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -274,11 +282,11 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.opanel:fabric-1.21.5 [runServer]" />
         <item itemvalue="Gradle.opanel:spigot-1.21.5 [build]" />
         <item itemvalue="Gradle.opanel [clean]" />
         <item itemvalue="Gradle.opanel [clientClasses]" />
         <item itemvalue="Gradle.opanel:spigot-1.21.5 [clean]" />
-        <item itemvalue="Gradle.opanel:fabric-1.21.5 [runServer]" />
       </list>
     </recent_temporary>
   </component>

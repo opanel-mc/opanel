@@ -10,6 +10,7 @@ import { SubPage } from "@/app/panel/sub-page";
 import { sendGetRequest, toastError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { deleteLog, downloadLog } from "../log-utils";
+import { monacoSettingsOptions } from "@/lib/settings";
 
 export default function LogView() {
   const searchParams = useSearchParams();
@@ -82,7 +83,8 @@ export default function LogView() {
           readOnly: true,
           readOnlyMessage: {
             value: "日志不可编辑"
-          }
+          },
+          ...monacoSettingsOptions
         }}
         onMount={(editor) => editorRef.current = editor}/>
     </SubPage>

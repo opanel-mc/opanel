@@ -1,5 +1,7 @@
+import { getSettings } from "../settings";
+
 export type ConsoleLogLevel = "INFO" | "WARN" | "ERROR";
-export const defaultLogLevel: ConsoleLogLevel = "INFO";
+export const defaultLogLevel: ConsoleLogLevel = getSettings("terminal.log-level");
 
 export function getLogLevelId(level: ConsoleLogLevel) {
   switch(level) {

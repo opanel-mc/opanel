@@ -14,8 +14,9 @@ import { TerminalCard } from "./terminal-card";
 import { TPSCard } from "./tps-card";
 import { SubPage } from "../sub-page";
 import { emitter } from "@/lib/emitter";
+import { getSettings } from "@/lib/settings";
 
-const requestMonitorInterval = 2000;
+const requestMonitorInterval = getSettings("dashboard.monitor-interval");
 
 export default function Dashboard() {
   const [info, setInfo] = useState<APIResponse<InfoResponse>>();
