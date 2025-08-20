@@ -10,3 +10,4 @@ commands:
   opanel:
     description: Get status or about info of OPanel
     usage: /opanel [about|status]
+    permission: opanel.command.opanel

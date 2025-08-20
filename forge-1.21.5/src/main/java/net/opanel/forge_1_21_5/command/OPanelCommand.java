@@ -14,6 +14,7 @@ import static net.minecraft.commands.Commands.*;
 
 @Mod.EventBusSubscriber(modid = Main.MODID)
 public class OPanelCommand {
+    // Will be set later by Main class
     public static OPanel instance;
 
     @SubscribeEvent
