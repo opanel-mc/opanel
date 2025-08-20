@@ -121,6 +121,9 @@
   }
   body {
     @apply bg-background text-foreground;
+    a {
+      @apply underline underline-offset-2;
+    }
     code {
       @apply text-xs bg-muted rounded-sm px-1;
     }

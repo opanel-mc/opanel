@@ -2,6 +2,7 @@
 
 import type { z } from "zod";
 import type { GamerulesResponse } from "@/lib/types";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -131,12 +132,17 @@ export default function Gamerules() {
                 key={key}/>
             );
           })}
-          <div className="space-x-2 [&>*]:cursor-pointer">
-            <Button type="submit">保存</Button>
-            <Button
-              type="reset"
-              variant="outline"
-              onClick={() => window.location.reload()}>重置</Button>
+          <div className="flex justify-between">
+            <div className="space-x-2 [&>*]:cursor-pointer">
+              <Button type="submit">保存</Button>
+              <Button
+                type="reset"
+                variant="outline"
+                onClick={() => window.location.reload()}>重置</Button>
+            </div>
+            <span className="text-sm text-muted-foreground">
+              游戏规则名称与描述信息均来自<Link href="https://zh.minecraft.wiki/w/%E6%B8%B8%E6%88%8F%E8%A7%84%E5%88%99#%E6%B8%B8%E6%88%8F%E8%A7%84%E5%88%99%E5%88%97%E8%A1%A8" target="_blank">Minecraft Wiki</Link>
+            </span>
           </div>
         </form>
       </Form>
