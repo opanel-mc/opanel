@@ -135,7 +135,7 @@ export default function Saves() {
             </AlertDialogContent>
           </AlertDialog>
         </div>
-        <div className="pt-2 grid grid-cols-3 max-lg:flex flex-col gap-4">
+        <div className="pt-2 grid grid-cols-3 max-xl:grid-cols-2 max-lg:flex flex-col gap-4">
           {saves.map((save, i) => <SaveCard save={save} key={i}/>)}
         </div>
       </div>

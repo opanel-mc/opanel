@@ -46,23 +46,23 @@ export function SaveCard({
     <Card className={cn("rounded-md min-h-fit px-3 py-3 flex flex-col justify-between", className)}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="flex justify-between px-1 overflow-hidden">
-            <div className="flex flex-col gap-1">
-              <MinecraftText className="wrap-anywhere">{displayName}</MinecraftText>
-              <span className="text-sm text-muted-foreground">{name}</span>
-            </div>
-            {isCurrent && (
-              <Badge variant="outline" className="h-fit">
-                <div className="w-2 h-2 rounded-full bg-green-600"/>
-                当前存档
-              </Badge>
-            )}
+          <div className="w-full flex flex-col gap-1 px-1 overflow-hidden">
+            <MinecraftText className="wrap-anywhere">{displayName}</MinecraftText>
+            <span className="text-sm text-muted-foreground w-full overflow-hidden whitespace-nowrap text-ellipsis">{name}</span>
           </div>
         </TooltipTrigger>
         <TooltipContent>{path}</TooltipContent>
       </Tooltip>
       <div className="flex justify-between items-center">
-        <span className="text-sm pl-1">{gameModeToString(defaultGameMode)}</span>
+        <div className="flex items-center gap-3">
+          <span className="text-sm pl-1">{gameModeToString(defaultGameMode)}</span>
+          {isCurrent && (
+            <Badge variant="outline" className="h-fit">
+              <div className="w-2 h-2 rounded-full bg-green-600"/>
+              当前存档
+            </Badge>
+          )}
+        </div>
         <div className="[&_button]:cursor-pointer">
           <Button
             variant="ghost"
