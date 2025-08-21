@@ -67,7 +67,7 @@ export function ServerSheet({
           </SheetDescription>
         </SheetHeader>
         <div className="flex flex-col h-full">
-          <Editor
+          {value && <Editor
             defaultLanguage="ini"
             defaultValue={value}
             theme={theme === "dark" ? "vs-dark" : "vs"}
@@ -76,7 +76,7 @@ export function ServerSheet({
               automaticLayout: true,
               ...monacoSettingsOptions
             }}
-            onMount={(editor) => editorRef.current = editor}/>
+            onMount={(editor) => editorRef.current = editor}/>}
         </div>
         <SheetFooter>
           <span className="text-sm text-muted-foreground">需重启服务器以使改动生效。</span>

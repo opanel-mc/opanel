@@ -68,7 +68,7 @@ export function WhitelistSheet({
           </SheetDescription>
         </SheetHeader>
         <div className="flex flex-col h-full">
-          <Editor
+          {value && <Editor
             defaultLanguage="json"
             defaultValue={value}
             theme={theme === "dark" ? "vs-dark" : "vs"}
@@ -77,7 +77,7 @@ export function WhitelistSheet({
               automaticLayout: true,
               ...monacoSettingsOptions
             }}
-            onMount={(editor) => editorRef.current = editor}/>
+            onMount={(editor) => editorRef.current = editor}/>}
         </div>
         <SheetFooter>
           <Button
