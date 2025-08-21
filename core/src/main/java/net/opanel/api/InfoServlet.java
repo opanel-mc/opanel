@@ -43,6 +43,7 @@ public class InfoServlet extends BaseServlet {
         HashMap<String, Object> ingameTimeObj = new HashMap<>();
         ingameTimeObj.put("current", server.getIngameTime());
         ingameTimeObj.put("doDaylightCycle", server.getGamerules().get("doDaylightCycle"));
+        ingameTimeObj.put("paused", TPS.isPaused());
         ingameTimeObj.put("mspt", TPS.getRecentMSPT());
         obj.put("ingameTime", ingameTimeObj);
 

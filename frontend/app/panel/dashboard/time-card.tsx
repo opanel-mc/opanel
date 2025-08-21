@@ -7,6 +7,8 @@ import { InfoContext } from "@/contexts/api-context";
 import { gameTickToTime, millisToTime } from "@/lib/time";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
+const dayTicks = 24000;
+
 export function TimeCard({
   className,
 }: Readonly<{
@@ -32,14 +34,14 @@ export function TimeCard({
   }, []);
 
   useEffect(() => {
-    if(!ctx?.ingameTime.doDaylightCycle) return;
+    if(!ctx?.ingameTime.doDaylightCycle || ctx.ingameTime.paused) return;
 
     const timer = setInterval(() => {
       setIngameTime((current) => current + 16.6);
     }, ctx.ingameTime.mspt * 16.6);
 
     return () => clearInterval(timer);
-  }, [ctx?.ingameTime.doDaylightCycle, ctx?.ingameTime.mspt]);
+  }, [ctx?.ingameTime.doDaylightCycle, ctx?.ingameTime.paused, ctx?.ingameTime.mspt]);
 
   return (
     <FunctionalCard
@@ -57,7 +59,7 @@ export function TimeCard({
             <Tooltip>
               <TooltipTrigger>
                 <div className="flex flex-col gap-2 items-center">
-                  <div className="text-2xl font-bold">{gameTickToTime(ingameTime)}</div>
+                  <div className="text-2xl font-bold">{gameTickToTime(ingameTime % dayTicks)}</div>
                   <span className="text-sm text-muted-foreground">游戏内时间</span>
                 </div>
               </TooltipTrigger>

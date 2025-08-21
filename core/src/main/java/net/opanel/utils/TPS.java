@@ -2,6 +2,7 @@ package net.opanel.utils;
 
 public class TPS {
     public static final int TICK_LIST_SIZE = 100;
+    private static final long PAUSE_THRESHOLD_NS = 2000000000; // 2s
     private static long[] tickTimes = new long[TICK_LIST_SIZE];
     private static int tickIndex = 0;
 
@@ -30,5 +31,12 @@ public class TPS {
     public static double getRecentTPS() {
         double tps = 1000 / getRecentMSPT();
         return Math.min(20.0, tps);
+    }
+
+    public static boolean isPaused() {
+        final long current = System.nanoTime();
+        int lastIndex = tickIndex - 1;
+        if(lastIndex < 0) lastIndex += TICK_LIST_SIZE;
+        return current - tickTimes[lastIndex] >= PAUSE_THRESHOLD_NS;
     }
 }
