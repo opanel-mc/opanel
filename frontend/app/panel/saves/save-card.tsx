@@ -1,13 +1,14 @@
 import type { Save } from "@/lib/types";
-import { FolderPen, Trash2 } from "lucide-react";
+import { Download, FolderPen, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import download from "downloadjs";
 import { Card } from "@/components/ui/card";
 import { cn, gameModeToString } from "@/lib/utils";
 import { MinecraftText } from "@/components/mc-text";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { sendDeleteRequest } from "@/lib/api";
+import { sendDeleteRequest, sendGetBlobRequest } from "@/lib/api";
 import { Alert } from "@/components/alert";
 import { SaveSheet } from "./save-sheet";
 import { emitter } from "@/lib/emitter";
@@ -27,12 +28,17 @@ export function SaveCard({
     defaultGameMode
   } = save;
 
+  const handleDownload = async () => {
+    const res = await sendGetBlobRequest(`/api/saves/${name}`);
+    download(res, `${name}.zip`, "application/zip");
+  };
+
   const handleDelete = async () => {
     try {
       await sendDeleteRequest(`/api/saves/${name}`);
       emitter.emit("refresh-data");
     } catch (e: any) {
-      toast.success(`无法删除存档 ${name}`, { description: e.message });
+      toast.error(`无法删除存档 ${name}`, { description: e.message });
     }
   };
 
@@ -58,6 +64,16 @@ export function SaveCard({
       <div className="flex justify-between items-center">
         <span className="text-sm pl-1">{gameModeToString(defaultGameMode)}</span>
         <div className="[&_button]:cursor-pointer">
+          <Button
+            variant="ghost"
+            size="icon"
+            title="下载存档"
+            onClick={() => toast.promise(handleDownload(), {
+              loading: "正在处理文件...",
+              error: `无法下载存档 ${name}.zip`
+            })}>
+            <Download />
+          </Button>
           <SaveSheet save={save} asChild>
             <Button
               variant="ghost"

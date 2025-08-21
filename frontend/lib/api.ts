@@ -45,6 +45,15 @@ export async function sendGetRequest<R>(route: string): Promise<APIResponse<R>> 
   })).data as APIResponse<R>;
 }
 
+export async function sendGetBlobRequest(route: string): Promise<Blob> {
+  return (await axios.request({
+    method: "get",
+    url: apiUrl + route,
+    headers: { "X-Credential-Token": getCookie("token") },
+    responseType: "blob"
+  })).data;
+}
+
 export async function sendPostRequestWithoutToken<R, T = any>(route: string, body?: T): Promise<APIResponse<R>> {
   const data = body ? JSON.stringify(body) : "";
   

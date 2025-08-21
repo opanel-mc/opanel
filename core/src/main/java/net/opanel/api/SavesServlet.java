@@ -47,8 +47,18 @@ public class SavesServlet extends BaseServlet {
 
         final String reqPath = req.getPathInfo();
         final OPanelServer server = plugin.getServer();
-        if(reqPath != null && !reqPath.equals("/")) {
-            sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
+        if(reqPath != null && !reqPath.equals("/")) { // request for downloading save
+            OPanelSave save = server.getSave(reqPath.substring((1)));
+            Path savePath = save.getPath();
+            try {
+                Path zipPath = OPanel.TMP_DIR_PATH.resolve(save.getName() +".zip");
+                ZipUtility.zip(savePath, zipPath);
+                sendContentResponse(res, Utils.readFile(zipPath), "application/octet-stream");
+                Files.delete(zipPath);
+            } catch (IOException e) {
+                e.printStackTrace();
+                sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
             return;
         }
 
@@ -110,8 +120,7 @@ public class SavesServlet extends BaseServlet {
                     Files.copy(is, filePath, StandardCopyOption.REPLACE_EXISTING);
                 }
                 // Unzip
-                ZipUtility zipUtility = new ZipUtility(filePath, targetPath);
-                zipUtility.unzip();
+                ZipUtility.unzip(filePath, targetPath);
                 // Delete zip file
                 Files.delete(filePath);
 
@@ -125,23 +134,22 @@ public class SavesServlet extends BaseServlet {
                  * then just ignore it as if nothing wrong happened.
                  */
                 if(!Files.exists(targetPath.resolve("level.dat"))) {
-                    try(
-                            Stream<Path> unzippedDirStream = Files.list(targetPath);
-                            Stream<Path> stream = Files.list(unzippedDirStream.toList().getFirst())
-                    ) {
+                    Path folderInside = targetPath.resolve(targetPath.getFileName()).toAbsolutePath();
+                    if(!Files.exists(folderInside)) {
+                        Utils.deleteDirectoryRecursively(targetPath);
+                        sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
+                        return;
+                    }
+                    try(Stream<Path> stream = Files.list(folderInside)) {
                         stream.forEach(path -> {
                             try {
-                                Files.copy(path, targetPath.resolve(path.getFileName()));
-                                if(Files.isDirectory(path)) {
-                                    Utils.deleteDirectoryRecursively(path);
-                                } else {
-                                    Files.delete(path);
-                                }
+                                Utils.copyDirectoryRecursively(path, targetPath.resolve(path.getFileName()));
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                         });
                     }
+                    Utils.deleteDirectoryRecursively(folderInside);
                 }
 
                 // Check if the uploaded folder is a valid save

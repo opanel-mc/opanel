@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.zip.GZIPInputStream;
 
@@ -37,23 +38,28 @@ public class Utils {
         return "data:image/png;base64,"+ base64; // png by default
     }
 
-    public static String readTextFile(Path filePath) throws IOException {
+    public static byte[] readFile(Path filePath) throws IOException {
         if(!Files.exists(filePath)) {
             throw new IOException("Cannot find the specified file.");
         }
 
-        StringBuilder sb = new StringBuilder();
+        final int BUFFER_SIZE = 8192; // 8 KB
         try(
-                FileReader fr = new FileReader(filePath.toString());
-                BufferedReader reader = new BufferedReader(fr)
+                FileInputStream fis = new FileInputStream(filePath.toString());
+                BufferedInputStream bis = new BufferedInputStream(fis);
+                ByteArrayOutputStream bos = new ByteArrayOutputStream()
         ) {
-            String line;
-            while((line = reader.readLine()) != null) {
-                sb.append(line);
-                sb.append("\n");
+            byte[] buffer = new byte[BUFFER_SIZE];
+            int read;
+            while((read = bis.read(buffer)) != -1) {
+                bos.write(buffer, 0, read);
             }
+            return bos.toByteArray();
         }
-        return sb.toString();
+    }
+
+    public static String readTextFile(Path filePath) throws IOException {
+        return new String(readFile(filePath), StandardCharsets.UTF_8);
     }
 
     public static void writeTextFile(Path filePath, String content) throws IOException {
@@ -90,7 +96,7 @@ public class Utils {
         if(!Files.exists(dirPath)) {
             throw new IOException("The given path doesn't exist.");
         }
-        Files.walkFileTree(dirPath, new SimpleFileVisitor<Path>() {
+        Files.walkFileTree(dirPath, new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException {
                 Files.delete(file);
@@ -100,6 +106,26 @@ public class Utils {
             @Override
             public FileVisitResult postVisitDirectory(Path subDir, IOException e) throws IOException {
                 Files.delete(subDir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
+
+    public static void copyDirectoryRecursively(Path sourcePath, Path targetPath) throws IOException {
+        Files.walkFileTree(sourcePath, new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException {
+                Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult preVisitDirectory(Path subDir, BasicFileAttributes attr) throws IOException {
+                try {
+                    Files.copy(subDir, targetPath.resolve(sourcePath.relativize(subDir)), StandardCopyOption.COPY_ATTRIBUTES);
+                } catch (FileAlreadyExistsException e) {
+                    //
+                }
                 return FileVisitResult.CONTINUE;
             }
         });
