@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from "react";
+import { useState, type PropsWithChildren } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,6 +40,8 @@ export function MotdEditor({
   motd: string
   asChild?: boolean
 }>) {
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     values: { motd: purify(motd) }
@@ -49,6 +51,7 @@ export function MotdEditor({
     try {
       await sendPostRequest("/api/info/motd", btoa(transformText(values.motd)));
       emitter.emit("refresh-data");
+      setDialogOpen(false);
     } catch (e: any) {
       toastError(e, "修改Motd失败", [
         [400, "请求参数错误"],
@@ -59,7 +62,7 @@ export function MotdEditor({
   };
   
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild={asChild}>
         {children}
       </DialogTrigger>
@@ -106,9 +109,7 @@ export function MotdEditor({
                     取消
                   </Button>
                 </DialogClose>
-                <DialogClose asChild>
-                  <Button type="submit">保存</Button>
-                </DialogClose>
+                <Button type="submit">保存</Button>
               </div>
             </DialogFooter>
           </form>
