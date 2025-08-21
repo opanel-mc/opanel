@@ -46,9 +46,9 @@ export function SaveCard({
     <Card className={cn("rounded-md min-h-fit px-3 py-3 flex flex-col justify-between", className)}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="flex justify-between px-1">
+          <div className="flex justify-between px-1 overflow-hidden">
             <div className="flex flex-col gap-1">
-              <MinecraftText>{displayName}</MinecraftText>
+              <MinecraftText className="wrap-anywhere">{displayName}</MinecraftText>
               <span className="text-sm text-muted-foreground">{name}</span>
             </div>
             {isCurrent && (
