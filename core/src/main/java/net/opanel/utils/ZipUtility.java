@@ -25,6 +25,9 @@ public class ZipUtility {
         }
 
         for(File item : folder.listFiles()) {
+            // this file can be inaccessible when another thread or program is using the folder
+            // so just simply skip it...
+            if(item.getName().endsWith("session.lock")) continue;
             if(item.isDirectory()) {
                 addFolderToZos(item, parentDirName +"/"+ item.getName(), zos);
             } else {

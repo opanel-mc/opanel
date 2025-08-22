@@ -4,6 +4,7 @@ import net.opanel.terminal.LogListenerManager;
 import net.opanel.common.OPanelServer;
 import net.opanel.logger.Loggable;
 import net.opanel.utils.TPS;
+import net.opanel.utils.Utils;
 import net.opanel.web.WebServer;
 
 import java.io.File;
@@ -65,6 +66,9 @@ public class OPanel {
         File tmpDir = new File(TMP_DIR_PATH.toString());
         if(!tmpDir.exists() && !tmpDir.mkdir()) {
             throw new IOException("Cannot initialize .opanel/tmp directory.");
+        }
+        if(tmpDir.list().length > 0) {
+            Utils.clearDirectoryRecursively(tmpDir.toPath());
         }
     }
 

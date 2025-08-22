@@ -64,16 +64,38 @@ export function SaveCard({
           )}
         </div>
         <div className="[&_button]:cursor-pointer">
-          <Button
-            variant="ghost"
-            size="icon"
-            title="下载存档"
-            onClick={() => toast.promise(handleDownload(), {
-              loading: "正在处理文件...",
-              error: `无法下载存档 ${name}.zip`
-            })}>
-            <Download />
-          </Button>
+          {
+            isCurrent
+            ? (
+              <Alert
+                title={`确定要保存并下载当前存档 "${name}" 吗？`}
+                description="将要下载的存档是当前服务器正在运行的存档，在处理存档前服务器会对存档进行保存，此操作可能影响服务器性能。"
+                onAction={() => toast.promise(handleDownload(), {
+                  loading: "正在处理文件...",
+                  error: `无法下载存档 ${name}.zip`
+                })}
+                asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  title="下载存档">
+                  <Download />
+                </Button>
+              </Alert>
+            )
+            : (
+              <Button
+                variant="ghost"
+                size="icon"
+                title="下载存档"
+                onClick={() => toast.promise(handleDownload(), {
+                  loading: "正在处理文件...",
+                  error: `无法下载存档 ${name}.zip`
+                })}>
+                <Download />
+              </Button>
+            )
+          }
           <SaveSheet save={save} asChild>
             <Button
               variant="ghost"

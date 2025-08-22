@@ -91,6 +91,11 @@ public class SpigotServer implements OPanelServer {
     }
 
     @Override
+    public void saveAll() {
+        plugin.runTask(() -> server.getWorlds().getFirst().save());
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public List<OPanelPlayer> getOnlinePlayers() {
         List<OPanelPlayer> list = new ArrayList<>();

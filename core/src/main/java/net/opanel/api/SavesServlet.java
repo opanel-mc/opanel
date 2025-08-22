@@ -39,7 +39,7 @@ public class SavesServlet extends BaseServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse res) {
+    protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
         if(!authCookie(req)) {
             sendResponse(res, HttpServletResponse.SC_UNAUTHORIZED);
             return;
@@ -49,16 +49,19 @@ public class SavesServlet extends BaseServlet {
         final OPanelServer server = plugin.getServer();
         if(reqPath != null && !reqPath.equals("/")) { // request for downloading save
             OPanelSave save = server.getSave(reqPath.substring((1)));
+            // force saving world before making zip if the save is currently running on the server
+            if(save.isCurrent()) server.saveAll();
+
             Path savePath = save.getPath();
+            Path zipPath = OPanel.TMP_DIR_PATH.resolve(save.getName() +".zip");
             try {
-                Path zipPath = OPanel.TMP_DIR_PATH.resolve(save.getName() +".zip");
                 ZipUtility.zip(savePath, zipPath);
                 sendContentResponse(res, Utils.readFile(zipPath), "application/octet-stream");
-                Files.delete(zipPath);
             } catch (IOException e) {
                 e.printStackTrace();
                 sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
+            Files.delete(zipPath);
             return;
         }
 

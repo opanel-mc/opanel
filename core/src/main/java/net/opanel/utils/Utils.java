@@ -111,6 +111,25 @@ public class Utils {
         });
     }
 
+    public static void clearDirectoryRecursively(Path dirPath) throws IOException {
+        if(!Files.exists(dirPath)) {
+            throw new IOException("The given path doesn't exist.");
+        }
+        Files.walkFileTree(dirPath, new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attr) throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path subDir, IOException e) throws IOException {
+                if(!subDir.equals(dirPath)) Files.delete(subDir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
+
     public static void copyDirectoryRecursively(Path sourcePath, Path targetPath) throws IOException {
         Files.walkFileTree(sourcePath, new SimpleFileVisitor<>() {
             @Override

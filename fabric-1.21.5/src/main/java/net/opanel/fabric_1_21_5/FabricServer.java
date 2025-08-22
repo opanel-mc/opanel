@@ -111,6 +111,11 @@ public class FabricServer implements OPanelServer {
     }
 
     @Override
+    public void saveAll() {
+        server.saveAll(true, true, true);
+    }
+
+    @Override
     public List<OPanelPlayer> getOnlinePlayers() {
         List<OPanelPlayer> list = new ArrayList<>();
         List<ServerPlayerEntity> players = server.getPlayerManager().getPlayerList();

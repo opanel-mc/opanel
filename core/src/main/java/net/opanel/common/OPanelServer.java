@@ -11,6 +11,7 @@ public interface OPanelServer {
     int getPort();
     List<OPanelSave> getSaves();
     OPanelSave getSave(String saveName);
+    void saveAll();
     List<OPanelPlayer> getOnlinePlayers();
     List<OPanelPlayer> getPlayers();
     int getMaxPlayerCount();

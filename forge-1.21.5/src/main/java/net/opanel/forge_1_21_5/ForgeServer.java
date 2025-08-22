@@ -111,6 +111,11 @@ public class ForgeServer implements OPanelServer {
     }
 
     @Override
+    public void saveAll() {
+        server.saveEverything(true, true, true);
+    }
+
+    @Override
     public List<OPanelPlayer> getOnlinePlayers() {
         List<OPanelPlayer> list = new ArrayList<>();
         List<ServerPlayer> players = server.getPlayerList().getPlayers();
