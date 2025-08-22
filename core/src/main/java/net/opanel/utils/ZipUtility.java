@@ -47,7 +47,7 @@ public class ZipUtility {
         }
     }
 
-    public static void unzip(Path zipPath, Path targetDirPath) throws IOException {
+    public static void unzip(Path zipPath, Path targetDirPath) throws IOException, ZipException {
         File targetDir = new File(targetDirPath.toString());
         if(!targetDir.exists() && !targetDir.mkdir()) {
             throw new IOException("Cannot create target directory.");
@@ -57,8 +57,9 @@ public class ZipUtility {
             ZipEntry entry = zin.getNextEntry();
             while(entry != null) {
                 Path filePath = targetDirPath.resolve(entry.getName());
-                /** @todo prevent zip slip */
-                // ...
+                if(!filePath.normalize().startsWith(targetDirPath.normalize())) {
+                    throw new ZipException("Zip slip detected.");
+                }
                 if(!entry.isDirectory()) {
                     /** @see https://baeldung.com/java-compress-and-uncompress#unzip */
                     File parentDir = new File(filePath.toString()).getParentFile();
@@ -82,6 +83,8 @@ public class ZipUtility {
                 zin.closeEntry();
                 entry = zin.getNextEntry();
             }
+        } catch (ZipException e) {
+            throw e;
         }
     }
 }

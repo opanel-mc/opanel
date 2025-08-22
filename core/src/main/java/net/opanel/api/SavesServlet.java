@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
+import java.util.zip.ZipException;
 
 public class SavesServlet extends BaseServlet {
     public static final String route = "/api/saves/*";
@@ -164,6 +165,9 @@ public class SavesServlet extends BaseServlet {
                 }
 
                 sendResponse(res, HttpServletResponse.SC_OK);
+            } catch (ZipException e) {
+                plugin.logger.warn("An illegal save zip is detected! This may cause a zip slip, so it is blocked from unzipping to the server.");
+                sendResponse(res, HttpServletResponse.SC_FORBIDDEN);
             } catch (Exception e) {
                 e.printStackTrace();
                 sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
