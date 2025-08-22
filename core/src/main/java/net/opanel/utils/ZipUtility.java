@@ -58,6 +58,7 @@ public class ZipUtility {
             while(entry != null) {
                 Path filePath = targetDirPath.resolve(entry.getName());
                 if(!filePath.normalize().startsWith(targetDirPath.normalize())) {
+                    targetDir.delete();
                     throw new ZipException("Zip slip detected.");
                 }
                 if(!entry.isDirectory()) {

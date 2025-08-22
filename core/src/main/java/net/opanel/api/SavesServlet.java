@@ -168,6 +168,7 @@ public class SavesServlet extends BaseServlet {
             } catch (ZipException e) {
                 plugin.logger.warn("An illegal save zip is detected! This may cause a zip slip, so it is blocked from unzipping to the server.");
                 sendResponse(res, HttpServletResponse.SC_FORBIDDEN);
+                Utils.clearDirectoryRecursively(OPanel.TMP_DIR_PATH);
             } catch (Exception e) {
                 e.printStackTrace();
                 sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
