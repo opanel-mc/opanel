@@ -24,7 +24,7 @@ export function millisToTime(ms: number): string {
  * @see https://minecraft.fandom.com/wiki/Daylight_cycle
  */
 export function gameTickToTime(gt: number): string {
-  const hour = Math.floor(gt / 1000 + 6);
+  const hour = Math.floor(gt / 1000 + 6) % 24;
   const minute = Math.floor((gt % 1000) / 16.6);
   return `${formatNumber(hour)}:${formatNumber(minute)}`;
 }
