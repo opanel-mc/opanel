@@ -4,11 +4,14 @@ import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelSave;
+import net.opanel.common.OPanelServer;
 import net.opanel.utils.Utils;
 import org.bukkit.Server;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Properties;
 
 public class SpigotSave implements OPanelSave {
     private final Server server;
@@ -51,8 +54,21 @@ public class SpigotSave implements OPanelSave {
     }
 
     @Override
-    public boolean isCurrent() {
+    public boolean isRunning() {
         return server.getWorlds().getFirst().getName().equals(getName());
+    }
+
+    @Override
+    public boolean isCurrent() throws IOException {
+        Properties properties = new Properties();
+        properties.load(new FileInputStream(OPanelServer.serverPropertiesPath.toFile()));
+        return properties.getProperty("level-name").equals(getName());
+    }
+
+    @Override
+    public void setToCurrent() throws IOException {
+        if(isCurrent()) return;
+        OPanelServer.writePropertiesContent(OPanelServer.getPropertiesContent().replaceAll("level-name=.+", "level-name="+ getName()));
     }
 
     @Override

@@ -25,17 +25,7 @@ export default function Saves() {
   const fetchServerWorlds = async () => {
     try {
       const res = await sendGetRequest<SavesResponse>("/api/saves");
-      const list = res.saves;
-
-      // Move the current save to the first
-      for(let i = 0; i < list.length; i++) {
-        if(list[i].isCurrent && i > 0) {
-          const tmp = list[i - 1];
-          list[i - 1] = list[i];
-          list[i] = tmp;
-        }
-      }
-      setSaves(list);
+      setSaves(res.saves);
     } catch (e: any) {
       toastError(e, "无法获取存档列表", [
         [400, "请求参数错误"],
@@ -98,8 +88,8 @@ export default function Saves() {
       <div className="flex flex-col gap-4">
         <div className="flex justify-between max-lg:flex-col max-lg:gap-4">
           <div className="flex flex-col gap-3">
-            <span className="text-sm text-muted-foreground max-md:hidden">将存档压缩包 (zip格式) 拖入页面以进行导入。</span>
-            <span className="text-sm text-muted-foreground max-md:hidden">若存档压缩包内包含单个存档文件夹，则压缩包名称需与文件夹名称一致，否则拒绝导入。</span>
+            <span className="text-sm text-muted-foreground max-md:hidden">将存档压缩包 (zip格式) 拖入页面以进行导入。若存档压缩包内包含单个存档文件夹，则压缩包名称需与文件夹名称一致，否则拒绝导入。</span>
+            <span className="text-sm text-muted-foreground">点击存档名以切换当前存档，切换后需重启服务器使改动生效。</span>
           </div>
           {uploadProgress && (
             <div className="w-72 self-end max-md:w-full flex flex-col justify-end items-end gap-2">

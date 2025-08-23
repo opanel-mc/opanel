@@ -17,6 +17,7 @@ export interface Save {
   name: string
   displayName: string
   path: string
+  isRunning: boolean
   isCurrent: boolean
   defaultGameMode: GameMode
 }

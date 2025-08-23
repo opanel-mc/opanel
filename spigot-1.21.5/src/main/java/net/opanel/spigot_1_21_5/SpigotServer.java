@@ -17,7 +17,6 @@ import java.util.*;
 import java.util.stream.Stream;
 
 public class SpigotServer implements OPanelServer {
-    private static final Path serverPropertiesPath = Paths.get("").resolve("server.properties");
     private static final Path serverIconPath = Paths.get("").resolve("server-icon.png");
 
     private final Main plugin;
@@ -49,7 +48,7 @@ public class SpigotServer implements OPanelServer {
         // Call setMotd() first
         server.setMotd(motd);
         // Directly modify motd in server.properties
-        writePropertiesContent(getPropertiesContent().replaceAll("motd=.+", "motd="+ motd));
+        OPanelServer.writePropertiesContent(OPanelServer.getPropertiesContent().replaceAll("motd=.+", "motd="+ motd));
     }
 
     @Override
@@ -208,22 +207,6 @@ public class SpigotServer implements OPanelServer {
     @Override
     public void stop() {
         server.shutdown();
-    }
-
-    @Override
-    public String getPropertiesContent() throws IOException {
-        if(!Files.exists(serverPropertiesPath)) {
-            throw new IOException("Cannot find server.properties");
-        }
-        return Utils.readTextFile(serverPropertiesPath);
-    }
-
-    @Override
-    public void writePropertiesContent(String newContent) throws IOException {
-        if(!Files.exists(serverPropertiesPath)) {
-            throw new IOException("Cannot find server.properties");
-        }
-        Utils.writeTextFile(serverPropertiesPath, newContent);
     }
 
     @Override

@@ -1,9 +1,16 @@
 package net.opanel.common;
 
+import net.opanel.utils.Utils;
+
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 public interface OPanelServer {
+    Path serverPropertiesPath = Paths.get("").resolve("server.properties");
+
     byte[] getFavicon();
     String getMotd();
     void setMotd(String motd) throws IOException;
@@ -25,7 +32,19 @@ public interface OPanelServer {
     void setGamerules(HashMap<String, Object> gamerules);
     void reload();
     void stop();
-    String getPropertiesContent() throws IOException;
-    void writePropertiesContent(String newContent) throws IOException;
     long getIngameTime();
+
+    static String getPropertiesContent() throws IOException {
+        if(!Files.exists(serverPropertiesPath)) {
+            throw new IOException("Cannot find server.properties");
+        }
+        return Utils.readTextFile(serverPropertiesPath);
+    }
+
+    static void writePropertiesContent(String newContent) throws IOException {
+        if(!Files.exists(serverPropertiesPath)) {
+            throw new IOException("Cannot find server.properties");
+        }
+        Utils.writeTextFile(serverPropertiesPath, newContent);
+    }
 }

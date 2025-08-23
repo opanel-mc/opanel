@@ -8,11 +8,14 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.storage.LevelResource;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelSave;
+import net.opanel.common.OPanelServer;
 import net.opanel.utils.Utils;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.Properties;
 
 public class ForgeSave implements OPanelSave {
     private final MinecraftServer server;
@@ -62,8 +65,21 @@ public class ForgeSave implements OPanelSave {
     }
 
     @Override
-    public boolean isCurrent() {
+    public boolean isRunning() {
         return server.getWorldPath(LevelResource.LEVEL_DATA_FILE).getParent().getFileName().toString().equals(getName());
+    }
+
+    @Override
+    public boolean isCurrent() throws IOException {
+        Properties properties = new Properties();
+        properties.load(new FileInputStream(OPanelServer.serverPropertiesPath.toFile()));
+        return properties.getProperty("level-name").equals(getName());
+    }
+
+    @Override
+    public void setToCurrent() throws IOException {
+        if(isCurrent()) return;
+        OPanelServer.writePropertiesContent(OPanelServer.getPropertiesContent().replaceAll("level-name=.+", "level-name="+ getName()));
     }
 
     @Override

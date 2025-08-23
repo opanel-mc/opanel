@@ -3,6 +3,7 @@ package net.opanel.api;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import net.opanel.OPanel;
+import net.opanel.common.OPanelSave;
 import net.opanel.common.OPanelServer;
 import net.opanel.web.BaseServlet;
 
@@ -24,7 +25,6 @@ public class ControlServlet extends BaseServlet {
         }
 
         final String reqPath = req.getPathInfo();
-        final OPanelServer server = plugin.getServer();
         HashMap<String, Object> obj = new HashMap<>();
 
         if(reqPath == null || reqPath.equals("/")) {
@@ -35,7 +35,7 @@ public class ControlServlet extends BaseServlet {
         switch(reqPath.substring(1)) {
             case "properties" -> {
                 try {
-                    obj.put("properties", server.getPropertiesContent());
+                    obj.put("properties", OPanelServer.getPropertiesContent());
                     sendResponse(res, obj);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -68,10 +68,29 @@ public class ControlServlet extends BaseServlet {
             case "properties" -> {
                 try {
                     String newContent = getRequestBody(req, String.class);
-                    server.writePropertiesContent(newContent);
+                    OPanelServer.writePropertiesContent(newContent);
                 } catch (IOException e) {
                     e.printStackTrace();
                     sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+                    return;
+                }
+            }
+            case "world" -> {
+                String saveName = req.getParameter("save");
+                if(saveName == null) {
+                    sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
+                    return;
+                }
+                OPanelSave save = server.getSave(saveName);
+                if(save == null) {
+                    sendResponse(res, HttpServletResponse.SC_NOT_FOUND);
+                    return;
+                }
+                try {
+                    save.setToCurrent();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     return;
                 }
             }

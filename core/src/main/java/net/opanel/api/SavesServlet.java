@@ -51,7 +51,7 @@ public class SavesServlet extends BaseServlet {
         if(reqPath != null && !reqPath.equals("/")) { // request for downloading save
             OPanelSave save = server.getSave(reqPath.substring((1)));
             // force saving world before making zip if the save is currently running on the server
-            if(save.isCurrent()) server.saveAll();
+            if(save.isRunning()) server.saveAll();
 
             Path savePath = save.getPath();
             Path zipPath = OPanel.TMP_DIR_PATH.resolve(save.getName() +".zip");
@@ -74,6 +74,7 @@ public class SavesServlet extends BaseServlet {
             saveInfo.put("name", save.getName());
             saveInfo.put("displayName", save.getDisplayName());
             saveInfo.put("path", save.getPath().toString());
+            saveInfo.put("isRunning", save.isRunning());
             saveInfo.put("isCurrent", save.isCurrent());
             saveInfo.put("defaultGameMode", save.getDefaultGameMode().getName());
             saves.add(saveInfo);
@@ -191,7 +192,7 @@ public class SavesServlet extends BaseServlet {
     }
 
     @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse res) {
+    protected void doDelete(HttpServletRequest req, HttpServletResponse res) throws IOException {
         if(!authCookie(req)) {
             sendResponse(res, HttpServletResponse.SC_UNAUTHORIZED);
             return;
@@ -207,7 +208,7 @@ public class SavesServlet extends BaseServlet {
 
         String saveName = reqPath.substring(1);
         OPanelSave save = server.getSave(saveName);
-        if(save.isCurrent()) {
+        if(save.isRunning() || save.isCurrent()) {
             sendResponse(res, HttpServletResponse.SC_FORBIDDEN);
             return;
         }

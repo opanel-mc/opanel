@@ -8,7 +8,9 @@ public interface OPanelSave {
     String getDisplayName();
     void setDisplayName(String displayName) throws IOException;
     Path getPath();
-    boolean isCurrent();
+    boolean isRunning();
+    boolean isCurrent() throws IOException;
+    void setToCurrent() throws IOException;
     OPanelGameMode getDefaultGameMode();
     void setDefaultGameMode(OPanelGameMode gamemode) throws IOException;
     void delete() throws IOException;

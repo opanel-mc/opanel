@@ -27,8 +27,6 @@ import java.util.*;
 import java.util.stream.Stream;
 
 public class FabricServer implements OPanelServer {
-    private static final Path serverPropertiesPath = Paths.get("").resolve("server.properties");
-
     private final MinecraftServer server;
     private final DedicatedServer dedicatedServer;
 
@@ -59,7 +57,7 @@ public class FabricServer implements OPanelServer {
         // Call setMotd() first
         server.setMotd(motd);
         // Directly modify motd in server.properties
-        writePropertiesContent(getPropertiesContent().replaceAll("motd=.+", "motd="+ motd));
+        OPanelServer.writePropertiesContent(OPanelServer.getPropertiesContent().replaceAll("motd=.+", "motd="+ motd));
         // Directly modify motd in memory
         final ServerPropertiesHandler properties = dedicatedServer.getProperties();
         try {
@@ -246,22 +244,6 @@ public class FabricServer implements OPanelServer {
     @Override
     public void stop() {
         server.stop(false);
-    }
-
-    @Override
-    public String getPropertiesContent() throws IOException {
-        if(!Files.exists(serverPropertiesPath)) {
-            throw new IOException("Cannot find server.properties");
-        }
-        return Utils.readTextFile(serverPropertiesPath);
-    }
-
-    @Override
-    public void writePropertiesContent(String newContent) throws IOException {
-        if(!Files.exists(serverPropertiesPath)) {
-            throw new IOException("Cannot find server.properties");
-        }
-        Utils.writeTextFile(serverPropertiesPath, newContent);
     }
 
     @Override

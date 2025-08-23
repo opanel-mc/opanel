@@ -8,7 +8,7 @@ import { MinecraftText } from "@/components/mc-text";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { sendDeleteRequest, sendGetBlobRequest } from "@/lib/api";
+import { sendDeleteRequest, sendGetBlobRequest, sendPostRequest, toastError } from "@/lib/api";
 import { Alert } from "@/components/alert";
 import { SaveSheet } from "./save-sheet";
 import { emitter } from "@/lib/emitter";
@@ -24,6 +24,7 @@ export function SaveCard({
     name,
     displayName,
     path,
+    isRunning,
     isCurrent,
     defaultGameMode
   } = save;
@@ -42,11 +43,33 @@ export function SaveCard({
     }
   };
 
+  const handleSetCurrent = async () => {
+    if(isCurrent) return;
+    try {
+      await sendPostRequest(`/api/control/world?save=${name}`);
+      emitter.emit("refresh-data");
+      toast.success("切换成功", { description: !isRunning ? "重启服务器以使改动生效" : "当前存档正在运行" });
+    } catch (e: any) {
+      toastError(e, "无法切换当前存档", [
+        [400, "请求参数错误"],
+        [401, "未登录"],
+        [404, "找不到该存档"],
+        [500, "服务器内部错误"]
+      ]);
+    }
+  };
+
   return (
-    <Card className={cn("rounded-md min-h-fit px-3 py-3 flex flex-col justify-between", className)}>
+    <Card className={cn(
+      "rounded-md min-h-fit px-3 py-3 flex flex-col justify-between hover:bg-muted",
+      isCurrent && "bg-green-50 border-green-600 dark:bg-green-950 dark:border-green-900",
+      className
+    )}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="w-full flex flex-col gap-1 px-1 overflow-hidden">
+          <div
+            className="w-full flex flex-col gap-1 px-1 overflow-hidden cursor-pointer"
+            onClick={() => handleSetCurrent()}>
             <MinecraftText className="wrap-anywhere">{displayName}</MinecraftText>
             <span className="text-sm text-muted-foreground w-full overflow-hidden whitespace-nowrap text-ellipsis">{name}</span>
           </div>
@@ -56,10 +79,10 @@ export function SaveCard({
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           <span className="text-sm pl-1">{gameModeToString(defaultGameMode)}</span>
-          {isCurrent && (
-            <Badge variant="outline" className="h-fit">
+          {isRunning && (
+            <Badge variant="outline" className="h-fit border-emerald-700 dark:border-green-900">
               <div className="w-2 h-2 rounded-full bg-green-600"/>
-              当前存档
+              正在运行
             </Badge>
           )}
         </div>
@@ -112,7 +135,7 @@ export function SaveCard({
             <Button
               variant="ghost"
               size="icon"
-              disabled={isCurrent}
+              disabled={isRunning || isCurrent}
               title="删除存档">
               <Trash2 />
             </Button>
