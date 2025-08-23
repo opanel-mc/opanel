@@ -79,9 +79,21 @@ export default function Settings() {
               </Select>
             }/>
           <SettingsItem
+            id="terminal.log-time"
+            name="显示日志时间"
+            control={<SettingsSwitch id="terminal.log-time"/>}/>
+          <SettingsItem
+            id="terminal.thread-name"
+            name="显示线程名称"
+            control={<SettingsSwitch id="terminal.thread-name"/>}/>
+          <SettingsItem
+            id="terminal.source-name"
+            name="显示日志源"
+            control={<SettingsSwitch id="terminal.source-name"/>}/>
+          <SettingsItem
             id="terminal.convert-ansi-code"
             name="转换ANSI代码"
-            description="将终端内的ANSI代码转换为HTML"
+            description="将终端内的ANSI代码转换为更易读的HTML"
             control={<SettingsSwitch id="terminal.convert-ansi-code"/>}/>
         </Section>
         <Section title="Monaco 编辑器">

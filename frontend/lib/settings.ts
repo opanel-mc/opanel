@@ -9,6 +9,9 @@ export type SettingsStorageType = {
   "terminal.word-wrap": boolean
   "terminal.font-size": number
   "terminal.log-level": ConsoleLogLevel
+  "terminal.log-time": boolean
+  "terminal.thread-name": boolean
+  "terminal.source-name": boolean
   "terminal.convert-ansi-code": boolean
   "monaco.word-wrap": boolean
   "monaco.font-size": number
@@ -20,6 +23,9 @@ const defaultSettings: SettingsStorageType = {
   "terminal.word-wrap": false,
   "terminal.font-size": 12, // px
   "terminal.log-level": "INFO",
+  "terminal.log-time": true,
+  "terminal.thread-name": true,
+  "terminal.source-name": true,
   "terminal.convert-ansi-code": true,
   "monaco.word-wrap": false,
   "monaco.font-size": 14, // px

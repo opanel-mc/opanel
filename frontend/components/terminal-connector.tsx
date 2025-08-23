@@ -42,9 +42,15 @@ function Log({
         !visible ? "hidden" : ""
       )}
       style={{ fontSize: getSettings("terminal.font-size") +"px" }}>
-      <span className="text-blue-500 dark:text-blue-400">{`[${format(new Date(time), "HH:mm:ss")}]`}</span>
-      {!simple && <span className={threadLevelStyle}>{`[${thread}/${level}]`}</span>}
-      {(!simple && sourceName) && <span className="text-emerald-600 dark:text-emerald-500 max-md:hidden">{`(${sourceName})`}</span>}
+      {getSettings("terminal.log-time") && (
+        <span className="text-blue-500 dark:text-blue-400">{`[${format(new Date(time), "HH:mm:ss")}]`}</span>
+      )}
+      {(!simple && getSettings("terminal.thread-name")) && (
+        <span className={threadLevelStyle}>{`[${thread}/${level}]`}</span>
+      )}
+      {(!simple && getSettings("terminal.source-name") && sourceName) && (
+        <span className="text-emerald-600 dark:text-emerald-500 max-md:hidden">{`(${sourceName})`}</span>
+      )}
       {
         getSettings("terminal.convert-ansi-code")
         ? <span dangerouslySetInnerHTML={{ __html: new Convert().toHtml(line) }}/>
