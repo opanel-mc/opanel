@@ -6,7 +6,8 @@ import {
   Earth,
   Github,
   HandCoins,
-  Milestone
+  Milestone,
+  UsersRound
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -35,7 +36,7 @@ const info = [
   },
   {
     name: "作者",
-    value: "NriotHrreion",
+    value: "Norcleeh",
     icon: AtSign
   },
   {
@@ -53,7 +54,7 @@ export default function About() {
       </CardHeader>
       <CardContent className="space-y-2">
         <p>
-          <span className={cn("text-theme font-semibold", minecraftAE.className)}>OPanel</span> 是一个开箱即用的 Minecraft 服务器管理面板，支持Bukkit、Fabric平台。
+          <span className={cn("text-theme font-semibold", minecraftAE.className)}>OPanel</span> 是一个开箱即用的 Minecraft 服务器管理面板，支持Bukkit、Fabric和Forge平台。
         </p>
         <Table>
           <TableBody>
@@ -75,12 +76,21 @@ export default function About() {
           <Button
             className="cursor-pointer"
             variant="link"
-            onClick={() => history.go(-1)}>
+            onClick={() => window.location.href = "/"}>
             <ChevronLeft />
             返回
           </Button>
         </div>
         <div className="space-x-2">
+          <Button
+            variant="secondary"
+            size="icon"
+            title="参与人员"
+            asChild>
+            <Link href="/about/credits">
+              <UsersRound />
+            </Link>
+          </Button>
           <Button
             variant="secondary"
             size="icon"
