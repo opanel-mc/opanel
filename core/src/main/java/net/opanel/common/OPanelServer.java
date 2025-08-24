@@ -1,5 +1,6 @@
 package net.opanel.common;
 
+import net.opanel.ServerType;
 import net.opanel.utils.Utils;
 
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.util.*;
 public interface OPanelServer {
     Path serverPropertiesPath = Paths.get("").resolve("server.properties");
 
+    ServerType getServerType();
     byte[] getFavicon();
     String getMotd();
     void setMotd(String motd) throws IOException;

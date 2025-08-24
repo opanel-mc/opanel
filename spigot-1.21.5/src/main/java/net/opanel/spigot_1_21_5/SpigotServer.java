@@ -1,5 +1,6 @@
 package net.opanel.spigot_1_21_5;
 
+import net.opanel.ServerType;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelSave;
 import net.opanel.common.OPanelServer;
@@ -25,6 +26,11 @@ public class SpigotServer implements OPanelServer {
     public SpigotServer(Main plugin, Server server) {
         this.plugin = plugin;
         this.server = server;
+    }
+
+    @Override
+    public ServerType getServerType() {
+        return ServerType.BUKKIT;
     }
 
     @Override
@@ -66,8 +72,10 @@ public class SpigotServer implements OPanelServer {
         List<OPanelSave> list = new ArrayList<>();
         try(Stream<Path> stream = Files.list(Paths.get(""))) {
             stream.filter(path -> (
-                            Files.exists(path.resolve("level.dat"))
-                                    && !Files.isDirectory(path.resolve("level.dat"))
+                            !path.toString().endsWith("_nether")
+                            && !path.toString().endsWith("_the_end")
+                            && Files.exists(path.resolve("level.dat"))
+                            && !Files.isDirectory(path.resolve("level.dat"))
                     ))
                     .map(Path::toAbsolutePath)
                     .forEach(path -> {
@@ -83,7 +91,12 @@ public class SpigotServer implements OPanelServer {
     @Override
     public OPanelSave getSave(String saveName) {
         final Path savePath = Paths.get("").resolve(saveName);
-        if(!Files.exists(savePath) || !Files.exists(savePath.resolve("level.dat"))) {
+        if(
+                !Files.exists(savePath)
+                || savePath.toString().endsWith("_nether")
+                || savePath.toString().endsWith("_the_end")
+                || !Files.exists(savePath.resolve("level.dat"))
+        ) {
             return null;
         }
         return new SpigotSave(server, savePath.toAbsolutePath());

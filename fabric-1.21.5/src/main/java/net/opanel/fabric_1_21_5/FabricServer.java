@@ -12,6 +12,7 @@ import net.minecraft.server.dedicated.ServerPropertiesHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.WorldSavePath;
 import net.minecraft.world.GameRules;
+import net.opanel.ServerType;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelServer;
 import net.opanel.common.OPanelSave;
@@ -33,6 +34,11 @@ public class FabricServer implements OPanelServer {
     public FabricServer(MinecraftServer server) {
         this.server = server;
         dedicatedServer = (DedicatedServer) server;
+    }
+
+    @Override
+    public ServerType getServerType() {
+        return ServerType.FABRIC;
     }
 
     @Override

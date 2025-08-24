@@ -12,6 +12,7 @@ import net.minecraft.server.dedicated.DedicatedServerProperties;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.storage.LevelResource;
+import net.opanel.ServerType;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelSave;
 import net.opanel.common.OPanelServer;
@@ -33,6 +34,11 @@ public class ForgeServer implements OPanelServer {
     public ForgeServer(MinecraftServer server) {
         this.server = server;
         dedicatedServer = (DedicatedServer) server;
+    }
+
+    @Override
+    public ServerType getServerType() {
+        return ServerType.FORGE;
     }
 
     @Override
