@@ -27,6 +27,7 @@ import {
 import { version } from "@/lib/global";
 import { cn } from "@/lib/utils";
 import { minecraftAE } from "@/lib/fonts";
+import { Logo } from "@/components/logo";
 
 const info = [
   {
@@ -53,6 +54,7 @@ export default function About() {
         <CardTitle>关于</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
+        <Logo size={128} className="mx-auto"/>
         <p>
           <span className={cn("text-theme font-semibold", minecraftAE.className)}>OPanel</span> 是一个开箱即用的 Minecraft 服务器管理面板，支持Bukkit、Fabric和Forge平台。
         </p>
