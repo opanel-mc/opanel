@@ -79,7 +79,7 @@ public class ForgeSave implements OPanelSave {
     public boolean isCurrent() throws IOException {
         Properties properties = new Properties();
         properties.load(new FileInputStream(OPanelServer.serverPropertiesPath.toFile()));
-        return properties.getProperty("level-name").equals(getName());
+        return properties.getProperty("level-name").replaceAll("\u00c2", "").equals(getName());
     }
 
     @Override
