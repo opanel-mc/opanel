@@ -23,7 +23,7 @@ archivesBaseName = "${rootProject.name}-spigot"
 
 dependencies {
     compileOnly "org.spigotmc:spigot-api:${minecraft_version}-R0.1-SNAPSHOT"
-    shadowImplementation "de.tr7zw:item-nbt-api:2.15.1"
+    shadowImplementation "de.tr7zw:item-nbt-api:2.15.2"
     compileOnly "org.apache.logging.log4j:log4j-core:2.24.1"
 
     shadowImplementation(project(":core")) {

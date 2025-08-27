@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="Changes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/SpigotServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/SpigotServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21.5/build.gradle" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,6 +57,24 @@
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="opanel" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="build" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="opanel" type="f1a62948:ProjectNode" />
+                <item name="spigot-1.21.5" type="2d1252cf:ModuleNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="opanel" type="f1a62948:ProjectNode" />
+                <item name="spigot-1.21.5" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="opanel" type="f1a62948:ProjectNode" />
+                <item name="spigot-1.21.5" type="2d1252cf:ModuleNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
                 <item name="build" type="c8890929:TasksNode$1" />
               </path>
