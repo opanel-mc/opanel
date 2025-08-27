@@ -2,16 +2,33 @@
 
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
+import { ReactSVG } from "react-svg";
 import { cn } from "@/lib/utils";
 
-import LogoLight from "@/assets/images/logo-light.png";
-import LogoDark from "@/assets/images/logo-dark.png";
+import LogoIcon from "@/assets/images/logo.png"; // 32x32
+import BrandLight from "@/assets/images/brand-light.svg";
+import BrandDark from "@/assets/images/brand-dark.svg";
 
 export function Logo({
   size = 144,
   className
 }: {
   size?: number
+  className?: string
+}) {
+  return (
+    <img
+      src={LogoIcon.src}
+      alt="logo"
+      width={size}
+      className={cn("aspect-square", className)}
+      style={{ imageRendering: size >= 32 ? "pixelated" : "crisp-edges" }}/>
+  );
+}
+
+export function Brand({
+  className
+}: {
   className?: string
 }) {
   const { theme } = useTheme();
@@ -24,11 +41,8 @@ export function Logo({
   if(!mounted) return <></>;
 
   return (
-    <img
-      src={theme === "light" ? LogoLight.src : LogoDark.src}
-      alt="logo"
-      width={size}
-      className={cn("aspect-square", className)}
-      style={{ imageRendering: "pixelated" }}/>
+    <ReactSVG
+      src={theme === "light" ? BrandLight.src : BrandDark.src}
+      className={cn("[&_svg]:h-fit", className)}/>
   );
 }

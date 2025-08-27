@@ -29,9 +29,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { sendPostRequestWithoutToken } from "@/lib/api";
-import { minecraftAE } from "@/lib/fonts";
-import { cn } from "@/lib/utils";
-import { Logo } from "@/components/logo";
+import { Brand } from "@/components/logo";
 
 const formSchema = z.object({
   accessKey: z.string(),
@@ -75,9 +73,8 @@ export default function Login() {
 
   return (
     <div className="flex flex-col">
-      <div className="flex flex-col items-center gap-4 mb-8">
-        <Logo />
-        <h1 className={cn("text-3xl font-semibold text-theme", minecraftAE.className)}>OPanel</h1>
+      <div className="flex flex-col items-center gap-8 mb-8">
+        <Brand className="[&_svg]:w-72"/>
         <p className="text-lg text-muted-foreground">Minecraft 服务器管理面板</p>
       </div>
       <Card className="w-96">

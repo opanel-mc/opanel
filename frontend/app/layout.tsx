@@ -6,10 +6,13 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { notoSansSC } from "@/lib/fonts";
 
+import LogoIcon from "@/assets/images/logo.png";
+
 export const metadata: Metadata = {
   title: "OPanel",
   description: "A Minecraft server management panel",
   authors: [{ name: "NriotHrreion", url: "https://nocp.space" }],
+  icons: LogoIcon.src
 };
 
 export default function RootLayout({

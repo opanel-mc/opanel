@@ -4,6 +4,7 @@ import {
   AtSign,
   ChevronLeft,
   Earth,
+  FileText,
   Github,
   HandCoins,
   Milestone,
@@ -27,7 +28,7 @@ import {
 import { version } from "@/lib/global";
 import { cn } from "@/lib/utils";
 import { minecraftAE } from "@/lib/fonts";
-import { Logo } from "@/components/logo";
+import { Brand } from "@/components/logo";
 
 const info = [
   {
@@ -41,9 +42,19 @@ const info = [
     icon: AtSign
   },
   {
+    name: "仓库",
+    value: <a href="https://github.com/nocpiun/opanel" target="_blank">https://github.com/nocpiun/opanel</a>,
+    icon: Github
+  },
+  {
     name: "打赏",
-    value: <Link href="https://nocp.space/donate" target="_blank" className="hover:underline underline-offset-4 decoration-1">https://nocp.space/donate</Link>,
+    value: <a href="https://nocp.space/donate" target="_blank">https://nocp.space/donate</a>,
     icon: HandCoins
+  },
+  {
+    name: "许可",
+    value: "MPL-2.0",
+    icon: FileText
   }
 ];
 
@@ -54,7 +65,7 @@ export default function About() {
         <CardTitle>关于</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
-        <Logo size={128} className="mx-auto"/>
+        <Brand className="w-fit mx-auto my-10 [&_svg]:w-72"/>
         <p>
           <span className={cn("text-theme font-semibold", minecraftAE.className)}>OPanel</span> 是一个开箱即用的 Minecraft 服务器管理面板，支持Bukkit、Fabric和Forge平台。
         </p>
@@ -66,7 +77,7 @@ export default function About() {
                   <item.icon size={17}/>
                   <span>{item.name}</span>
                 </TableCell>
-                <TableCell className="text-right">{item.value}</TableCell>
+                <TableCell className="text-right [&_a]:underline [&_a]:underline-offset-2">{item.value}</TableCell>
               </TableRow>
             ))}
           </TableBody>

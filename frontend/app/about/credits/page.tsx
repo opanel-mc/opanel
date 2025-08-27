@@ -22,12 +22,17 @@ import { minecraftAE } from "@/lib/fonts";
 const contributors = {
   "Norcleeh": "https://github.com/NriotHrreion",
   "Deed": "https://github.com/henlowornd",
-  "SeaMite": "https://github.com/SeaMite43981045"
+  "SeaMite": "https://github.com/SeaMite43981045",
+  "ironrock": ""
 };
 
 function Contributor({ name }: {
   name: keyof typeof contributors
 }) {
+  if(!contributors[name]) {
+    return <span>{name}</span>;
+  }
+
   return (
     <Link href={contributors[name]} target="_blank">
       {name}
@@ -70,6 +75,7 @@ export default function Credits() {
               <TableCell>Logo设计</TableCell>
               <TableCell>
                 <Contributor name="Deed"/>
+                <Contributor name="ironrock"/>
               </TableCell>
             </TableRow>
           </TableBody>
