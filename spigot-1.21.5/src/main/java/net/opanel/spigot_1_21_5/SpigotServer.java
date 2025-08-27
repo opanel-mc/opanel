@@ -202,6 +202,7 @@ public class SpigotServer implements OPanelServer {
         plugin.runTask(() -> {
             final World world = server.getWorlds().getFirst();
             gamerules.forEach((key, value) -> {
+                if(value == null) return;
                 GameRule<?> rule = GameRule.getByName(key);
                 if(rule == null) return;
                 if(value instanceof Boolean) {

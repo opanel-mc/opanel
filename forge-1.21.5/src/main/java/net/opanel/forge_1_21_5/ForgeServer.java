@@ -229,6 +229,7 @@ public class ForgeServer implements OPanelServer {
             public <T extends GameRules.Value<T>> void visit(GameRules.Key<T> key, GameRules.Type<T> type) {
                 GameRules.GameRuleTypeVisitor.super.visit(key, type);
                 gamerules.forEach((ruleName, value) -> {
+                    if(value == null) return;
                     if(key.getId().equals(ruleName)) {
                         if(value instanceof Boolean) {
                             gameRulesObj.getRule(key).setFrom((T) new GameRules.BooleanValue((GameRules.Type<GameRules.BooleanValue>) type, (boolean) value), server);

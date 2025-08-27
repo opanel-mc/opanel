@@ -229,6 +229,7 @@ public class FabricServer implements OPanelServer {
             public <T extends GameRules.Rule<T>> void visit(GameRules.Key<T> key, GameRules.Type<T> type) {
                 GameRules.Visitor.super.visit(key, type);
                 gamerules.forEach((ruleName, value) -> {
+                    if(value == null) return;
                     if(key.getName().equals(ruleName)) {
                         if(value instanceof Boolean) {
                             gameRulesObj.get(key).setValue((T) new GameRules.BooleanRule((GameRules.Type<GameRules.BooleanRule>) type, (boolean) value), server);
