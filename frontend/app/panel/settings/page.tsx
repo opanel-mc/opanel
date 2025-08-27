@@ -2,7 +2,7 @@
 
 import type { ConsoleLogLevel } from "@/lib/terminal/log-levels";
 import { Settings as SettingsIcon } from "lucide-react";
-import { changeSettings, getSettings, type SettingsStorageType } from "@/lib/settings";
+import { changeSettings, getSettings, resetSettings, type SettingsStorageType } from "@/lib/settings";
 import { SubPage } from "../sub-page";
 import { Section } from "./section";
 import {
@@ -121,6 +121,17 @@ export default function Settings() {
               </Alert>
             }/>
         </Section>
+        <div>
+          <Button
+            variant="outline"
+            className="cursor-pointer"
+            onClick={() => {
+              resetSettings();
+              window.location.reload();
+            }}>
+            恢复默认设置
+          </Button>
+        </div>
       </div>
     </SubPage>
   );
