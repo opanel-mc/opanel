@@ -3,7 +3,7 @@ import { Download, FolderPen, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import download from "downloadjs";
 import { Card } from "@/components/ui/card";
-import { cn, gameModeToString } from "@/lib/utils";
+import { cn, formatDataSize, gameModeToString } from "@/lib/utils";
 import { MinecraftText } from "@/components/mc-text";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -24,6 +24,7 @@ export function SaveCard({
     name,
     displayName,
     path,
+    size,
     isRunning,
     isCurrent,
     defaultGameMode
@@ -85,6 +86,7 @@ export function SaveCard({
               正在运行
             </Badge>
           )}
+          <span className="mr-2 text-sm text-muted-foreground font-[Consolas]">{formatDataSize(size)}</span>
         </div>
         <div className="[&_button]:cursor-pointer">
           {

@@ -76,3 +76,17 @@ export function objectToMap<V>(obj: { [key: string]: V }): Map<string, V> {
   }
   return map;
 }
+
+export function formatDataSize(bytes: number): string {
+  const kb = bytes / 1024;
+  const mb = kb / 1024;
+  const gb = mb / 1024;
+  const tb = gb / 1024;
+  const pb = tb / 1024;
+
+  if(tb >= 1024) return `${pb.toFixed(2)} PB`;
+  if(gb >= 1024) return `${tb.toFixed(2)} TB`;
+  if(mb >= 1024) return `${gb.toFixed(2)} GB`;
+  if(kb >= 1024) return `${mb.toFixed(2)} MB`;
+  return `${kb.toFixed(2)} KB`;
+}

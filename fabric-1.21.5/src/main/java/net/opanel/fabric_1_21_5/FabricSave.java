@@ -14,6 +14,7 @@ import org.intellij.lang.annotations.RegExp;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Properties;
@@ -64,6 +65,11 @@ public class FabricSave implements OPanelSave {
     @Override
     public Path getPath() {
         return savePath.toAbsolutePath();
+    }
+
+    @Override
+    public long getSize() throws IOException {
+        return Utils.getDirectorySize(savePath);
     }
 
     @Override

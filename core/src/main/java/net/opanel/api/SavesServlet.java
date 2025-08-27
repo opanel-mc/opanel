@@ -97,6 +97,7 @@ public class SavesServlet extends BaseServlet {
             saveInfo.put("name", save.getName());
             saveInfo.put("displayName", save.getDisplayName());
             saveInfo.put("path", save.getPath().toString());
+            saveInfo.put("size", save.getSize());
             saveInfo.put("isRunning", save.isRunning());
             saveInfo.put("isCurrent", save.isCurrent());
             saveInfo.put("defaultGameMode", save.getDefaultGameMode().getName());

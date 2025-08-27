@@ -7,6 +7,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
 public class Utils {
@@ -148,5 +149,24 @@ public class Utils {
                 return FileVisitResult.CONTINUE;
             }
         });
+    }
+
+    public static long getDirectorySize(Path dirPath) throws IOException {
+        if(!Files.exists(dirPath) || !Files.isDirectory(dirPath)) {
+            throw new IOException("Cannot find the directory.");
+        }
+
+        try(Stream<Path> stream = Files.walk(dirPath)) {
+            return stream.filter(Files::isRegularFile)
+                    .mapToLong(path -> {
+                        try {
+                            return Files.size(path);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            return 0L;
+                        }
+                    })
+                    .sum();
+        }
     }
 }
