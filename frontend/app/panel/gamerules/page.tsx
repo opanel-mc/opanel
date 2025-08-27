@@ -98,7 +98,10 @@ export default function Gamerules() {
                     <div className="space-y-2">
                       <Tooltip>
                         <TooltipTrigger>
-                          <FormLabel className="gap-2">
+                          <FormLabel
+                            className="gap-2"
+                            /** prevent default here, because if not, clicking on labels will trigger submission */
+                            onClick={(e) => e.preventDefault()}>
                             {preset.icon && <preset.icon size={17}/>}
                             {key}
                           </FormLabel>
