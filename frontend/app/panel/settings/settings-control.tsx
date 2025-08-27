@@ -1,3 +1,4 @@
+import type { ChangeEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { changeSettings, getSettings, type SettingsStorageType } from "@/lib/settings";
@@ -19,17 +20,32 @@ export function SettingsInput<K extends keyof SettingsStorageType>({
 
 export function SettingsNumberInput({
   id,
+  min,
+  max,
   ...props
 }: {
   id: keyof SettingsStorageType
+  min?: number
+  max?: number
 } & React.ComponentProps<typeof Input>) {
+  const handleChange = (e: ChangeEvent) => {
+    const value = (e.target as HTMLInputElement).valueAsNumber;
+    if(!value || (min && value < min) || (max && value > max)) {
+      e.preventDefault();
+      return;
+    }
+    changeSettings(id, value);
+  };
+
   return (
     <Input
       {...props}
       className="w-36"
       type="number"
       defaultValue={getSettings(id) as number}
-      onChange={(e) => changeSettings(id, parseInt((e.target as HTMLInputElement).value))}/>
+      min={min}
+      max={max}
+      onChange={(e) => handleChange(e)}/>
   );
 }
 

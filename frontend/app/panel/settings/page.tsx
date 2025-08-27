@@ -48,7 +48,7 @@ export default function Settings() {
             id="dashboard.monitor-interval"
             name="资源监控刷新间隔"
             description="刷新监控数据时间间隔（单位: ms）"
-            control={<SettingsNumberInput id="dashboard.monitor-interval"/>}/>
+            control={<SettingsNumberInput id="dashboard.monitor-interval" min={1}/>}/>
         </Section>
         <Section title="后台终端">
           <SettingsItem
@@ -59,7 +59,7 @@ export default function Settings() {
             id="terminal.font-size"
             name="字体大小"
             description="终端内字体显示大小（单位: px）"
-            control={<SettingsNumberInput id="terminal.font-size"/>}/>
+            control={<SettingsNumberInput id="terminal.font-size" min={1} max={30}/>}/>
           <SettingsItem
             id="terminal.log-level"
             name="日志等级"
@@ -105,7 +105,7 @@ export default function Settings() {
             id="monaco.font-size"
             name="字体大小"
             description="编辑器内字体显示大小（单位: px）"
-            control={<SettingsNumberInput id="monaco.font-size"/>}/>
+            control={<SettingsNumberInput id="monaco.font-size" min={1} max={30}/>}/>
         </Section>
         <Section title="安全">
           <SettingsItem
