@@ -3,10 +3,11 @@
 <img src="./images/brand.svg" width="300"/>
 
 <br>
+<br>
 
 [![test](https://img.shields.io/github/actions/workflow/status/nocpiun/opanel/build.yml)](https://github.com/nocpiun/opanel/actions/workflows/build.yml)
-[![Stars](https://img.shields.io/github/stars/nocpiun/opanel.svg?label=Stars)](https://github.com/nocpiun/opanel/stargazers)
 [![LICENSE](https://img.shields.io/badge/license-MPL_2.0-blue.svg "LICENSE")](./LICENSE)
+[![Stars](https://img.shields.io/github/stars/nocpiun/opanel.svg?label=Stars)](https://github.com/nocpiun/opanel/stargazers)
 
 > A Minecraft server management panel
 

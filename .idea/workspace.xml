@@ -4,17 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="Changes">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/app/about/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/about/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/globals.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/app/login/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/login/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/assets/images/logo-dark.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/assets/images/logo-light.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/components/logo.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/components/logo.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
-    </list>
+    <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="Changes" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
