@@ -98,10 +98,10 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     protected boolean authCookie(HttpServletRequest req) {
-        String token = req.getHeader("X-Credential-Token"); // hashed 2
+        String token = req.getHeader("X-Credential-Token"); // salted hashed 3
         if(token == null) return false;
 
-        final String hashedRealKey = Utils.md5(Utils.md5(plugin.getConfig().accessKey)); // hashed 2
-        return token.equals(hashedRealKey);
+        final String hashedRealKey = plugin.getConfig().accessKey; // hashed 2
+        return token.equals(Utils.md5(plugin.getConfig().salt + hashedRealKey));
     }
 }

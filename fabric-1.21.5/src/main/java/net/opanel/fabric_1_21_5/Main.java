@@ -6,7 +6,9 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
 import net.opanel.*;
+import net.opanel.config.OPanelConfiguration;
 import net.opanel.fabric_1_21_5.command.OPanelCommand;
+import net.opanel.fabric_1_21_5.config.ConfigManagerImpl;
 import net.opanel.fabric_1_21_5.terminal.LogListenerManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
@@ -23,7 +25,7 @@ public class Main implements DedicatedServerModInitializer {
     @Override
     public void onInitializeServer() {
         Configuration<OPanelConfiguration> configSrc = ConfigManager.get().register(MODID, OPanelConfiguration.defaultConfig, OPanelConfiguration.class);
-        instance = new OPanel(configSrc.get(), new LoggerImpl(LOGGER));
+        instance = new OPanel(new ConfigManagerImpl(configSrc), new LoggerImpl(LOGGER));
 
         initLogListenerAppender();
 

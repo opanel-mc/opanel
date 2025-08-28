@@ -53,9 +53,9 @@ public class TerminalEndpoint {
 
             switch(packet.type) {
                 case TerminalPacket.AUTH -> {
-                    String token = (String) packet.data; // hashed 2
-                    final String hashedRealKey = Utils.md5(Utils.md5(plugin.getConfig().accessKey)); // hashed 2
-                    if(token != null && token.equals(hashedRealKey)) {
+                    String token = (String) packet.data; // salted hashed 3
+                    final String hashedRealKey = plugin.getConfig().accessKey; // hashed 2
+                    if(token != null && token.equals(Utils.md5(plugin.getConfig().salt + hashedRealKey))) {
                         // Register session
                         sessions.add(session);
                         // Send recent logs

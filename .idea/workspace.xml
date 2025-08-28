@@ -4,7 +4,27 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="Changes" />
+    <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="Changes">
+      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/SecurityServlet.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/config/ConfigManager.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/config/ConfigManagerImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/forge-1.21.5/src/main/java/net/opanel/forge_1_21_5/config/ConfigManagerImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/config/ConfigManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/OPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/OPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/OPanelConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/config/OPanelConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/AuthServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/AuthServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/terminal/TerminalEndpoint.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/terminal/TerminalEndpoint.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/utils/Utils.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/utils/Utils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/BaseServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/BaseServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/WebServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/WebServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forge-1.21.5/src/main/java/net/opanel/forge_1_21_5/Config.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21.5/src/main/java/net/opanel/forge_1_21_5/config/Config.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forge-1.21.5/src/main/java/net/opanel/forge_1_21_5/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21.5/src/main/java/net/opanel/forge_1_21_5/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/login/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/login/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/app/panel/settings/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/settings/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/Main.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

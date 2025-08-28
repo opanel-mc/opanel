@@ -25,13 +25,12 @@ public class AuthServlet extends BaseServlet {
         }
 
         final String submittedKey = reqBody.accessKey; // hashed 1
-        final String realKey = plugin.getConfig().accessKey; // hashed 0
+        final String hashedRealKey = plugin.getConfig().accessKey; // hashed 2
         final String hashedSubmittedKey = Utils.md5(submittedKey); // hashed 2
-        final String hashedRealKey = Utils.md5(Utils.md5(realKey)); // hashed 2
 
         if(hashedSubmittedKey.equals(hashedRealKey)) {
             HashMap<String, Object> obj = new HashMap<>();
-            obj.put("token", hashedRealKey); // hashed 2
+            obj.put("token", Utils.md5(plugin.getConfig().salt + hashedRealKey)); // salted hashed 3
             sendResponse(res, obj);
         } else {
             sendResponse(res, HttpServletResponse.SC_UNAUTHORIZED);

@@ -2,8 +2,9 @@ package net.opanel.spigot_1_21_5;
 
 import de.tr7zw.changeme.nbtapi.NBT;
 import net.opanel.OPanel;
-import net.opanel.OPanelConfiguration;
+import net.opanel.config.OPanelConfiguration;
 import net.opanel.spigot_1_21_5.command.OPanelCommand;
+import net.opanel.spigot_1_21_5.config.ConfigManagerImpl;
 import net.opanel.spigot_1_21_5.terminal.LogListenerManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.bukkit.Bukkit;
@@ -48,13 +49,7 @@ public class Main extends JavaPlugin implements Listener {
         final LoggerImpl logger = new LoggerImpl(LOGGER);
 
         saveDefaultConfig();
-        FileConfiguration configSrc = getConfig();
-        final OPanelConfiguration config = new OPanelConfiguration(
-                configSrc.getString("accessKey"),
-                configSrc.getInt("webServerPort")
-        );
-
-        instance = new OPanel(config, logger);
+        instance = new OPanel(new ConfigManagerImpl(getConfig()), logger);
 
         initLogListenerAppender();
         initServerTickListener();

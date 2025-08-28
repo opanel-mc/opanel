@@ -11,8 +11,10 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.opanel.OPanel;
-import net.opanel.OPanelConfiguration;
+import net.opanel.config.OPanelConfiguration;
 import net.opanel.forge_1_21_5.command.OPanelCommand;
+import net.opanel.forge_1_21_5.config.Config;
+import net.opanel.forge_1_21_5.config.ConfigManagerImpl;
 import net.opanel.forge_1_21_5.terminal.LogListenerManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
@@ -34,7 +36,7 @@ public class Main {
 
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
-        instance = new OPanel(new OPanelConfiguration(Config.accessKey, Config.webServerPort), new LoggerImpl(LOGGER));
+        instance = new OPanel(new ConfigManagerImpl(), new LoggerImpl(LOGGER));
         instance.setLogListenerManager(logListenerAppender);
 
         OPanelCommand.instance = instance;

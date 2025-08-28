@@ -9,7 +9,6 @@ import { hasCookie, setCookie } from "cookies-next/client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -32,7 +31,7 @@ import { sendPostRequestWithoutToken } from "@/lib/api";
 import { Brand } from "@/components/logo";
 
 const formSchema = z.object({
-  accessKey: z.string(),
+  accessKey: z.string().nonempty("此项不可为空"),
 });
 
 export default function Login() {
@@ -51,7 +50,6 @@ export default function Login() {
     try {
       const res = await sendPostRequestWithoutToken<{ token: string }>("/api/auth", { accessKey: hashedKey });
       setCookie("token", res.token);
-      toast.success("登录成功");
       router.push("/panel");
     } catch (e: any) {
       if(e.status === 401) {

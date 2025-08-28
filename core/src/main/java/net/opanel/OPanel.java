@@ -1,5 +1,7 @@
 package net.opanel;
 
+import net.opanel.config.ConfigManager;
+import net.opanel.config.OPanelConfiguration;
 import net.opanel.terminal.LogListenerManager;
 import net.opanel.common.OPanelServer;
 import net.opanel.logger.Loggable;
@@ -34,7 +36,7 @@ public class OPanel {
         VERSION = version;
     }
 
-    private final OPanelConfiguration config;
+    private final ConfigManager configManager;
     public final Loggable logger;
 
     private Uptimer uptimer;
@@ -42,8 +44,8 @@ public class OPanel {
     private OPanelServer server;
     private LogListenerManager logListenerManager;
 
-    public OPanel(OPanelConfiguration config, Loggable logger) {
-        this.config = config;
+    public OPanel(ConfigManager configManager, Loggable logger) {
+        this.configManager = configManager;
         this.logger = logger;
         uptimer = new Uptimer();
 
@@ -77,7 +79,11 @@ public class OPanel {
     }
 
     public OPanelConfiguration getConfig() {
-        return config;
+        return configManager.get();
+    }
+
+    public void setConfig(OPanelConfiguration config) {
+        configManager.set(config);
     }
 
     public Uptimer getUptimer() {

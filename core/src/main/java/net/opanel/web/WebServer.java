@@ -60,6 +60,7 @@ public class WebServer {
 
         // API
         ctx.addServlet(new ServletHolder(new AuthServlet(plugin)), AuthServlet.route);
+        ctx.addServlet(new ServletHolder(new SecurityServlet(plugin)), SecurityServlet.route);
         ctx.addServlet(new ServletHolder(new InfoServlet(plugin)), InfoServlet.route);
         ctx.addServlet(new ServletHolder(new ControlServlet(plugin)), ControlServlet.route);
         ctx.addServlet(new ServletHolder(new IconServlet(plugin)), IconServlet.route);

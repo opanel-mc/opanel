@@ -13,8 +13,8 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { SettingsNumberInput, SettingsSwitch } from "./settings-control";
-import { Alert } from "@/components/alert";
 import { Button } from "@/components/ui/button";
+import { SecurityDialog } from "./security-dialog";
 
 function SettingsItem<K extends keyof SettingsStorageType>({
   name,
@@ -112,13 +112,9 @@ export default function Settings() {
             id="security.access-key"
             name="访问密钥"
             control={
-              <Alert
-                title="修改访问密钥"
-                description="访问密钥需在OPanel的配置文件中手动修改，配置文件中的accessKey项即为访问密钥。"
-                cancellable={false}
-                asChild>
+              <SecurityDialog asChild>
                 <Button className="cursor-pointer" size="sm">修改</Button>
-              </Alert>
+              </SecurityDialog>
             }/>
         </Section>
         <div>
