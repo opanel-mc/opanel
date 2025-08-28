@@ -99,7 +99,10 @@ export function SaveSheet({
                         variant="outline"
                         size="icon"
                         className="cursor-pointer"
-                        onClick={() => form.setValue("displayName", field.value + "§")}>
+                        onClick={(e) => {
+                          e.preventDefault();
+                          form.setValue("displayName", field.value + "§");
+                        }}>
                         §
                       </Button>
                     </div>
