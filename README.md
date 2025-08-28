@@ -29,6 +29,14 @@ The feature of OPanel includes:
 - Server terminal that can directly send messages or execute commands from the web panel.
 - Server logs manager and viewer.
 
+### Screenshots
+
+![preview-dashboard](./images/preview-dashboard.png)
+
+![preview-players](./images/preview-players.png)
+
+![preview-terminal](./images/preview-terminal.png)
+
 ## Usage
 
 Just simply download the corresponding jar file from [releases](https://github.com/nocpiun/opanel/releases), and drag it into your plugins / mods folder. After starting your server, you can access the web panel by `localhost:3000`.
