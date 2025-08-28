@@ -6,8 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="Changes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/app/panel/settings/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/settings/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/app/panel/settings/settings-control.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/app/panel/settings/settings-control.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/SpigotSave.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/SpigotSave.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -138,7 +137,7 @@
       <recent name="D:\opanel\core\lib" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.opanel:fabric-1.21.5 [runServer]">
+  <component name="RunManager" selected="Gradle.opanel [build]">
     <configuration name="opanel [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -258,9 +257,9 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.opanel:fabric-1.21.5 [runServer]" />
         <item itemvalue="Gradle.opanel [build]" />
         <item itemvalue="Gradle.opanel [clean]" />
+        <item itemvalue="Gradle.opanel:fabric-1.21.5 [runServer]" />
         <item itemvalue="Gradle.opanel:spigot-1.21.5 [build]" />
         <item itemvalue="Gradle.opanel [clientClasses]" />
       </list>

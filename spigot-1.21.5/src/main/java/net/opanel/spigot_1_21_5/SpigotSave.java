@@ -1,6 +1,7 @@
 package net.opanel.spigot_1_21_5;
 
 import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.handler.NBTHandlers;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelSave;
@@ -10,7 +11,6 @@ import org.bukkit.Server;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
@@ -30,7 +30,9 @@ public class SpigotSave implements OPanelSave {
     }
 
     private void saveNbt() throws IOException {
-        NBT.writeFile(savePath.resolve("level.dat").toFile(), nbt);
+        ReadWriteNBT dataNbt = NBT.createNBTObject();
+        dataNbt.set("Data", nbt, NBTHandlers.STORE_READWRITE_TAG);
+        NBT.writeFile(savePath.resolve("level.dat").toFile(), dataNbt);
     }
 
     @Override
