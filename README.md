@@ -46,6 +46,7 @@ Just simply download the corresponding jar file from [releases](https://github.c
 You can configure OPanel through the config file generated inside your server folder.
 
 - `accessKey`: The access key that you use to access the web panel. _(Default: "123456")_
+- `salt`: The salt used when generating tokens. _(Default: "opanel")_
 - `webServerPort`: The port of the web panel. _(Default: 3000)_
 
 ## Contributing
