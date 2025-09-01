@@ -11,7 +11,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.opanel.OPanel;
-import net.opanel.config.OPanelConfiguration;
 import net.opanel.forge_1_21_5.command.OPanelCommand;
 import net.opanel.forge_1_21_5.config.Config;
 import net.opanel.forge_1_21_5.config.ConfigManagerImpl;

@@ -11,8 +11,11 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/fabric-1.21.5" />
+            <option value="$PROJECT_DIR$/fabric-1.21.8" />
             <option value="$PROJECT_DIR$/forge-1.21.5" />
+            <option value="$PROJECT_DIR$/forge-1.21.8" />
             <option value="$PROJECT_DIR$/spigot-1.21.5" />
+            <option value="$PROJECT_DIR$/spigot-1.21.8" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="true" />
