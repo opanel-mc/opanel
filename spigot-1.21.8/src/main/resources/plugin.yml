@@ -1,0 +1,13 @@
+name: OPanel
+version: ${version}
+main: net.opanel.spigot_1_21_8.Main
+description: A Minecraft server management panel
+author: NriotHrreion
+website:
+api-version: ${minecraft_version}
+
+commands:
+  opanel:
+    description: Get status or about info of OPanel
+    usage: /opanel [about|status]
+    permission: opanel.command.opanel
