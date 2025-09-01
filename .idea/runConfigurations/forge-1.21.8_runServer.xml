@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component>
+  <configuration default="false" factoryName="Application" name="forge-1.21.8 runServer" singleton="false" type="Application">
+    <option name="MAIN_CLASS_NAME" value="net.minecraftforge.bootstrap.ForgeBootstrap"/>
+    <option name="VM_PARAMETERS" value="-Dforge.enableGameTest=true -Djava.net.preferIPv6Addresses=system"/>
+    <option name="PROGRAM_PARAMETERS" value="--launchTarget forge_userdev_server --gameDir . --nogui"/>
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$\forge-1.21.8\run"/>
+    <module name="forge-1.21.8.main"/>
+    <envs>
+      <env name="MOD_CLASSES" value="$PROJECT_DIR$\forge-1.21.8\build\sourcesSets\main"/>
+      <env name="MCP_MAPPINGS" value="official_1.21.8"/>
+    </envs>
+    <method v="2">
+      <option enabled="true" name="Make"/>
+      <option enabled="true" externalProjectPath="$PROJECT_DIR$" name="Gradle.BeforeRunTask" tasks=":forge-1.21.8:prepareRunServerCompile"/>
+    </method>
+  </configuration>
+</component>

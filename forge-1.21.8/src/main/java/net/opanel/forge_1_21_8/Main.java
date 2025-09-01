@@ -1,4 +1,4 @@
-package net.opanel.forge_1_21_5;
+package net.opanel.forge_1_21_8;
 
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.common.MinecraftForge;
@@ -6,15 +6,15 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.opanel.OPanel;
-import net.opanel.forge_1_21_5.command.OPanelCommand;
-import net.opanel.forge_1_21_5.config.Config;
-import net.opanel.forge_1_21_5.config.ConfigManagerImpl;
-import net.opanel.forge_1_21_5.terminal.LogListenerManagerImpl;
+import net.opanel.forge_1_21_8.command.OPanelCommand;
+import net.opanel.forge_1_21_8.config.Config;
+import net.opanel.forge_1_21_8.config.ConfigManagerImpl;
+import net.opanel.forge_1_21_8.terminal.LogListenerManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
 

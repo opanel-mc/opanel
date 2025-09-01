@@ -5,8 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="Changes">
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.8/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.8/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forge-1.21.5/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21.5/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forge-1.21.5/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21.5/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forge-1.21.5/src/main/java/net/opanel/forge_1_21_5/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21.5/src/main/java/net/opanel/forge_1_21_5/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,6 +50,9 @@
         <task path="$PROJECT_DIR$/fabric-1.21.8">
           <activation />
         </task>
+        <task path="$PROJECT_DIR$/forge-1.21.8">
+          <activation />
+        </task>
         <projects_view>
           <tree_state>
             <expand>
@@ -77,9 +85,20 @@
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="opanel" type="f1a62948:ProjectNode" />
-                <item name="fabric-1.21.8" type="2d1252cf:ModuleNode" />
+                <item name="forge-1.21.8" type="2d1252cf:ModuleNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="opanel" type="f1a62948:ProjectNode" />
+                <item name="forge-1.21.8" type="2d1252cf:ModuleNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="fabric" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="opanel" type="f1a62948:ProjectNode" />
+                <item name="forge-1.21.8" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="forgegradle runs" type="c8890929:TasksNode$1" />
               </path>
             </expand>
             <select />
@@ -117,6 +136,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ASKED_ADD_EXTERNAL_FILES": "true",
+    "Gradle.opanel [:forge-1.21.5:createMcpToSrg :forge-1.21.8:createMcpToSrg].executor": "Run",
     "Gradle.opanel [:forge-1.21.5:createMcpToSrg].executor": "Run",
     "Gradle.opanel [build].executor": "Run",
     "Gradle.opanel [clean].executor": "Run",
@@ -133,6 +153,8 @@
     "Gradle.opanel:forge-1.21.5 [clean].executor": "Run",
     "Gradle.opanel:forge-1.21.5 [prepareRunServer].executor": "Run",
     "Gradle.opanel:forge-1.21.5 [runServer].executor": "Run",
+    "Gradle.opanel:forge-1.21.8 [genIntellijRuns].executor": "Run",
+    "Gradle.opanel:forge-1.21.8 [runServer].executor": "Run",
     "Gradle.opanel:paper-1.21.5 [build].executor": "Run",
     "Gradle.opanel:paper-1.21.5 [clean].executor": "Run",
     "Gradle.opanel:spigot-1.21.5 [build].executor": "Run",
@@ -159,7 +181,7 @@
       <recent name="D:\opanel\core\lib" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.opanel:fabric-1.21.8 [runServer]">
+  <component name="RunManager" selected="Gradle.opanel [build]">
     <configuration name="opanel [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -204,28 +226,6 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="opanel:fabric-1.21.5 [runServer]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/fabric-1.21.5" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="runServer" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>false</RunAsTest>
-      <method v="2" />
-    </configuration>
     <configuration name="opanel:fabric-1.21.8 [runServer]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -248,10 +248,10 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="opanel:spigot-1.21.5 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="opanel:forge-1.21.8 [genIntellijRuns]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/spigot-1.21.5" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/forge-1.21.8" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -259,7 +259,29 @@
         </option>
         <option name="taskNames">
           <list>
-            <option value="build" />
+            <option value="genIntellijRuns" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="opanel:forge-1.21.8 [runServer]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/forge-1.21.8" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="runServer" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -271,19 +293,20 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Gradle.opanel:forge-1.21.8 [genIntellijRuns]" />
+      <item itemvalue="Gradle.opanel:forge-1.21.8 [runServer]" />
       <item itemvalue="Gradle.opanel:fabric-1.21.8 [runServer]" />
       <item itemvalue="Gradle.opanel [build]" />
       <item itemvalue="Gradle.opanel [clean]" />
-      <item itemvalue="Gradle.opanel:fabric-1.21.5 [runServer]" />
-      <item itemvalue="Gradle.opanel:spigot-1.21.5 [build]" />
+      <item itemvalue="应用程序.forge-1.21.8 runServer" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.opanel:fabric-1.21.8 [runServer]" />
         <item itemvalue="Gradle.opanel [build]" />
         <item itemvalue="Gradle.opanel [clean]" />
-        <item itemvalue="Gradle.opanel:fabric-1.21.5 [runServer]" />
-        <item itemvalue="Gradle.opanel:spigot-1.21.5 [build]" />
+        <item itemvalue="Gradle.opanel:forge-1.21.8 [runServer]" />
+        <item itemvalue="Gradle.opanel:forge-1.21.8 [genIntellijRuns]" />
+        <item itemvalue="Gradle.opanel:fabric-1.21.8 [runServer]" />
       </list>
     </recent_temporary>
   </component>
