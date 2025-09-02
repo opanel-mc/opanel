@@ -1,0 +1,25 @@
+license="MPL-2.0"
+issueTrackerURL="https://github.com/nocpiun/opanel/issues"
+[[mods]]
+modId="opanel"
+version="${mod_version}"
+displayName="OPanel"
+#displayURL="https://change.me.to.your.mods.homepage.example.invalid/"
+#logoFile="examplemod.png"
+authors="NriotHrreion"
+description='''
+A Minecraft server management panel
+'''
+
+[[dependencies.opanel]]
+    modId="neoforge"
+    type="required"
+    versionRange="[${neo_version},)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.opanel]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
