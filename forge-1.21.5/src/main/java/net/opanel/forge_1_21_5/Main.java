@@ -1,6 +1,8 @@
 package net.opanel.forge_1_21_5;
 
 import com.mojang.logging.LogUtils;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
@@ -19,6 +21,7 @@ import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
 
 @Mod(Main.MODID)
+@OnlyIn(Dist.DEDICATED_SERVER)
 public class Main {
     public static final String MODID = "opanel";
     public static final Logger LOGGER = LogUtils.getLogger();
