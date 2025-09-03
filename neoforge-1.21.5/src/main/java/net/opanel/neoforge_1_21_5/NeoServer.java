@@ -1,4 +1,4 @@
-package net.opanel.neoforge_1_21_8;
+package net.opanel.neoforge_1_21_5;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.CommandNode;

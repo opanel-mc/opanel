@@ -20,7 +20,6 @@ base {
 
 runs {
     server {
-        workingDirectory project.file('run')
         argument '--nogui'
     }
 }
