@@ -1,4 +1,4 @@
-package net.opanel.spigot_1_21_5.command;
+package net.opanel.spigot_1_21.command;
 
 import net.opanel.OPanel;
 import net.opanel.common.Constants;
@@ -6,8 +6,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -19,7 +17,7 @@ public class OPanelCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(args.length != 1) return false;
         switch(args[0]) {
             case "about" -> sender.sendMessage(Constants.ABOUT_INFO);
@@ -28,9 +26,8 @@ public class OPanelCommand implements CommandExecutor, TabCompleter {
         return true;
     }
 
-    @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if(args.length != 1) return List.of();
         return List.of("about", "status");
     }

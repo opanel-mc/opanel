@@ -1,4 +1,4 @@
-package net.opanel.spigot_1_21_5;
+package net.opanel.spigot_1_21;
 
 import net.opanel.common.OPanelWhitelist;
 import org.bukkit.OfflinePlayer;

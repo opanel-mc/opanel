@@ -5,24 +5,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="Changes">
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/spigot-1.21/gradle.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.8/build.gradle" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.8/gradle.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.8/src/main/java/net/opanel/spigot_1_21_8/LoggerImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.8/src/main/java/net/opanel/spigot_1_21_8/Main.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.8/src/main/java/net/opanel/spigot_1_21_8/SpigotOfflinePlayer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.8/src/main/java/net/opanel/spigot_1_21_8/SpigotPlayer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.8/src/main/java/net/opanel/spigot_1_21_8/SpigotSave.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.8/src/main/java/net/opanel/spigot_1_21_8/SpigotServer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.8/src/main/java/net/opanel/spigot_1_21_8/SpigotWhitelist.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.8/src/main/java/net/opanel/spigot_1_21_8/command/OPanelCommand.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.8/src/main/java/net/opanel/spigot_1_21_8/config/ConfigManagerImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.8/src/main/java/net/opanel/spigot_1_21_8/terminal/LogListenerManagerImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.8/src/main/resources/config.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.8/src/main/resources/plugin.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/gradle.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/LoggerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21/src/main/java/net/opanel/spigot_1_21/LoggerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21/src/main/java/net/opanel/spigot_1_21/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/SpigotOfflinePlayer.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21/src/main/java/net/opanel/spigot_1_21/SpigotOfflinePlayer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/SpigotPlayer.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21/src/main/java/net/opanel/spigot_1_21/SpigotPlayer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/SpigotSave.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21/src/main/java/net/opanel/spigot_1_21/SpigotSave.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/SpigotServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21/src/main/java/net/opanel/spigot_1_21/SpigotServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/SpigotWhitelist.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21/src/main/java/net/opanel/spigot_1_21/SpigotWhitelist.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/command/OPanelCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21/src/main/java/net/opanel/spigot_1_21/command/OPanelCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/config/ConfigManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21/src/main/java/net/opanel/spigot_1_21/config/ConfigManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/src/main/java/net/opanel/spigot_1_21_5/terminal/LogListenerManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21/src/main/java/net/opanel/spigot_1_21/terminal/LogListenerManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/src/main/resources/config.yml" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21/src/main/resources/config.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spigot-1.21.5/src/main/resources/plugin.yml" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21/src/main/resources/plugin.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,24 +76,6 @@
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="opanel" type="f1a62948:ProjectNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="opanel" type="f1a62948:ProjectNode" />
-                <item name="spigot-1.21.5" type="2d1252cf:ModuleNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="opanel" type="f1a62948:ProjectNode" />
-                <item name="spigot-1.21.5" type="2d1252cf:ModuleNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="opanel" type="f1a62948:ProjectNode" />
-                <item name="spigot-1.21.5" type="2d1252cf:ModuleNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
               </path>
             </expand>
             <select />
@@ -182,7 +164,7 @@
       <recent name="D:\opanel\core\lib" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.opanel:spigot-1.21.5 [build]">
+  <component name="RunManager" selected="Gradle.opanel:spigot-1.21 [build]">
     <configuration name="Neoforge-1.21.5: Client" type="Application" factoryName="Application">
       <envs>
         <env name="MOD_CLASSES" value="neoforge-1.21.5%%D:\opanel\neoforge-1.21.5\build\sourcesSets\main;neoforge-1.21.5%%D:\opanel\neoforge-1.21.5\build\sourcesSets\main" />
@@ -333,28 +315,6 @@
         <option name="Gradle.BeforeRunTask" enabled="true" tasks="ideBeforeRun" externalProjectPath="$PROJECT_DIR$/neoforge-1.21.8" />
       </method>
     </configuration>
-    <configuration name="opanel [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="build" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>false</RunAsTest>
-      <method v="2" />
-    </configuration>
     <configuration name="opanel [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -377,10 +337,10 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="opanel:forge-1.21.5 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="opanel:spigot-1.21 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/forge-1.21.5" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/spigot-1.21" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -399,10 +359,10 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="opanel:neoforge-1.21.5 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="opanel:spigot-1.21 [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/neoforge-1.21.5" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/spigot-1.21" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -410,7 +370,7 @@
         </option>
         <option name="taskNames">
           <list>
-            <option value="build" />
+            <option value="clean" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -433,6 +393,28 @@
         <option name="taskNames">
           <list>
             <option value="build" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="opanel:spigot-1.21.5 [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/spigot-1.21.5" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="clean" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -478,10 +460,10 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="Gradle.opanel:forge-1.21.5 [build]" />
-      <item itemvalue="Gradle.opanel:neoforge-1.21.5 [build]" />
+      <item itemvalue="Gradle.opanel:spigot-1.21 [build]" />
+      <item itemvalue="Gradle.opanel:spigot-1.21 [clean]" />
       <item itemvalue="Gradle.opanel:spigot-1.21.5 [build]" />
-      <item itemvalue="Gradle.opanel [build]" />
+      <item itemvalue="Gradle.opanel:spigot-1.21.5 [clean]" />
       <item itemvalue="Gradle.opanel [clean]" />
       <item itemvalue="JUnit.Neoforge-1.21.5: Junit" />
       <item itemvalue="JUnit.Neoforge-1.21.8: Junit" />
@@ -499,11 +481,11 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.opanel:spigot-1.21 [build]" />
+        <item itemvalue="Gradle.opanel:spigot-1.21 [clean]" />
+        <item itemvalue="Gradle.opanel:spigot-1.21.5 [clean]" />
         <item itemvalue="Gradle.opanel:spigot-1.21.5 [build]" />
         <item itemvalue="Gradle.opanel [clean]" />
-        <item itemvalue="Gradle.opanel:forge-1.21.5 [build]" />
-        <item itemvalue="Gradle.opanel [build]" />
-        <item itemvalue="Gradle.opanel:neoforge-1.21.5 [build]" />
       </list>
     </recent_temporary>
   </component>

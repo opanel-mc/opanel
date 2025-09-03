@@ -1,4 +1,4 @@
-package net.opanel.spigot_1_21_5.config;
+package net.opanel.spigot_1_21.config;
 
 import net.opanel.config.ConfigManager;
 import net.opanel.config.OPanelConfiguration;

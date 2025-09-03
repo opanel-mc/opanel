@@ -1,14 +1,12 @@
-package net.opanel.spigot_1_21_5;
+package net.opanel.spigot_1_21;
 
 import de.tr7zw.changeme.nbtapi.NBT;
 import net.opanel.OPanel;
-import net.opanel.config.OPanelConfiguration;
-import net.opanel.spigot_1_21_5.command.OPanelCommand;
-import net.opanel.spigot_1_21_5.config.ConfigManagerImpl;
-import net.opanel.spigot_1_21_5.terminal.LogListenerManagerImpl;
+import net.opanel.spigot_1_21.command.OPanelCommand;
+import net.opanel.spigot_1_21.config.ConfigManagerImpl;
+import net.opanel.spigot_1_21.terminal.LogListenerManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.ServerLoadEvent;

@@ -1,4 +1,4 @@
-package net.opanel.spigot_1_21_5;
+package net.opanel.spigot_1_21;
 
 import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.handler.NBTHandlers;

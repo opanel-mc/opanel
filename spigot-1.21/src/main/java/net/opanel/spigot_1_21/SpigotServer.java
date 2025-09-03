@@ -1,11 +1,10 @@
-package net.opanel.spigot_1_21_5;
+package net.opanel.spigot_1_21;
 
 import net.opanel.ServerType;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelSave;
 import net.opanel.common.OPanelServer;
 import net.opanel.common.OPanelWhitelist;
-import net.opanel.utils.Utils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.help.HelpTopic;
