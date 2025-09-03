@@ -13,6 +13,7 @@ opanel
 ├── core
 ├── fabric-...
 ├── forge-...
+├── neoforge-...
 ├── spigot-...
 └── ...
 ```
@@ -21,6 +22,7 @@ opanel
 - Folder `core` is the core of the whole project, containing a bunch of core logics and features, such as web server and backend API.
 - Folders that starts with `fabric-` are implementations of Fabric mods for different Minecraft versions.
 - Folders that starts with `forge-` are implementations of Forge mods for different Minecraft versions.
+- Folders that starts with `neoforge-` are implementations of Neoforge mods for different Minecraft versions.
 - Folders that starts with `spigot-` are implementations of Bukkit plugins for different Minecraft versions.
 
 As soon as the initialization of the plugin / mod, the program will start a web server on the specified port (default `3000`), which contains the frontend app and the backend API.
@@ -39,7 +41,7 @@ After cloning the repo, you're supposed to install all dependencies to run the a
 
 ### Gradle dependencies
 
-1. Open the project with Intellij IDEA, and the IDEA will automatically start a task to download dependencies.
+1. Open the project with Intellij IDEA, and the IDEA will automatically start a sync task to download dependencies.
 
 2. After the task ends, click on the gradle icon in the right sidebar. If you can find the task `fabric/runServer` in the menu, the Gradle dependencies are correctly installed.
 
@@ -67,9 +69,9 @@ Run the task `fabric/runServer` in the gradle menu. After the server fully start
 
 **Note: Usually, we don't use the production version to develop the frontend app.**
 
-#### Forge / Bukkit (Spigot and Paper)
+#### Forge / Neoforge / Bukkit (Spigot and Paper)
 
-Setup a forge / bukkit test server in advance. Follow the following guides to build the jar files, and then copy the corresponding jar file into your mods or plugins folder. After executing command `/reload` (`/reload confirm` if you are using Paper), the latest changes will be applied to your test server.
+Setup a forge / neoforge / bukkit test server in advance. Follow the following guides to build the jar files, and then copy the corresponding jar file into your mods or plugins folder. After executing command `/reload` (`/reload confirm` if you are using Paper), the latest changes will be applied to your test server.
 
 ### Frontend
 
