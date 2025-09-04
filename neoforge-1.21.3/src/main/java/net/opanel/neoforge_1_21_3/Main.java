@@ -1,4 +1,4 @@
-package net.opanel.neoforge_1_21;
+package net.opanel.neoforge_1_21_3;
 
 import com.mojang.logging.LogUtils;
 import net.neoforged.api.distmarker.Dist;
@@ -13,10 +13,10 @@ import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.opanel.OPanel;
-import net.opanel.neoforge_1_21.command.OPanelCommand;
-import net.opanel.neoforge_1_21.config.Config;
-import net.opanel.neoforge_1_21.config.ConfigManagerImpl;
-import net.opanel.neoforge_1_21.terminal.LogListenerManagerImpl;
+import net.opanel.neoforge_1_21_3.command.OPanelCommand;
+import net.opanel.neoforge_1_21_3.config.Config;
+import net.opanel.neoforge_1_21_3.config.ConfigManagerImpl;
+import net.opanel.neoforge_1_21_3.terminal.LogListenerManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
 

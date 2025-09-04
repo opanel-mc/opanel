@@ -1,4 +1,4 @@
-package net.opanel.neoforge_1_21.command;
+package net.opanel.neoforge_1_21_3.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
@@ -8,7 +8,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.opanel.OPanel;
 import net.opanel.common.Constants;
-import net.opanel.neoforge_1_21.Main;
+import net.opanel.neoforge_1_21_3.Main;
 
 import static net.minecraft.commands.Commands.*;
 
