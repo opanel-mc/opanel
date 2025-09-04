@@ -28,3 +28,5 @@ include 'forge-1.21.8'
 include 'neoforge-1.21'
 include 'neoforge-1.21.5'
 include 'spigot-1.21'
+
+include 'neoforge-1.21.3'

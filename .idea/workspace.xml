@@ -68,6 +68,9 @@
         <task path="$PROJECT_DIR$/forge-1.21.3">
           <activation />
         </task>
+        <task path="$PROJECT_DIR$/neoforge-1.21.3">
+          <activation />
+        </task>
         <projects_view>
           <tree_state>
             <expand>
@@ -89,18 +92,18 @@
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="opanel" type="f1a62948:ProjectNode" />
-                <item name="forge-1.21.3" type="2d1252cf:ModuleNode" />
+                <item name="neoforge-1.21.3" type="2d1252cf:ModuleNode" />
               </path>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="opanel" type="f1a62948:ProjectNode" />
-                <item name="forge-1.21.3" type="2d1252cf:ModuleNode" />
+                <item name="neoforge-1.21.3" type="2d1252cf:ModuleNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
               </path>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="opanel" type="f1a62948:ProjectNode" />
-                <item name="forge-1.21.3" type="2d1252cf:ModuleNode" />
+                <item name="neoforge-1.21.3" type="2d1252cf:ModuleNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
                 <item name="build" type="c8890929:TasksNode$1" />
               </path>
@@ -165,6 +168,7 @@
     "Gradle.opanel:forge-1.21.8 [runServer].executor": "Run",
     "Gradle.opanel:neoforge-1.21 [build].executor": "Run",
     "Gradle.opanel:neoforge-1.21 [clean].executor": "Run",
+    "Gradle.opanel:neoforge-1.21.3 [build].executor": "Run",
     "Gradle.opanel:neoforge-1.21.5 [build].executor": "Run",
     "Gradle.opanel:neoforge-1.21.5 [clean].executor": "Run",
     "Gradle.opanel:neoforge-1.21.8 [build].executor": "Run",
@@ -197,7 +201,7 @@
       <recent name="D:\opanel\core\lib" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.opanel:forge-1.21.3 [build]">
+  <component name="RunManager" selected="Gradle.opanel:neoforge-1.21.3 [build]">
     <configuration name="Neoforge-1.21: Client" type="Application" factoryName="Application">
       <envs>
         <env name="MOD_CLASSES" value="neoforge-1.21%%D:\opanel\neoforge-1.21\build\sourcesSets\main;neoforge-1.21%%D:\opanel\neoforge-1.21\build\sourcesSets\main" />
@@ -256,6 +260,66 @@
       <method v="2">
         <option name="Make" enabled="true" />
         <option name="Gradle.BeforeRunTask" enabled="true" tasks="ideBeforeRun" externalProjectPath="$PROJECT_DIR$/neoforge-1.21" />
+      </method>
+    </configuration>
+    <configuration name="Neoforge-1.21.3: Client" type="Application" factoryName="Application">
+      <envs>
+        <env name="MOD_CLASSES" value="neoforge-1.21.3%%D:\opanel\neoforge-1.21.3\build\sourcesSets\main;neoforge-1.21.3%%D:\opanel\neoforge-1.21.3\build\sourcesSets\main" />
+      </envs>
+      <option name="MAIN_CLASS_NAME" value="cpw.mods.bootstraplauncher.BootstrapLauncher" />
+      <module name="opanel.neoforge-1.21.3.main" />
+      <option name="PROGRAM_PARAMETERS" value="--launchTarget forgeclientdev --version 21.3.91 --assetIndex asset-index --assetsDir C:\\Users\\Administrator\\.gradle\\caches\\minecraft\\assets --gameDir . --fml.fmlVersion 5.0.8 --fml.mcVersion 1.21.3 --fml.neoForgeVersion 21.3.91 --fml.neoFormVersion 20241023.131943" />
+      <shortenClasspath name="ARGS_FILE" />
+      <option name="VM_PARAMETERS" value="-p C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\cpw.mods\\bootstraplauncher\\2.0.2\\1a2d076cbc33b0520cbacd591224427b2a20047d\\bootstraplauncher-2.0.2.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\cpw.mods\\securejarhandler\\3.0.8\\c0ef95cecd8699a0449053ac7d9c160748d902cd\\securejarhandler-3.0.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm-commons\\9.8\\36e4d212970388e5bd2c5180292012502df461bb\\asm-commons-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm-util\\9.8\\395f1c1f035258511f27bc9b2583d76e4b143f59\\asm-util-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm-analysis\\9.8\\b9747a320844b6cb1eacd90d8ecfd260a16c01d3\\asm-analysis-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm-tree\\9.8\\18419ca5b77a2f81097c741e7872e6ab8d2f40d\\asm-tree-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm\\9.8\\dc19ecb3f7889b7860697215cae99c0f9b6f6b4b\\asm-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\net.neoforged\\JarJarFileSystems\\0.4.1\\78f59f89defcd032ed788b151ca6a0d40ace796a\\JarJarFileSystems-0.4.1.jar --add-modules ALL-MODULE-PATH --add-opens java.base/java.util.jar=cpw.mods.securejarhandler --add-opens java.base/java.lang.invoke=cpw.mods.securejarhandler --add-exports java.base/sun.security.util=cpw.mods.securejarhandler --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Dneoforge.enableGameTest=true -DlegacyClassPath.file=D:\\opanel\\neoforge-1.21.3\\.gradle\\configuration\\neoForm\\neoFormJoined1.21.3-20241023.131943\\steps\\writeMinecraftClasspathClient\\classpath.txt -DignoreList=mixinextras-neoforge-0.5.0.jar,client-extra,neoforge- -Djava.net.preferIPv6Addresses=system" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/neoforge-1.21.3/runs/client" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+        <option name="Gradle.BeforeRunTask" enabled="true" tasks="ideBeforeRun" externalProjectPath="$PROJECT_DIR$/neoforge-1.21.3" />
+      </method>
+    </configuration>
+    <configuration name="Neoforge-1.21.3: Data" type="Application" factoryName="Application">
+      <envs>
+        <env name="MOD_CLASSES" value="neoforge-1.21.3%%D:\opanel\neoforge-1.21.3\build\sourcesSets\main;neoforge-1.21.3%%D:\opanel\neoforge-1.21.3\build\sourcesSets\main" />
+      </envs>
+      <option name="MAIN_CLASS_NAME" value="cpw.mods.bootstraplauncher.BootstrapLauncher" />
+      <module name="opanel.neoforge-1.21.3.main" />
+      <option name="PROGRAM_PARAMETERS" value="--launchTarget forgedatadev --assetIndex asset-index --assetsDir C:\\Users\\Administrator\\.gradle\\caches\\minecraft\\assets --gameDir . --fml.fmlVersion 5.0.8 --fml.mcVersion 1.21.3 --fml.neoForgeVersion 21.3.91 --fml.neoFormVersion 20241023.131943" />
+      <shortenClasspath name="ARGS_FILE" />
+      <option name="VM_PARAMETERS" value="-p C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\cpw.mods\\bootstraplauncher\\2.0.2\\1a2d076cbc33b0520cbacd591224427b2a20047d\\bootstraplauncher-2.0.2.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\cpw.mods\\securejarhandler\\3.0.8\\c0ef95cecd8699a0449053ac7d9c160748d902cd\\securejarhandler-3.0.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm-commons\\9.8\\36e4d212970388e5bd2c5180292012502df461bb\\asm-commons-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm-util\\9.8\\395f1c1f035258511f27bc9b2583d76e4b143f59\\asm-util-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm-analysis\\9.8\\b9747a320844b6cb1eacd90d8ecfd260a16c01d3\\asm-analysis-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm-tree\\9.8\\18419ca5b77a2f81097c741e7872e6ab8d2f40d\\asm-tree-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm\\9.8\\dc19ecb3f7889b7860697215cae99c0f9b6f6b4b\\asm-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\net.neoforged\\JarJarFileSystems\\0.4.1\\78f59f89defcd032ed788b151ca6a0d40ace796a\\JarJarFileSystems-0.4.1.jar --add-modules ALL-MODULE-PATH --add-opens java.base/java.util.jar=cpw.mods.securejarhandler --add-opens java.base/java.lang.invoke=cpw.mods.securejarhandler --add-exports java.base/sun.security.util=cpw.mods.securejarhandler --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -DlegacyClassPath.file=D:\\opanel\\neoforge-1.21.3\\.gradle\\configuration\\neoForm\\neoFormJoined1.21.3-20241023.131943\\steps\\writeMinecraftClasspathData\\classpath.txt -DignoreList=mixinextras-neoforge-0.5.0.jar,client-extra,neoforge- -Djava.net.preferIPv6Addresses=system" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/neoforge-1.21.3/runs/data" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+        <option name="Gradle.BeforeRunTask" enabled="true" tasks="ideBeforeRun" externalProjectPath="$PROJECT_DIR$/neoforge-1.21.3" />
+      </method>
+    </configuration>
+    <configuration name="Neoforge-1.21.3: GameTestServer" type="Application" factoryName="Application">
+      <envs>
+        <env name="MOD_CLASSES" value="neoforge-1.21.3%%D:\opanel\neoforge-1.21.3\build\sourcesSets\main;neoforge-1.21.3%%D:\opanel\neoforge-1.21.3\build\sourcesSets\main" />
+      </envs>
+      <option name="MAIN_CLASS_NAME" value="cpw.mods.bootstraplauncher.BootstrapLauncher" />
+      <module name="opanel.neoforge-1.21.3.main" />
+      <option name="PROGRAM_PARAMETERS" value="--launchTarget forgeserverdev --gameDir . --fml.fmlVersion 5.0.8 --fml.mcVersion 1.21.3 --fml.neoForgeVersion 21.3.91 --fml.neoFormVersion 20241023.131943" />
+      <shortenClasspath name="ARGS_FILE" />
+      <option name="VM_PARAMETERS" value="-p C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\cpw.mods\\bootstraplauncher\\2.0.2\\1a2d076cbc33b0520cbacd591224427b2a20047d\\bootstraplauncher-2.0.2.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\cpw.mods\\securejarhandler\\3.0.8\\c0ef95cecd8699a0449053ac7d9c160748d902cd\\securejarhandler-3.0.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm-commons\\9.8\\36e4d212970388e5bd2c5180292012502df461bb\\asm-commons-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm-util\\9.8\\395f1c1f035258511f27bc9b2583d76e4b143f59\\asm-util-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm-analysis\\9.8\\b9747a320844b6cb1eacd90d8ecfd260a16c01d3\\asm-analysis-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm-tree\\9.8\\18419ca5b77a2f81097c741e7872e6ab8d2f40d\\asm-tree-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm\\9.8\\dc19ecb3f7889b7860697215cae99c0f9b6f6b4b\\asm-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\net.neoforged\\JarJarFileSystems\\0.4.1\\78f59f89defcd032ed788b151ca6a0d40ace796a\\JarJarFileSystems-0.4.1.jar --add-modules ALL-MODULE-PATH --add-opens java.base/java.util.jar=cpw.mods.securejarhandler --add-opens java.base/java.lang.invoke=cpw.mods.securejarhandler --add-exports java.base/sun.security.util=cpw.mods.securejarhandler --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -Dneoforge.enableGameTest=true -Dneoforge.gameTestServer=true -DlegacyClassPath.file=D:\\opanel\\neoforge-1.21.3\\.gradle\\configuration\\neoForm\\neoFormJoined1.21.3-20241023.131943\\steps\\writeMinecraftClasspathGameTestServer\\classpath.txt -DignoreList=mixinextras-neoforge-0.5.0.jar,client-extra,neoforge- -Djava.net.preferIPv6Addresses=system" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/neoforge-1.21.3/runs/gameTestServer" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+        <option name="Gradle.BeforeRunTask" enabled="true" tasks="ideBeforeRun" externalProjectPath="$PROJECT_DIR$/neoforge-1.21.3" />
+      </method>
+    </configuration>
+    <configuration name="Neoforge-1.21.3: Server" type="Application" factoryName="Application">
+      <envs>
+        <env name="MOD_CLASSES" value="neoforge-1.21.3%%D:\opanel\neoforge-1.21.3\build\sourcesSets\main;neoforge-1.21.3%%D:\opanel\neoforge-1.21.3\build\sourcesSets\main" />
+      </envs>
+      <option name="MAIN_CLASS_NAME" value="cpw.mods.bootstraplauncher.BootstrapLauncher" />
+      <module name="opanel.neoforge-1.21.3.main" />
+      <option name="PROGRAM_PARAMETERS" value="--nogui --launchTarget forgeserverdev --gameDir . --fml.fmlVersion 5.0.8 --fml.mcVersion 1.21.3 --fml.neoForgeVersion 21.3.91 --fml.neoFormVersion 20241023.131943" />
+      <shortenClasspath name="ARGS_FILE" />
+      <option name="VM_PARAMETERS" value="-p C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\cpw.mods\\bootstraplauncher\\2.0.2\\1a2d076cbc33b0520cbacd591224427b2a20047d\\bootstraplauncher-2.0.2.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\cpw.mods\\securejarhandler\\3.0.8\\c0ef95cecd8699a0449053ac7d9c160748d902cd\\securejarhandler-3.0.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm-commons\\9.8\\36e4d212970388e5bd2c5180292012502df461bb\\asm-commons-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm-util\\9.8\\395f1c1f035258511f27bc9b2583d76e4b143f59\\asm-util-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm-analysis\\9.8\\b9747a320844b6cb1eacd90d8ecfd260a16c01d3\\asm-analysis-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm-tree\\9.8\\18419ca5b77a2f81097c741e7872e6ab8d2f40d\\asm-tree-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm\\9.8\\dc19ecb3f7889b7860697215cae99c0f9b6f6b4b\\asm-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\net.neoforged\\JarJarFileSystems\\0.4.1\\78f59f89defcd032ed788b151ca6a0d40ace796a\\JarJarFileSystems-0.4.1.jar --add-modules ALL-MODULE-PATH --add-opens java.base/java.util.jar=cpw.mods.securejarhandler --add-opens java.base/java.lang.invoke=cpw.mods.securejarhandler --add-exports java.base/sun.security.util=cpw.mods.securejarhandler --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -DlegacyClassPath.file=D:\\opanel\\neoforge-1.21.3\\.gradle\\configuration\\neoForm\\neoFormJoined1.21.3-20241023.131943\\steps\\writeMinecraftClasspathServer\\classpath.txt -DignoreList=mixinextras-neoforge-0.5.0.jar,client-extra,neoforge- -Djava.net.preferIPv6Addresses=system" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/neoforge-1.21.3/runs/server" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+        <option name="Gradle.BeforeRunTask" enabled="true" tasks="ideBeforeRun" externalProjectPath="$PROJECT_DIR$/neoforge-1.21.3" />
       </method>
     </configuration>
     <configuration name="Neoforge-1.21.5: Client" type="Application" factoryName="Application">
@@ -496,10 +560,10 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="opanel:neoforge-1.21 [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="opanel:neoforge-1.21.3 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/neoforge-1.21" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/neoforge-1.21.3" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -507,7 +571,7 @@
         </option>
         <option name="taskNames">
           <list>
-            <option value="clean" />
+            <option value="build" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -534,6 +598,23 @@
       <method v="2">
         <option name="Make" enabled="true" />
         <option name="Gradle.BeforeRunTask" enabled="true" tasks="ideBeforeRun" externalProjectPath="$PROJECT_DIR$/neoforge-1.21" />
+      </method>
+    </configuration>
+    <configuration name="Neoforge-1.21.3: Junit" type="JUnit" factoryName="JUnit">
+      <module name="opanel.neoforge-1.21.3.test" />
+      <shortenClasspath name="ARGS_FILE" />
+      <option name="TEST_OBJECT" value="pattern" />
+      <option name="VM_PARAMETERS" value="-p C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\cpw.mods\\bootstraplauncher\\2.0.2\\1a2d076cbc33b0520cbacd591224427b2a20047d\\bootstraplauncher-2.0.2.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\cpw.mods\\securejarhandler\\3.0.8\\c0ef95cecd8699a0449053ac7d9c160748d902cd\\securejarhandler-3.0.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm-commons\\9.8\\36e4d212970388e5bd2c5180292012502df461bb\\asm-commons-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm-util\\9.8\\395f1c1f035258511f27bc9b2583d76e4b143f59\\asm-util-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm-analysis\\9.8\\b9747a320844b6cb1eacd90d8ecfd260a16c01d3\\asm-analysis-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm-tree\\9.8\\18419ca5b77a2f81097c741e7872e6ab8d2f40d\\asm-tree-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\org.ow2.asm\\asm\\9.8\\dc19ecb3f7889b7860697215cae99c0f9b6f6b4b\\asm-9.8.jar;C:\\Users\\Administrator\\.gradle\\caches\\modules-2\\files-2.1\\net.neoforged\\JarJarFileSystems\\0.4.1\\78f59f89defcd032ed788b151ca6a0d40ace796a\\JarJarFileSystems-0.4.1.jar --add-modules ALL-MODULE-PATH --add-opens java.base/java.util.jar=cpw.mods.securejarhandler --add-opens java.base/java.lang.invoke=cpw.mods.securejarhandler --add-exports java.base/sun.security.util=cpw.mods.securejarhandler --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -DlegacyClassPath.file=D:\\opanel\\neoforge-1.21.3\\.gradle\\configuration\\neoForm\\neoFormJoined1.21.3-20241023.131943\\steps\\writeMinecraftClasspathJunit\\classpath.txt -DignoreList=mixinextras-neoforge-0.5.0.jar,client-extra,neoforge- -Djava.net.preferIPv6Addresses=system -Dfml.junit.argsfile=D:\\opanel\\neoforge-1.21.3\\runs\\junit\\junit_test_args.txt @D:\\opanel\\neoforge-1.21.3\\runs\\junit\\junit_jvm_args.txt" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/neoforge-1.21.3/runs/junit" />
+      <envs>
+        <env name="MOD_CLASSES" value="neoforge-1.21.3%%D:\opanel\neoforge-1.21.3\build\sourcesSets\main;neoforge-1.21.3%%D:\opanel\neoforge-1.21.3\build\sourcesSets\main;" />
+      </envs>
+      <patterns>
+        <pattern testClass=".*" />
+      </patterns>
+      <method v="2">
+        <option name="Make" enabled="true" />
+        <option name="Gradle.BeforeRunTask" enabled="true" tasks="ideBeforeRun" externalProjectPath="$PROJECT_DIR$/neoforge-1.21.3" />
       </method>
     </configuration>
     <configuration name="Neoforge-1.21.5: Junit" type="JUnit" factoryName="JUnit">
@@ -574,11 +655,16 @@
       <item itemvalue="Gradle.opanel:forge-1.21 [build]" />
       <item itemvalue="Gradle.opanel:forge-1.21.3 [build]" />
       <item itemvalue="Gradle.opanel:neoforge-1.21 [build]" />
-      <item itemvalue="Gradle.opanel:neoforge-1.21 [clean]" />
+      <item itemvalue="Gradle.opanel:neoforge-1.21.3 [build]" />
       <item itemvalue="Gradle.opanel [clean]" />
+      <item itemvalue="JUnit.Neoforge-1.21.3: Junit" />
       <item itemvalue="JUnit.Neoforge-1.21: Junit" />
       <item itemvalue="JUnit.Neoforge-1.21.5: Junit" />
       <item itemvalue="JUnit.Neoforge-1.21.8: Junit" />
+      <item itemvalue="应用程序.Neoforge-1.21.3: Client" />
+      <item itemvalue="应用程序.Neoforge-1.21.3: Data" />
+      <item itemvalue="应用程序.Neoforge-1.21.3: GameTestServer" />
+      <item itemvalue="应用程序.Neoforge-1.21.3: Server" />
       <item itemvalue="应用程序.Neoforge-1.21: Client" />
       <item itemvalue="应用程序.Neoforge-1.21: Data" />
       <item itemvalue="应用程序.Neoforge-1.21: GameTestServer" />
@@ -597,11 +683,11 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.opanel:neoforge-1.21.3 [build]" />
+        <item itemvalue="Gradle.opanel [clean]" />
         <item itemvalue="Gradle.opanel:forge-1.21.3 [build]" />
         <item itemvalue="Gradle.opanel:forge-1.21 [build]" />
-        <item itemvalue="Gradle.opanel [clean]" />
         <item itemvalue="Gradle.opanel:neoforge-1.21 [build]" />
-        <item itemvalue="Gradle.opanel:neoforge-1.21 [clean]" />
       </list>
     </recent_temporary>
   </component>

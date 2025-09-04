@@ -38,7 +38,7 @@ The following target platforms and minecraft versions are supported:
 |Bukkit / Spigot / Paper|>=1.21|
 |Fabric|>=1.21.5|
 |Forge|1.21-1.21.1, >=1.21.3|
-|Neoforge|1.21-1.21.1, >=1.21.5|
+|Neoforge|1.21-1.21.1, >=1.21.3|
 
 ### Screenshots
 
