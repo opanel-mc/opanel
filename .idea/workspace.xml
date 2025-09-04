@@ -5,11 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="Changes">
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/neoforge-1.21/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21/src/main/java/net/opanel/neoforge_1_21/NeoServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/neoforge-1.21/src/main/java/net/opanel/neoforge_1_21/NeoServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forge-1.21.5/src/main/java/net/opanel/forge_1_21_5/config/Config.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21.5/src/main/java/net/opanel/forge_1_21_5/config/Config.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forge-1.21.5/src/main/java/net/opanel/forge_1_21_5/config/ConfigManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21.5/src/main/java/net/opanel/forge_1_21_5/config/ConfigManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forge-1.21.8/src/main/java/net/opanel/forge_1_21_8/config/Config.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21.8/src/main/java/net/opanel/forge_1_21_8/config/Config.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forge-1.21.8/src/main/java/net/opanel/forge_1_21_8/config/ConfigManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21.8/src/main/java/net/opanel/forge_1_21_8/config/ConfigManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forge-1.21/src/main/java/net/opanel/forge_1_21/config/Config.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21/src/main/java/net/opanel/forge_1_21/config/Config.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forge-1.21/src/main/java/net/opanel/forge_1_21/config/ConfigManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21/src/main/java/net/opanel/forge_1_21/config/ConfigManagerImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -594,8 +596,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="Gradle.opanel:forge-1.21 [build]" />
-        <item itemvalue="Gradle.opanel:neoforge-1.21 [build]" />
         <item itemvalue="Gradle.opanel [clean]" />
+        <item itemvalue="Gradle.opanel:neoforge-1.21 [build]" />
         <item itemvalue="Gradle.opanel:neoforge-1.21 [clean]" />
         <item itemvalue="Gradle.opanel [build]" />
       </list>
