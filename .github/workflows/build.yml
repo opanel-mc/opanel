@@ -43,8 +43,6 @@ jobs:
       with:
         java-version: ${{ matrix.java-version }}
         distribution: "microsoft"
-    - name: Use Gradle
-      uses: gradle/actions/setup-gradle@v4
     - name: Change wrapper permissions
       run: chmod +x ./gradlew
 
