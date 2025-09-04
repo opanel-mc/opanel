@@ -20,11 +20,13 @@ dependencies {
 }
 
 tasks.register('generateOPanelProperties') {
+    def resourcesDir = sourceSets.main.output.resourcesDir
+    def propertiesFile = new File(resourcesDir, "opanel.properties")
+    outputs.file(propertiesFile)
+
     doLast {
-        def resourcesDir = sourceSets.main.output.resourcesDir
         resourcesDir.mkdirs()
 
-        def propertiesFile = new File(resourcesDir, "opanel.properties")
         propertiesFile.createNewFile()
         Properties props = new Properties()
         props.setProperty("version", project.version.toString())
