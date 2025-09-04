@@ -1,4 +1,4 @@
-package net.opanel.neoforge_1_21;
+package net.opanel.forge_1_21;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.CommandNode;
@@ -17,6 +17,7 @@ import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelSave;
 import net.opanel.common.OPanelServer;
 import net.opanel.common.OPanelWhitelist;
+import net.opanel.utils.Utils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -26,11 +27,11 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class NeoServer implements OPanelServer {
+public class ForgeServer implements OPanelServer {
     private final MinecraftServer server;
     private final DedicatedServer dedicatedServer;
 
-    public NeoServer(MinecraftServer server) {
+    public ForgeServer(MinecraftServer server) {
         this.server = server;
         dedicatedServer = (DedicatedServer) server;
     }
@@ -95,7 +96,7 @@ public class NeoServer implements OPanelServer {
                     ))
                     .map(Path::toAbsolutePath)
                     .forEach(path -> {
-                        NeoSave save = new NeoSave(server, path);
+                        ForgeSave save = new ForgeSave(server, path);
                         list.add(save);
                     });
         } catch (IOException e) {
@@ -110,7 +111,7 @@ public class NeoServer implements OPanelServer {
         if(!Files.exists(savePath) || !Files.exists(savePath.resolve("level.dat"))) {
             return null;
         }
-        return new NeoSave(server, savePath.toAbsolutePath());
+        return new ForgeSave(server, savePath.toAbsolutePath());
     }
 
     @Override
@@ -123,7 +124,7 @@ public class NeoServer implements OPanelServer {
         List<OPanelPlayer> list = new ArrayList<>();
         List<ServerPlayer> players = server.getPlayerList().getPlayers();
         for(ServerPlayer serverPlayer : players) {
-            NeoPlayer player = new NeoPlayer(serverPlayer);
+            ForgePlayer player = new ForgePlayer(serverPlayer);
             list.add(player);
         }
         return list;
@@ -144,7 +145,7 @@ public class NeoServer implements OPanelServer {
                         if(serverPlayer != null && !serverPlayer.hasDisconnected()) return;
 
                         try {
-                            NeoOfflinePlayer player = new NeoOfflinePlayer(server, UUID.fromString(uuid));
+                            ForgeOfflinePlayer player = new ForgeOfflinePlayer(server, UUID.fromString(uuid));
                             list.add(player);
                         } catch (NullPointerException e) {
                             //
@@ -184,7 +185,7 @@ public class NeoServer implements OPanelServer {
 
     @Override
     public OPanelWhitelist getWhitelist() {
-        return new NeoWhitelist(server.getPlayerList().getWhiteList());
+        return new ForgeWhitelist(server.getPlayerList().getWhiteList());
     }
 
     @Override

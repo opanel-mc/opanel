@@ -1,0 +1,111 @@
+buildscript {
+    repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '[6.0.36,6.2)', changing: true
+    }
+}
+
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'com.gradleup.shadow' version '8.3.8'
+}
+
+apply plugin: 'net.minecraftforge.gradle'
+
+configurations {
+    shadowImplementation
+    implementation.extendsFrom(shadowImplementation)
+}
+
+version = "${rootProject.version}"
+group = "${rootProject.group}"
+
+base {
+    archivesName = 'opanel'
+}
+
+minecraft {
+    mappings channel: 'official', version: minecraft_version
+    reobf = false
+    // enableEclipsePrepareRuns = true
+    // enableIdeaPrepareRuns = true
+    copyIdeResources = true
+    // generateRunFolders = true
+    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+
+    runs {
+        server {
+            workingDirectory project.file('run')
+            args '--nogui'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'forge'
+        url = 'https://maven.minecraftforge.net'
+    }
+    maven {
+        name = 'minecraft libraries'
+        url = 'https://libraries.minecraft.net'
+    }
+}
+
+dependencies {
+    minecraft("net.minecraftforge:forge:${minecraft_version}-${forge_version}")
+
+    shadowImplementation(project(":core")) {
+        // To avoid conflict
+        exclude group: 'com.github.oshi', module: 'oshi-core'
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+    }
+
+    implementation "com.github.oshi:oshi-core:6.8.2"
+}
+
+tasks.named('processResources', ProcessResources) {
+    var replaceProperties = [
+            minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
+            forge_version: forge_version, forge_version_range: forge_version_range,
+            loader_version_range: loader_version_range,
+            mod_version: rootProject.version
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties + [project: project]
+    }
+}
+
+shadowJar {
+    configurations = [project.configurations.shadowImplementation]
+
+    archiveBaseName = baseName +"-build"
+    archiveClassifier = ''
+    destinationDirectory = file "../build/libs"
+
+    relocate 'com.google.gson', 'net.opanel.deps.gson'
+    relocate 'org.objectweb.asm', 'net.opanel.deps.objectweb.asm'
+
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+}
+
+build {
+    dependsOn shadowJar
+}
+
+idea.module { downloadJavadoc = downloadSources = true }
+
+sourceSets.each {
+    def dir = layout.buildDirectory.dir("sourcesSets/$it.name")
+    it.output.resourcesDir = dir
+    it.java.destinationDirectory = dir
+}
