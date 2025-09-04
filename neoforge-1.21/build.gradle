@@ -1,0 +1,83 @@
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'com.gradleup.shadow' version '8.3.8'
+    id 'net.neoforged.gradle.userdev' version '7.0.192'
+}
+
+configurations {
+    shadowImplementation
+    implementation.extendsFrom(shadowImplementation)
+    runtimeClasspath.extendsFrom(localRuntime)
+}
+
+version = "${rootProject.version}"
+group = "${rootProject.group}"
+
+base {
+    archivesName = 'opanel'
+}
+
+runs {
+    server {
+        argument '--nogui'
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "net.neoforged:neoforge:${neo_version}"
+
+    shadowImplementation(project(":core")) {
+        // To avoid conflict
+        exclude group: 'com.github.oshi', module: 'oshi-core'
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+    }
+
+    implementation "com.github.oshi:oshi-core:6.8.2"
+}
+
+tasks.named('processResources', ProcessResources) {
+    var replaceProperties = [
+            minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
+            neo_version: neo_version,
+            loader_version_range: loader_version_range,
+            mod_version: rootProject.version
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/neoforge.mods.toml']) {
+        expand replaceProperties + [project: project]
+    }
+}
+
+shadowJar {
+    configurations = [project.configurations.shadowImplementation]
+
+    archiveBaseName = baseName +"-build"
+    archiveClassifier = ''
+    destinationDirectory = file "../build/libs"
+
+    relocate 'com.google.gson', 'net.opanel.deps.gson'
+    relocate 'com.google.errorprone', 'net.opanel.deps.errorprone'
+    relocate 'org.objectweb.asm', 'net.opanel.deps.objectweb.asm'
+
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+}
+
+build {
+    dependsOn shadowJar
+}
+
+idea.module { downloadJavadoc = downloadSources = true }
+
+sourceSets.each {
+    def dir = layout.buildDirectory.dir("sourcesSets/$it.name")
+    it.output.resourcesDir = dir
+    it.java.destinationDirectory = dir
+}
