@@ -44,11 +44,12 @@ jobs:
       with:
         java-version: ${{ matrix.java-version }}
         distribution: "microsoft"
+        cache: "gradle"
     - name: Change wrapper permissions
       run: chmod +x ./gradlew
 
     - name: Building jar files
-      run: ./gradlew clean build --refresh-dependencies --stacktrace
+      run: ./gradlew build
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
