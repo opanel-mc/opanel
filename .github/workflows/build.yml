@@ -44,15 +44,11 @@ jobs:
       with:
         java-version: ${{ matrix.java-version }}
         distribution: "microsoft"
-    - name: Use Gradle ${{ matrix.gradle-version }}
-      uses: gradle/actions/setup-gradle@v4
-      with:
-        gradle-version: ${{ matrix.gradle-version }}
     - name: Change wrapper permissions
       run: chmod +x ./gradlew
 
     - name: Building jar files
-      run: ./gradlew build
+      run: ./gradlew clean build --refresh-dependencies --stacktrace
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
