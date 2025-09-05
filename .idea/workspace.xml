@@ -4,40 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="Changes">
-      <change beforePath="$PROJECT_DIR$/.github/workflows/build.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/build.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21.3/build.gradle" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21.3/gradle.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21.3/src/main/java/net/opanel/neoforge_1_21_3/LoggerImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21.3/src/main/java/net/opanel/neoforge_1_21_3/Main.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21.3/src/main/java/net/opanel/neoforge_1_21_3/NeoOfflinePlayer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21.3/src/main/java/net/opanel/neoforge_1_21_3/NeoPlayer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21.3/src/main/java/net/opanel/neoforge_1_21_3/NeoSave.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21.3/src/main/java/net/opanel/neoforge_1_21_3/NeoServer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21.3/src/main/java/net/opanel/neoforge_1_21_3/NeoWhitelist.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21.3/src/main/java/net/opanel/neoforge_1_21_3/command/OPanelCommand.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21.3/src/main/java/net/opanel/neoforge_1_21_3/config/Config.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21.3/src/main/java/net/opanel/neoforge_1_21_3/config/ConfigManagerImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21.3/src/main/java/net/opanel/neoforge_1_21_3/terminal/LogListenerManagerImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21.3/src/main/resources/META-INF/neoforge.mods.toml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21/build.gradle" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21/gradle.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21/src/main/java/net/opanel/neoforge_1_21/LoggerImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21/src/main/java/net/opanel/neoforge_1_21/Main.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21/src/main/java/net/opanel/neoforge_1_21/NeoOfflinePlayer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21/src/main/java/net/opanel/neoforge_1_21/NeoPlayer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21/src/main/java/net/opanel/neoforge_1_21/NeoSave.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21/src/main/java/net/opanel/neoforge_1_21/NeoServer.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21/src/main/java/net/opanel/neoforge_1_21/NeoWhitelist.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21/src/main/java/net/opanel/neoforge_1_21/command/OPanelCommand.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21/src/main/java/net/opanel/neoforge_1_21/config/Config.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21/src/main/java/net/opanel/neoforge_1_21/config/ConfigManagerImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21/src/main/java/net/opanel/neoforge_1_21/terminal/LogListenerManagerImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21/src/main/resources/META-INF/neoforge.mods.toml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
-    </list>
+    <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="Changes" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
