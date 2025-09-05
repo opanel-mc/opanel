@@ -35,6 +35,7 @@ jobs:
     strategy:
       matrix:
         java-version: [21]
+        gradle-version: [8.14]
 
     steps:
     - uses: actions/checkout@v4
@@ -43,6 +44,10 @@ jobs:
       with:
         java-version: ${{ matrix.java-version }}
         distribution: "microsoft"
+    - name: Use Gradle ${{ matrix.gradle-version }}
+      uses: gradle/actions/setup-gradle@v4
+      with:
+        gradle-version: ${{ matrix.gradle-version }}
     - name: Change wrapper permissions
       run: chmod +x ./gradlew
 
