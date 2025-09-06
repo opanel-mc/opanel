@@ -7,8 +7,20 @@
     <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="Changes">
       <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.5/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.5/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.5/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.5/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/java/net/opanel/fabric_1_21_3/FabricOfflinePlayer.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/FabricOfflinePlayer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/java/net/opanel/fabric_1_21_3/FabricPlayer.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/FabricPlayer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/java/net/opanel/fabric_1_21_3/FabricSave.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/FabricSave.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/java/net/opanel/fabric_1_21_3/FabricServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/FabricServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/java/net/opanel/fabric_1_21_3/FabricWhitelist.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/FabricWhitelist.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/java/net/opanel/fabric_1_21_3/LoggerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/LoggerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/java/net/opanel/fabric_1_21_3/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/java/net/opanel/fabric_1_21_3/command/OPanelCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/command/OPanelCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/java/net/opanel/fabric_1_21_3/config/ConfigManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/config/ConfigManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/java/net/opanel/fabric_1_21_3/terminal/LogListenerManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/terminal/LogListenerManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/resources/assets/opanel/icon.png" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/resources/assets/opanel/icon.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/resources/fabric.mod.json" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/resources/fabric.mod.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -75,6 +87,12 @@
         <task path="$PROJECT_DIR$/fabric-1.21.3">
           <activation />
         </task>
+        <task path="$PROJECT_DIR$/fabric-1.21">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$/fabric-1.21.2">
+          <activation />
+        </task>
         <projects_view>
           <tree_state>
             <expand>
@@ -90,24 +108,18 @@
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="opanel" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
+                <item name="fabric-1.21.2" type="2d1252cf:ModuleNode" />
               </path>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="opanel" type="f1a62948:ProjectNode" />
-                <item name="fabric-1.21.3" type="2d1252cf:ModuleNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="opanel" type="f1a62948:ProjectNode" />
-                <item name="fabric-1.21.3" type="2d1252cf:ModuleNode" />
+                <item name="fabric-1.21.2" type="2d1252cf:ModuleNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
               </path>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="opanel" type="f1a62948:ProjectNode" />
-                <item name="fabric-1.21.3" type="2d1252cf:ModuleNode" />
+                <item name="fabric-1.21.2" type="2d1252cf:ModuleNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
                 <item name="build" type="c8890929:TasksNode$1" />
               </path>
@@ -157,6 +169,7 @@
     "Gradle.opanel [runServer].executor": "Run",
     "Gradle.opanel:bukkit-1.21.5 [build].executor": "Run",
     "Gradle.opanel:bukkit-1.21.5 [clean].executor": "Run",
+    "Gradle.opanel:fabric-1.21.2 [build].executor": "Run",
     "Gradle.opanel:fabric-1.21.3 [build].executor": "Run",
     "Gradle.opanel:fabric-1.21.5 [build].executor": "Run",
     "Gradle.opanel:fabric-1.21.5 [clean].executor": "Run",
@@ -206,7 +219,7 @@
       <recent name="D:\opanel\core\lib" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.opanel:fabric-1.21.3 [build]">
+  <component name="RunManager" selected="Gradle.opanel:fabric-1.21.2 [build]">
     <configuration name="Neoforge-1.21: Client" type="Application" factoryName="Application">
       <envs>
         <env name="MOD_CLASSES" value="neoforge-1.21%%D:\opanel\neoforge-1.21\build\sourcesSets\main;neoforge-1.21%%D:\opanel\neoforge-1.21\build\sourcesSets\main" />
@@ -521,10 +534,10 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="opanel:fabric-1.21.3 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="opanel:fabric-1.21.2 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/fabric-1.21.3" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/fabric-1.21.2" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -543,10 +556,10 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="opanel:forge-1.21.3 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="opanel:fabric-1.21.3 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/forge-1.21.3" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/fabric-1.21.3" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -657,9 +670,9 @@
       </method>
     </configuration>
     <list>
+      <item itemvalue="Gradle.opanel:fabric-1.21.2 [build]" />
       <item itemvalue="Gradle.opanel:fabric-1.21.3 [build]" />
       <item itemvalue="Gradle.opanel [build]" />
-      <item itemvalue="Gradle.opanel:forge-1.21.3 [build]" />
       <item itemvalue="Gradle.opanel:neoforge-1.21.3 [build]" />
       <item itemvalue="Gradle.opanel [clean]" />
       <item itemvalue="JUnit.Neoforge-1.21.3: Junit" />
@@ -688,11 +701,11 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.opanel:fabric-1.21.3 [build]" />
+        <item itemvalue="Gradle.opanel:fabric-1.21.2 [build]" />
         <item itemvalue="Gradle.opanel [clean]" />
         <item itemvalue="Gradle.opanel [build]" />
+        <item itemvalue="Gradle.opanel:fabric-1.21.3 [build]" />
         <item itemvalue="Gradle.opanel:neoforge-1.21.3 [build]" />
-        <item itemvalue="Gradle.opanel:forge-1.21.3 [build]" />
       </list>
     </recent_temporary>
   </component>
