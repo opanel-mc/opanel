@@ -35,6 +35,7 @@ jobs:
     strategy:
       matrix:
         java-version: [21]
+        gradle-version: [8.14]
 
     steps:
     - uses: actions/checkout@v4
@@ -43,13 +44,12 @@ jobs:
       with:
         java-version: ${{ matrix.java-version }}
         distribution: "microsoft"
-    - name: Use Gradle
-      uses: gradle/actions/setup-gradle@v4
+        cache: "gradle"
     - name: Change wrapper permissions
       run: chmod +x ./gradlew
 
     - name: Building jar files
-      run: ./gradlew build
+      run: ./gradlew build --refresh-dependencies --stacktrace
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:

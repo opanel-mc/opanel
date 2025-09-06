@@ -7,16 +7,16 @@ public class ConfigManagerImpl implements ConfigManager {
     @Override
     public OPanelConfiguration get() {
         return new OPanelConfiguration(
-                Config.accessKey,
-                Config.salt,
-                Config.webServerPort
+                Config.ACCESS_KEY.get(),
+                Config.SALT.get(),
+                Config.WEB_SERVER_PORT.get()
         );
     }
 
     @Override
     public void set(OPanelConfiguration config) {
-        Config.accessKey = config.accessKey;
-        Config.salt = config.salt;
-        Config.webServerPort = config.webServerPort;
+        Config.ACCESS_KEY.set(config.accessKey);
+        Config.SALT.set(config.salt);
+        Config.WEB_SERVER_PORT.set(config.webServerPort);
     }
 }
