@@ -5,23 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="Changes">
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/java/net/opanel/fabric_1_21_3/FabricOfflinePlayer.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/FabricOfflinePlayer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/java/net/opanel/fabric_1_21_3/FabricPlayer.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/FabricPlayer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/java/net/opanel/fabric_1_21_3/FabricSave.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/FabricSave.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/java/net/opanel/fabric_1_21_3/FabricServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/FabricServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/java/net/opanel/fabric_1_21_3/FabricWhitelist.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/FabricWhitelist.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/java/net/opanel/fabric_1_21_3/LoggerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/LoggerImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/java/net/opanel/fabric_1_21_3/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/java/net/opanel/fabric_1_21_3/command/OPanelCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/command/OPanelCommand.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/java/net/opanel/fabric_1_21_3/config/ConfigManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/config/ConfigManagerImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/java/net/opanel/fabric_1_21_3/terminal/LogListenerManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/terminal/LogListenerManagerImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/resources/assets/opanel/icon.png" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/resources/assets/opanel/icon.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.3/src/main/resources/fabric.mod.json" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/resources/fabric.mod.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forge-1.21/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21/build.gradle" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
