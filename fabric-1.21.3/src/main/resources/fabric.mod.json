@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "opanel",
+  "version": "${version}",
+  "name": "OPanel",
+  "description": "A Minecraft server management panel",
+  "authors": [
+    "NriotHrreion"
+  ],
+  "license": "CC0-1.0",
+  "icon": "assets/opanel/icon.png",
+  "environment": "server",
+  "entrypoints": {
+    "server": [
+      "net.opanel.fabric_1_21_3.Main"
+    ]
+  },
+  "mixins": [
+
+  ],
+  "depends": {
+    "fabricloader": ">=${fabric_loader_version}",
+    "minecraft": "~${minecraft_version}",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
