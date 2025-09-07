@@ -7,7 +7,7 @@ modId="opanel"
 version="${mod_version}"
 displayName="OPanel"
 #displayURL="https://change.me.to.your.mods.homepage.example.invalid/"
-#logoFile="examplemod.png"
+logoFile="icon.png"
 authors="NriotHrreion"
 description='''
 A Minecraft server management panel
