@@ -64,6 +64,10 @@ You can configure OPanel through the config file generated inside your server fo
 
 See [Contributing Guidelines](./CONTRIBUTING.md) for more information.
 
+## Friend Links
+
+[<img src="./images/miaocloud.png" width="300"/>](https://cloud.miaostars.com)
+
 ## License
 
 [MPL-2.0](./LICENSE)
