@@ -33,7 +33,7 @@ public class WhitelistServlet extends BaseServlet {
             HashMap<String, Object> obj = new HashMap<>();
             obj.put("whitelist", whitelist.getEntries());
             sendResponse(res, obj);
-        } catch (IOException e) {
+        } catch(IOException e) {
             e.printStackTrace();
             sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
@@ -74,7 +74,7 @@ public class WhitelistServlet extends BaseServlet {
                 }
             }
             sendResponse(res, HttpServletResponse.SC_OK);
-        } catch (IOException e) {
+        } catch(IOException e) {
             e.printStackTrace();
             sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }

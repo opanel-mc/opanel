@@ -72,7 +72,7 @@ public class InfoServlet extends BaseServlet {
         final String reqPath = req.getPathInfo();
         final OPanelServer server = plugin.getServer();
 
-        if("/motd".equals(reqPath)) {
+        if(reqPath.substring(1).equals("motd")) {
             try {
                 String motd = getRequestBody(req, String.class);
                 if(motd == null || motd.trim().isEmpty()) {
@@ -83,10 +83,10 @@ public class InfoServlet extends BaseServlet {
                 String decodedMotd = new String(Base64.getDecoder().decode(motd), StandardCharsets.UTF_8);
                 server.setMotd(decodedMotd);
                 sendResponse(res, HttpServletResponse.SC_OK);
-            } catch (IOException e) {
+            } catch(IOException e) {
                 plugin.logger.error("Failed to update MOTD: " + e.getMessage());
                 sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            } catch (IllegalArgumentException e) {
+            } catch(IllegalArgumentException e) {
                 plugin.logger.error("Invalid Base64 encoding in MOTD: " + e.getMessage());
                 sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
             }

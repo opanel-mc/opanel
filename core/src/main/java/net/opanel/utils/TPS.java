@@ -22,7 +22,7 @@ public class TPS {
             if(start > 0 && end > 0 && end > start) {
                 long duration = end - start;
                 // Filter out unreasonably long durations (likely server pauses)
-                if (duration < PAUSE_THRESHOLD_NS) {
+                if(duration < PAUSE_THRESHOLD_NS) {
                     totalTime += duration;
                     validTicks++;
                 }
@@ -34,7 +34,7 @@ public class TPS {
 
     public static double getRecentTPS() {
         double mspt = getRecentMSPT();
-        if (mspt <= 0) return 20.0;
+        if(mspt <= 0) return 20.0;
         
         double tps = 1000.0 / mspt;
         return Math.min(20.0, Math.max(0.0, tps));

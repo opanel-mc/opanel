@@ -75,7 +75,7 @@ public class SavesServlet extends BaseServlet {
             try {
                 ZipUtility.zip(savePath, zipPath);
                 sendContentResponse(res, Utils.readFile(zipPath), "application/octet-stream");
-            } catch (IOException e) {
+            } catch(IOException e) {
                 e.printStackTrace();
                 sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
@@ -173,7 +173,7 @@ public class SavesServlet extends BaseServlet {
                         stream.forEach(path -> {
                             try {
                                 Utils.copyDirectoryRecursively(path, targetPath.resolve(path.getFileName()));
-                            } catch (IOException e) {
+                            } catch(IOException e) {
                                 e.printStackTrace();
                             }
                         });
@@ -190,11 +190,11 @@ public class SavesServlet extends BaseServlet {
                 }
 
                 sendResponse(res, HttpServletResponse.SC_OK);
-            } catch (ZipException e) {
+            } catch(ZipException e) {
                 plugin.logger.warn("An illegal save zip is detected! This may cause a zip slip, so it is blocked from unzipping to the server.");
                 sendResponse(res, HttpServletResponse.SC_FORBIDDEN);
                 Utils.clearDirectoryRecursively(OPanel.TMP_DIR_PATH);
-            } catch (Exception e) {
+            } catch(Exception e) {
                 e.printStackTrace();
                 sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
@@ -208,7 +208,7 @@ public class SavesServlet extends BaseServlet {
                 save.setDisplayName(reqBody.displayName);
                 save.setDefaultGameMode(OPanelGameMode.fromString(reqBody.defaultGameMode));
                 sendResponse(res, HttpServletResponse.SC_OK);
-            } catch (IOException e) {
+            } catch(IOException e) {
                 e.printStackTrace();
                 sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
@@ -240,7 +240,7 @@ public class SavesServlet extends BaseServlet {
         try {
             save.delete();
             sendResponse(res, HttpServletResponse.SC_OK);
-        } catch (IOException e) {
+        } catch(IOException e) {
             e.printStackTrace();
             sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }

@@ -53,7 +53,7 @@ public class WebServer {
                                 .configurator(new TerminalEndpoint.Configurator())
                                 .build()
                 );
-            } catch (DeploymentException e) {
+            } catch(DeploymentException e) {
                     plugin.logger.error("Failed to deploy WebSocket endpoint: " + e.getMessage());
                     throw new RuntimeException("WebSocket deployment failed", e);
                 }
@@ -82,7 +82,7 @@ public class WebServer {
             public void lifeCycleStopping(LifeCycle event) {
                 try {
                     TerminalEndpoint.closeAllSessions();
-                } catch (IOException e) {
+                } catch(IOException e) {
                     plugin.logger.error("Failed to close WebSocket sessions: " + e.getMessage());
                 }
             }
@@ -90,7 +90,7 @@ public class WebServer {
     }
 
     public void stop() throws Exception {
-        if (server != null && server.isRunning()) {
+        if(server != null && server.isRunning()) {
             server.stop();
             plugin.logger.info("Web server is stopped.");
         }

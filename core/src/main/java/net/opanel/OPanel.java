@@ -25,12 +25,12 @@ public class OPanel {
     static {
         String version = "unknown";
         try(InputStream is = OPanel.class.getClassLoader().getResourceAsStream("opanel.properties")) {
-            if (is != null) {
+            if(is != null) {
                 Properties props = new Properties();
                 props.load(is);
                 version = props.getProperty("version", "unknown");
             }
-        } catch (IOException e) {
+        } catch(IOException e) {
             System.err.println("Failed to load version information: " + e.getMessage());
         }
 
@@ -53,7 +53,7 @@ public class OPanel {
         // Initialize
         try {
             init();
-        } catch (IOException e) {
+        } catch(IOException e) {
             logger.error("Failed to initialize OPanel directories: " + e.getMessage());
             throw new RuntimeException("OPanel initialization failed", e);
         }
@@ -113,12 +113,11 @@ public class OPanel {
     }
 
     public void stop() {
-        if (webServer != null) {
-            try {
-                webServer.stop();
-            } catch (Exception e) {
-                logger.error("Failed to stop web server: " + e.getMessage());
-            }
+        if(webServer == null) return;
+        try {
+            webServer.stop();
+        } catch(Exception e) {
+            logger.error("Failed to stop web server: " + e.getMessage());
         }
     }
 

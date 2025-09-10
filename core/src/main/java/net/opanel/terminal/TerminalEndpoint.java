@@ -42,7 +42,7 @@ public class TerminalEndpoint {
 
     @OnOpen
     public void onOpen(Session session) {
-        logger.info("Terminal connection established. Session: "+ session.getId());
+        // Connection established silently to avoid log spam
     }
 
     @OnMessage
@@ -96,7 +96,7 @@ public class TerminalEndpoint {
                 }
                 default -> sendErrorMessage(session, "Unexpected type of packet.");
             }
-        } catch (JsonSyntaxException e) {
+        } catch(JsonSyntaxException e) {
             logger.error("JSON parsing error in terminal: " + e.getMessage());
             sendErrorMessage(session, "Json syntax error: "+ e.getMessage());
         }
@@ -105,15 +105,15 @@ public class TerminalEndpoint {
     @OnClose
     public void onClose(Session session) {
         sessions.remove(session);
-        logger.info("Terminal connection closed. Session: "+ session.getId());
+        // Connection closed silently to avoid log spam
     }
 
     private <T> void sendMessage(Session session, TerminalPacket<T> packet) {
-        if (session.isOpen()) {
+        if(session.isOpen()) {
             try {
                 Gson gson = new Gson();
                 session.getBasicRemote().sendText(gson.toJson(packet));
-            } catch (IOException e) {
+            } catch(IOException e) {
                 logger.error("Failed to send WebSocket message: " + e.getMessage());
                 sessions.remove(session);
             }
@@ -131,7 +131,7 @@ public class TerminalEndpoint {
             for(Session session : sessions) {
                 try {
                     session.getAsyncRemote().sendText(message);
-                } catch (Exception e) {
+                } catch(Exception e) {
                     logger.error("Failed to broadcast message to session: " + e.getMessage());
                 }
             }

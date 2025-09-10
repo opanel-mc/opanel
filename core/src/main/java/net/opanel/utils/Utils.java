@@ -28,7 +28,7 @@ public class Utils {
                 sb.append(String.format("%02x", b & 0xff));
             }
             return sb.toString();
-        } catch (Exception e) {
+        } catch(Exception e) {
             throw new RuntimeException("Failed to compute MD5 hash", e);
         }
     }
@@ -63,12 +63,6 @@ public class Utils {
     }
 
     public static void writeTextFile(Path filePath, String content) throws IOException {
-        // Create parent directories if they don't exist
-        Path parent = filePath.getParent();
-        if (parent != null && !Files.exists(parent)) {
-            Files.createDirectories(parent);
-        }
-        
         Files.writeString(filePath, content, StandardCharsets.UTF_8, 
                          StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
@@ -103,7 +97,7 @@ public class Utils {
 
             @Override
             public FileVisitResult postVisitDirectory(Path subDir, IOException e) throws IOException {
-                if (e != null) throw e;
+                if(e != null) throw e;
                 Files.delete(subDir);
                 return FileVisitResult.CONTINUE;
             }
@@ -123,7 +117,7 @@ public class Utils {
 
             @Override
             public FileVisitResult postVisitDirectory(Path subDir, IOException e) throws IOException {
-                if (e != null) throw e;
+                if(e != null) throw e;
                 if(!subDir.equals(dirPath)) Files.delete(subDir);
                 return FileVisitResult.CONTINUE;
             }
@@ -142,7 +136,7 @@ public class Utils {
             public FileVisitResult preVisitDirectory(Path subDir, BasicFileAttributes attr) throws IOException {
                 try {
                     Files.copy(subDir, targetPath.resolve(sourcePath.relativize(subDir)), StandardCopyOption.COPY_ATTRIBUTES);
-                } catch (FileAlreadyExistsException e) {
+                } catch(FileAlreadyExistsException e) {
                     //
                 }
                 return FileVisitResult.CONTINUE;
@@ -160,7 +154,7 @@ public class Utils {
                     .mapToLong(path -> {
                         try {
                             return Files.size(path);
-                        } catch (IOException e) {
+                        } catch(IOException e) {
                             // Log error but continue processing other files
                             System.err.println("Failed to get size of file: " + path + ", " + e.getMessage());
                             return 0L;
