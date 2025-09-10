@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Base64;
@@ -15,22 +16,20 @@ public class Utils {
      * @see <a href="https://ithelp.ithome.com.tw/articles/10212717">https://ithelp.ithome.com.tw/articles/10212717</a>
      */
     public static String md5(String str) {
-        if(str == null) return "";
-        final char[] hexDigits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-
+        if(str == null || str.isEmpty()) return "";
+        
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             md.update(str.getBytes(StandardCharsets.UTF_8));
             byte[] bytes = md.digest();
-            StringBuffer sb = new StringBuffer(bytes.length * 2);
-            for(Byte b : bytes) {
-                sb.append(hexDigits[(b >> 4) & 0x0f]);
-                sb.append(hexDigits[b & 0x0f]);
+            
+            StringBuilder sb = new StringBuilder(bytes.length * 2);
+            for(byte b : bytes) {
+                sb.append(String.format("%02x", b & 0xff));
             }
             return sb.toString();
         } catch (Exception e) {
-            e.printStackTrace();
-            return "";
+            throw new RuntimeException("Failed to compute MD5 hash", e);
         }
     }
 
@@ -64,16 +63,14 @@ public class Utils {
     }
 
     public static void writeTextFile(Path filePath, String content) throws IOException {
-        if(!Files.exists(filePath)) {
-            throw new IOException("Cannot find the specified file.");
+        // Create parent directories if they don't exist
+        Path parent = filePath.getParent();
+        if (parent != null && !Files.exists(parent)) {
+            Files.createDirectories(parent);
         }
-
-        String[] splitted = content.split("\n");
-        try(FileWriter fw = new FileWriter(filePath.toString())) {
-            for(int i = 0; i < splitted.length; i++) {
-                fw.write(splitted[i] +"\n");
-            }
-        }
+        
+        Files.writeString(filePath, content, StandardCharsets.UTF_8, 
+                         StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 
     public static String decompressTextGzip(Path gzipPath) throws IOException {
@@ -106,6 +103,7 @@ public class Utils {
 
             @Override
             public FileVisitResult postVisitDirectory(Path subDir, IOException e) throws IOException {
+                if (e != null) throw e;
                 Files.delete(subDir);
                 return FileVisitResult.CONTINUE;
             }
@@ -125,6 +123,7 @@ public class Utils {
 
             @Override
             public FileVisitResult postVisitDirectory(Path subDir, IOException e) throws IOException {
+                if (e != null) throw e;
                 if(!subDir.equals(dirPath)) Files.delete(subDir);
                 return FileVisitResult.CONTINUE;
             }
@@ -162,7 +161,8 @@ public class Utils {
                         try {
                             return Files.size(path);
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            // Log error but continue processing other files
+                            System.err.println("Failed to get size of file: " + path + ", " + e.getMessage());
                             return 0L;
                         }
                     })

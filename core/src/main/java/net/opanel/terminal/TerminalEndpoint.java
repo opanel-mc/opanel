@@ -12,6 +12,7 @@ import net.opanel.utils.Utils;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.Collections;
 
 @ServerEndpoint(value = TerminalEndpoint.route, configurator = TerminalEndpoint.Configurator.class)
 public class TerminalEndpoint {
@@ -20,11 +21,11 @@ public class TerminalEndpoint {
     private final Loggable logger;
     private final LogListenerManager logListenerManager;
 
-    private static final Set<Session> sessions = new HashSet<>();
+    private static final Set<Session> sessions = Collections.synchronizedSet(new HashSet<>());
 
     // To avoid duplicated log listener from registering,
     // which can lead to plenty duplicated logs in the frontend terminal
-    private static boolean hasLogListenerRegistered = false;
+    private static volatile boolean hasLogListenerRegistered = false;
 
     public TerminalEndpoint(OPanel plugin) {
         this.plugin = plugin;
@@ -41,8 +42,7 @@ public class TerminalEndpoint {
 
     @OnOpen
     public void onOpen(Session session) {
-        // logger.info("Terminal connection established. Session: "+ session.getId());
-
+        logger.info("Terminal connection established. Session: "+ session.getId());
     }
 
     @OnMessage
@@ -97,22 +97,26 @@ public class TerminalEndpoint {
                 default -> sendErrorMessage(session, "Unexpected type of packet.");
             }
         } catch (JsonSyntaxException e) {
+            logger.error("JSON parsing error in terminal: " + e.getMessage());
             sendErrorMessage(session, "Json syntax error: "+ e.getMessage());
         }
     }
 
     @OnClose
     public void onClose(Session session) {
-        // logger.info("Terminal connection closed. Session: "+ session.getId());
         sessions.remove(session);
+        logger.info("Terminal connection closed. Session: "+ session.getId());
     }
 
     private <T> void sendMessage(Session session, TerminalPacket<T> packet) {
-        try {
-            Gson gson = new Gson();
-            session.getBasicRemote().sendObject(gson.toJson(packet));
-        } catch (Exception e) {
-            e.printStackTrace(System.err);
+        if (session.isOpen()) {
+            try {
+                Gson gson = new Gson();
+                session.getBasicRemote().sendText(gson.toJson(packet));
+            } catch (IOException e) {
+                logger.error("Failed to send WebSocket message: " + e.getMessage());
+                sessions.remove(session);
+            }
         }
     }
 
@@ -121,9 +125,17 @@ public class TerminalEndpoint {
     }
 
     private <T> void broadcast(TerminalPacket<T> packet) {
-        sessions.forEach(session -> {
-            sendMessage(session, packet);
-        });
+        String message = new Gson().toJson(packet);
+        synchronized (sessions) {
+            sessions.removeIf(session -> !session.isOpen());
+            for(Session session : sessions) {
+                try {
+                    session.getAsyncRemote().sendText(message);
+                } catch (Exception e) {
+                    logger.error("Failed to broadcast message to session: " + e.getMessage());
+                }
+            }
+        }
     }
 
     public static void closeAllSessions() throws IOException {

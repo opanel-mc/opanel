@@ -65,35 +65,46 @@ public abstract class BaseServlet extends HttpServlet {
 
         try(OutputStream os = res.getOutputStream()) {
             os.write(bytes);
+            os.flush();
         } catch (IOException e) {
+            plugin.logger.error("Failed to send content response: " + e.getMessage());
             sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            e.printStackTrace();
         }
     }
 
     protected <T> T getRequestBody(HttpServletRequest req, Class<T> type) throws IOException {
         try (BufferedReader reader = req.getReader()) {
-            String line;
             StringBuilder requestBody = new StringBuilder();
+            String line;
             while((line = reader.readLine()) != null) {
                 requestBody.append(line);
             }
+            
+            String body = requestBody.toString();
+            if (body.trim().isEmpty()) {
+                return null;
+            }
 
             Gson gson = new Gson();
-            return gson.fromJson(requestBody.toString(), type);
+            return gson.fromJson(body, type);
         }
     }
 
     protected <T> T getRequestBody(HttpServletRequest req, Type type) throws IOException {
         try (BufferedReader reader = req.getReader()) {
-            String line;
             StringBuilder requestBody = new StringBuilder();
+            String line;
             while((line = reader.readLine()) != null) {
                 requestBody.append(line);
             }
+            
+            String body = requestBody.toString();
+            if (body.trim().isEmpty()) {
+                return null;
+            }
 
             Gson gson = new Gson();
-            return gson.fromJson(requestBody.toString(), type);
+            return gson.fromJson(body, type);
         }
     }
 
