@@ -20,6 +20,7 @@ plugins {
 rootProject.name = 'opanel'
 
 include 'core'
+include 'fabric-1.20.1'
 include 'fabric-1.21'
 include 'fabric-1.21.2'
 include 'fabric-1.21.5'
