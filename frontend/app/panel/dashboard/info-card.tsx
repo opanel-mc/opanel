@@ -4,7 +4,7 @@ import { useContext } from "react";
 import { PenLine, Power, RotateCw, Settings, UserPen } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { base64ToString, cn } from "@/lib/utils";
 import { apiUrl, sendPostRequest } from "@/lib/api";
 import { InfoContext } from "@/contexts/api-context";
 import { MinecraftText } from "@/components/mc-text";
@@ -36,7 +36,7 @@ function ControlButtonGroup({
           </Button>
         </WhitelistSheet>
       )}
-      <MotdEditor motd={atob(ctx?.motd ?? "")} asChild>
+      <MotdEditor motd={base64ToString(ctx?.motd ?? "")} asChild>
         <Button
           variant="ghost"
           size="icon"
@@ -109,7 +109,7 @@ export function InfoCard({
             </div>
           </div>
           <div className="h-fit text-sm">
-            {ctx && <MinecraftText maxLines={2}>{"§7"+ atob(ctx.motd)}</MinecraftText>}
+            {ctx && <MinecraftText maxLines={2}>{"§7"+ base64ToString(ctx.motd)}</MinecraftText>}
           </div>
         </div>
         <div className="flex flex-col justify-between">
