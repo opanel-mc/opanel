@@ -72,19 +72,12 @@ public abstract class BaseServlet extends HttpServlet {
         try(OutputStream os = res.getOutputStream()) {
             os.write(bytes);
             os.flush();
-<<<<<<< HEAD
         } catch(IOException e) {
             // Only log if response is not committed (avoid startup noise)
             if(!res.isCommitted()) {
-                String errorMsg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
-                plugin.logger.error("Failed to send content response: " + errorMsg, e);
+                plugin.logger.error("Failed to send content response: "+ e.getMessage());
                 sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
-=======
-        } catch (IOException e) {
-            plugin.logger.error("Failed to send content response: " + e.getMessage());
-            sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
->>>>>>> 8258465d3458588541d1b25335ec54adb4503e88
         }
     }
 
