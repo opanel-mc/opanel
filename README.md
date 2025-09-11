@@ -31,13 +31,13 @@ The feature of OPanel includes:
 
 ### Supported platforms and versions
 
-The following target platforms and minecraft versions are supported:
+The following target platforms and minecraft versions are tested and proved to be supported:
 
 |Server Type|Version|
 |---|---|
 |Bukkit / Spigot / Paper|>=1.20|
 |Fabric|1.20.1, >=1.20.4|
-|Forge|1.20.1-1.20.4, 1.21-1.21.1, >=1.21.3|
+|Forge|1.20.1-1.20.4, 1.20.6, 1.21-1.21.1, >=1.21.3|
 |Neoforge|>=1.21.5|
 
 ### Screenshots
