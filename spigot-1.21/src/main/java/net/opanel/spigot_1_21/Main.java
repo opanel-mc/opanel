@@ -59,9 +59,25 @@ public class Main extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
-        if(logListenerAppender != null) disposeLogListenerAppender();
-        if(serverTickListener != null) serverTickListener.cancel();
-        if(instance != null) instance.stop();
+        try {
+            if(logListenerAppender != null) disposeLogListenerAppender();
+        } catch (Exception e) {
+            log.error("Failed to dispose log listener appender: " + e.getMessage());
+        }
+        
+        try {
+            if(serverTickListener != null && !serverTickListener.isCancelled()) {
+                serverTickListener.cancel();
+            }
+        } catch (Exception e) {
+            log.error("Failed to cancel server tick listener: " + e.getMessage());
+        }
+        
+        try {
+            if(instance != null) instance.stop();
+        } catch (Exception e) {
+            log.error("Failed to stop OPanel instance: " + e.getMessage());
+        }
     }
 
     private void initLogListenerAppender() {
@@ -73,9 +89,13 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     private void disposeLogListenerAppender() {
-        final org.apache.logging.log4j.core.Logger logger = (org.apache.logging.log4j.core.Logger) LogManager.getRootLogger();
-        logger.removeAppender(logListenerAppender);
-        logListenerAppender.clearListeners();
+        try {
+            final org.apache.logging.log4j.core.Logger logger = (org.apache.logging.log4j.core.Logger) LogManager.getRootLogger();
+            logger.removeAppender(logListenerAppender);
+            logListenerAppender.clearListeners();
+        } catch (Exception e) {
+            log.error("Error disposing log listener appender: " + e.getMessage());
+        }
     }
 
     private void initServerTickListener() {
@@ -84,12 +104,12 @@ public class Main extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onServerLoad(ServerLoadEvent event) {
-        instance.setServer(new SpigotServer(this, getServer()));
-
         try {
+            instance.setServer(new SpigotServer(this, getServer()));
             instance.getWebServer().start(); // default port 3000
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed to start OPanel web server: " + e.getMessage());
+            Bukkit.getPluginManager().disablePlugin(this);
         }
     }
 

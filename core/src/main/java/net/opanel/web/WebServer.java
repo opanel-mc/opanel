@@ -54,8 +54,9 @@ public class WebServer {
                                 .build()
                 );
             } catch (DeploymentException e) {
-                e.printStackTrace();
-            }
+                    plugin.logger.error("Failed to deploy WebSocket endpoint: " + e.getMessage());
+                    throw new RuntimeException("WebSocket deployment failed", e);
+                }
         });
 
         // API
@@ -82,19 +83,21 @@ public class WebServer {
                 try {
                     TerminalEndpoint.closeAllSessions();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    plugin.logger.error("Failed to close WebSocket sessions: " + e.getMessage());
                 }
             }
         });
     }
 
     public void stop() throws Exception {
-        server.stop();
-        plugin.logger.info("Web server is stopped.");
+        if(server != null && server.isRunning()) {
+            server.stop();
+            plugin.logger.info("Web server is stopped.");
+        }
     }
 
     public boolean isRunning() {
-        return server.isRunning();
+        return server != null && server.isRunning();
     }
 
     public String getJettyVersion() {

@@ -47,15 +47,16 @@ public class InfoServlet extends BaseServlet {
         ingameTimeObj.put("mspt", TPS.getRecentMSPT());
         obj.put("ingameTime", ingameTimeObj);
 
-        List<HashMap<String, Object>> players = new ArrayList<>();
-        for(OPanelPlayer player : server.getOnlinePlayers()) {
-            HashMap<String, Object> playerInfo = new HashMap<>();
-            playerInfo.put("name", player.getName());
-            playerInfo.put("uuid", player.getUUID());
-            playerInfo.put("gamemode", player.getGameMode().getName());
-            playerInfo.put("ping", player.getPing());
-            players.add(playerInfo);
-        }
+        List<HashMap<String, Object>> players = server.getOnlinePlayers().stream()
+                .map(player -> {
+                    HashMap<String, Object> playerInfo = new HashMap<>();
+                    playerInfo.put("name", player.getName());
+                    playerInfo.put("uuid", player.getUUID());
+                    playerInfo.put("gamemode", player.getGameMode().getName());
+                    playerInfo.put("ping", player.getPing());
+                    return playerInfo;
+                })
+                .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
         obj.put("onlinePlayers", players);
 
         sendResponse(res, obj);
@@ -74,16 +75,20 @@ public class InfoServlet extends BaseServlet {
         if(reqPath.substring(1).equals("motd")) {
             try {
                 String motd = getRequestBody(req, String.class);
-                if(motd == null) {
+                if(motd == null || motd.trim().isEmpty()) {
                     sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
                     return;
                 }
 
-                server.setMotd(new String(Base64.getDecoder().decode(motd), StandardCharsets.UTF_8));
+                String decodedMotd = new String(Base64.getDecoder().decode(motd), StandardCharsets.UTF_8);
+                server.setMotd(decodedMotd);
                 sendResponse(res, HttpServletResponse.SC_OK);
             } catch (IOException e) {
-                e.printStackTrace();
+                plugin.logger.error("Failed to update MOTD: " + e.getMessage());
                 sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            } catch (IllegalArgumentException e) {
+                plugin.logger.error("Invalid Base64 encoding in MOTD: " + e.getMessage());
+                sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
             }
         } else {
             sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);

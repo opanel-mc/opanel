@@ -39,3 +39,5 @@ tasks.register('generateOPanelProperties') {
 processResources {
     dependsOn generateOPanelProperties
 }
+
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = JavaLanguageVersion.of(17)

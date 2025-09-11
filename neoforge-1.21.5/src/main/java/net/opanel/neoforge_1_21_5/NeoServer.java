@@ -37,7 +37,7 @@ public class NeoServer implements OPanelServer {
 
     @Override
     public ServerType getServerType() {
-        return ServerType.FORGE;
+        return ServerType.NEOFORGE;
     }
 
     @Override

@@ -11,15 +11,17 @@
 
 > A Minecraft server management panel
 
+English | [中文](README-zh.md)
+
 </div>
 
 ## Description
 
-OPanel is a management panel for Minecraft server administrators, and it comes as a server-side plugin that can be run on Bukkit, Spigot, Paper, Fabric, Forge and Neoforge servers. With the web panel, you can manage your server in a more reliable, intuitive and simple way!
+OPanel is a management panel for Minecraft server administrators, and it comes as a server-side plugin that can be run on Bukkit, Spigot, Paper, Fabric, Forge and NeoForge servers. With the web panel, you can manage your server in a more reliable, intuitive and simple way!
 
 ### Features
 
-The feature of OPanel includes:
+The features of OPanel include:
 
 - Dashboard that provides a comprehensive overview of the server
 - Saves manager that helps you easily upload, download, delete or enable your saves through a simple interface.
@@ -31,13 +33,13 @@ The feature of OPanel includes:
 
 ### Supported platforms and versions
 
-The following target platforms and minecraft versions are supported:
+The following target platforms and minecraft versions are tested and proved to be supported:
 
 |Server Type|Version|
 |---|---|
-|Bukkit / Spigot / Paper|>=1.21|
-|Fabric|>=1.21|
-|Forge|1.21-1.21.1, >=1.21.3|
+|Bukkit / Spigot / Paper|>=1.20|
+|Fabric|1.20.1, >=1.20.4|
+|Forge|1.20.1-1.20.4, 1.20.6, 1.21-1.21.1, >=1.21.3|
 |Neoforge|>=1.21.5|
 
 ### Screenshots
@@ -63,6 +65,10 @@ You can configure OPanel through the config file generated inside your server fo
 ## Contributing
 
 See [Contributing Guidelines](./CONTRIBUTING.md) for more information.
+
+## Friend Links
+
+[<img src="./images/miaocloud.png" width="300"/>](https://cloud.miaostars.com)
 
 ## License
 
