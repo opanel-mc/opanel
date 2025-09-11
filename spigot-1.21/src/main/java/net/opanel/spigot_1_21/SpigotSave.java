@@ -24,7 +24,7 @@ public class SpigotSave implements OPanelSave {
         savePath = path;
         try {
             nbt = NBT.readFile(savePath.resolve("level.dat").toFile()).getCompound("Data");
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

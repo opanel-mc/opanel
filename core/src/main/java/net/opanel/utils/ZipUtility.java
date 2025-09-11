@@ -84,7 +84,7 @@ public class ZipUtility {
                 zin.closeEntry();
                 entry = zin.getNextEntry();
             }
-        } catch(ZipException e) {
+        } catch (ZipException e) {
             throw e;
         }
     }

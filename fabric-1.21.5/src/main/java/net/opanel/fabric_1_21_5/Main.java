@@ -63,13 +63,13 @@ public class Main implements DedicatedServerModInitializer {
     private void onServerStop(MinecraftServer server) {
         try {
             if(logListenerAppender != null) disposeLogListenerAppender();
-        } catch(Exception e) {
+        } catch (Exception e) {
             LOGGER.error("Failed to dispose log listener appender: " + e.getMessage());
         }
         
         try {
             if(instance != null) instance.stop();
-        } catch(Exception e) {
+        } catch (Exception e) {
             LOGGER.error("Failed to stop OPanel instance: " + e.getMessage());
         }
     }

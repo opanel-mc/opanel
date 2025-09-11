@@ -59,7 +59,7 @@ public class PlayersServlet extends BaseServlet {
             obj.put("players", players);
 
             sendResponse(res, obj);
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
