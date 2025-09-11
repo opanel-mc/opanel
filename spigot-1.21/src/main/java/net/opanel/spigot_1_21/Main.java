@@ -30,7 +30,7 @@ public class Main extends JavaPlugin implements Listener {
         try {
             Class.forName("com.destroystokyo.paper.PaperConfig");
             _isPaper = true;
-        } catch(ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             _isPaper = false;
         }
         isPaper = _isPaper;
@@ -61,7 +61,7 @@ public class Main extends JavaPlugin implements Listener {
     public void onDisable() {
         try {
             if(logListenerAppender != null) disposeLogListenerAppender();
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.error("Failed to dispose log listener appender: " + e.getMessage());
         }
         
@@ -69,13 +69,13 @@ public class Main extends JavaPlugin implements Listener {
             if(serverTickListener != null && !serverTickListener.isCancelled()) {
                 serverTickListener.cancel();
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.error("Failed to cancel server tick listener: " + e.getMessage());
         }
         
         try {
             if(instance != null) instance.stop();
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.error("Failed to stop OPanel instance: " + e.getMessage());
         }
     }
@@ -93,7 +93,7 @@ public class Main extends JavaPlugin implements Listener {
             final org.apache.logging.log4j.core.Logger logger = (org.apache.logging.log4j.core.Logger) LogManager.getRootLogger();
             logger.removeAppender(logListenerAppender);
             logListenerAppender.clearListeners();
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.error("Error disposing log listener appender: " + e.getMessage());
         }
     }
@@ -107,7 +107,7 @@ public class Main extends JavaPlugin implements Listener {
         try {
             instance.setServer(new SpigotServer(this, getServer()));
             instance.getWebServer().start(); // default port 3000
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.error("Failed to start OPanel web server: " + e.getMessage());
             Bukkit.getPluginManager().disablePlugin(this);
         }

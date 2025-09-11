@@ -12,6 +12,7 @@ function Log({
   thread,
   source,
   line,
+  thrownMessage,
   simple,
   visible
 }: ConsoleLog & {
@@ -38,7 +39,7 @@ function Log({
     <p
       className={cn(
         "leading-[133%] font-[Consolas] space-x-1",
-        getSettings("terminal.word-wrap") ? "text-wrap wrap-break-word" : "text-nowrap",
+        getSettings("terminal.word-wrap") ? "text-wrap wrap-break-word whitespace-pre-wrap" : "whitespace-pre",
         !visible ? "hidden" : ""
       )}
       style={{ fontSize: getSettings("terminal.font-size") +"px" }}>
@@ -52,9 +53,17 @@ function Log({
         <span className="text-emerald-600 dark:text-emerald-500 max-md:hidden">{`(${sourceName})`}</span>
       )}
       {
-        getSettings("terminal.convert-ansi-code")
-        ? <span dangerouslySetInnerHTML={{ __html: new Convert().toHtml(line) }}/>
-        : <span>{line}</span>
+        thrownMessage == null
+        ? (
+          getSettings("terminal.convert-ansi-code")
+          ? <span dangerouslySetInnerHTML={{ __html: new Convert().toHtml(line) }}/>
+          : <span>{line}</span>
+        )
+        : (
+          getSettings("terminal.convert-ansi-code")
+          ? <span dangerouslySetInnerHTML={{ __html: new Convert().toHtml(line +"\n"+ thrownMessage) }}/>
+          : <span>{line +"\n"+ thrownMessage}</span>
+        )
       }
     </p>
   );

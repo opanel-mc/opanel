@@ -71,7 +71,7 @@ public class SpigotOfflinePlayer implements OPanelPlayer {
                 case 1 -> { return OPanelGameMode.CREATIVE; }
                 case 3 -> { return OPanelGameMode.SPECTATOR; }
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
@@ -88,7 +88,7 @@ public class SpigotOfflinePlayer implements OPanelPlayer {
                 case SPECTATOR -> nbt.setInteger("playerGameType", 3);
             }
             NBT.writeFile(playerDataPath.toFile(), nbt);
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

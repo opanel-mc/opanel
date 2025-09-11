@@ -37,7 +37,7 @@ public class ControlServlet extends BaseServlet {
                 try {
                     obj.put("properties", OPanelServer.getPropertiesContent());
                     sendResponse(res, obj);
-                } catch(IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                     sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 }
@@ -69,7 +69,7 @@ public class ControlServlet extends BaseServlet {
                 try {
                     String newContent = getRequestBody(req, String.class);
                     OPanelServer.writePropertiesContent(newContent);
-                } catch(IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                     sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
                     return;
@@ -88,7 +88,7 @@ public class ControlServlet extends BaseServlet {
                 }
                 try {
                     save.setToCurrent();
-                } catch(IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                     sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     return;

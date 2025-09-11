@@ -33,8 +33,8 @@ public class TerminalEndpoint {
         logListenerManager = plugin.getLogListenerManager();
 
         if(!hasLogListenerRegistered) {
-            logListenerManager.addListener(line -> {
-                broadcast(new TerminalPacket<>(TerminalPacket.LOG, line));
+            logListenerManager.addListener(log -> {
+                broadcast(new TerminalPacket<>(TerminalPacket.LOG, log));
             });
             hasLogListenerRegistered = true;
         }
@@ -96,9 +96,14 @@ public class TerminalEndpoint {
                 }
                 default -> sendErrorMessage(session, "Unexpected type of packet.");
             }
+<<<<<<< HEAD
         } catch(JsonSyntaxException e) {
             // Use System.err to avoid recursive logging through LogListenerAppender
             System.err.println("[OPanel] JSON parsing error in terminal: " + e.getMessage());
+=======
+        } catch (JsonSyntaxException e) {
+            logger.error("JSON parsing error in terminal: " + e.getMessage());
+>>>>>>> 8258465d3458588541d1b25335ec54adb4503e88
             sendErrorMessage(session, "Json syntax error: "+ e.getMessage());
         }
     }
@@ -114,9 +119,14 @@ public class TerminalEndpoint {
             try {
                 Gson gson = new Gson();
                 session.getBasicRemote().sendText(gson.toJson(packet));
+<<<<<<< HEAD
             } catch(IOException e) {
                 // Use System.err to avoid recursive logging through LogListenerAppender
                 System.err.println("[OPanel] Failed to send WebSocket message: " + e.getMessage());
+=======
+            } catch (IOException e) {
+                logger.error("Failed to send WebSocket message: " + e.getMessage());
+>>>>>>> 8258465d3458588541d1b25335ec54adb4503e88
                 sessions.remove(session);
             }
         }
@@ -133,9 +143,14 @@ public class TerminalEndpoint {
             for(Session session : sessions) {
                 try {
                     session.getAsyncRemote().sendText(message);
+<<<<<<< HEAD
                 } catch(Exception e) {
                     // Use System.err to avoid recursive logging through LogListenerAppender
                     System.err.println("[OPanel] Failed to broadcast message to session: " + e.getMessage());
+=======
+                } catch (Exception e) {
+                    logger.error("Failed to broadcast message to session: " + e.getMessage());
+>>>>>>> 8258465d3458588541d1b25335ec54adb4503e88
                 }
             }
         }

@@ -35,14 +35,14 @@ public class LogsServlet extends BaseServlet {
                 HashMap<String, Object> obj = new HashMap<>();
                 obj.put("logs", logger.getLogFileList());
                 sendResponse(res, obj);
-            } catch(IOException e) {
+            } catch (IOException e) {
                 sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
             }
         } else if(reqPath.startsWith("/")) {
             String fileName = reqPath.substring(1);
             try {
                 sendContentResponse(res, logger.getLogContent(fileName).getBytes(StandardCharsets.UTF_8), "application/octet-stream");
-            } catch(IOException e) {
+            } catch (IOException e) {
                 sendResponse(res, HttpServletResponse.SC_NOT_FOUND, e.getMessage());
             }
         } else {
@@ -67,7 +67,7 @@ public class LogsServlet extends BaseServlet {
                     }
                 }
                 sendResponse(res, HttpServletResponse.SC_OK);
-            } catch(IOException e) {
+            } catch (IOException e) {
                 sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
             }
             return;
@@ -80,7 +80,7 @@ public class LogsServlet extends BaseServlet {
 
         try {
             logger.deleteLog(reqPath.substring(1));
-        } catch(IOException e) {
+        } catch (IOException e) {
             sendResponse(res, HttpServletResponse.SC_NOT_FOUND, e.getMessage());
             return;
         }

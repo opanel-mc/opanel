@@ -28,7 +28,7 @@ public class Utils {
                 sb.append(String.format("%02x", b & 0xff));
             }
             return sb.toString();
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException("Failed to compute MD5 hash", e);
         }
     }
@@ -136,7 +136,7 @@ public class Utils {
             public FileVisitResult preVisitDirectory(Path subDir, BasicFileAttributes attr) throws IOException {
                 try {
                     Files.copy(subDir, targetPath.resolve(sourcePath.relativize(subDir)), StandardCopyOption.COPY_ATTRIBUTES);
-                } catch(FileAlreadyExistsException e) {
+                } catch (FileAlreadyExistsException e) {
                     //
                 }
                 return FileVisitResult.CONTINUE;
@@ -154,7 +154,7 @@ public class Utils {
                     .mapToLong(path -> {
                         try {
                             return Files.size(path);
-                        } catch(IOException e) {
+                        } catch (IOException e) {
                             // Log error but continue processing other files
                             System.err.println("Failed to get size of file: " + path + ", " + e.getMessage());
                             return 0L;
@@ -162,5 +162,14 @@ public class Utils {
                     })
                     .sum();
         }
+    }
+
+    public static String stringifyThrowable(Throwable throwable) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(throwable);
+        for(StackTraceElement elem : throwable.getStackTrace()) {
+            sb.append("\n    at ").append(elem);
+        }
+        return sb.toString();
     }
 }

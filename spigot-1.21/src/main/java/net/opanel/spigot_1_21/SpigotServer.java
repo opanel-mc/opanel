@@ -37,7 +37,7 @@ public class SpigotServer implements OPanelServer {
         if(!Files.exists(serverIconPath)) return null;
         try {
             return Files.readAllBytes(serverIconPath);
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
@@ -81,7 +81,7 @@ public class SpigotServer implements OPanelServer {
                         SpigotSave save = new SpigotSave(server, path);
                         list.add(save);
                     });
-        } catch(IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return list;

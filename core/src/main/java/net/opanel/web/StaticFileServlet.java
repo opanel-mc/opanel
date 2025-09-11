@@ -52,7 +52,7 @@ public class StaticFileServlet extends BaseServlet {
             stream.close();
 
             sendContentResponse(res, bytes, getMimeType(resourcePath));
-        } catch(IOException e) {
+        } catch (IOException e) {
             sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             e.printStackTrace();
         }
