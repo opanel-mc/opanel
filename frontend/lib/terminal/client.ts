@@ -9,6 +9,7 @@ export interface ConsoleLog {
   thread: string
   source: string
   line: string
+  thrownMessage: string | null
 }
 
 export interface TerminalPacket {

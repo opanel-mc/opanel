@@ -6,6 +6,7 @@ public class ConsoleLog {
     public String thread;
     public String source;
     public String line;
+    public String thrownMessage;
 
     public ConsoleLog(long time, String level, String thread, String source, String line) {
         this.time = time;
@@ -13,5 +14,9 @@ public class ConsoleLog {
         this.thread = thread;
         this.source = source;
         this.line = line;
+    }
+
+    public void setThrownMessage(String thrownMessage) {
+        this.thrownMessage = thrownMessage;
     }
 }

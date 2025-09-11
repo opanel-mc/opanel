@@ -2,6 +2,7 @@ package net.opanel.fabric_1_21_2.terminal;
 
 import net.opanel.terminal.ConsoleLog;
 import net.opanel.terminal.LogListenerManager;
+import net.opanel.utils.Utils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.Layout;
@@ -37,6 +38,11 @@ public class LogListenerManagerImpl extends AbstractAppender implements LogListe
         final String source = e.getLoggerName();
         final String line = e.getMessage().getFormattedMessage();
         final ConsoleLog log = new ConsoleLog(time, level, thread, source, line);
+
+        final Throwable throwable = e.getThrown();
+        if(throwable != null) {
+            log.setThrownMessage(Utils.stringifyThrowable(throwable));
+        }
 
         logs.add(log);
         listeners.forEach(listener -> {

@@ -32,8 +32,8 @@ public class TerminalEndpoint {
         logListenerManager = plugin.getLogListenerManager();
 
         if(!hasLogListenerRegistered) {
-            logListenerManager.addListener(line -> {
-                broadcast(new TerminalPacket<>(TerminalPacket.LOG, line));
+            logListenerManager.addListener(log -> {
+                broadcast(new TerminalPacket<>(TerminalPacket.LOG, log));
             });
             hasLogListenerRegistered = true;
         }
