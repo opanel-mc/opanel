@@ -58,6 +58,12 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     protected void sendContentResponse(HttpServletResponse res, byte[] bytes, String contentType) {
+        // Check if response is already committed to avoid errors
+        if(res.isCommitted()) {
+            plugin.logger.warn("Response already committed, cannot send content response");
+            return;
+        }
+        
         res.addHeader("X-Powered-By", "OPanel");
         res.setStatus(HttpServletResponse.SC_OK);
         res.setContentType(contentType);
@@ -67,8 +73,12 @@ public abstract class BaseServlet extends HttpServlet {
             os.write(bytes);
             os.flush();
         } catch(IOException e) {
-            plugin.logger.error("Failed to send content response: " + e.getMessage());
-            sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            // Only log if response is not committed (avoid startup noise)
+            if(!res.isCommitted()) {
+                String errorMsg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+                plugin.logger.error("Failed to send content response: " + errorMsg, e);
+                sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
         }
     }
 

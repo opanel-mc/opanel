@@ -109,7 +109,7 @@ public class Main extends JavaPlugin implements Listener {
             instance.getWebServer().start(); // default port 3000
         } catch(Exception e) {
             log.error("Failed to start OPanel web server: " + e.getMessage());
-            getPluginManager().disablePlugin(this);
+            Bukkit.getPluginManager().disablePlugin(this);
         }
     }
 
