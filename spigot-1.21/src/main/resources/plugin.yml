@@ -4,7 +4,7 @@ main: net.opanel.spigot_1_21.Main
 description: A Minecraft server management panel
 author: NriotHrreion
 website:
-api-version: ${minecraft_version}
+api-version: '${minecraft_version}'
 
 commands:
   opanel:

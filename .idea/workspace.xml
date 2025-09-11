@@ -7,33 +7,27 @@
     <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="Changes">
       <change afterPath="$PROJECT_DIR$/README-zh.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README-en.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/OPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/OPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/ControlServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/ControlServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/InfoServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/InfoServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/LogsServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/LogsServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/PlayersServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/PlayersServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/SavesServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/SavesServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/WhitelistServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/WhitelistServlet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/terminal/ConsoleLog.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/terminal/ConsoleLog.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/terminal/TerminalEndpoint.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/terminal/TerminalEndpoint.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/utils/Utils.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/utils/Utils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/utils/ZipUtility.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/utils/ZipUtility.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/BaseServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/BaseServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/StaticFileServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/StaticFileServlet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/WebServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/WebServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21/src/main/java/net/opanel/fabric_1_21/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21/src/main/java/net/opanel/fabric_1_21/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.21.3/src/main/java/net/opanel/forge_1_21_3/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21.3/src/main/java/net/opanel/forge_1_21_3/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.21.5/src/main/java/net/opanel/forge_1_21_5/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21.5/src/main/java/net/opanel/forge_1_21_5/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.21.8/src/main/java/net/opanel/forge_1_21_8/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21.8/src/main/java/net/opanel/forge_1_21_8/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.21/src/main/java/net/opanel/forge_1_21/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21/src/main/java/net/opanel/forge_1_21/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21.5/src/main/java/net/opanel/neoforge_1_21_5/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/neoforge-1.21.5/src/main/java/net/opanel/neoforge_1_21_5/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21/src/main/java/net/opanel/spigot_1_21/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21/src/main/java/net/opanel/spigot_1_21/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21/src/main/java/net/opanel/spigot_1_21/SpigotOfflinePlayer.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21/src/main/java/net/opanel/spigot_1_21/SpigotOfflinePlayer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21/src/main/java/net/opanel/spigot_1_21/SpigotSave.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21/src/main/java/net/opanel/spigot_1_21/SpigotSave.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21/src/main/java/net/opanel/spigot_1_21/SpigotServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21/src/main/java/net/opanel/spigot_1_21/SpigotServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.20.1/src/main/java/net/opanel/fabric_1_20_1/terminal/LogListenerManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.20.1/src/main/java/net/opanel/fabric_1_20_1/terminal/LogListenerManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.20.4/src/main/java/net/opanel/fabric_1_20_4/terminal/LogListenerManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.20.4/src/main/java/net/opanel/fabric_1_20_4/terminal/LogListenerManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/terminal/LogListenerManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/src/main/java/net/opanel/fabric_1_21_2/terminal/LogListenerManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/terminal/LogListenerManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.5/src/main/java/net/opanel/fabric_1_21_5/terminal/LogListenerManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fabric-1.21/src/main/java/net/opanel/fabric_1_21/terminal/LogListenerManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21/src/main/java/net/opanel/fabric_1_21/terminal/LogListenerManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forge-1.20.1/src/main/java/net/opanel/forge_1_20_1/terminal/LogListenerManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.20.1/src/main/java/net/opanel/forge_1_20_1/terminal/LogListenerManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forge-1.20.2/src/main/java/net/opanel/forge_1_20_2/terminal/LogListenerManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.20.2/src/main/java/net/opanel/forge_1_20_2/terminal/LogListenerManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forge-1.20.3/src/main/java/net/opanel/forge_1_20_3/terminal/LogListenerManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.20.3/src/main/java/net/opanel/forge_1_20_3/terminal/LogListenerManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forge-1.20.6/src/main/java/net/opanel/forge_1_20_6/terminal/LogListenerManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.20.6/src/main/java/net/opanel/forge_1_20_6/terminal/LogListenerManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forge-1.21.3/src/main/java/net/opanel/forge_1_21_3/terminal/LogListenerManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21.3/src/main/java/net/opanel/forge_1_21_3/terminal/LogListenerManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forge-1.21.5/src/main/java/net/opanel/forge_1_21_5/terminal/LogListenerManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21.5/src/main/java/net/opanel/forge_1_21_5/terminal/LogListenerManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forge-1.21.8/src/main/java/net/opanel/forge_1_21_8/terminal/LogListenerManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21.8/src/main/java/net/opanel/forge_1_21_8/terminal/LogListenerManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forge-1.21/src/main/java/net/opanel/forge_1_21/terminal/LogListenerManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21/src/main/java/net/opanel/forge_1_21/terminal/LogListenerManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/components/terminal-connector.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/components/terminal-connector.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/lib/terminal/client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/lib/terminal/client.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/neoforge-1.21.5/src/main/java/net/opanel/neoforge_1_21_5/terminal/LogListenerManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/neoforge-1.21.5/src/main/java/net/opanel/neoforge_1_21_5/terminal/LogListenerManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spigot-1.20/src/main/java/net/opanel/spigot_1_20/terminal/LogListenerManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.20/src/main/java/net/opanel/spigot_1_20/terminal/LogListenerManagerImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/spigot-1.21/src/main/java/net/opanel/spigot_1_21/terminal/LogListenerManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21/src/main/java/net/opanel/spigot_1_21/terminal/LogListenerManagerImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -105,12 +99,71 @@
         <task path="$PROJECT_DIR$/fabric-1.21.2">
           <activation />
         </task>
+        <task path="$PROJECT_DIR$/spigot-1.20">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$/fabric-1.20">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$/fabric-1.20.1">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$/fabric-1.20.2">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$/fabric-1.20.4">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$/forge-1.20">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$/forge-1.20.1">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$/forge-1.20.2">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$/forge-1.20.3">
+          <activation />
+        </task>
+        <task path="$PROJECT_DIR$/forge-1.20.6">
+          <activation />
+        </task>
         <projects_view>
           <tree_state>
             <expand>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="opanel" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="opanel" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="opanel" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="build" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="opanel" type="f1a62948:ProjectNode" />
+                <item name="fabric-1.21.5" type="2d1252cf:ModuleNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="opanel" type="f1a62948:ProjectNode" />
+                <item name="fabric-1.21.5" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="opanel" type="f1a62948:ProjectNode" />
+                <item name="fabric-1.21.5" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="fabric" type="c8890929:TasksNode$1" />
               </path>
             </expand>
             <select />
@@ -145,64 +198,76 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "Gradle.D:/opanel_update [:forge-1.21:createMcpToSrg :forge-1.21.3:createMcpToSrg :forge-1.21.5:createMcpToSrg :forge-1.21.8:createMcpToSrg].executor": "Run",
-    "Gradle.opanel [:forge-1.21.5:createMcpToSrg :forge-1.21.8:createMcpToSrg].executor": "Run",
-    "Gradle.opanel [:forge-1.21.5:createMcpToSrg].executor": "Run",
-    "Gradle.opanel [:forge-1.21:createMcpToSrg :forge-1.21.3:createMcpToSrg :forge-1.21.5:createMcpToSrg :forge-1.21.8:createMcpToSrg].executor": "Run",
-    "Gradle.opanel [:forge-1.21:createMcpToSrg :forge-1.21.5:createMcpToSrg :forge-1.21.8:createMcpToSrg].executor": "Run",
-    "Gradle.opanel [build].executor": "Run",
-    "Gradle.opanel [clean].executor": "Run",
-    "Gradle.opanel [clientClasses].executor": "Run",
-    "Gradle.opanel [runServer].executor": "Run",
-    "Gradle.opanel:bukkit-1.21.5 [build].executor": "Run",
-    "Gradle.opanel:bukkit-1.21.5 [clean].executor": "Run",
-    "Gradle.opanel:fabric-1.21.2 [build].executor": "Run",
-    "Gradle.opanel:fabric-1.21.3 [build].executor": "Run",
-    "Gradle.opanel:fabric-1.21.5 [build].executor": "Run",
-    "Gradle.opanel:fabric-1.21.5 [clean].executor": "Run",
-    "Gradle.opanel:fabric-1.21.5 [proguard].executor": "Run",
-    "Gradle.opanel:fabric-1.21.5 [runServer].executor": "Run",
-    "Gradle.opanel:fabric-1.21.8 [runServer].executor": "Run",
-    "Gradle.opanel:forge-1.21 [build].executor": "Run",
-    "Gradle.opanel:forge-1.21.3 [build].executor": "Run",
-    "Gradle.opanel:forge-1.21.5 [build].executor": "Run",
-    "Gradle.opanel:forge-1.21.5 [clean].executor": "Run",
-    "Gradle.opanel:forge-1.21.5 [prepareRunServer].executor": "Run",
-    "Gradle.opanel:forge-1.21.5 [runServer].executor": "Run",
-    "Gradle.opanel:forge-1.21.8 [genIntellijRuns].executor": "Run",
-    "Gradle.opanel:forge-1.21.8 [runServer].executor": "Run",
-    "Gradle.opanel:neoforge-1.21 [build].executor": "Run",
-    "Gradle.opanel:neoforge-1.21 [clean].executor": "Run",
-    "Gradle.opanel:neoforge-1.21.3 [build].executor": "Run",
-    "Gradle.opanel:neoforge-1.21.5 [build].executor": "Run",
-    "Gradle.opanel:neoforge-1.21.5 [clean].executor": "Run",
-    "Gradle.opanel:neoforge-1.21.8 [build].executor": "Run",
-    "Gradle.opanel:neoforge-1.21.8 [clean].executor": "Run",
-    "Gradle.opanel:neoforge-1.21.8 [runServer].executor": "Run",
-    "Gradle.opanel:paper-1.21.5 [build].executor": "Run",
-    "Gradle.opanel:paper-1.21.5 [clean].executor": "Run",
-    "Gradle.opanel:spigot-1.21.5 [build].executor": "Run",
-    "Gradle.opanel:spigot-1.21.5 [clean].executor": "Run",
-    "Gradle.opanel_update [:forge-1.21:createMcpToSrg :forge-1.21.3:createMcpToSrg :forge-1.21.5:createMcpToSrg :forge-1.21.8:createMcpToSrg].executor": "Run",
-    "Gradle.下载源代码.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "main",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/opanel/lib/servlet-api.jar",
-    "project.structure.last.edited": "库",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "reference.settingsdialog.project.gradle"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;Gradle.opanel [:forge-1.20.1:createMcpToSrg :forge-1.20.2:createMcpToSrg :forge-1.20.3:createMcpToSrg :forge-1.20.6:createMcpToSrg :forge-1.21:createMcpToSrg :forge-1.21.3:createMcpToSrg :forge-1.21.5:createMcpToSrg :forge-1.21.8:createMcpToSrg].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel [:forge-1.20.1:createMcpToSrg :forge-1.20.2:createMcpToSrg :forge-1.20.3:createMcpToSrg :forge-1.21:createMcpToSrg :forge-1.21.3:createMcpToSrg :forge-1.21.5:createMcpToSrg :forge-1.21.8:createMcpToSrg].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel [:forge-1.20.1:createMcpToSrg :forge-1.20.2:createMcpToSrg :forge-1.21:createMcpToSrg :forge-1.21.3:createMcpToSrg :forge-1.21.5:createMcpToSrg :forge-1.21.8:createMcpToSrg].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel [:forge-1.20.1:createMcpToSrg :forge-1.21:createMcpToSrg :forge-1.21.3:createMcpToSrg :forge-1.21.5:createMcpToSrg :forge-1.21.8:createMcpToSrg].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel [:forge-1.21.5:createMcpToSrg :forge-1.21.8:createMcpToSrg].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel [:forge-1.21.5:createMcpToSrg].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel [:forge-1.21:createMcpToSrg :forge-1.21.3:createMcpToSrg :forge-1.21.5:createMcpToSrg :forge-1.21.8:createMcpToSrg].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel [:forge-1.21:createMcpToSrg :forge-1.21.5:createMcpToSrg :forge-1.21.8:createMcpToSrg].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel [classes].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel [clientClasses].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel [runServer].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:bukkit-1.21.5 [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:bukkit-1.21.5 [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:fabric-1.20 [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:fabric-1.20.1 [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:fabric-1.20.2 [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:fabric-1.20.4 [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:fabric-1.21.2 [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:fabric-1.21.3 [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:fabric-1.21.5 [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:fabric-1.21.5 [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:fabric-1.21.5 [proguard].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:fabric-1.21.5 [runServer].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:fabric-1.21.8 [runServer].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:forge-1.20.1 [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:forge-1.20.2 [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:forge-1.20.3 [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:forge-1.20.6 [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:forge-1.21 [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:forge-1.21.3 [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:forge-1.21.5 [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:forge-1.21.5 [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:forge-1.21.5 [prepareRunServer].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:forge-1.21.5 [runServer].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:forge-1.21.8 [genIntellijRuns].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:forge-1.21.8 [runServer].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:neoforge-1.21 [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:neoforge-1.21 [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:neoforge-1.21.3 [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:neoforge-1.21.5 [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:neoforge-1.21.5 [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:neoforge-1.21.8 [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:neoforge-1.21.8 [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:neoforge-1.21.8 [runServer].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:paper-1.21.5 [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:paper-1.21.5 [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:spigot-1.20 [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:spigot-1.21.5 [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.opanel:spigot-1.21.5 [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.下载源代码.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;dev&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/opanel/lib/servlet-api.jar&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;模块&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.project.gradle&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\opanel\neoforge-1.21.8\src\main\resources\META-INF" />
@@ -210,7 +275,7 @@
       <recent name="D:\opanel\core\lib" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.opanel:fabric-1.21.2 [build]">
+  <component name="RunManager" selected="Gradle.opanel:fabric-1.21.5 [runServer]">
     <configuration name="Neoforge-1.21: Client" type="Application" factoryName="Application">
       <envs>
         <env name="MOD_CLASSES" value="neoforge-1.21%%D:\opanel\neoforge-1.21\build\sourcesSets\main;neoforge-1.21%%D:\opanel\neoforge-1.21\build\sourcesSets\main" />
@@ -481,28 +546,6 @@
         <option name="Gradle.BeforeRunTask" enabled="true" tasks="ideBeforeRun" externalProjectPath="$PROJECT_DIR$/neoforge-1.21.8" />
       </method>
     </configuration>
-    <configuration name="opanel [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="build" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>false</RunAsTest>
-      <method v="2" />
-    </configuration>
     <configuration name="opanel [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -525,10 +568,32 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="opanel:fabric-1.21.2 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="opanel:fabric-1.21.5 [runServer]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/fabric-1.21.2" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/fabric-1.21.5" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="runServer" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="opanel:forge-1.20.2 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/forge-1.20.2" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -547,10 +612,10 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="opanel:fabric-1.21.3 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="opanel:forge-1.20.3 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/fabric-1.21.3" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/forge-1.20.3" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -569,10 +634,10 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="opanel:neoforge-1.21.3 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="opanel:forge-1.20.6 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/neoforge-1.21.3" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/forge-1.20.6" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -661,11 +726,11 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="Gradle.opanel [build]" />
+      <item itemvalue="Gradle.opanel:fabric-1.21.5 [runServer]" />
+      <item itemvalue="Gradle.opanel:forge-1.20.3 [build]" />
+      <item itemvalue="Gradle.opanel:forge-1.20.6 [build]" />
+      <item itemvalue="Gradle.opanel:forge-1.20.2 [build]" />
       <item itemvalue="Gradle.opanel [clean]" />
-      <item itemvalue="Gradle.opanel:fabric-1.21.2 [build]" />
-      <item itemvalue="Gradle.opanel:fabric-1.21.3 [build]" />
-      <item itemvalue="Gradle.opanel:neoforge-1.21.3 [build]" />
       <item itemvalue="JUnit.Neoforge-1.21: Junit" />
       <item itemvalue="JUnit.Neoforge-1.21.3: Junit" />
       <item itemvalue="JUnit.Neoforge-1.21.5: Junit" />
@@ -692,11 +757,11 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.opanel:fabric-1.21.2 [build]" />
+        <item itemvalue="Gradle.opanel:fabric-1.21.5 [runServer]" />
+        <item itemvalue="Gradle.opanel:forge-1.20.6 [build]" />
         <item itemvalue="Gradle.opanel [clean]" />
-        <item itemvalue="Gradle.opanel [build]" />
-        <item itemvalue="Gradle.opanel:fabric-1.21.3 [build]" />
-        <item itemvalue="Gradle.opanel:neoforge-1.21.3 [build]" />
+        <item itemvalue="Gradle.opanel:forge-1.20.3 [build]" />
+        <item itemvalue="Gradle.opanel:forge-1.20.2 [build]" />
       </list>
     </recent_temporary>
   </component>

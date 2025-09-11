@@ -33,14 +33,14 @@ The features of OPanel include:
 
 ### Supported platforms and versions
 
-The following target platforms and minecraft versions are supported:
+The following target platforms and minecraft versions are tested and proved to be supported:
 
 |Server Type|Version|
 |---|---|
-|Bukkit / Spigot / Paper|>=1.21|
-|Fabric|>=1.21|
-|Forge|1.21-1.21.1, >=1.21.3|
-|NeoForge|>=1.21.5|
+|Bukkit / Spigot / Paper|>=1.20|
+|Fabric|1.20.1, >=1.20.4|
+|Forge|1.20.1-1.20.4, 1.20.6, 1.21-1.21.1, >=1.21.3|
+|Neoforge|>=1.21.5|
 
 ### Screenshots
 
@@ -65,6 +65,10 @@ You can configure OPanel through the config file generated inside your server fo
 ## Contributing
 
 See [Contributing Guidelines](./CONTRIBUTING.md) for more information.
+
+## Friend Links
+
+[<img src="./images/miaocloud.png" width="300"/>](https://cloud.miaostars.com)
 
 ## License
 

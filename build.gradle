@@ -8,12 +8,10 @@ allprojects {
     group = project.group
     version = project.version
 
-    java {
-        toolchain.languageVersion = JavaLanguageVersion.of(21)
-    }
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 
     tasks.withType(JavaCompile).configureEach {
         options.encoding = 'UTF-8'
-        options.release = 21
     }
 }

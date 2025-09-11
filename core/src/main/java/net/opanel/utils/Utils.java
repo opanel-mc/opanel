@@ -163,4 +163,13 @@ public class Utils {
                     .sum();
         }
     }
+
+    public static String stringifyThrowable(Throwable throwable) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(throwable);
+        for(StackTraceElement elem : throwable.getStackTrace()) {
+            sb.append("\n    at ").append(elem);
+        }
+        return sb.toString();
+    }
 }

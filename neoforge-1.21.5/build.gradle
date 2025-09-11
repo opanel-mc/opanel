@@ -80,3 +80,11 @@ sourceSets.each {
     it.output.resourcesDir = dir
     it.java.destinationDirectory = dir
 }
+
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = JavaLanguageVersion.of(21)
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
