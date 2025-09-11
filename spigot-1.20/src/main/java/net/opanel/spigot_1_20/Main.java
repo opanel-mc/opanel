@@ -59,9 +59,25 @@ public class Main extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
-        if(logListenerAppender != null) disposeLogListenerAppender();
-        if(serverTickListener != null) serverTickListener.cancel();
-        if(instance != null) instance.stop();
+        try {
+            if(logListenerAppender != null) disposeLogListenerAppender();
+        } catch(Exception e) {
+            log.error("Failed to dispose log listener appender: " + e.getMessage());
+        }
+        
+        try {
+            if(serverTickListener != null && !serverTickListener.isCancelled()) {
+                serverTickListener.cancel();
+            }
+        } catch(Exception e) {
+            log.error("Failed to cancel server tick listener: " + e.getMessage());
+        }
+        
+        try {
+            if(instance != null) instance.stop();
+        } catch(Exception e) {
+            log.error("Failed to stop OPanel instance: " + e.getMessage());
+        }
     }
 
     private void initLogListenerAppender() {

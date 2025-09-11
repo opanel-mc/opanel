@@ -73,8 +73,17 @@ public class Main {
 
     @SubscribeEvent
     public void onServerStop(ServerStoppingEvent event) {
-        if(logListenerAppender != null) disposeLogListenerAppender();
-        if(instance != null) instance.stop();
+        try {
+            if(logListenerAppender != null) disposeLogListenerAppender();
+        } catch (Exception e) {
+            LOGGER.error("Failed to dispose log listener appender: " + e.getMessage());
+        }
+        
+        try {
+            if(instance != null) instance.stop();
+        } catch (Exception e) {
+            LOGGER.error("Failed to stop OPanel instance: " + e.getMessage());
+        }
     }
 
     @SubscribeEvent

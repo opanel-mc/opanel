@@ -58,6 +58,12 @@ public abstract class BaseServlet extends HttpServlet {
     }
 
     protected void sendContentResponse(HttpServletResponse res, byte[] bytes, String contentType) {
+        // Check if response is already committed to avoid errors
+        if(res.isCommitted()) {
+            plugin.logger.warn("Response already committed, cannot send content response");
+            return;
+        }
+        
         res.addHeader("X-Powered-By", "OPanel");
         res.setStatus(HttpServletResponse.SC_OK);
         res.setContentType(contentType);
@@ -65,35 +71,49 @@ public abstract class BaseServlet extends HttpServlet {
 
         try(OutputStream os = res.getOutputStream()) {
             os.write(bytes);
-        } catch (IOException e) {
-            sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            e.printStackTrace();
+            os.flush();
+        } catch(IOException e) {
+            // Only log if response is not committed (avoid startup noise)
+            if(!res.isCommitted()) {
+                plugin.logger.error("Failed to send content response: "+ e.getMessage());
+                sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
         }
     }
 
     protected <T> T getRequestBody(HttpServletRequest req, Class<T> type) throws IOException {
         try (BufferedReader reader = req.getReader()) {
-            String line;
             StringBuilder requestBody = new StringBuilder();
+            String line;
             while((line = reader.readLine()) != null) {
                 requestBody.append(line);
             }
+            
+            String body = requestBody.toString();
+            if(body.trim().isEmpty()) {
+                return null;
+            }
 
             Gson gson = new Gson();
-            return gson.fromJson(requestBody.toString(), type);
+            return gson.fromJson(body, type);
         }
     }
 
     protected <T> T getRequestBody(HttpServletRequest req, Type type) throws IOException {
         try (BufferedReader reader = req.getReader()) {
-            String line;
             StringBuilder requestBody = new StringBuilder();
+            String line;
             while((line = reader.readLine()) != null) {
                 requestBody.append(line);
             }
+            
+            String body = requestBody.toString();
+            if(body.trim().isEmpty()) {
+                return null;
+            }
 
             Gson gson = new Gson();
-            return gson.fromJson(requestBody.toString(), type);
+            return gson.fromJson(body, type);
         }
     }
 
