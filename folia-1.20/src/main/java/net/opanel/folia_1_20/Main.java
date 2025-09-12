@@ -4,7 +4,9 @@ import de.tr7zw.changeme.nbtapi.NBT;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import net.opanel.OPanel;
 import net.opanel.folia_1_20.command.OPanelCommand;
-import net.opanel.folia_1_20.config.ConfigManagerImpl;
+import net.opanel.config.ConfigManager;
+import net.opanel.config.OPanelConfiguration;
+import org.bukkit.configuration.file.FileConfiguration;
 import net.opanel.folia_1_20.terminal.LogListenerManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.bukkit.Bukkit;
@@ -59,7 +61,7 @@ public class Main extends JavaPlugin implements Listener {
         final LoggerImpl logger = new LoggerImpl(LOGGER);
 
         saveDefaultConfig();
-        instance = new OPanel(new ConfigManagerImpl(getConfig()), logger);
+        instance = new OPanel(new ConfigManagerImpl(getConfig(), this), logger);
 
         initLogListenerAppender();
         initServerTickListener();
@@ -145,6 +147,58 @@ public class Main extends JavaPlugin implements Listener {
         } else {
             // Fallback to Bukkit scheduler
             Bukkit.getScheduler().runTaskLater(this, task, delay);
+        }
+    }
+
+    // ConfigManagerImpl内部类
+    private static class ConfigManagerImpl implements ConfigManager {
+        private final FileConfiguration configSrc;
+        private final JavaPlugin plugin;
+
+        public ConfigManagerImpl(FileConfiguration configSrc, JavaPlugin plugin) {
+            this.configSrc = configSrc;
+            this.plugin = plugin;
+        }
+
+        @Override
+        public OPanelConfiguration get() {
+            // 检查是否是首次启动（配置文件中没有accessKey或为默认值）
+            String accessKey = configSrc.getString("accessKey");
+            if (!configSrc.contains("accessKey") || accessKey == null || "your-access-key".equals(accessKey)) {
+                // 生成随机配置
+                OPanelConfiguration randomConfig = OPanelConfiguration.createRandomConfig();
+                // 保存配置
+                set(randomConfig);
+                // 输出格式化的首次启动信息
+                System.out.println("======Opanel=======");
+                System.out.println("url: http://localhost:" + randomConfig.webServerPort);
+                System.out.println("passwd: " + randomConfig.plainPassword);
+                System.out.println("Opanel已启动");
+                System.out.println("===================");
+                return randomConfig;
+            }
+            
+            // 非首次启动，输出不包含密码的信息
+            int webServerPort = configSrc.getInt("webServerPort");
+            System.out.println("======Opanel=======");
+            System.out.println("url: http://localhost:" + webServerPort);
+            System.out.println("Opanel已启动");
+            System.out.println("===================");
+            
+            return new OPanelConfiguration(
+                    configSrc.getString("accessKey"),
+                    configSrc.getString("salt"),
+                    webServerPort
+            );
+        }
+
+        @Override
+        public void set(OPanelConfiguration config) {
+            configSrc.set("accessKey", config.accessKey);
+            configSrc.set("salt", config.salt);
+            configSrc.set("webServerPort", config.webServerPort);
+            // 不保存明文密码到配置文件，仅在控制台输出
+            plugin.saveConfig(); // 保存配置到磁盘
         }
     }
 }
