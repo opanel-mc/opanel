@@ -8,6 +8,14 @@ pluginManagement {
             name = 'Neoforge'
             url = 'https://maven.neoforged.net/releases'
         }
+        maven {
+            name = 'MinecraftForge'
+            url = 'https://maven.minecraftforge.net/'
+        }
+        maven {
+            name = 'LWJGL'
+            url = 'https://oss.sonatype.org/content/repositories/snapshots/'
+        }
         mavenCentral()
         gradlePluginPortal()
     }
@@ -36,3 +44,4 @@ include 'forge-1.21.8'
 include 'neoforge-1.21.5'
 include 'spigot-1.20'
 include 'spigot-1.21'
+include 'folia-1.20'

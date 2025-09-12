@@ -58,7 +58,10 @@ repositories {
 }
 
 dependencies {
-    minecraft("net.minecraftforge:forge:${minecraft_version}-${forge_version}")
+    minecraft("net.minecraftforge:forge:${minecraft_version}-${forge_version}") {
+        // Exclude problematic LWJGL native dependencies on macOS
+        exclude group: 'org.lwjgl', module: 'lwjgl-freetype'
+    }
 
     shadowImplementation(project(":core")) {
         // To avoid conflict

@@ -68,7 +68,9 @@ See [Contributing Guidelines](./CONTRIBUTING.md) for more information.
 
 ## Friend Links
 
+[<img src="./images/rainyun.png" width="300"/>](https://www.rainyun.com)
 [<img src="./images/miaocloud.png" width="300"/>](https://cloud.miaostars.com)
+[<img src="./images/rainyun.png" width="300"/>](https://rainyun.com)
 
 ## License
 

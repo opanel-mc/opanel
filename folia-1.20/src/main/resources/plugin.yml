@@ -1,0 +1,14 @@
+name: OPanel
+version: ${version}
+main: net.opanel.folia_1_20.Main
+description: A Minecraft server management panel
+author: NriotHrreion
+website:
+api-version: '1.20'
+folia-supported: true
+
+commands:
+  opanel:
+    description: Get status or about info of OPanel
+    usage: /opanel [about|status]
+    permission: opanel.command.opanel
