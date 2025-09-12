@@ -20,6 +20,9 @@ public class ConfigManagerImpl implements ConfigManager {
             OPanelConfiguration randomConfig = OPanelConfiguration.createRandomConfig();
             // 保存配置
             set(randomConfig);
+            // 输出明文密码给用户
+            System.out.println("[OPanel] 首次启动检测到，已生成随机密码: " + randomConfig.plainPassword);
+            System.out.println("[OPanel] 请保存此密码，用于Web面板登录！");
             return randomConfig;
         }
         return config;
@@ -27,6 +30,13 @@ public class ConfigManagerImpl implements ConfigManager {
 
     @Override
     public void set(OPanelConfiguration config) {
-        configSrc.set(config);
+        // 创建不包含明文密码的配置对象
+        OPanelConfiguration configToSave = new OPanelConfiguration(
+                config.accessKey,
+                config.salt,
+                config.webServerPort
+        );
+        configSrc.set(configToSave);
+        // 不保存明文密码到配置文件，仅在控制台输出
     }
 }
