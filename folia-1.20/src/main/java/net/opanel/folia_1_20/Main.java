@@ -18,35 +18,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 public class Main extends JavaPlugin implements Listener {
-    public static final boolean isPaper;
-    public static final boolean isFolia;
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
     public final Logger LOGGER = getLogger();
     public OPanel instance;
 
     private ScheduledTask serverTickListener;
     private LogListenerManagerImpl logListenerAppender;
-
-    static {
-        boolean _isPaper;
-        boolean _isFolia;
-        try {
-            Class.forName("com.destroystokyo.paper.PaperConfig");
-            _isPaper = true;
-        } catch (ClassNotFoundException e) {
-            _isPaper = false;
-        }
-        
-        try {
-            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
-            _isFolia = true;
-        } catch (ClassNotFoundException e) {
-            _isFolia = false;
-        }
-        
-        isPaper = _isPaper;
-        isFolia = _isFolia;
-    }
 
     @Override
     public void onEnable() {
@@ -107,14 +84,9 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     private void initServerTickListener() {
-        if (isFolia) {
-            // Use Folia's global region scheduler for tick events
-            serverTickListener = Bukkit.getGlobalRegionScheduler().runAtFixedRate(this, 
-                (task) -> instance.onTick(), 1, 1);
-        } else {
-            // Fallback to Bukkit scheduler for non-Folia servers
-            Bukkit.getScheduler().runTaskTimer(this, instance::onTick, 0L, 1L);
-        }
+        // Use Folia's global region scheduler for tick events
+        serverTickListener = Bukkit.getGlobalRegionScheduler().runAtFixedRate(this, 
+            (task) -> instance.onTick(), 1, 1);
     }
 
     @EventHandler
@@ -129,22 +101,12 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     public void runTask(Runnable task) {
-        if (isFolia) {
-            // Use Folia's global region scheduler for async tasks
-            Bukkit.getGlobalRegionScheduler().run(this, (scheduledTask) -> task.run());
-        } else {
-            // Fallback to Bukkit scheduler
-            Bukkit.getScheduler().runTask(this, task);
-        }
+        // Use Folia's global region scheduler for async tasks
+        Bukkit.getGlobalRegionScheduler().run(this, (scheduledTask) -> task.run());
     }
     
     public void runTaskLater(Runnable task, long delay) {
-        if (isFolia) {
-            // Use Folia's global region scheduler with delay
-            Bukkit.getGlobalRegionScheduler().runDelayed(this, (scheduledTask) -> task.run(), delay);
-        } else {
-            // Fallback to Bukkit scheduler
-            Bukkit.getScheduler().runTaskLater(this, task, delay);
-        }
+        // Use Folia's global region scheduler with delay
+        Bukkit.getGlobalRegionScheduler().runDelayed(this, (scheduledTask) -> task.run(), delay);
     }
 }
