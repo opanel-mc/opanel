@@ -13,7 +13,15 @@ public class ConfigManagerImpl implements ConfigManager {
 
     @Override
     public OPanelConfiguration get() {
-        return configSrc.get();
+        OPanelConfiguration config = configSrc.get();
+        // 检查是否是首次启动（配置文件中没有accessKey或为默认值）
+        if (config.accessKey == null || config.accessKey.equals(OPanelConfiguration.defaultConfig.accessKey)) {
+            // 首次启动，生成随机配置
+            OPanelConfiguration randomConfig = OPanelConfiguration.createRandomConfig();
+            set(randomConfig); // 保存到配置文件
+            return randomConfig;
+        }
+        return config;
     }
 
     @Override

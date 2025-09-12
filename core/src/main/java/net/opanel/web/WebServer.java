@@ -75,7 +75,23 @@ public class WebServer {
         ctx.addServlet(new ServletHolder(new StaticFileServlet(plugin)), StaticFileServlet.route);
 
         server.start();
-        plugin.logger.info("Web server is ready on port "+ PORT);
+        
+        // 检查是否是首次启动（配置中有明文密码）
+        if (plugin.getConfig().plainPassword != null) {
+            // 首次启动，显示完整信息
+            plugin.logger.info("======OPanel======");
+            plugin.logger.info("url: localhost:" + PORT);
+            plugin.logger.info("passwd: " + plugin.getConfig().plainPassword);
+            plugin.logger.info("==================");
+            
+            // 清除明文密码，避免后续启动时再次显示
+            plugin.getConfig().plainPassword = null;
+        } else {
+            // 后续启动，只显示URL
+            plugin.logger.info("url: localhost:" + PORT);
+        }
+        
+        plugin.logger.info("OPanel启动成功");
 
         server.addEventListener(new LifeCycle.Listener() {
             @Override
