@@ -15,8 +15,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.opanel.OPanel;
 import net.opanel.forge_1_21_5.command.OPanelCommand;
 import net.opanel.forge_1_21_5.config.Config;
-import net.opanel.config.ConfigManager;
-import net.opanel.config.OPanelConfiguration;
+import net.opanel.forge_1_21_5.config.ConfigManagerImpl;
 import net.opanel.forge_1_21_5.terminal.LogListenerManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
@@ -88,50 +87,8 @@ public class Main {
 
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent evnet) {
-        if(instance != null) {
-            instance.onTick();
-        }
-    }
+        if(instance == null) throw new NullPointerException("OPanel is not initialized.");
 
-    // ConfigManagerImpl内部类
-    private static class ConfigManagerImpl implements ConfigManager {
-        @Override
-        public OPanelConfiguration get() {
-            // 检查是否是首次启动（配置文件中没有accessKey或为默认值）
-            String currentAccessKey = Config.ACCESS_KEY.get();
-            if (currentAccessKey == null || currentAccessKey.equals(OPanelConfiguration.defaultConfig.accessKey)) {
-                // 首次启动，生成随机配置
-                OPanelConfiguration randomConfig = OPanelConfiguration.createRandomConfig();
-                set(randomConfig); // 保存到配置文件
-                // 输出格式化的首次启动信息
-                System.out.println("======Opanel=======");
-                System.out.println("url: http://localhost:" + randomConfig.webServerPort);
-                System.out.println("passwd: " + randomConfig.plainPassword);
-                System.out.println("Opanel已启动");
-                System.out.println("===================");
-                return randomConfig;
-            }
-            
-            // 非首次启动，输出不包含密码的信息
-            int webServerPort = Config.WEB_SERVER_PORT.get();
-            System.out.println("======Opanel=======");
-            System.out.println("url: http://localhost:" + webServerPort);
-            System.out.println("Opanel已启动");
-            System.out.println("===================");
-            
-            return new OPanelConfiguration(
-                    currentAccessKey,
-                    Config.SALT.get(),
-                    webServerPort
-            );
-        }
-
-        @Override
-        public void set(OPanelConfiguration config) {
-            Config.ACCESS_KEY.set(config.accessKey);
-            Config.SALT.set(config.salt);
-            Config.WEB_SERVER_PORT.set(config.webServerPort);
-            // 不保存明文密码到配置文件，仅在控制台输出
-        }
+        instance.onTick();
     }
 }

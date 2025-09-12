@@ -8,7 +8,7 @@ import net.minecraft.server.MinecraftServer;
 import net.opanel.*;
 import net.opanel.config.OPanelConfiguration;
 import net.opanel.fabric_1_21.command.OPanelCommand;
-import net.opanel.config.ConfigManager;
+import net.opanel.fabric_1_21.config.ConfigManagerImpl;
 import net.opanel.fabric_1_21.terminal.LogListenerManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
@@ -76,52 +76,5 @@ public class Main implements DedicatedServerModInitializer {
 
     private void onServerTick(MinecraftServer server) {
         instance.onTick();
-    }
-
-    // ConfigManagerImpl内部类
-    private static class ConfigManagerImpl implements ConfigManager {
-        private final Configuration<OPanelConfiguration> configSrc;
-
-        public ConfigManagerImpl(Configuration<OPanelConfiguration> configSrc) {
-            this.configSrc = configSrc;
-        }
-
-        @Override
-        public OPanelConfiguration get() {
-            OPanelConfiguration config = configSrc.get();
-            // 检查是否是首次启动（配置文件中没有accessKey或为默认值）
-            if (config.accessKey == null || "your-access-key".equals(config.accessKey)) {
-                // 首次启动，生成随机配置
-                OPanelConfiguration randomConfig = OPanelConfiguration.createRandomConfig();
-                set(randomConfig); // 保存到配置文件
-                // 输出格式化的首次启动信息
-                System.out.println("======Opanel=======");
-                System.out.println("url: http://localhost:" + randomConfig.webServerPort);
-                System.out.println("passwd: " + randomConfig.plainPassword);
-                System.out.println("Opanel已启动");
-                System.out.println("===================");
-                return randomConfig;
-            }
-            
-            // 非首次启动，输出不包含密码的信息
-            System.out.println("======Opanel=======");
-            System.out.println("url: http://localhost:" + config.webServerPort);
-            System.out.println("Opanel已启动");
-            System.out.println("===================");
-            
-            return config;
-        }
-
-        @Override
-        public void set(OPanelConfiguration config) {
-            // 创建不包含明文密码的配置对象
-            OPanelConfiguration configToSave = new OPanelConfiguration(
-                    config.accessKey,
-                    config.salt,
-                    config.webServerPort
-            );
-            configSrc.set(configToSave);
-            // 不保存明文密码到配置文件，仅在控制台输出
-        }
     }
 }

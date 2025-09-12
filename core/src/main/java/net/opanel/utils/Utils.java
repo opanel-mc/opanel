@@ -6,7 +6,6 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
-import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.stream.Stream;
@@ -172,22 +171,5 @@ public class Utils {
             sb.append("\n    at ").append(elem);
         }
         return sb.toString();
-    }
-
-    /**
-     * 生成随机密码
-     * @param length 密码长度
-     * @return 随机密码字符串
-     */
-    public static String generateRandomPassword(int length) {
-        final String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        SecureRandom random = new SecureRandom();
-        StringBuilder password = new StringBuilder(length);
-        
-        for (int i = 0; i < length; i++) {
-            password.append(chars.charAt(random.nextInt(chars.length())));
-        }
-        
-        return password.toString();
     }
 }
