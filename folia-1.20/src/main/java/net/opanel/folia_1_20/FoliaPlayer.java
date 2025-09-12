@@ -55,75 +55,45 @@ public class FoliaPlayer implements OPanelPlayer {
 
     @Override
     public void setGameMode(OPanelGameMode gamemode) {
-        if (Main.isFolia) {
-            // Use entity scheduler for player-specific tasks in Folia
-            player.getScheduler().run(plugin, (task) -> {
-                switch(gamemode) {
-                    case ADVENTURE -> player.setGameMode(GameMode.ADVENTURE);
-                    case SURVIVAL -> player.setGameMode(GameMode.SURVIVAL);
-                    case CREATIVE -> player.setGameMode(GameMode.CREATIVE);
-                    case SPECTATOR -> player.setGameMode(GameMode.SPECTATOR);
-                }
-            }, null);
-        } else {
-            plugin.runTask(() -> {
-                switch(gamemode) {
-                    case ADVENTURE -> player.setGameMode(GameMode.ADVENTURE);
-                    case SURVIVAL -> player.setGameMode(GameMode.SURVIVAL);
-                    case CREATIVE -> player.setGameMode(GameMode.CREATIVE);
-                    case SPECTATOR -> player.setGameMode(GameMode.SPECTATOR);
-                }
-            });
-        }
+        // Use entity scheduler for player-specific tasks in Folia
+        player.getScheduler().run(plugin, (task) -> {
+            switch(gamemode) {
+                case ADVENTURE -> player.setGameMode(GameMode.ADVENTURE);
+                case SURVIVAL -> player.setGameMode(GameMode.SURVIVAL);
+                case CREATIVE -> player.setGameMode(GameMode.CREATIVE);
+                case SPECTATOR -> player.setGameMode(GameMode.SPECTATOR);
+            }
+        }, null);
     }
 
     @Override
     public void giveOp() {
         if(isOp()) return;
-        if (Main.isFolia) {
-            // Use entity scheduler for player-specific tasks in Folia
-            player.getScheduler().run(plugin, (task) -> player.setOp(true), null);
-        } else {
-            plugin.runTask(() -> player.setOp(true));
-        }
+        // Use entity scheduler for player-specific tasks in Folia
+        player.getScheduler().run(plugin, (task) -> player.setOp(true), null);
     }
 
     @Override
     public void depriveOp() {
         if(!isOp()) return;
-        if (Main.isFolia) {
-            // Use entity scheduler for player-specific tasks in Folia
-            player.getScheduler().run(plugin, (task) -> player.setOp(false), null);
-        } else {
-            plugin.runTask(() -> player.setOp(false));
-        }
+        // Use entity scheduler for player-specific tasks in Folia
+        player.getScheduler().run(plugin, (task) -> player.setOp(false), null);
     }
 
     @Override
     public void kick(String reason) {
-        if (Main.isFolia) {
-            // Use entity scheduler for player-specific tasks in Folia
-            player.getScheduler().run(plugin, (task) -> player.kickPlayer(reason), null);
-        } else {
-            plugin.runTask(() -> player.kickPlayer(reason));
-        }
+        // Use entity scheduler for player-specific tasks in Folia
+        player.getScheduler().run(plugin, (task) -> player.kickPlayer(reason), null);
     }
 
     @Override
     public void ban(String reason) {
         if(isBanned()) return;
-        if (Main.isFolia) {
-            // Use entity scheduler for player-specific tasks in Folia
-            player.getScheduler().run(plugin, (task) -> {
-                player.getServer().getBanList(BanList.Type.NAME).addBan(player.getName(), reason, null, null);
-                player.kickPlayer(reason);
-            }, null);
-        } else {
-            plugin.runTask(() -> {
-                player.getServer().getBanList(BanList.Type.NAME).addBan(player.getName(), reason, null, null);
-                player.kickPlayer(reason);
-            });
-        }
+        // Use entity scheduler for player-specific tasks in Folia
+        player.getScheduler().run(plugin, (task) -> {
+            player.getServer().getBanList(BanList.Type.NAME).addBan(player.getName(), reason, null, null);
+            player.kickPlayer(reason);
+        }, null);
     }
 
     @Override

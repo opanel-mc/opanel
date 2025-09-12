@@ -215,11 +215,8 @@ public class FoliaServer implements OPanelServer {
 
     @Override
     public void reload() {
-        if(Main.isPaper || Main.isFolia) {
-            sendServerCommand("reload confirm");
-        } else {
-            sendServerCommand("reload");
-        }
+        // Folia supports Paper's reload confirm command
+        sendServerCommand("reload confirm");
     }
 
     @Override
