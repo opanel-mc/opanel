@@ -29,7 +29,7 @@ public class FoliaServer implements OPanelServer {
 
     @Override
     public ServerType getServerType() {
-        return ServerType.BUKKIT;
+        return ServerType.FOLIA;
     }
 
     @Override
