@@ -41,6 +41,7 @@ The following target platforms and minecraft versions are tested and proved to b
 |Fabric|1.20.1, >=1.20.4|
 |Forge|1.20.1-1.20.4, 1.20.6, 1.21-1.21.1, >=1.21.3|
 |Neoforge|>=1.21.5|
+|Folia|1.20-1.20.6|
 
 ### Screenshots
 
