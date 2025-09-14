@@ -48,7 +48,7 @@ export default function Logs() {
   }, []);
 
   return (
-    <SubPage title="日志" icon={<ScrollText />} className="flex flex-col gap-5">
+    <SubPage title="日志" icon={<ScrollText />} className="flex-1 flex flex-col gap-5">
       <div className="flex justify-end">
         <Alert
           title="确定要清空所有日志文件吗？"
@@ -73,7 +73,7 @@ export default function Logs() {
         }
         pagination
         fallbackMessage="暂无日志"
-        className="max-h-[500px] overflow-y-auto"/>
+        className="overflow-y-auto"/>
     </SubPage>
   );
 }

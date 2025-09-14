@@ -52,15 +52,15 @@ export function TimeCard({
       {
         ctx && (
           <>
-            <div className="flex flex-col gap-2 items-center">
+            <div className="flex flex-col gap-1 items-center">
               <div className="text-2xl font-bold">{millisToTime(uptime)}</div>
-              <span className="text-sm text-muted-foreground">服务器已正常运行</span>
+              <span className="text-xs max-xl:text-sm text-muted-foreground">服务器已正常运行</span>
             </div>
             <Tooltip>
               <TooltipTrigger>
-                <div className="flex flex-col gap-2 items-center">
+                <div className="h-full flex flex-col gap-1 items-center">
                   <div className="text-2xl font-bold">{gameTickToTime(ingameTime % dayTicks)}</div>
-                  <span className="text-sm text-muted-foreground">游戏内时间</span>
+                  <span className="text-xs max-xl:text-sm text-muted-foreground">游戏内时间</span>
                 </div>
               </TooltipTrigger>
               <TooltipContent>请以游戏内实际时间为准，此处仅供参考</TooltipContent>

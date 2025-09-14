@@ -14,6 +14,7 @@ export function SubPage({
   title,
   subTitle,
   icon,
+  noScrollPage = false,
   className,
   ...props
 }: Readonly<React.ComponentProps<"div"> & {
@@ -21,10 +22,11 @@ export function SubPage({
   title: string
   subTitle?: string
   icon?: React.ReactNode
+  noScrollPage?: boolean
   className?: string
 }>) {
   return (
-    <div className="px-16 flex-1 flex flex-col gap-6">
+    <div className={cn("px-16 flex-1 flex flex-col gap-6", noScrollPage && "max-h-screen")}>
       <div className="pt-10 pb-5 flex flex-col gap-8">
         <div className="flex items-center gap-4">
           <SidebarTrigger className="cursor-pointer"/>

@@ -85,9 +85,13 @@ export default function Terminal() {
   }, [client]);
 
   return (
-    <SubPage title="后台" icon={<SquareTerminal />} className="grid grid-cols-5 max-md:grid-cols-4 max-sm:grid-cols-1 gap-3">
-      <div className="h-[500px] max-h-[500px] col-span-4 max-md:col-span-3 flex flex-col gap-3">
-        <TerminalConnector client={client} level={logLevel} className="flex-1"/>
+    <SubPage
+      title="后台"
+      icon={<SquareTerminal />}
+      noScrollPage
+      className="flex-1 min-h-0 grid grid-cols-5 max-md:grid-cols-4 max-sm:grid-cols-1 gap-3">
+      <div className="min-h-0 col-span-4 max-md:col-span-3 flex flex-col gap-3">
+        <TerminalConnector client={client} level={logLevel}/>
         <div className="flex gap-2">
           <Select
             defaultValue={defaultLogLevel}
