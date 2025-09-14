@@ -1,5 +1,5 @@
 package net.opanel;
 
 public enum ServerType {
-    BUKKIT, FABRIC, FORGE, NEOFORGE
+    BUKKIT, FABRIC, FORGE, NEOFORGE, FOLIA
 }

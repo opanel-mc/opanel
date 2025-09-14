@@ -35,12 +35,13 @@ OPanel 的功能包括：
 
 以下服务端平台和 Minecraft 版本已经过测试：
 
-|服务器类型|版本|
+|服务端类型|版本|
 |---|---|
-|Bukkit / Spigot / Paper |>=1.21|
-|Fabric |>=1.21|
-|Forge |1.21-1.21.1, >=1.21.3|
-|NeoForge |>=1.21.5|
+|Bukkit / Spigot / Paper|>=1.21|
+|Fabric|>=1.21|
+|Forge|1.21-1.21.1, >=1.21.3|
+|NeoForge|>=1.21.5|
+|Folia|1.20-1.20.6|
 
 ### 预览
 

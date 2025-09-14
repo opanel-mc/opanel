@@ -76,6 +76,7 @@ public class WebServer {
 
         server.start();
         plugin.logger.info("Web server is ready on port "+ PORT);
+        plugin.initializeAccessKey();
 
         server.addEventListener(new LifeCycle.Listener() {
             @Override

@@ -47,7 +47,7 @@ public class Main extends JavaPlugin implements Listener {
         final LoggerImpl logger = new LoggerImpl(LOGGER);
 
         saveDefaultConfig();
-        instance = new OPanel(new ConfigManagerImpl(getConfig()), logger);
+        instance = new OPanel(new ConfigManagerImpl(getConfig(), this), logger);
 
         initLogListenerAppender();
         initServerTickListener();

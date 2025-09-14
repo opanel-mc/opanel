@@ -88,6 +88,16 @@ public class OPanel {
         configManager.set(config);
     }
 
+    public void initializeAccessKey() { // This method will be called when the web server is ready
+        OPanelConfiguration config = getConfig();
+        if(!config.accessKey.isEmpty()) return;
+
+        final String accessKey = Utils.generateRandomCharSequence(12);
+        config.accessKey = Utils.md5(Utils.md5(accessKey));
+        setConfig(config);
+        logger.info("Initial launching detected, a new access key is generated: "+ accessKey);
+    }
+
     public Uptimer getUptimer() {
         return uptimer;
     }
