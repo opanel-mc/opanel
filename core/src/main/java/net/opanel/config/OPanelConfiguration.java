@@ -2,7 +2,8 @@ package net.opanel.config;
 
 public class OPanelConfiguration {
     public static final OPanelConfiguration defaultConfig = new OPanelConfiguration(
-            "14e1b600b1fd579f47433b88e8d85291", // 123456 (hashed 2)
+//            "14e1b600b1fd579f47433b88e8d85291", // 123456 (hashed 2)
+            "", // to be generated on the initial launch
             "opanel",
             3000
     );

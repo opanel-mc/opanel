@@ -2,13 +2,16 @@ package net.opanel.spigot_1_20.config;
 
 import net.opanel.config.ConfigManager;
 import net.opanel.config.OPanelConfiguration;
+import net.opanel.spigot_1_20.Main;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public class ConfigManagerImpl implements ConfigManager {
     private final FileConfiguration configSrc;
+    private final Main plugin;
 
-    public ConfigManagerImpl(FileConfiguration configSrc) {
+    public ConfigManagerImpl(FileConfiguration configSrc, Main plugin) {
         this.configSrc = configSrc;
+        this.plugin = plugin;
     }
 
     @Override
@@ -25,5 +28,6 @@ public class ConfigManagerImpl implements ConfigManager {
         configSrc.set("accessKey", config.accessKey);
         configSrc.set("salt", config.salt);
         configSrc.set("webServerPort", config.webServerPort);
+        plugin.saveConfig();
     }
 }
