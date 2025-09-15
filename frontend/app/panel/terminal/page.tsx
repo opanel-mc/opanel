@@ -89,9 +89,9 @@ export default function Terminal() {
       title="后台"
       icon={<SquareTerminal />}
       noScrollPage
-      className="flex-1 min-h-0 grid grid-cols-5 max-md:grid-cols-4 max-sm:grid-cols-1 gap-3">
-      <div className="min-h-0 col-span-4 max-md:col-span-3 flex flex-col gap-3">
-        <TerminalConnector client={client} level={logLevel}/>
+      className="flex-1 min-h-0 flex gap-3">
+      <div className="flex-4/5 max-lg:flex-3/4 max-md:flex-2/3 flex flex-col gap-3">
+        <TerminalConnector client={client} level={logLevel} className="flex-1"/>
         <div className="flex gap-2">
           <Select
             defaultValue={defaultLogLevel}
@@ -130,7 +130,7 @@ export default function Terminal() {
           </Button>
         </div>
       </div>
-      <div className="flex flex-col gap-2 max-sm:hidden">
+      <div className="flex-1/5 max-lg:flex-1/4 max-md:flex-1/3 flex flex-col gap-2 max-sm:hidden">
         <div className="px-3 flex justify-between items-center">
           <h2 className="text-md font-semibold">历史记录</h2>
           <Button
