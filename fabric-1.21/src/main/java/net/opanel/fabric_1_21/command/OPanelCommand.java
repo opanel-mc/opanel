@@ -8,6 +8,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.opanel.OPanel;
 import net.opanel.common.Constants;
+import net.opanel.web.WebServer;
 
 import static net.minecraft.server.command.CommandManager.*;
 
@@ -33,6 +34,42 @@ public class OPanelCommand implements CommandRegistrationCallback {
                                 literal("status")
                                         .executes(ctx -> {
                                             ctx.getSource().sendFeedback(() -> Text.of(instance.getStatus()), false);
+                                            return 1;
+                                        })
+                        )
+                        .then(
+                                literal("start")
+                                        .executes(ctx -> {
+                                            WebServer webServer = instance.getWebServer();
+                                            if(webServer.isRunning()) {
+                                                ctx.getSource().sendFeedback(() -> Text.of("Web panel is already started."), false);
+                                            } else {
+                                                try {
+                                                    webServer.start();
+                                                    ctx.getSource().sendFeedback(() -> Text.of("Web panel is started successfully."), false);
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                    return 0;
+                                                }
+                                            }
+                                            return 1;
+                                        })
+                        )
+                        .then(
+                                literal("stop")
+                                        .executes(ctx -> {
+                                            WebServer webServer = instance.getWebServer();
+                                            if(!webServer.isRunning()) {
+                                                ctx.getSource().sendFeedback(() -> Text.of("Web panel is already stopped."), false);
+                                            } else {
+                                                try {
+                                                    webServer.stop();
+                                                    ctx.getSource().sendFeedback(() -> Text.of("Web panel is stopped successfully."), false);
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                    return 0;
+                                                }
+                                            }
                                             return 1;
                                         })
                         )
