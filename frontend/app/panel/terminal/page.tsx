@@ -90,7 +90,7 @@ export default function Terminal() {
       icon={<SquareTerminal />}
       noScrollPage
       className="flex-1 min-h-0 flex gap-3">
-      <div className="flex-4/5 max-lg:flex-3/4 max-md:flex-2/3 flex flex-col gap-3">
+      <div className="flex-4/5 max-lg:flex-3/4 max-md:flex-2/3 min-w-0 flex flex-col gap-3">
         <TerminalConnector client={client} level={logLevel} className="flex-1"/>
         <div className="flex gap-2">
           <Select
