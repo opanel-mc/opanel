@@ -19,5 +19,6 @@ public class ConfigManagerImpl implements ConfigManager {
     @Override
     public void set(OPanelConfiguration config) {
         configSrc.set(config);
+        configSrc.save();
     }
 }
