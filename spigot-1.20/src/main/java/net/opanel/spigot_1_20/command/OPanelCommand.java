@@ -2,6 +2,7 @@ package net.opanel.spigot_1_20.command;
 
 import net.opanel.OPanel;
 import net.opanel.common.Constants;
+import net.opanel.web.WebServer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -22,6 +23,32 @@ public class OPanelCommand implements CommandExecutor, TabCompleter {
         switch(args[0]) {
             case "about" -> sender.sendMessage(Constants.ABOUT_INFO);
             case "status" -> sender.sendMessage(instance.getStatus());
+            case "start" -> {
+                WebServer webServer = instance.getWebServer();
+                if(webServer.isRunning()) {
+                    sender.sendMessage("Web panel is already started.");
+                } else {
+                    try {
+                        webServer.start();
+                        sender.sendMessage("Web panel is started successfully.");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            case "stop" -> {
+                WebServer webServer = instance.getWebServer();
+                if(!webServer.isRunning()) {
+                    sender.sendMessage("Web panel is already stopped.");
+                } else {
+                    try {
+                        webServer.stop();
+                        sender.sendMessage("Web panel is stopped successfully.");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
         return true;
     }
@@ -29,6 +56,6 @@ public class OPanelCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if(args.length != 1) return List.of();
-        return List.of("about", "status");
+        return List.of("about", "status", "start", "stop");
     }
 }

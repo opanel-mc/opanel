@@ -129,11 +129,6 @@ export function AutocompleteInput({
   useEffect(() => {
     if(!inputRef.current) return;
     const input = inputRef.current;
-    const rect = input.getBoundingClientRect();
-
-    // Set the position of autocomplete container
-    setTop(rect.top + rect.height + 2); // y offset 2px
-    setLeft(input.offsetLeft + getCaretCoordinates(input, input.selectionStart ?? 0).left);
 
     // Update advised item list
     const advised = [];
@@ -148,6 +143,19 @@ export function AutocompleteInput({
     // Select the first item by default
     setSelected(advised.length > 0 ? 0 : null);
   }, [value, itemList, inputRef]);
+
+  // Set the position of autocomplete container when `advisedList` being updated
+  useEffect(() => {
+    if(!inputRef.current || !listContainerRef.current) return;
+    const input = inputRef.current;
+    const inputRect = input.getBoundingClientRect();
+    const listRect = listContainerRef.current.getBoundingClientRect();
+    
+    if(listRect.height === 0) return;
+
+    setTop(inputRect.top - listRect.height - 2); // y offset 2px
+    setLeft(input.offsetLeft + getCaretCoordinates(input, input.selectionStart ?? 0).left);
+  }, [advisedList, inputRef, listContainerRef]);
 
   return (
     <InputContext.Provider value={{

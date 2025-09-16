@@ -9,5 +9,5 @@ api-version: '${minecraft_version}'
 commands:
   opanel:
     description: Get status or about info of OPanel
-    usage: /opanel [about|status]
+    usage: /opanel [about|status|start|stop]
     permission: opanel.command.opanel

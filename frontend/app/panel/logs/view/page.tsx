@@ -75,7 +75,7 @@ export default function LogView() {
         </div>
       </div>
       <Editor
-        height="500px"
+        height="550px"
         defaultLanguage="txt"
         defaultValue={content}
         theme={theme === "dark" ? "vs-dark" : "vs"}

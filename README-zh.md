@@ -31,18 +31,6 @@ OPanel 的功能包括：
 - 终端控制台：可以直接从 Web 面板发送消息或执行命令
 - 服务器日志管理器和查看器
 
-### 版本支持
-
-以下服务端平台和 Minecraft 版本已经过测试：
-
-|服务端类型|版本|
-|---|---|
-|Bukkit / Spigot / Paper|>=1.21|
-|Fabric|>=1.21|
-|Forge|1.21-1.21.1, >=1.21.3|
-|NeoForge|>=1.21.5|
-|Folia|1.20-1.20.6|
-
 ### 预览
 
 ![preview-dashboard](./images/preview-dashboard.png)
@@ -53,15 +41,7 @@ OPanel 的功能包括：
 
 ## 用法
 
-只需从 [releases](https://github.com/nocpiun/opanel/releases) 下载对应的 jar 文件，并将其拖入您的 plugins / mods 文件夹。启动服务器后，即可通过 `localhost:3000` 访问网页面板。
-
-### 配置
-
-您可以通过在服务器文件夹内生成的配置文件来配置 OPanel。
-
-- `accessKey`: 用于访问 Web 面板的访问密钥。（默认值: "123456"）
-- `salt`: 生成令牌时使用的盐。（默认值: "opanel"）
-- `webServerPort`: Web 面板的端口。（默认值: 3000）
+请阅读[快速开始](https://opanel.cn/docs/quick-start.html)。
 
 ## 贡献
 

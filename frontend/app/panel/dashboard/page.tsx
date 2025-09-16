@@ -58,15 +58,19 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <SubPage title="仪表盘" icon={<Gauge />} className="h-[650px] max-xl:h-fit grid grid-rows-4 grid-cols-3 max-xl:flex flex-col gap-3 pb-20 [&>*]:p-4">
+    <SubPage
+      title="仪表盘"
+      icon={<Gauge />}
+      noScrollPage
+      className="flex-1 min-h-0 max-xl:h-fit grid grid-rows-5 grid-cols-3 max-xl:flex flex-col gap-3 pb-20 [&>*]:p-4">
       <InfoContext.Provider value={info}>
         <MonitorContext.Provider value={monitorData}>
           <InfoCard className="row-start-1 col-span-2"/>
-          <TimeCard className="row-start-4"/>
-          <PlayersCard className="row-span-2 row-start-2"/>
-          <MonitorCard className="row-span-2 row-start-2"/>
-          <TPSCard className="row-start-4"/>
-          <TerminalCard className="row-span-4 max-sm:hidden"></TerminalCard>
+          <TimeCard className="row-start-5"/>
+          <PlayersCard className="row-span-3 row-start-2"/>
+          <MonitorCard className="row-span-3 row-start-2"/>
+          <TPSCard className="row-start-5"/>
+          <TerminalCard className="row-span-5 max-sm:hidden"></TerminalCard>
         </MonitorContext.Provider>
       </InfoContext.Provider>
     </SubPage>
