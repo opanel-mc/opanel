@@ -31,18 +31,6 @@ The features of OPanel include:
 - Server terminal that can directly send messages or execute commands from the web panel.
 - Server logs manager and viewer.
 
-### Supported platforms and versions
-
-The following target platforms and minecraft versions are tested and proved to be supported:
-
-|Server Type|Version|
-|---|---|
-|Bukkit / Spigot / Paper|>=1.20|
-|Fabric|1.20.1, >=1.20.4|
-|Forge|1.20.1-1.20.4, 1.20.6, 1.21-1.21.1, >=1.21.3|
-|Neoforge|>=1.21.5|
-|Folia|1.20-1.20.6|
-
 ### Screenshots
 
 ![preview-dashboard](./images/preview-dashboard.png)
@@ -53,15 +41,7 @@ The following target platforms and minecraft versions are tested and proved to b
 
 ## Usage
 
-Just simply download the corresponding jar file from [releases](https://github.com/nocpiun/opanel/releases), and drag it into your plugins / mods folder. After starting your server, you can access the web panel by `localhost:3000`.
-
-### Configuration
-
-You can configure OPanel through the config file generated inside your server folder.
-
-- `accessKey`: The access key that you use to access the web panel. _(Default: "123456")_
-- `salt`: The salt used when generating tokens. _(Default: "opanel")_
-- `webServerPort`: The port of the web panel. _(Default: 3000)_
+Read the [Quick Start](https://opanel.cn/docs/quick-start.html) to get started.
 
 ## Contributing
 
