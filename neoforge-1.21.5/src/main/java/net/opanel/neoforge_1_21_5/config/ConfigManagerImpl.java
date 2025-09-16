@@ -18,5 +18,6 @@ public class ConfigManagerImpl implements ConfigManager {
         Config.ACCESS_KEY.set(config.accessKey);
         Config.SALT.set(config.salt);
         Config.WEB_SERVER_PORT.set(config.webServerPort);
+        Config.SPEC.save();
     }
 }
