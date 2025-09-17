@@ -7,6 +7,11 @@
   "authors": [
     "NriotHrreion"
   ],
+  "contact": {
+    "homepage": "https://opanel.cn",
+    "issues": "https://github.com/opanel-mc/opanel/issues",
+    "sources": "https://github.com/opanel-mc/opanel"
+  },
   "license": "CC0-1.0",
   "icon": "assets/opanel/icon.png",
   "environment": "server",

@@ -1,9 +1,9 @@
 name: OPanel
 version: ${version}
 main: net.opanel.folia_1_20.Main
-description: A Minecraft server management panel (Folia Edition)
+description: A Minecraft server management panel
 author: NriotHrreion
-website:
+website: https://opanel.cn
 api-version: '${minecraft_version}'
 folia-supported: true
 

@@ -3,7 +3,7 @@ version: ${version}
 main: net.opanel.spigot_1_21.Main
 description: A Minecraft server management panel
 author: NriotHrreion
-website:
+website: https://opanel.cn
 api-version: '${minecraft_version}'
 
 commands:
