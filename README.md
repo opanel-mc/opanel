@@ -45,7 +45,7 @@ Read the [Quick Start](https://opanel.cn/docs/quick-start.html) to get started.
 
 ## Contributing
 
-See [Contributing Guidelines](./CONTRIBUTING.md) for more information.
+See [Contributing Guidelines](https://opanel.cn/docs/contributing.html) for more information.
 
 ## Friend Links
 
