@@ -12,7 +12,7 @@ export const apiUrl = (
 export const wsUrl = (
   (process.env.NODE_ENV === "development" || !globalThis["window"])
   ? `ws://localhost:3000` // dev
-  : `ws://${window.location.host}` // prod
+  : `${window.location.protocol === "http:" ? "ws" : "wss"}://${window.location.host}` // prod
 );
 
 /** @see https://crafatar.com */
