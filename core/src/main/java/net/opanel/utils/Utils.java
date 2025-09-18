@@ -175,11 +175,12 @@ public class Utils {
     }
 
     public static String generateRandomCharSequence(int length) {
-        final String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        final String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@$";
         StringBuilder result = new StringBuilder();
         Random rand = new Random();
         while(result.length() < length) {
             int charIndex = Math.round(chars.length() * rand.nextFloat());
+            if(charIndex == chars.length()) charIndex--;
             result.append(chars.charAt(charIndex));
         }
         return result.toString();
