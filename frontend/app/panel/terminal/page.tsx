@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/select";
 import { defaultLogLevel, type ConsoleLogLevel } from "@/lib/terminal/log-levels";
 import { SubPage } from "../sub-page";
+import { getSettings } from "@/lib/settings";
 
 export default function Terminal() {
   const client = useTerminal();
@@ -110,6 +111,7 @@ export default function Terminal() {
             placeholder="发送消息 / 指令..."
             autoFocus
             itemList={autocompleteList}
+            enabled={getSettings("terminal.autocomplete")}
             onKeyDown={(e) => handleKeydown(e)}
             onInput={() => handleInput()}
             ref={inputRef}/>
