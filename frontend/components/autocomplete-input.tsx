@@ -43,6 +43,7 @@ export function AutocompleteInput({
   onKeyDown,
   onInput,
   ref: inputRef,
+  maxLength,
   ...props
 }: ComponentProps<"input"> & {
   itemList: string[]
@@ -166,6 +167,7 @@ export function AutocompleteInput({
       <Input
         {...props}
         autoComplete="off"
+        maxLength={maxLength}
         onKeyDown={(e) => handleKeydown(e)}
         onInput={(e) => {
           setValue((e.target as HTMLInputElement).value);

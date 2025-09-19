@@ -47,6 +47,19 @@ export default function Terminal() {
       return;
     }
 
+    // Command length validation
+    if(command.length > 1000) {
+      toast.error("命令过长，最大长度为1000个字符");
+      return;
+    }
+
+    // Basic command validation
+    const trimmedCommand = command.trim();
+    if(trimmedCommand.length === 0) {
+      toast.warning("请输入有效的指令");
+      return;
+    }
+
     client.send({ type: "command", data: command });
     setHistoryList((current) => [...current, command]);
     handleClear();
@@ -70,10 +83,20 @@ export default function Terminal() {
     if(!inputRef.current || !client) return;
     const elem = inputRef.current;
 
-    client.send({
-      type: "autocomplete",
-      data: getCurrentArgumentNumber(elem.value, elem.selectionStart ?? 0)
-    });
+    // Send enhanced autocomplete request with current input text
+    const inputText = elem.value.trim();
+    if (inputText.length > 0) {
+      client.send({
+        type: "autocomplete",
+        data: inputText
+      });
+    } else {
+      // Fallback to original behavior for empty input
+      client.send({
+        type: "autocomplete",
+        data: getCurrentArgumentNumber(elem.value, elem.selectionStart ?? 0)
+      });
+    }
   }, [client]);
 
   useEffect(() => {
