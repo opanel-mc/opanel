@@ -5,7 +5,8 @@ import {
   useCallback,
   useEffect,
   useRef,
-  useState
+  useState,
+  useMemo
 } from "react";
 import { ArrowUp, SquareTerminal, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
@@ -70,11 +71,32 @@ export default function Terminal() {
     if(!inputRef.current || !client) return;
     const elem = inputRef.current;
 
-    client.send({
-      type: "autocomplete",
-      data: getCurrentArgumentNumber(elem.value, elem.selectionStart ?? 0)
-    });
+    // Send enhanced autocomplete request with current input text
+    const inputText = elem.value.trim();
+    if (inputText.length > 0) {
+      client.send({
+        type: "autocomplete",
+        data: inputText
+      });
+    } else {
+      // Fallback to original behavior for empty input
+      client.send({
+        type: "autocomplete",
+        data: getCurrentArgumentNumber(elem.value, elem.selectionStart ?? 0)
+      });
+    }
   }, [client]);
+
+  // Debounced input handler to reduce request frequency
+  const debouncedHandleInput = useMemo(() => {
+    let timeoutId: any;
+    return () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        handleInput();
+      }, 200); // 200ms debounce delay
+    };
+  }, [handleInput]);
 
   useEffect(() => {
     client?.onMessage((type, data) => {
@@ -107,7 +129,7 @@ export default function Terminal() {
             autoFocus
             itemList={autocompleteList}
             onKeyDown={(e) => handleKeydown(e)}
-            onInput={() => handleInput()}
+            onInput={() => debouncedHandleInput()}
             ref={inputRef}/>
           <Button
             variant="ghost"

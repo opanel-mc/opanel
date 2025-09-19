@@ -1,3 +1,4 @@
 {
-  "postcss.validate": false
+  "postcss.validate": false,
+  "java.configuration.updateBuildConfiguration": "automatic"
 }
