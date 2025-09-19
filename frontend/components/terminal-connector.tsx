@@ -1,7 +1,7 @@
 import type { ConsoleLog, WebSocketClient } from "@/lib/terminal/client";
 import { useEffect, useRef, useState } from "react";
 import { format } from "date-format-parse";
-import Convert from "ansi-to-html";
+import AnsiConverter from "ansi-to-html";
 import { cn } from "@/lib/utils";
 import { defaultLogLevel, getLogLevelId, type ConsoleLogLevel } from "@/lib/terminal/log-levels";
 import { getSettings } from "@/lib/settings";
@@ -56,12 +56,12 @@ function Log({
         thrownMessage == null
         ? (
           getSettings("terminal.convert-ansi-code")
-          ? <span dangerouslySetInnerHTML={{ __html: new Convert().toHtml(line) }}/>
+          ? <span dangerouslySetInnerHTML={{ __html: new AnsiConverter().toHtml(line) }}/>
           : <span>{line}</span>
         )
         : (
           getSettings("terminal.convert-ansi-code")
-          ? <span dangerouslySetInnerHTML={{ __html: new Convert().toHtml(line +"\n"+ thrownMessage) }}/>
+          ? <span dangerouslySetInnerHTML={{ __html: new AnsiConverter().toHtml(line +"\n"+ thrownMessage) }}/>
           : <span>{line +"\n"+ thrownMessage}</span>
         )
       }
