@@ -177,9 +177,39 @@ public class FoliaServer implements OPanelServer {
     @Override
     public List<String> getCommands() {
         List<String> commands = new ArrayList<>();
+        Set<String> uniqueCommands = new HashSet<>();
+        
+        // Get commands from HelpMap (includes plugin commands)
         for(HelpTopic topic : server.getHelpMap().getHelpTopics()) {
-            commands.add(topic.getName().toLowerCase().replaceFirst("/", ""));
+            String commandName = topic.getName().toLowerCase().replaceFirst("/", "");
+            if (!commandName.isEmpty() && !commandName.contains(" ")) {
+                uniqueCommands.add(commandName);
+            }
         }
+        
+        // Add common vanilla commands that might be missing from HelpMap
+        String[] commonCommands = {
+            "give", "tp", "teleport", "gamemode", "time", "weather", 
+            "kill", "clear", "effect", "enchant", "experience", "xp",
+            "fill", "setblock", "summon", "say", "tell", "msg", "list",
+            "op", "deop", "ban", "unban", "pardon", "kick", "whitelist",
+            "reload", "stop", "save-all", "difficulty", "gamerule"
+        };
+        
+        for (String cmd : commonCommands) {
+            uniqueCommands.add(cmd);
+        }
+        
+        // Filter out common unwanted commands
+        uniqueCommands.removeIf(cmd -> 
+            cmd.startsWith("minecraft:") || 
+            cmd.startsWith("bukkit:") ||
+            cmd.equals("?") ||
+            cmd.length() > 50 // Remove extremely long command names
+        );
+        
+        commands.addAll(uniqueCommands);
+        commands.sort(String::compareToIgnoreCase);
         return commands;
     }
 

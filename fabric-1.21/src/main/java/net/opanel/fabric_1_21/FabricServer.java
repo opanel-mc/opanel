@@ -197,10 +197,47 @@ public class FabricServer implements OPanelServer {
     @Override
     public List<String> getCommands() {
         List<String> commands = new ArrayList<>();
-        CommandDispatcher<ServerCommandSource> dispatcher = server.getCommandManager().getDispatcher();
-        for(CommandNode<ServerCommandSource> node : dispatcher.getRoot().getChildren()) {
-            commands.add(node.getName());
+        Set<String> uniqueCommands = new HashSet<>();
+        
+        try {
+            CommandDispatcher<ServerCommandSource> dispatcher = server.getCommandManager().getDispatcher();
+            
+            // Get all command nodes from dispatcher
+            for(CommandNode<ServerCommandSource> node : dispatcher.getRoot().getChildren()) {
+                String commandName = node.getName().toLowerCase();
+                
+                // Filter out unwanted commands
+                if (!commandName.isEmpty() && 
+                    !commandName.startsWith("minecraft:") &&
+                    !commandName.startsWith("fabric:") &&
+                    !commandName.equals("?") &&
+                    commandName.length() <= 50) {
+                    uniqueCommands.add(commandName);
+                }
+            }
+            
+            // Add common vanilla commands that might be missing
+            String[] commonCommands = {
+                "give", "tp", "teleport", "gamemode", "time", "weather", 
+                "kill", "clear", "effect", "enchant", "experience", "xp",
+                "fill", "setblock", "summon", "say", "tell", "msg"
+            };
+            
+            for (String cmd : commonCommands) {
+                uniqueCommands.add(cmd);
+            }
+            
+        } catch (Exception e) {
+            // Fallback to basic command set if dispatcher access fails
+            System.err.println("[OPanel] Failed to access command dispatcher: " + e.getMessage());
+            uniqueCommands.addAll(Arrays.asList(
+                "give", "tp", "gamemode", "time", "weather", "kill", "clear", 
+                "effect", "say", "tell", "list", "stop", "reload"
+            ));
         }
+        
+        commands.addAll(uniqueCommands);
+        commands.sort(String::compareToIgnoreCase);
         return commands;
     }
 

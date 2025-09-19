@@ -30,6 +30,31 @@ public interface OPanelServer {
     OPanelWhitelist getWhitelist();
     void sendServerCommand(String command);
     List<String> getCommands();
+    
+    /**
+     * Get commands filtered by category
+     */
+    default List<String> getCommandsByCategory(CommandCategory.Category category) {
+        List<String> allCommands = getCommands();
+        return CommandCategory.filterByCategory(allCommands, category);
+    }
+    
+    /**
+     * Get commands grouped by category
+     */
+    default Map<CommandCategory.Category, List<String>> getCommandsGrouped() {
+        List<String> allCommands = getCommands();
+        return CommandCategory.groupByCategory(allCommands);
+    }
+    
+    /**
+     * Get commands sorted by priority
+     */
+    default List<String> getCommandsSorted() {
+        List<String> allCommands = getCommands();
+        return CommandCategory.sortByPriority(allCommands);
+    }
+    
     HashMap<String, Object> getGamerules();
     void setGamerules(HashMap<String, Object> gamerules);
     void reload();

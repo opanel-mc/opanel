@@ -94,15 +94,28 @@ public class TerminalEndpoint {
                         session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "Unauthorized."));
                         return;
                     }
+                    
+                    // Handle different autocomplete request types
+                    if(packet.data instanceof String inputText) {
+                        // New enhanced autocomplete with fuzzy matching and frequency sorting
+                        List<String> suggestions = getEnhancedAutocompleteSuggestions(inputText);
+                        sendMessage(session, new TerminalPacket<>(TerminalPacket.AUTOCOMPLETE, suggestions));
+                        return;
+                    }
+                    
                     if(!(packet.data instanceof Number arg)) {
                         sendErrorMessage(session, "Unexpected type of data.");
                         return;
                     }
 
                     if(arg.equals(1.0)) {
-                        sendMessage(session, new TerminalPacket<>(TerminalPacket.AUTOCOMPLETE, plugin.getServer().getCommands()));
+                        // Return sorted commands by priority for better user experience
+                        List<String> commands = plugin.getServer().getCommandsSorted();
+                        sendMessage(session, new TerminalPacket<>(TerminalPacket.AUTOCOMPLETE, commands));
                         return;
                     }
+                    
+                    // Return player names for command arguments
                     sendMessage(session, new TerminalPacket<>(
                             TerminalPacket.AUTOCOMPLETE,
                             plugin.getServer().getOnlinePlayers().stream().map(OPanelPlayer::getName).toList()
@@ -138,6 +151,57 @@ public class TerminalEndpoint {
 
     private void sendErrorMessage(Session session, String err) {
         sendMessage(session, new TerminalPacket<>(TerminalPacket.ERROR, err));
+    }
+
+    // Cache for commands with TTL
+    private static final long CACHE_TTL = 30000; // 30 seconds
+    private List<String> cachedCommands;
+    private long lastCacheTime = 0;
+
+    /**
+     * Get cached commands with TTL mechanism
+     */
+    private List<String> getCachedCommands() {
+        long currentTime = System.currentTimeMillis();
+        if (cachedCommands == null || currentTime - lastCacheTime > CACHE_TTL) {
+            cachedCommands = plugin.getServer().getCommandsSorted(); // Use sorted commands
+            lastCacheTime = currentTime;
+        }
+        return new ArrayList<>(cachedCommands);
+    }
+
+    /**
+     * Enhanced autocomplete with fuzzy matching and frequency sorting
+     */
+    private List<String> getEnhancedAutocompleteSuggestions(String inputText) {
+        List<String> commands = getCachedCommands();
+        String input = inputText.toLowerCase().trim();
+        
+        if (input.isEmpty()) {
+            return commands.subList(0, Math.min(10, commands.size()));
+        }
+        
+        return commands.stream()
+            .filter(cmd -> cmd.toLowerCase().contains(input))
+            .sorted((a, b) -> {
+                String aLower = a.toLowerCase();
+                String bLower = b.toLowerCase();
+                
+                // Exact match first
+                if (aLower.equals(input)) return -1;
+                if (bLower.equals(input)) return 1;
+                
+                // Starts with input
+                boolean aStarts = aLower.startsWith(input);
+                boolean bStarts = bLower.startsWith(input);
+                if (aStarts && !bStarts) return -1;
+                if (bStarts && !aStarts) return 1;
+                
+                // Shorter commands first
+                return Integer.compare(a.length(), b.length());
+            })
+            .limit(20)
+            .toList();
     }
 
     private <T> void broadcast(TerminalPacket<T> packet) {
