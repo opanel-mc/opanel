@@ -73,7 +73,21 @@ public class TerminalEndpoint {
                         sendErrorMessage(session, "Unexpected type of data.");
                         return;
                     }
-                    plugin.getServer().sendServerCommand(command.replaceFirst("/", ""));
+                    
+                    // Command validation and security checks
+                    if (command.length() > 1000) {
+                        sendErrorMessage(session, "Command too long. Maximum length is 1000 characters.");
+                        return;
+                    }
+                    
+                    if (command.trim().isEmpty()) {
+                        sendErrorMessage(session, "Empty command not allowed.");
+                        return;
+                    }
+                    
+                    String cleanCommand = command.replaceFirst("/", "");
+                    
+                    plugin.getServer().sendServerCommand(cleanCommand);
                 }
                 case TerminalPacket.AUTOCOMPLETE -> {
                     if(!sessions.contains(session)) {
