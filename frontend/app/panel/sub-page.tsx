@@ -26,7 +26,7 @@ export function SubPage({
   className?: string
 }>) {
   return (
-    <div className={cn("px-16 flex-1 flex flex-col gap-6", noScrollPage && "max-h-screen")}>
+    <div className={cn("px-16 max-md:px-12 max-sm:px-8 flex-1 flex flex-col gap-6 max-md:gap-2", noScrollPage && "max-h-screen")}>
       <div className="pt-10 pb-5 flex flex-col gap-8">
         <div className="flex items-center gap-4">
           <SidebarTrigger className="cursor-pointer"/>

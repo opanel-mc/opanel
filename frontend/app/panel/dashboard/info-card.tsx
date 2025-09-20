@@ -90,15 +90,15 @@ export function InfoCard({
   const ctx = useContext(InfoContext);
 
   return (
-    <Card className={cn(className, "flex flex-col max-sm:gap-3")}>
-      <div className="min-sm:flex-1 flex gap-6 max-sm:border-b max-sm:pb-3">
+    <Card className={cn(className, "flex flex-col rounded-md max-lg:gap-3")}>
+      <div className="min-lg:flex-1 flex max-md:flex-col gap-6 max-lg:border-b max-lg:pb-3">
         <img
           className="aspect-square h-full rounded-xs image-pixelated"
           src={(ctx && ctx.favicon) ? (apiUrl + ctx.favicon) : PackIcon.src}
           alt="favicon"/>
         
         <div className="flex-1 flex flex-col gap-2">
-          <div className="flex gap-4 [&>*]:space-x-2">
+          <div className="flex max-lg:flex-col gap-4 max-lg:gap-1 [&>*]:space-x-2">
             <div>
               <span className="font-semibold text-nowrap">版本:</span>
               <span>{ctx?.version}</span>
@@ -113,14 +113,14 @@ export function InfoCard({
           </div>
         </div>
         <div className="flex flex-col justify-between">
-          <Badge className="self-end max-sm:hidden" variant="outline">
+          <Badge className="self-end max-lg:hidden" variant="outline">
             <div className={cn("w-2 h-2 rounded-full", ctx ? "bg-green-600" : "bg-red-700")}/>
             {ctx ? "正在运行" : "未运行"}
           </Badge>
-          <ControlButtonGroup className="self-end max-sm:hidden"/>
+          <ControlButtonGroup className="self-end max-lg:hidden"/>
         </div>
       </div>
-      <ControlButtonGroup className="hidden flex-row-reverse self-start max-sm:flex"/>
+      <ControlButtonGroup className="hidden flex-row-reverse self-start max-lg:flex"/>
     </Card>
   );
 }

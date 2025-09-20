@@ -48,7 +48,7 @@ export default function Players() {
       className="flex flex-col gap-3">
       <span className="text-sm text-muted-foreground">点击玩家名以进行更多操作。</span>
       <Tabs defaultValue="player-list" onValueChange={setCurrentTab}>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center max-sm:flex-col max-sm:items-start max-sm:gap-2">
           <TabsList className="[&>*]:cursor-pointer">
             <TabsTrigger value="player-list">
               {`玩家列表 (${players.filter(({ isOnline }) => isOnline).length} / ${maxPlayerCount})`}

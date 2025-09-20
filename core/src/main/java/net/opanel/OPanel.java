@@ -95,7 +95,10 @@ public class OPanel {
         final String accessKey = Utils.generateRandomCharSequence(12);
         config.accessKey = Utils.md5(Utils.md5(accessKey));
         setConfig(config);
-        logger.info("Initial launching detected, a new access key is generated: "+ accessKey);
+        logger.warn("=======================OPanel=======================");
+        logger.warn("Initial launching detected,");
+        logger.warn("A new access key is generated: "+ accessKey);
+        logger.warn("====================================================");
     }
 
     public Uptimer getUptimer() {

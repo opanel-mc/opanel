@@ -7,8 +7,7 @@ import {
   FileText,
   Github,
   HandCoins,
-  Milestone,
-  UsersRound
+  Milestone
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -42,8 +41,13 @@ const info = [
     icon: AtSign
   },
   {
+    name: "官网",
+    value: <a href="https://opanel.cn" target="_blank">https://opanel.cn</a>,
+    icon: Earth
+  },
+  {
     name: "仓库",
-    value: <a href="https://github.com/nocpiun/opanel" target="_blank">https://github.com/nocpiun/opanel</a>,
+    value: <a href="https://github.com/opanel-mc/opanel" target="_blank">opanel-mc/opanel</a>,
     icon: Github
   },
   {
@@ -67,7 +71,7 @@ export default function About() {
       <CardContent className="space-y-2">
         <Brand className="w-fit mx-auto my-10 [&_svg]:w-72"/>
         <p>
-          <span className={cn("text-theme font-semibold", minecraftAE.className)}>OPanel</span> 是一个开箱即用的 Minecraft 服务器管理面板，支持Bukkit、Fabric和Forge平台。
+          <span className={cn("text-theme font-semibold", minecraftAE.className)}>OPanel</span> 是一个开箱即用的 Minecraft 服务器管理面板，支持Bukkit、Fabric和Forge等多个平台。
         </p>
         <Table>
           <TableBody>
@@ -95,15 +99,6 @@ export default function About() {
           </Button>
         </div>
         <div className="space-x-2">
-          <Button
-            variant="secondary"
-            size="icon"
-            title="参与人员"
-            asChild>
-            <Link href="/about/credits">
-              <UsersRound />
-            </Link>
-          </Button>
           <Button
             variant="secondary"
             size="icon"

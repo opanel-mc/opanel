@@ -45,7 +45,7 @@ OPanel 的功能包括：
 
 ## 贡献
 
-查看 [Contributing Guidelines](./CONTRIBUTING.md) 以了解更多信息。
+查看[贡献指南](https://opanel.cn/docs/contributing.html)以了解更多信息。
 
 ## License
 

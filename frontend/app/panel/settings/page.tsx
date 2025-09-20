@@ -12,9 +12,10 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { SettingsNumberInput, SettingsSwitch } from "./settings-control";
+import { controlWidth, SettingsNumberInput, SettingsSwitch } from "./settings-control";
 import { Button } from "@/components/ui/button";
 import { SecurityDialog } from "./security-dialog";
+import { cn } from "@/lib/utils";
 
 function SettingsItem<K extends keyof SettingsStorageType>({
   name,
@@ -52,6 +53,10 @@ export default function Settings() {
         </Section>
         <Section title="后台终端">
           <SettingsItem
+            id="terminal.autocomplete"
+            name="命令补全"
+            control={<SettingsSwitch id="terminal.autocomplete"/>}/>
+          <SettingsItem
             id="terminal.word-wrap"
             name="自动换行"
             control={<SettingsSwitch id="terminal.word-wrap"/>}/>
@@ -68,7 +73,7 @@ export default function Settings() {
               <Select
                 defaultValue={getSettings("terminal.log-level")}
                 onValueChange={(value) => changeSettings("terminal.log-level", value as ConsoleLogLevel)}>
-                <SelectTrigger className="w-36 font-[Consolas]">
+                <SelectTrigger className={cn(controlWidth, "font-[Consolas]")}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="font-[Consolas]">

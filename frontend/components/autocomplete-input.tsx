@@ -40,12 +40,14 @@ function AutocompleteItem({
 
 export function AutocompleteInput({
   itemList,
+  enabled = true,
   onKeyDown,
   onInput,
   ref: inputRef,
   ...props
 }: ComponentProps<"input"> & {
   itemList: string[]
+  enabled?: boolean
   ref: RefObject<HTMLInputElement | null>
 }) {
   const [value, setValue] = useState("");
@@ -174,7 +176,7 @@ export function AutocompleteInput({
         data-current-selected={selected ?? 0}
         ref={inputRef}/>
       <div
-        className={cn("absolute flex flex-col bg-popover min-w-40 w-fit max-h-32 p-1 border rounded-sm overflow-y-auto", isInvisible ? "hidden" : "")}
+        className={cn("absolute flex flex-col bg-popover min-w-40 w-fit max-h-32 p-1 border rounded-sm overflow-y-auto", (!enabled || isInvisible) ? "hidden" : "")}
         style={{ top, left }}
         ref={listContainerRef}>
         {advisedList.map((item, i) => (
