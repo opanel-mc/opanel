@@ -95,37 +95,39 @@ export function DataTable<D, V>({
         </Table>
       </div>
       {pagination && (
-        <div className="flex gap-3 items-center [&>button]:cursor-pointer">
-          <Button
-            variant="outline"
-            size="icon"
-            title="跳转至第一页"
-            onClick={() => table.firstPage()}
-            disabled={!table.getCanPreviousPage()}>
-            <ChevronsLeft />
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}>
-            <ChevronLeft />
-            上一页
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}>
-            下一页
-            <ChevronRight />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            title="跳转至最后一页"
-            onClick={() => table.lastPage()}
-            disabled={!table.getCanNextPage()}>
-            <ChevronsRight />
-          </Button>
+        <div className="flex gap-3 items-center max-md:flex-col">
+          <div className="flex gap-3 items-center [&>button]:cursor-pointer">
+            <Button
+              variant="outline"
+              size="icon"
+              title="跳转至第一页"
+              onClick={() => table.firstPage()}
+              disabled={!table.getCanPreviousPage()}>
+              <ChevronsLeft />
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}>
+              <ChevronLeft />
+              上一页
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}>
+              下一页
+              <ChevronRight />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              title="跳转至最后一页"
+              onClick={() => table.lastPage()}
+              disabled={!table.getCanNextPage()}>
+              <ChevronsRight />
+            </Button>
+          </div>
           <span className="text-muted-foreground text-sm">第 {paginationState.pageIndex + 1} 页 / 共 {table.getPageCount()} 页</span>
         </div>
       )}

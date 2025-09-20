@@ -97,7 +97,7 @@ export default function Terminal() {
           <Select
             defaultValue={defaultLogLevel}
             onValueChange={(value) => setLogLevel(value as ConsoleLogLevel)}>
-            <SelectTrigger className="w-24 font-[Consolas]" title="日志等级">
+            <SelectTrigger className="w-24 max-sm:w-20 font-[Consolas]" title="日志等级">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="font-[Consolas]">
@@ -118,7 +118,7 @@ export default function Terminal() {
           <Button
             variant="ghost"
             size="icon"
-            className="cursor-pointer"
+            className="cursor-pointer max-sm:hidden"
             title="清空"
             onClick={() => handleClear()}>
             <X />
@@ -132,7 +132,7 @@ export default function Terminal() {
           </Button>
         </div>
       </div>
-      <div className="flex-1/5 max-lg:flex-1/4 max-md:flex-1/3 flex flex-col gap-2 max-sm:hidden">
+      <div className="flex-1/5 max-lg:flex-1/4 max-md:flex-1/3 flex flex-col gap-2 max-lg:hidden">
         <div className="px-3 flex justify-between items-center">
           <h2 className="text-md font-semibold">历史记录</h2>
           <Button

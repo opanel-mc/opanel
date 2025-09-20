@@ -47,7 +47,7 @@ const info = [
   },
   {
     name: "仓库",
-    value: <a href="https://github.com/opanel-mc/opanel" target="_blank">https://github.com/opanel-mc/opanel</a>,
+    value: <a href="https://github.com/opanel-mc/opanel" target="_blank">opanel-mc/opanel</a>,
     icon: Github
   },
   {

@@ -48,7 +48,7 @@ export function TimeCard({
       icon={Clock}
       title="时间"
       className={className}
-      innerClassName="h-full p-4 pt-0 flex [&>*]:flex-1">
+      innerClassName="h-full p-4 pt-0 flex max-sm:flex-col max-sm:gap-4 [&>*]:flex-1">
       {
         ctx && (
           <>

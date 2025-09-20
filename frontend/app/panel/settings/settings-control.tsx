@@ -3,6 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { changeSettings, getSettings, type SettingsStorageType } from "@/lib/settings";
 
+export const controlWidth = "w-36 max-sm:w-24";
+
 export function SettingsInput<K extends keyof SettingsStorageType>({
   id,
   ...props
@@ -12,7 +14,7 @@ export function SettingsInput<K extends keyof SettingsStorageType>({
   return (
     <Input
       {...props}
-      className="w-36"
+      className={controlWidth}
       defaultValue={getSettings(id) as string}
       onChange={(e) => changeSettings(id, (e.target as HTMLInputElement).value as SettingsStorageType[K])}/>
   );
@@ -40,7 +42,7 @@ export function SettingsNumberInput({
   return (
     <Input
       {...props}
-      className="w-36"
+      className={controlWidth}
       type="number"
       defaultValue={getSettings(id) as number}
       min={min}

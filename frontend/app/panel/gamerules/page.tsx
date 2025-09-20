@@ -94,7 +94,7 @@ export default function Gamerules() {
                 control={form.control}
                 name={key}
                 render={({ field }) => (
-                  <FormItem className="p-3 border rounded-md flex flex-row justify-between items-center">
+                  <FormItem className="p-3 border rounded-md flex flex-row max-sm:flex-col justify-between items-center max-sm:items-start max-sm:gap-4">
                     <div className="space-y-2">
                       <Tooltip>
                         <TooltipTrigger>
@@ -111,7 +111,7 @@ export default function Gamerules() {
                       {preset.description && <FormDescription>{preset.description}</FormDescription>}
                       <FormMessage />
                     </div>
-                    <FormControl>
+                    <FormControl className="max-sm:self-end">
                       {
                         preset.type === "boolean"
                         ? (
@@ -135,8 +135,8 @@ export default function Gamerules() {
                 key={key}/>
             );
           })}
-          <div className="flex justify-between">
-            <div className="space-x-2 [&>*]:cursor-pointer">
+          <div className="flex max-lg:flex-col justify-between items-center max-lg:items-start max-lg:gap-4">
+            <div className="flex gap-2 [&>*]:cursor-pointer">
               <Button type="submit">保存</Button>
               <Button
                 type="reset"

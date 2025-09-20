@@ -12,9 +12,10 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { SettingsNumberInput, SettingsSwitch } from "./settings-control";
+import { controlWidth, SettingsNumberInput, SettingsSwitch } from "./settings-control";
 import { Button } from "@/components/ui/button";
 import { SecurityDialog } from "./security-dialog";
+import { cn } from "@/lib/utils";
 
 function SettingsItem<K extends keyof SettingsStorageType>({
   name,
@@ -72,7 +73,7 @@ export default function Settings() {
               <Select
                 defaultValue={getSettings("terminal.log-level")}
                 onValueChange={(value) => changeSettings("terminal.log-level", value as ConsoleLogLevel)}>
-                <SelectTrigger className="w-36 font-[Consolas]">
+                <SelectTrigger className={cn(controlWidth, "font-[Consolas]")}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="font-[Consolas]">
