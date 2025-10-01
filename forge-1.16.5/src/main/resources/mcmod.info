@@ -1,0 +1,16 @@
+[
+{
+  "modid": "opanel",
+  "name": "OPanel",
+  "description": "A web-based server management panel for Minecraft servers",
+  "version": "${mod_version}",
+  "mcversion": "${minecraft_version}",
+  "url": "https://github.com/CubeWhyMC/OPanel",
+  "updateUrl": "",
+  "authorList": ["CubeWhy", "Contributors"],
+  "credits": "Thanks to all contributors",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
