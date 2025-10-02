@@ -1,4 +1,4 @@
-package net.opanel.forge_1_20_1.terminal;
+package net.opanel.forge_1_19_4.terminal;
 
 import net.opanel.terminal.ConsoleLog;
 import net.opanel.terminal.LogListenerManager;

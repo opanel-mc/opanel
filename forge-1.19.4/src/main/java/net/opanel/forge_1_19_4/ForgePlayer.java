@@ -1,4 +1,4 @@
-package net.opanel.forge_1_20_1;
+package net.opanel.forge_1_19_4;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.network.chat.Component;
