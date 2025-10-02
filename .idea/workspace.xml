@@ -4,23 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="feat: add forge-1.19 support">
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.19.4/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.19.4/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.19.4/src/main/java/net/opanel/forge_1_20_1/ForgeOfflinePlayer.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.19.4/src/main/java/net/opanel/forge_1_19_4/ForgeOfflinePlayer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.19.4/src/main/java/net/opanel/forge_1_20_1/ForgePlayer.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.19.4/src/main/java/net/opanel/forge_1_19_4/ForgePlayer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.19.4/src/main/java/net/opanel/forge_1_20_1/ForgeSave.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.19.4/src/main/java/net/opanel/forge_1_19_4/ForgeSave.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.19.4/src/main/java/net/opanel/forge_1_20_1/ForgeServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.19.4/src/main/java/net/opanel/forge_1_19_4/ForgeServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.19.4/src/main/java/net/opanel/forge_1_20_1/ForgeWhitelist.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.19.4/src/main/java/net/opanel/forge_1_19_4/ForgeWhitelist.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.19.4/src/main/java/net/opanel/forge_1_20_1/LoggerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.19.4/src/main/java/net/opanel/forge_1_19_4/LoggerImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.19.4/src/main/java/net/opanel/forge_1_20_1/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.19.4/src/main/java/net/opanel/forge_1_19_4/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.19.4/src/main/java/net/opanel/forge_1_20_1/command/OPanelCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.19.4/src/main/java/net/opanel/forge_1_19_4/command/OPanelCommand.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.19.4/src/main/java/net/opanel/forge_1_20_1/config/Config.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.19.4/src/main/java/net/opanel/forge_1_19_4/config/Config.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.19.4/src/main/java/net/opanel/forge_1_20_1/config/ConfigManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.19.4/src/main/java/net/opanel/forge_1_19_4/config/ConfigManagerImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.19.4/src/main/java/net/opanel/forge_1_20_1/terminal/LogListenerManagerImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.19.4/src/main/java/net/opanel/forge_1_19_4/terminal/LogListenerManagerImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.19.4/src/main/resources/pack.mcmeta" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.19.4/src/main/resources/pack.mcmeta" afterDir="false" />
-    </list>
+    <list default="true" id="5ab3bb49-0335-4c30-bf99-0015cc43fc48" name="Changes" comment="Changes" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -286,7 +270,7 @@
     "project.structure.side.proportion": "0.2",
     "settings.editor.selected.configurable": "reference.settingsdialog.project.gradle"
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\opanel\neoforge-1.21.8\src\main\resources\META-INF" />
@@ -745,11 +729,11 @@
       </method>
     </configuration>
     <list>
-      <item itemvalue="Gradle.opanel [clean]" />
-      <item itemvalue="Gradle.opanel:forge-1.19.4 [build]" />
-      <item itemvalue="Gradle.opanel:forge-1.19 [build]" />
+      <item itemvalue="Gradle.opanel:spigot-1.21 [build]" />
+      <item itemvalue="Gradle.opanel:fabric-1.20 [build]" />
       <item itemvalue="Gradle.opanel:fabric-1.20.2 [build]" />
       <item itemvalue="Gradle.opanel:fabric-1.20.3 [build]" />
+      <item itemvalue="Gradle.opanel:fabric-1.21.5 [build]" />
       <item itemvalue="JUnit.Neoforge-1.21: Junit" />
       <item itemvalue="JUnit.Neoforge-1.21.3: Junit" />
       <item itemvalue="JUnit.Neoforge-1.21.5: Junit" />
@@ -776,11 +760,11 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.opanel:forge-1.19.4 [build]" />
-        <item itemvalue="Gradle.opanel [clean]" />
-        <item itemvalue="Gradle.opanel:forge-1.19 [build]" />
+        <item itemvalue="Gradle.opanel:spigot-1.21 [build]" />
         <item itemvalue="Gradle.opanel:fabric-1.20.3 [build]" />
         <item itemvalue="Gradle.opanel:fabric-1.20.2 [build]" />
+        <item itemvalue="Gradle.opanel:fabric-1.20 [build]" />
+        <item itemvalue="Gradle.opanel:fabric-1.21.5 [build]" />
       </list>
     </recent_temporary>
   </component>

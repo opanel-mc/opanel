@@ -87,7 +87,7 @@ public class Main {
     }
 
     @SubscribeEvent
-    public void onServerTick(TickEvent.ServerTickEvent evnet) {
+    public void onServerTick(TickEvent.ServerTickEvent event) {
         if(instance == null) throw new NullPointerException("OPanel is not initialized.");
 
         instance.onTick();

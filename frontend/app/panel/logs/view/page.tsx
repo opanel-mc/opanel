@@ -21,6 +21,11 @@ export default function LogView() {
   const log = searchParams.get("log");
 
   const fetchLogContent = useCallback(async () => {
+    if(!log) {
+      push("/panel/logs");
+      return;
+    }
+
     try {
       const res = await sendGetRequest<string>(`/api/logs/${log}`);
       setContent(res);
@@ -32,7 +37,7 @@ export default function LogView() {
         [500, "服务器内部错误"]
       ]);
     }
-  }, [log]);
+  }, [log, push]);
 
   useEffect(() => {
     if(!editorRef.current) return;
@@ -43,10 +48,6 @@ export default function LogView() {
   useEffect(() => {
     fetchLogContent();
   }, [fetchLogContent]);
-
-  if(!log) {
-    push("/panel/logs");
-  }
 
   return (
     <SubPage title="日志" subTitle={log ?? ""}>
