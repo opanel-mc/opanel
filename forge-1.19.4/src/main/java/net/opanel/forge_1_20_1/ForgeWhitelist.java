@@ -1,4 +1,4 @@
-package net.opanel.forge_1_19;
+package net.opanel.forge_1_20_1;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;

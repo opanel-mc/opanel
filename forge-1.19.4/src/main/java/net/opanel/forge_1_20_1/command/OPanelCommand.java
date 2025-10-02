@@ -1,4 +1,4 @@
-package net.opanel.forge_1_19.command;
+package net.opanel.forge_1_20_1.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
@@ -8,7 +8,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.opanel.OPanel;
 import net.opanel.common.Constants;
-import net.opanel.forge_1_19.Main;
+import net.opanel.forge_1_20_1.Main;
 import net.opanel.web.WebServer;
 
 import static net.minecraft.commands.Commands.*;

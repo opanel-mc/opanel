@@ -1,4 +1,4 @@
-package net.opanel.forge_1_19;
+package net.opanel.forge_1_20_1;
 
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.api.distmarker.Dist;
@@ -12,11 +12,12 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.opanel.OPanel;
-import net.opanel.forge_1_19.command.OPanelCommand;
-import net.opanel.forge_1_19.config.Config;
-import net.opanel.forge_1_19.config.ConfigManagerImpl;
-import net.opanel.forge_1_19.terminal.LogListenerManagerImpl;
+import net.opanel.forge_1_20_1.command.OPanelCommand;
+import net.opanel.forge_1_20_1.config.Config;
+import net.opanel.forge_1_20_1.config.ConfigManagerImpl;
+import net.opanel.forge_1_20_1.terminal.LogListenerManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
 
@@ -29,8 +30,8 @@ public class Main {
 
     private LogListenerManagerImpl logListenerAppender;
 
-    public Main() {
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+    public Main(FMLJavaModLoadingContext ctx) {
+        ctx.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
         MinecraftForge.EVENT_BUS.register(this);
 
         initLogListenerAppender();

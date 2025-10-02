@@ -1,4 +1,4 @@
-package net.opanel.forge_1_19;
+package net.opanel.forge_1_20_1;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.CommandNode;
@@ -20,6 +20,7 @@ import net.opanel.common.OPanelWhitelist;
 import net.opanel.utils.Utils;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -43,13 +44,13 @@ public class ForgeServer implements OPanelServer {
     @Override
     public byte[] getFavicon() {
         ServerStatus status = server.getStatus();
+        if(status == null) return null;
 
-        String favicon = status.getFavicon();
+        Optional<ServerStatus.Favicon> faviconOptional = status.favicon();
+        if(faviconOptional.isEmpty()) return null;
 
-        if (favicon != null) {
-            return favicon.getBytes();
-        }
-        return null;
+        ServerStatus.Favicon favicon = faviconOptional.get();
+        return favicon.iconBytes();
     }
 
     @Override
