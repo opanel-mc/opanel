@@ -52,7 +52,7 @@ const info = [
   },
   {
     name: "打赏",
-    value: <a href="https://nocp.space/donate" target="_blank">https://nocp.space/donate</a>,
+    value: <a href="https://afdian.com/a/opanel" target="_blank">https://afdian.com/a/opanel</a>,
     icon: HandCoins
   },
   {
