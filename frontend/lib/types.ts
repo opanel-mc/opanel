@@ -15,7 +15,7 @@ export enum GameMode {
 
 export interface Save {
   name: string
-  displayName: string
+  displayName: string // base64
   path: string
   size: number
   isRunning: boolean
@@ -45,7 +45,7 @@ export type EditorOptionsType = React.ComponentProps<typeof Editor>["options"];
 /** `/api/info` */
 export interface InfoResponse {
   favicon: string | null
-  motd: string
+  motd: string // base64
   version: string
   port: number
   maxPlayerCount: number

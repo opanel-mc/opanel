@@ -3,7 +3,7 @@ import { Download, FolderPen, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import download from "downloadjs";
 import { Card } from "@/components/ui/card";
-import { cn, formatDataSize, gameModeToString } from "@/lib/utils";
+import { base64ToString, cn, formatDataSize, gameModeToString } from "@/lib/utils";
 import { MinecraftText } from "@/components/mc-text";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -63,7 +63,7 @@ export function SaveCard({
   return (
     <Card className={cn(
       "rounded-md min-h-fit px-3 py-3 flex flex-col justify-between hover:bg-muted",
-      isCurrent && "bg-green-50 border-green-600 dark:bg-green-950 dark:border-green-900",
+      isCurrent && "bg-green-50 hover:bg-background border-green-600 dark:bg-green-950 dark:border-green-900",
       className
     )}>
       <Tooltip>
@@ -71,7 +71,7 @@ export function SaveCard({
           <div
             className="w-full flex flex-col gap-1 px-1 overflow-hidden cursor-pointer"
             onClick={() => handleSetCurrent()}>
-            <MinecraftText className="wrap-anywhere">{displayName}</MinecraftText>
+            <MinecraftText className="wrap-anywhere">{base64ToString(displayName)}</MinecraftText>
             <span className="text-sm text-muted-foreground w-full overflow-hidden whitespace-nowrap text-ellipsis">{name}</span>
           </div>
         </TooltipTrigger>

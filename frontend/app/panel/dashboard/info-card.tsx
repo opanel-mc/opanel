@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { PenLine, Power, RotateCw, Settings, UserPen } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import { MinecraftText } from "@/components/mc-text";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/alert";
+import { Spinner } from "@/components/ui/spinner";
 import { WhitelistSheet } from "../players/whitelist-sheet";
 import { ServerSheet } from "./server-sheet";
 import { MotdEditor } from "./motd-editor";
@@ -23,6 +24,8 @@ function ControlButtonGroup({
   className?: string
 }) {
   const ctx = useContext(InfoContext);
+  const [isReloadingServer, setIsReloadingServer] = useState(false);
+  const [isStoppingServer, setIsStoppingServer] = useState(false);
 
   return (
     <div className={cn("flex gap-1 [&>*]:cursor-pointer", className)}>
@@ -56,11 +59,20 @@ function ControlButtonGroup({
         variant="ghost"
         size="icon"
         title="重载服务器"
-        onClick={() => toast.promise(sendPostRequest("/api/control/reload"), {
-          loading: "正在重载服务器...",
-          success: "重载完毕",
-          error: "重载失败"
-        })}>
+        disabled={isReloadingServer}
+        onClick={() => {
+          setIsReloadingServer(true);
+          toast.promise(sendPostRequest("/api/control/reload"), {
+            loading: "正在重载服务器...",
+            success: () => {
+              setIsReloadingServer(false);
+              return {
+                message: "重载完毕"
+              };
+            },
+            error: "重载失败"
+          });
+        }}>
         <RotateCw />
       </Button>
       <Alert
@@ -68,14 +80,20 @@ function ControlButtonGroup({
         description="此操作将保存所有服务器信息并关闭服务器，OPanel也将无法访问，之后您可以从后台手动启动服务器。"
         onAction={() => {
           sendPostRequest("/api/control/stop");
+          setIsStoppingServer(true);
           toast.loading("正在停止服务器...");
         }}
         asChild>
         <Button
           variant="outline"
           size="icon"
-          title="停止服务器">
-          <Power />
+          title="停止服务器"
+          disabled={isStoppingServer}>
+          {
+            isStoppingServer
+            ? <Spinner />
+            : <Power />
+          }
         </Button>
       </Alert>
     </div>

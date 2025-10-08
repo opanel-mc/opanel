@@ -33,6 +33,7 @@ import { Input } from "@/components/ui/input";
 import { MinecraftText } from "@/components/mc-text";
 import { sendPostRequest, toastError } from "@/lib/api";
 import { emitter } from "@/lib/emitter";
+import { base64ToString, stringToBase64 } from "@/lib/utils";
 
 const formSchema = z.object({
   displayName: z.string().nonempty("存档名称不得为空"),
@@ -50,13 +51,14 @@ export function SaveSheet({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     values: {
-      displayName: save.displayName,
+      displayName: base64ToString(save.displayName),
       defaultGameMode: save.defaultGameMode
     }
   });
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      values.displayName = stringToBase64(values.displayName); // Use base64 to avoid encoding issue
       await sendPostRequest(`/api/saves/${save.name}`, values);
       emitter.emit("refresh-data");
     } catch (e: any) {

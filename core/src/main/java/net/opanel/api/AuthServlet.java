@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import net.opanel.OPanel;
 import net.opanel.utils.Utils;
 import net.opanel.web.BaseServlet;
+import net.opanel.web.JwtManager;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -30,7 +31,7 @@ public class AuthServlet extends BaseServlet {
 
         if(hashedSubmittedKey.equals(hashedRealKey)) {
             HashMap<String, Object> obj = new HashMap<>();
-            obj.put("token", Utils.md5(plugin.getConfig().salt + hashedRealKey)); // salted hashed 3
+            obj.put("token", JwtManager.generateToken(hashedRealKey, plugin.getConfig().salt));
             sendResponse(res, obj);
         } else {
             sendResponse(res, HttpServletResponse.SC_UNAUTHORIZED);

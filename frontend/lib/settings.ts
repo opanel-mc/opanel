@@ -2,7 +2,13 @@ import type { ConsoleLogLevel } from "./terminal/log-levels";
 import type { EditorOptionsType } from "./types";
 
 const storageKey = "opanel.settings";
-const storage = window.localStorage;
+
+function getLocalStorage() {
+  if(typeof window !== "undefined" && window.localStorage) {
+    return window.localStorage;
+  }
+  throw new Error("localStorage is not defined.");
+}
 
 export type SettingsStorageType = {
   "dashboard.monitor-interval": number
@@ -41,6 +47,13 @@ export const monacoSettingsOptions: EditorOptionsType = {
 };
 
 function getSettingsStorage(): SettingsStorageType {
+  let storage: Storage;
+  try {
+    storage = getLocalStorage();
+  } catch {
+    return defaultSettings;
+  }
+
   const settingsStr = storage.getItem(storageKey);
   if(!settingsStr) {
     resetSettings();
@@ -64,9 +77,9 @@ export function getSettings<K extends keyof SettingsStorageType>(key: K): Settin
 export function changeSettings<K extends keyof SettingsStorageType>(key: K, value: SettingsStorageType[K]) {
   const settings = getSettingsStorage();
   settings[key] = value;
-  storage.setItem(storageKey, JSON.stringify(settings));
+  getLocalStorage().setItem(storageKey, JSON.stringify(settings));
 }
 
 export function resetSettings() {
-  storage.setItem(storageKey, JSON.stringify(defaultSettings));
+  getLocalStorage().setItem(storageKey, JSON.stringify(defaultSettings));
 }

@@ -1,16 +1,18 @@
 "use client";
 
 import type { EditorRefType } from "@/lib/types";
+import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Download, Trash2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Editor from "@monaco-editor/react";
 import { useTheme } from "next-themes";
 import { SubPage } from "@/app/panel/sub-page";
 import { sendGetRequest, toastError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { deleteLog, downloadLog } from "../log-utils";
 import { monacoSettingsOptions } from "@/lib/settings";
+
+const MonacoEditor = dynamic(() => import("@/components/monaco-editor"), { ssr: false });
 
 export default function LogView() {
   const searchParams = useSearchParams();
@@ -75,7 +77,7 @@ export default function LogView() {
           </Button>
         </div>
       </div>
-      <Editor
+      <MonacoEditor
         height="550px"
         defaultLanguage="txt"
         defaultValue={content}

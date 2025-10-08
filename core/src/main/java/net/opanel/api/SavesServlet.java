@@ -17,11 +17,13 @@ import org.eclipse.jetty.server.Request;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
@@ -95,7 +97,7 @@ public class SavesServlet extends BaseServlet {
         for(OPanelSave save : server.getSaves()) {
             HashMap<String, Object> saveInfo = new HashMap<>();
             saveInfo.put("name", save.getName());
-            saveInfo.put("displayName", save.getDisplayName());
+            saveInfo.put("displayName", Base64.getEncoder().encodeToString(save.getDisplayName().getBytes(StandardCharsets.UTF_8)));
             saveInfo.put("path", save.getPath().toString());
             saveInfo.put("size", save.getSize());
             saveInfo.put("isRunning", save.isRunning());
@@ -205,7 +207,7 @@ public class SavesServlet extends BaseServlet {
 
             try {
                 OPanelSave save = server.getSave(saveName);
-                save.setDisplayName(reqBody.displayName);
+                save.setDisplayName(new String(Base64.getDecoder().decode(reqBody.displayName), StandardCharsets.UTF_8));
                 save.setDefaultGameMode(OPanelGameMode.fromString(reqBody.defaultGameMode));
                 sendResponse(res, HttpServletResponse.SC_OK);
             } catch (IOException e) {
@@ -247,7 +249,7 @@ public class SavesServlet extends BaseServlet {
     }
 
     private static class SaveEditRequestBodyType {
-        String displayName;
+        String displayName; // base64
         String defaultGameMode;
     }
 }

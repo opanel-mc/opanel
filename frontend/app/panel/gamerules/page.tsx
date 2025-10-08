@@ -10,11 +10,7 @@ import { toast } from "sonner";
 import { PencilRuler } from "lucide-react";
 import {
   Form,
-  FormControl,
-  FormDescription,
   FormField,
-  FormItem,
-  FormLabel,
   FormMessage
 } from "@/components/ui/form";
 import {
@@ -27,6 +23,13 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemTitle
+} from "@/components/ui/item";
 import gamerulePresets from "@/lib/gamerules/presets";
 import { SubPage } from "../sub-page";
 
@@ -94,24 +97,22 @@ export default function Gamerules() {
                 control={form.control}
                 name={key}
                 render={({ field }) => (
-                  <FormItem className="p-3 border rounded-md flex flex-row max-sm:flex-col justify-between items-center max-sm:items-start max-sm:gap-4">
-                    <div className="space-y-2">
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <FormLabel
-                            className="gap-2"
-                            /** prevent default here, because if not, clicking on labels will trigger submission */
-                            onClick={(e) => e.preventDefault()}>
-                            {(preset && preset.icon) && <preset.icon size={17}/>}
-                            {key}
-                          </FormLabel>
-                        </TooltipTrigger>
-                        <TooltipContent>{preset ? preset.name : key}</TooltipContent>
-                      </Tooltip>
-                      {(preset && preset.description) && <FormDescription>{preset.description}</FormDescription>}
+                  <Item variant="outline" className="p-3">
+                    <ItemContent>
+                      <ItemTitle
+                        className="gap-2"
+                        /** prevent default here, because if not, clicking on labels will trigger submission */
+                        onClick={(e) => e.preventDefault()}>
+                        {(preset && preset.icon) && <preset.icon size={17}/>}
+                        <Tooltip>
+                          <TooltipTrigger>{key}</TooltipTrigger>
+                          <TooltipContent>{preset ? preset.name : key}</TooltipContent>
+                        </Tooltip>
+                      </ItemTitle>
+                      {(preset && preset.description) && <ItemDescription>{preset.description}</ItemDescription>}
                       <FormMessage />
-                    </div>
-                    <FormControl className="max-sm:self-end">
+                    </ItemContent>
+                    <ItemActions >
                       {(() => {
                         if(typeof value === "boolean") {
                           return (
@@ -138,8 +139,8 @@ export default function Gamerules() {
                           );
                         }
                       })()}
-                    </FormControl>
-                  </FormItem>
+                    </ItemActions>
+                  </Item>
                 )}
                 key={key}/>
             );

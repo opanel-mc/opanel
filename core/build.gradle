@@ -17,6 +17,9 @@ dependencies {
     implementation 'org.eclipse.jetty:jetty-servlets:11.0.15'
     implementation 'jakarta.websocket:jakarta.websocket-api:2.1.1'
     implementation 'org.eclipse.jetty.websocket:websocket-jakarta-server:11.0.15'
+    implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
+    runtimeOnly 'io.jsonwebtoken:jjwt-gson:0.13.0'
 }
 
 tasks.register('generateOPanelProperties') {

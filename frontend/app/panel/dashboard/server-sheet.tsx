@@ -1,6 +1,6 @@
 import type { EditorRefType, ServerPropertiesResponse } from "@/lib/types";
+import dynamic from "next/dynamic";
 import { useRef, useState, type PropsWithChildren } from "react";
-import { Editor } from "@monaco-editor/react";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import {
@@ -16,6 +16,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { sendGetRequest, sendPostRequest, toastError } from "@/lib/api";
 import { monacoSettingsOptions } from "@/lib/settings";
+
+const MonacoEditor = dynamic(() => import("@/components/monaco-editor"), { ssr: false });
 
 export function ServerSheet({
   children,
@@ -67,7 +69,7 @@ export function ServerSheet({
           </SheetDescription>
         </SheetHeader>
         <div className="flex flex-col h-full">
-          {value && <Editor
+          {value && <MonacoEditor
             defaultLanguage="ini"
             defaultValue={value}
             theme={theme === "dark" ? "vs-dark" : "vs"}
