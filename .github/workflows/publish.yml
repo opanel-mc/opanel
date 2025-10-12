@@ -1,0 +1,42 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  publish:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: robinraju/release-downloader@v1
+      with:
+        repository: "opanel-mc/opanel"
+        tag: ${{ GITHUB_REF }}
+        fileName: "*.jar"
+        tarBall: false
+        zipBall: false
+        out-file-path: "release-jars"
+    - uses: Kir-Antipov/mc-publish@v3.3
+      with:
+        modrinth-id: ${{ vars.MODRINTH_ID }}
+        modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+        files: "release-jars/*.jar"
+        name: OPanel ${{ GITHUB_REF }}
+        version: ${{ GITHUB_REF }}
+        version-type: release
+        loaders: |
+          bukkit
+          folia
+          fabric
+          forge
+          neoforge
+        game-versions: |
+          [1.16.1,1.16.5]
+          [1.19,1.21.9)
+        java: |
+          Java 14
+          Java 17
+          Java 21
