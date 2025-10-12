@@ -2,7 +2,6 @@ name: Publish
 
 on:
   workflow_dispatch:
-  push:
   release:
     types: [published]
 
@@ -12,12 +11,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - uses: actions/checkout@v4
     - name: Read version from gradle.properties
       id: read_version
       uses: christian-draeger/read-properties@1.1.1
       with:
         path: './gradle.properties'
         property: 'version'
+    
     - name: Download release assets
       uses: robinraju/release-downloader@v1
       with:
@@ -27,6 +28,7 @@ jobs:
         tarBall: false
         zipBall: false
         out-file-path: "release-jars"
+    
     - uses: Kir-Antipov/mc-publish@v3.3
       with:
         modrinth-id: ${{ vars.MODRINTH_ID }}
