@@ -17,8 +17,8 @@ jobs:
       id: read_version
       uses: christian-draeger/read-properties@1.1.1
       with:
-        path: './gradle.properties'
-        property: 'version'
+        path: "${{ GITHUB_WORKSPACE }}/gradle.properties"
+        property: "version"
     
     - name: Download release assets
       uses: robinraju/release-downloader@v1
@@ -28,13 +28,13 @@ jobs:
         fileName: "*.jar"
         tarBall: false
         zipBall: false
-        out-file-path: "release-jars"
+        out-file-path: "${{ GITHUB_WORKSPACE }}/release-jars"
     
     - uses: Kir-Antipov/mc-publish@v3.3
       with:
         modrinth-id: ${{ vars.MODRINTH_ID }}
         modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-        files: "release-jars/*.jar"
+        files: "${{ GITHUB_WORKSPACE }}/release-jars/*.jar"
         name: OPanel ${{ steps.version.outputs.value }}
         version: ${{ steps.version.outputs.value }}
         version-type: release
