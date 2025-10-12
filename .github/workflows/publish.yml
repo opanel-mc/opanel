@@ -32,8 +32,10 @@ jobs:
     
     - uses: Kir-Antipov/mc-publish@v3.3
       with:
-        modrinth-id: ${{ vars.MODRINTH_ID }}
-        modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+        # modrinth-id: ${{ vars.MODRINTH_ID }}
+        # modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+        curseforge-id: ${{ vars.CURSEFORGE_ID }}
+        curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
         files: "${{ github.workspace }}/release-jars/*.jar"
         name: ${{ steps.release_info.outputs.name }}
         version: ${{ steps.release_info.outputs.tag_name }}
