@@ -40,7 +40,7 @@ jobs:
         files: "${{ github.workspace }}/release-jars/*.jar"
         name: ${{ steps.release_info.outputs.name }}
         version: ${{ steps.release_info.outputs.tag_name }}
-        version-type: ${{ steps.release_info.outputs.prerelease && "release" || "beta" }}
+        version-type: ${{ steps.release_info.outputs.prerelease == true && "release" || "beta" }}
         loaders: |
           bukkit
           folia
