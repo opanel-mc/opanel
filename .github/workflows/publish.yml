@@ -13,18 +13,18 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Read version from gradle.properties
-      id: read_version
-      uses: christian-draeger/read-properties@1.1.1
+
+    - name: Get latest release
+      uses: easyware-io/get-latest-release@v1
+      id: release_info
       with:
-        path: "${{ github.workspace }}/gradle.properties"
-        property: "version"
+        token: ${{ secrets.GITHUB_TOKEN }}
     
     - name: Download release assets
       uses: robinraju/release-downloader@v1
       with:
         repository: "opanel-mc/opanel"
-        tag: ${{ steps.read_version.outputs.value }}
+        tag: ${{ steps.release_info.outputs.tag_name }}
         fileName: "*.jar"
         tarBall: false
         zipBall: false
@@ -35,8 +35,8 @@ jobs:
         modrinth-id: ${{ vars.MODRINTH_ID }}
         modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
         files: "${{ github.workspace }}/release-jars/*.jar"
-        name: OPanel ${{ steps.version.outputs.value }}
-        version: ${{ steps.version.outputs.value }}
+        name: ${{ steps.release_info.outputs.name }}
+        version: ${{ steps.release_info.outputs.tag_name }}
         version-type: release
         loaders: |
           bukkit
