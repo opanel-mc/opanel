@@ -17,24 +17,24 @@ jobs:
       id: read_version
       uses: christian-draeger/read-properties@1.1.1
       with:
-        path: "${{ github.workspace }}/gradle.properties"
+        path: "./gradle.properties"
         property: "version"
     
     - name: Download release assets
       uses: robinraju/release-downloader@v1
       with:
         repository: "opanel-mc/opanel"
-        tag: ${{ steps.version.outputs.value }}
+        tag: ${{ steps.read_version.outputs.value }}
         fileName: "*.jar"
         tarBall: false
         zipBall: false
-        out-file-path: "${{ github.workspace }}/release-jars"
+        out-file-path: "./release-jars"
     
     - uses: Kir-Antipov/mc-publish@v3.3
       with:
         modrinth-id: ${{ vars.MODRINTH_ID }}
         modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
-        files: "${{ github.workspace }}/release-jars/*.jar"
+        files: "./release-jars/*.jar"
         name: OPanel ${{ steps.version.outputs.value }}
         version: ${{ steps.version.outputs.value }}
         version-type: release
