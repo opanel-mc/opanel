@@ -7,6 +7,7 @@
     <list default="true" id="90587dcf-15dc-47d2-9c29-bb98b36eacd0" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/neoforge-1.21.5/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/neoforge-1.21.5/gradle.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -85,6 +86,9 @@
         <task path="$PROJECT_DIR$/fabric-1.21.9">
           <activation />
         </task>
+        <task path="$PROJECT_DIR$/neoforge-1.21.9">
+          <activation />
+        </task>
         <projects_view>
           <tree_state>
             <expand>
@@ -95,18 +99,18 @@
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="opanel" type="f1a62948:ProjectNode" />
-                <item name="fabric-1.21.9" type="2d1252cf:ModuleNode" />
+                <item name="neoforge-1.21.9" type="2d1252cf:ModuleNode" />
               </path>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="opanel" type="f1a62948:ProjectNode" />
-                <item name="fabric-1.21.9" type="2d1252cf:ModuleNode" />
+                <item name="neoforge-1.21.9" type="2d1252cf:ModuleNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
               </path>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="opanel" type="f1a62948:ProjectNode" />
-                <item name="fabric-1.21.9" type="2d1252cf:ModuleNode" />
+                <item name="neoforge-1.21.9" type="2d1252cf:ModuleNode" />
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
                 <item name="build" type="c8890929:TasksNode$1" />
               </path>
@@ -156,6 +160,7 @@
     "Gradle.opanel:forge-1.21.8 [build].executor": "Run",
     "Gradle.opanel:forge-1.21.9 [build].executor": "Run",
     "Gradle.opanel:neoforge-1.21.5 [build].executor": "Run",
+    "Gradle.opanel:neoforge-1.21.9 [build].executor": "Run",
     "Gradle.opanel:spigot-1.16.1 [build].executor": "Run",
     "Gradle.opanel:spigot-1.19.4 [build].executor": "Run",
     "Gradle.opanel:spigot-1.20 [build].executor": "Run",
@@ -164,10 +169,10 @@
     "Gradle.下载源代码.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "dev"
+    "git-widget-placeholder": "dev-neoforge-1.21.9"
   }
 }]]></component>
-  <component name="RunManager" selected="Gradle.opanel:fabric-1.21.9 [build]">
+  <component name="RunManager" selected="Gradle.opanel:neoforge-1.21.9 [build]">
     <configuration name="Neoforge-1.21.5: Client" type="Application" factoryName="Application">
       <envs>
         <env name="MOD_CLASSES" value="neoforge-1.21.5%%D:\opanel\neoforge-1.21.5\build\sourcesSets\main;neoforge-1.21.5%%D:\opanel\neoforge-1.21.5\build\sourcesSets\main" />
@@ -243,32 +248,85 @@
         <option name="Gradle.BeforeRunTask" enabled="true" tasks="ideBeforeRun" externalProjectPath="$PROJECT_DIR$/neoforge-1.21.5" />
       </method>
     </configuration>
+    <configuration name="Neoforge-1.21.9: Client" type="Application" factoryName="Application">
+      <envs>
+        <env name="MOD_CLASSES" value="neoforge-1.21.9%%D:\opanel\neoforge-1.21.9\build\sourcesSets\main;neoforge-1.21.9%%D:\opanel\neoforge-1.21.9\build\sourcesSets\main" />
+      </envs>
+      <option name="MAIN_CLASS_NAME" value="net.neoforged.fml.startup.Client" />
+      <module name="opanel.neoforge-1.21.9.main" />
+      <option name="PROGRAM_PARAMETERS" value="--version 21.9.16-beta --assetIndex asset-index --assetsDir C:\\Users\\Administrator\\.gradle\\caches\\minecraft\\assets --fml.mcVersion 1.21.9 --fml.neoForgeVersion 21.9.16-beta --fml.neoFormVersion 20250930.151910" />
+      <shortenClasspath name="ARGS_FILE" />
+      <option name="VM_PARAMETERS" value="--add-opens java.base/java.lang.invoke=ALL-UNNAMED --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Dneoforge.enableGameTest=true -Djava.net.preferIPv6Addresses=system" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/neoforge-1.21.9/runs/client" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+        <option name="Gradle.BeforeRunTask" enabled="true" tasks="ideBeforeRun" externalProjectPath="$PROJECT_DIR$/neoforge-1.21.9" />
+      </method>
+    </configuration>
+    <configuration name="Neoforge-1.21.9: ClientData" type="Application" factoryName="Application">
+      <envs>
+        <env name="MOD_CLASSES" value="neoforge-1.21.9%%D:\opanel\neoforge-1.21.9\build\sourcesSets\main;neoforge-1.21.9%%D:\opanel\neoforge-1.21.9\build\sourcesSets\main" />
+      </envs>
+      <option name="MAIN_CLASS_NAME" value="net.neoforged.fml.startup.DataClient" />
+      <module name="opanel.neoforge-1.21.9.main" />
+      <option name="PROGRAM_PARAMETERS" value="--assetIndex asset-index --assetsDir C:\\Users\\Administrator\\.gradle\\caches\\minecraft\\assets --fml.mcVersion 1.21.9 --fml.neoForgeVersion 21.9.16-beta --fml.neoFormVersion 20250930.151910" />
+      <shortenClasspath name="ARGS_FILE" />
+      <option name="VM_PARAMETERS" value="--add-opens java.base/java.lang.invoke=ALL-UNNAMED --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Djava.net.preferIPv6Addresses=system" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/neoforge-1.21.9/runs/clientData" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+        <option name="Gradle.BeforeRunTask" enabled="true" tasks="ideBeforeRun" externalProjectPath="$PROJECT_DIR$/neoforge-1.21.9" />
+      </method>
+    </configuration>
+    <configuration name="Neoforge-1.21.9: GameTestServer" type="Application" factoryName="Application">
+      <envs>
+        <env name="MOD_CLASSES" value="neoforge-1.21.9%%D:\opanel\neoforge-1.21.9\build\sourcesSets\main;neoforge-1.21.9%%D:\opanel\neoforge-1.21.9\build\sourcesSets\main" />
+      </envs>
+      <option name="MAIN_CLASS_NAME" value="net.neoforged.fml.startup.GameTestServer" />
+      <module name="opanel.neoforge-1.21.9.main" />
+      <option name="PROGRAM_PARAMETERS" value="--fml.mcVersion 1.21.9 --fml.neoForgeVersion 21.9.16-beta --fml.neoFormVersion 20250930.151910" />
+      <shortenClasspath name="ARGS_FILE" />
+      <option name="VM_PARAMETERS" value="--add-opens java.base/java.lang.invoke=ALL-UNNAMED --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -Dneoforge.enableGameTest=true -Djava.net.preferIPv6Addresses=system" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/neoforge-1.21.9/runs/gameTestServer" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+        <option name="Gradle.BeforeRunTask" enabled="true" tasks="ideBeforeRun" externalProjectPath="$PROJECT_DIR$/neoforge-1.21.9" />
+      </method>
+    </configuration>
+    <configuration name="Neoforge-1.21.9: Server" type="Application" factoryName="Application">
+      <envs>
+        <env name="MOD_CLASSES" value="neoforge-1.21.9%%D:\opanel\neoforge-1.21.9\build\sourcesSets\main;neoforge-1.21.9%%D:\opanel\neoforge-1.21.9\build\sourcesSets\main" />
+      </envs>
+      <option name="MAIN_CLASS_NAME" value="net.neoforged.fml.startup.Server" />
+      <module name="opanel.neoforge-1.21.9.main" />
+      <option name="PROGRAM_PARAMETERS" value="--nogui --fml.mcVersion 1.21.9 --fml.neoForgeVersion 21.9.16-beta --fml.neoFormVersion 20250930.151910" />
+      <shortenClasspath name="ARGS_FILE" />
+      <option name="VM_PARAMETERS" value="--add-opens java.base/java.lang.invoke=ALL-UNNAMED --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -Djava.net.preferIPv6Addresses=system" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/neoforge-1.21.9/runs/server" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+        <option name="Gradle.BeforeRunTask" enabled="true" tasks="ideBeforeRun" externalProjectPath="$PROJECT_DIR$/neoforge-1.21.9" />
+      </method>
+    </configuration>
+    <configuration name="Neoforge-1.21.9: ServerData" type="Application" factoryName="Application">
+      <envs>
+        <env name="MOD_CLASSES" value="neoforge-1.21.9%%D:\opanel\neoforge-1.21.9\build\sourcesSets\main;neoforge-1.21.9%%D:\opanel\neoforge-1.21.9\build\sourcesSets\main" />
+      </envs>
+      <option name="MAIN_CLASS_NAME" value="net.neoforged.fml.startup.DataServer" />
+      <module name="opanel.neoforge-1.21.9.main" />
+      <option name="PROGRAM_PARAMETERS" value="--fml.mcVersion 1.21.9 --fml.neoForgeVersion 21.9.16-beta --fml.neoFormVersion 20250930.151910" />
+      <shortenClasspath name="ARGS_FILE" />
+      <option name="VM_PARAMETERS" value="--add-opens java.base/java.lang.invoke=ALL-UNNAMED --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -Djava.net.preferIPv6Addresses=system" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/neoforge-1.21.9/runs/serverData" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+        <option name="Gradle.BeforeRunTask" enabled="true" tasks="ideBeforeRun" externalProjectPath="$PROJECT_DIR$/neoforge-1.21.9" />
+      </method>
+    </configuration>
     <configuration name="opanel:fabric-1.19.4 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$/fabric-1.19.4" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="build" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <RunAsTest>false</RunAsTest>
-      <method v="2" />
-    </configuration>
-    <configuration name="opanel:fabric-1.21.5 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/fabric-1.21.5" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -331,6 +389,28 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
+    <configuration name="opanel:neoforge-1.21.9 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/neoforge-1.21.9" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="build" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
     <configuration name="opanel:spigot-1.21.9 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -370,13 +450,30 @@
         <option name="Gradle.BeforeRunTask" enabled="true" tasks="ideBeforeRun" externalProjectPath="$PROJECT_DIR$/neoforge-1.21.5" />
       </method>
     </configuration>
+    <configuration name="Neoforge-1.21.9: Junit" type="JUnit" factoryName="JUnit">
+      <module name="opanel.neoforge-1.21.9.test" />
+      <shortenClasspath name="ARGS_FILE" />
+      <option name="TEST_OBJECT" value="pattern" />
+      <option name="VM_PARAMETERS" value="--add-opens java.base/java.lang.invoke=ALL-UNNAMED --add-exports jdk.naming.dns/com.sun.jndi.dns=java.naming -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Djava.net.preferIPv6Addresses=system -Dfml.junit.argsfile=D:\\opanel\\neoforge-1.21.9\\runs\\junit\\junit_test_args.txt @D:\\opanel\\neoforge-1.21.9\\runs\\junit\\junit_jvm_args.txt" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/neoforge-1.21.9/runs/junit" />
+      <envs>
+        <env name="MOD_CLASSES" value="neoforge-1.21.9%%D:\opanel\neoforge-1.21.9\build\sourcesSets\main;neoforge-1.21.9%%D:\opanel\neoforge-1.21.9\build\sourcesSets\main;" />
+      </envs>
+      <patterns>
+        <pattern testClass=".*" />
+      </patterns>
+      <method v="2">
+        <option name="Make" enabled="true" />
+        <option name="Gradle.BeforeRunTask" enabled="true" tasks="ideBeforeRun" externalProjectPath="$PROJECT_DIR$/neoforge-1.21.9" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.opanel:neoforge-1.21.9 [build]" />
         <item itemvalue="Gradle.opanel:fabric-1.21.9 [build]" />
         <item itemvalue="Gradle.opanel:folia-1.21 [build]" />
         <item itemvalue="Gradle.opanel:spigot-1.21.9 [build]" />
         <item itemvalue="Gradle.opanel:fabric-1.19.4 [build]" />
-        <item itemvalue="Gradle.opanel:fabric-1.21.5 [build]" />
       </list>
     </recent_temporary>
   </component>
