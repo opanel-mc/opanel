@@ -81,7 +81,11 @@ export function PlayerSheet({
               <SkinViewer uuid={player.uuid}/>
               <div className="flex justify-center items-center gap-2">
                 <OnlineBadge isOnline={player.isOnline}/>
-                <h2 className="inline-block text-lg font-semibold">{player.name}</h2>
+                {
+                  player.name
+                  ? <h2 className="inline-block text-lg font-semibold">{player.name}</h2>
+                  : <span className="text-muted-foreground italic">&lt;无名玩家&gt;</span>
+                }
               </div>
               <FormField
                 control={form.control}
@@ -124,7 +128,7 @@ export function PlayerSheet({
               <div className="space-y-3">
                 <Label>管理</Label>
                 <div className="grid grid-rows-2 grid-cols-2 gap-2 [&>*]:cursor-pointer">
-                  {player.isWhitelisted !== undefined && (
+                  {(player.name && player.isWhitelisted !== undefined) && (
                     player.isWhitelisted
                     ? (
                       <Button

@@ -38,30 +38,30 @@ export const columns: ColumnDef<Log>[] = [
   },
   {
     header: " ",
-    cell: ({ row }) => (
-      <div className="flex justify-end [&>*]:h-4 [&>*]:cursor-pointer [&>*]:hover:!bg-transparent">
-        <Button
-          variant="ghost"
-          size="icon"
-          title="下载日志"
-          onClick={() => {
-            const name = row.getValue<string>("name") ?? "";
-            downloadLog(name);
-          }}>
-          <Download />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          title="删除日志"
-          onClick={async () => {
-            const name = row.getValue<string>("name") ?? "";
-            await deleteLog(name);
-            emitter.emit("refresh-data");
-          }}>
-          <Trash2 />
-        </Button>
-      </div>
-    )
+    cell: ({ row }) => {
+      const name = row.getValue<string>("name") ?? "";
+      return (
+        <div className="flex justify-end [&>*]:h-4 [&>*]:cursor-pointer [&>*]:hover:!bg-transparent">
+          <Button
+            variant="ghost"
+            size="icon"
+            title="下载日志"
+            onClick={() => downloadLog(name)}>
+            <Download />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            title="删除日志"
+            disabled={name.endsWith(".log")}
+            onClick={async () => {
+              await deleteLog(name);
+              emitter.emit("refresh-data");
+            }}>
+            <Trash2 />
+          </Button>
+        </div>
+      );
+    }
   }
 ];

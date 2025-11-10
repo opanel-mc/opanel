@@ -10,15 +10,17 @@ import org.bukkit.entity.Player;
 import org.bukkit.help.HelpTopic;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
 public class FoliaServer implements OPanelServer {
-    private static final Path serverIconPath = Paths.get("").resolve("server-icon.png");
-
     private final Main plugin;
     private final Server server;
 
@@ -33,13 +35,15 @@ public class FoliaServer implements OPanelServer {
     }
 
     @Override
-    public byte[] getFavicon() {
-        if(!Files.exists(serverIconPath)) return null;
+    public void setFavicon(byte[] iconBytes) throws IOException {
+        OPanelServer.super.setFavicon(iconBytes);
+        // reload server favicon
         try {
-            return Files.readAllBytes(serverIconPath);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            Method loadIconMethod = server.getClass().getDeclaredMethod("loadIcon");
+            loadIconMethod.setAccessible(true);
+            loadIconMethod.invoke(server);
+        } catch (Exception e) {
+            plugin.LOGGER.warning("Cannot reload server favicon.");
         }
     }
 
@@ -53,12 +57,14 @@ public class FoliaServer implements OPanelServer {
         // Call setMotd() first
         server.setMotd(motd);
         // Directly modify motd in server.properties
-        OPanelServer.writePropertiesContent(OPanelServer.getPropertiesContent().replaceAll("motd=.+", "motd="+ motd));
+        String formatted = motd.replaceAll("\n", Matcher.quoteReplacement("\\n"));
+        OPanelServer.writePropertiesContent(OPanelServer.getPropertiesContent().replaceAll("motd=.+", Matcher.quoteReplacement("motd="+ formatted)));
     }
 
     @Override
     public String getVersion() {
-        return server.getBukkitVersion();
+        // getBukkitVersion() -> "<MinecraftVersion>-R0.x-SNAPSHOT"
+        return server.getBukkitVersion().split("-")[0];
     }
 
     @Override
@@ -155,13 +161,37 @@ public class FoliaServer implements OPanelServer {
     }
 
     @Override
+    public void removePlayerData(String uuid) throws IOException {
+        final Path playerDataFolder = server.getWorlds().get(0).getWorldFolder().toPath().resolve("playerdata");
+        Files.deleteIfExists(playerDataFolder.resolve(uuid +".dat"));
+        Files.deleteIfExists(playerDataFolder.resolve(uuid +".dat_old"));
+    }
+
+    @Override
+    public List<String> getBannedIps() {
+        return new ArrayList<>(server.getIPBans());
+    }
+
+    @Override
+    public void banIp(String ip) {
+        if(server.getIPBans().contains(ip)) return;
+        server.banIP(ip);
+    }
+
+    @Override
+    public void pardonIp(String ip) {
+        if(!server.getIPBans().contains(ip)) return;
+        server.unbanIP(ip);
+    }
+
+    @Override
     public boolean isWhitelistEnabled() {
         return server.hasWhitelist();
     }
 
     @Override
     public void setWhitelistEnabled(boolean enabled) {
-        server.setWhitelist(enabled);
+        plugin.runTask(() -> server.setWhitelist(enabled));
     }
 
     @Override
@@ -198,18 +228,23 @@ public class FoliaServer implements OPanelServer {
     @Override
     @SuppressWarnings("unchecked")
     public void setGamerules(HashMap<String, Object> gamerules) {
+        HashMap<String, Object> currentGamerules = getGamerules();
         plugin.runTask(() -> {
             final World world = server.getWorlds().getFirst();
             gamerules.forEach((key, value) -> {
                 if(value == null) return;
+                final Object currentValue = currentGamerules.get(key);
+                if(value.equals(currentValue)) return;
                 GameRule<?> rule = GameRule.getByName(key);
                 if(rule == null) return;
-                if(value instanceof Boolean) {
+
+                if(rule.getType().equals(Boolean.class)) { // boolean
                     world.setGameRule((GameRule<Boolean>) rule, (Boolean) value);
-                } else if(value instanceof Number) {
-                    world.setGameRule((GameRule<Integer>) rule, Double.valueOf((double) value).intValue());
-                } else if(value instanceof String) {
-                    world.setGameRule((GameRule<String>) rule, (String) value);
+                } else if(rule.getType().equals(Integer.class)) { // integer
+                    int n = ((Number) value).intValue();
+                    world.setGameRule((GameRule<Integer>) rule, n);
+                } else { // string
+                    sendServerCommand("gamerule "+ key +" "+ value);
                 }
             });
         });
@@ -217,8 +252,7 @@ public class FoliaServer implements OPanelServer {
 
     @Override
     public void reload() {
-        // Folia supports Paper's reload confirm command
-        sendServerCommand("reload confirm");
+        throw new UnsupportedOperationException("Folia doesn't support reload operation");
     }
 
     @Override

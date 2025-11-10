@@ -101,8 +101,20 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     public void runTask(Runnable task) {
-        // Use Folia's global region scheduler for async tasks
-        Bukkit.getGlobalRegionScheduler().run(this, (scheduledTask) -> task.run());
+        final Object lock = new Object();
+        synchronized (lock) {
+            Bukkit.getGlobalRegionScheduler().run(this, scheduledTask -> {
+                task.run();
+                synchronized (lock) {
+                    lock.notify();
+                }
+            });
+            try {
+                lock.wait();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
     
     public void runTaskLater(Runnable task, long delay) {

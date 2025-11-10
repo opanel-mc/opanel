@@ -21,9 +21,13 @@ export type SettingsStorageType = {
   "terminal.thread-name": boolean
   "terminal.source-name": boolean
   "terminal.convert-ansi-code": boolean
+  "code-of-conduct.auto-saving-interval": number
   "monaco.word-wrap": boolean
   "monaco.font-size": number
   "security.access-key"?: never
+  "state.players.tab": "player-list" | "banned-list"
+  "state.terminal.history": string[]
+  "state.code-of-conduct.current-editing"?: string
 };
 
 const defaultSettings: SettingsStorageType = {
@@ -37,13 +41,20 @@ const defaultSettings: SettingsStorageType = {
   "terminal.thread-name": true,
   "terminal.source-name": true,
   "terminal.convert-ansi-code": true,
+  "code-of-conduct.auto-saving-interval": 2000, // ms
   "monaco.word-wrap": false,
   "monaco.font-size": 14, // px
+  "state.players.tab": "player-list",
+  "state.terminal.history": [],
+  "state.code-of-conduct.current-editing": undefined
 };
 
 export const monacoSettingsOptions: EditorOptionsType = {
   wordWrap: getSettings("monaco.word-wrap") ? "on" : "off",
-  fontSize: getSettings("monaco.font-size")
+  fontSize: getSettings("monaco.font-size"),
+  unicodeHighlight: {
+    ambiguousCharacters: false
+  }
 };
 
 function getSettingsStorage(): SettingsStorageType {

@@ -1,0 +1,55 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Get latest release
+      uses: easyware-io/get-latest-release@v1
+      id: release_info
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Download release assets
+      uses: robinraju/release-downloader@v1
+      with:
+        repository: "opanel-mc/opanel"
+        tag: ${{ steps.release_info.outputs.tag_name }}
+        fileName: "*.jar"
+        tarBall: false
+        zipBall: false
+        out-file-path: "${{ github.workspace }}/release-jars"
+    
+    - name: Create version and upload files
+      uses: Kir-Antipov/mc-publish@v3.3
+      with:
+        # modrinth-id: ${{ vars.MODRINTH_ID }}
+        # modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+        curseforge-id: ${{ vars.CURSEFORGE_ID }}
+        curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+        files: "${{ github.workspace }}/release-jars/*.jar"
+        name: ${{ steps.release_info.outputs.name }}
+        version: ${{ steps.release_info.outputs.tag_name }}
+        version-type: ${{ steps.release_info.outputs.prerelease == true && 'release' || 'beta' }}
+        loaders: |
+          bukkit
+          folia
+          fabric
+          forge
+          neoforge
+        game-versions: |
+          [1.16.1,1.16.5]
+          [1.19,1.21.9)
+        java: |
+          Java 14
+          Java 17
+          Java 21

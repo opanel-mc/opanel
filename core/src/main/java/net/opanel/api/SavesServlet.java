@@ -97,7 +97,7 @@ public class SavesServlet extends BaseServlet {
         for(OPanelSave save : server.getSaves()) {
             HashMap<String, Object> saveInfo = new HashMap<>();
             saveInfo.put("name", save.getName());
-            saveInfo.put("displayName", Base64.getEncoder().encodeToString(save.getDisplayName().getBytes(StandardCharsets.UTF_8)));
+            saveInfo.put("displayName", Utils.stringToBase64(save.getDisplayName()));
             saveInfo.put("path", save.getPath().toString());
             saveInfo.put("size", save.getSize());
             saveInfo.put("isRunning", save.isRunning());
@@ -207,7 +207,7 @@ public class SavesServlet extends BaseServlet {
 
             try {
                 OPanelSave save = server.getSave(saveName);
-                save.setDisplayName(new String(Base64.getDecoder().decode(reqBody.displayName), StandardCharsets.UTF_8));
+                save.setDisplayName(Utils.base64ToString(reqBody.displayName));
                 save.setDefaultGameMode(OPanelGameMode.fromString(reqBody.defaultGameMode));
                 sendResponse(res, HttpServletResponse.SC_OK);
             } catch (IOException e) {

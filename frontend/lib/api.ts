@@ -43,6 +43,13 @@ export function toastError(e: AxiosError, message: string, descriptions: [number
   toast.error(message, { description: e.message });
 }
 
+export async function sendGetRequestWithoutToken<R>(route: string): Promise<APIResponse<R>> {
+  return (await axios.request({
+    method: "get",
+    url: apiUrl + route
+  })).data as APIResponse<R>;
+}
+
 export async function sendGetRequest<R>(route: string): Promise<APIResponse<R>> {
   return (await axios.request({
     method: "get",

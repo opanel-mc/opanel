@@ -63,7 +63,7 @@ public class SpigotSave implements OPanelSave {
 
     @Override
     public boolean isRunning() {
-        return server.getWorlds().getFirst().getName().equals(getName());
+        return server.getWorlds().get(0).getName().equals(getName());
     }
 
     @Override

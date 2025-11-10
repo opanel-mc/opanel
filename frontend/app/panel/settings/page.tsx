@@ -106,6 +106,13 @@ export default function Settings() {
             description="将终端内的ANSI代码转换为更易读的HTML"
             control={<SettingsSwitch id="terminal.convert-ansi-code"/>}/>
         </Section>
+        <Section title="行为准则编辑器">
+          <SettingsItem
+            id="code-of-conduct.auto-saving-interval"
+            name="自动保存间隔"
+            description="编辑器自动保存时间间隔（单位: ms）"
+            control={<SettingsNumberInput id="code-of-conduct.auto-saving-interval" min={1000}/>}/>
+        </Section>
         <Section title="Monaco 编辑器">
           <SettingsItem
             id="monaco.word-wrap"

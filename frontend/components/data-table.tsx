@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
+import { ButtonGroup } from "./ui/button-group";
 
 export function DataTable<D, V>({
   columns,
@@ -96,7 +97,7 @@ export function DataTable<D, V>({
       </div>
       {pagination && (
         <div className="flex gap-3 items-center max-md:flex-col">
-          <div className="flex gap-3 items-center [&>button]:cursor-pointer">
+          <div className="flex gap-3 items-center [&_button]:cursor-pointer">
             <Button
               variant="outline"
               size="icon"
@@ -105,20 +106,22 @@ export function DataTable<D, V>({
               disabled={!table.getCanPreviousPage()}>
               <ChevronsLeft />
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}>
-              <ChevronLeft />
-              上一页
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}>
-              下一页
-              <ChevronRight />
-            </Button>
+            <ButtonGroup>
+              <Button
+                variant="outline"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}>
+                <ChevronLeft />
+                上一页
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}>
+                下一页
+                <ChevronRight />
+              </Button>
+            </ButtonGroup>
             <Button
               variant="outline"
               size="icon"

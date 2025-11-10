@@ -62,12 +62,14 @@ public class WebServer {
         // API
         ctx.addServlet(new ServletHolder(new AuthServlet(plugin)), AuthServlet.route);
         ctx.addServlet(new ServletHolder(new SecurityServlet(plugin)), SecurityServlet.route);
+        ctx.addServlet(new ServletHolder(new VersionServlet(plugin)), VersionServlet.route);
         ctx.addServlet(new ServletHolder(new InfoServlet(plugin)), InfoServlet.route);
         ctx.addServlet(new ServletHolder(new ControlServlet(plugin)), ControlServlet.route);
         ctx.addServlet(new ServletHolder(new IconServlet(plugin)), IconServlet.route);
         ctx.addServlet(new ServletHolder(new SavesServlet(plugin)), SavesServlet.route);
         ctx.addServlet(new ServletHolder(new PlayersServlet(plugin)), PlayersServlet.route);
         ctx.addServlet(new ServletHolder(new WhitelistServlet(plugin)), WhitelistServlet.route);
+        ctx.addServlet(new ServletHolder(new BannedIpsServlet(plugin)), BannedIpsServlet.route);
         ctx.addServlet(new ServletHolder(new MonitorServlet(plugin)), MonitorServlet.route);
         ctx.addServlet(new ServletHolder(new GamerulesServlet(plugin)), GamerulesServlet.route);
         ctx.addServlet(new ServletHolder(new LogsServlet(plugin)), LogsServlet.route);

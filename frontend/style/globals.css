@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./lib.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -133,5 +134,12 @@
 @layer components {
   .image-pixelated {
     image-rendering: pixelated;
+  }
+  [data-slot="alert-dialog-description"] {
+    span {
+      a, b {
+        @apply text-foreground;
+      }
+    }
   }
 }

@@ -1,6 +1,6 @@
-import type { EditorRefType, WhitelistResponse } from "@/lib/types";
+import type { WhitelistResponse } from "@/lib/types";
 import dynamic from "next/dynamic";
-import { useRef, useState, type PropsWithChildren } from "react";
+import { useState, type PropsWithChildren } from "react";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import {
@@ -21,14 +21,15 @@ import { monacoSettingsOptions } from "@/lib/settings";
 const MonacoEditor = dynamic(() => import("@/components/monaco-editor"), { ssr: false });
 
 export function WhitelistSheet({
+  onDisableWhitelist,
   children,
   asChild
 }: PropsWithChildren & {
+  onDisableWhitelist?: () => void
   asChild?: boolean
 }) {
   const [value, setValue] = useState<string>("");
   const { theme } = useTheme();
-  const editorRef = useRef<EditorRefType>(null);
 
   const fetchServerWhitelist = async () => {
     try {
@@ -43,13 +44,8 @@ export function WhitelistSheet({
   };
 
   const saveServerWhitelist = async () => {
-    if(!editorRef.current) return;
-    const newValue = editorRef.current.getValue();
-
-    if(newValue === value) return;
-
     try {
-      await sendPostRequest("/api/whitelist/write", JSON.parse(editorRef.current.getValue()));
+      await sendPostRequest("/api/whitelist/write", JSON.parse(value));
       toast.success("保存成功");
     } catch (e: any) {
       toastError(e, "无法保存白名单", [
@@ -72,14 +68,15 @@ export function WhitelistSheet({
         <div className="flex flex-col h-full">
           {value && <MonacoEditor
             defaultLanguage="json"
-            defaultValue={value}
+            value={value}
             theme={theme === "dark" ? "vs-dark" : "vs"}
             options={{
               minimap: { enabled: false },
               automaticLayout: true,
+              tabSize: 2,
               ...monacoSettingsOptions
             }}
-            onMount={(editor) => editorRef.current = editor}/>}
+            onChange={(newValue) => setValue(newValue ?? "")}/>}
         </div>
         <SheetFooter>
           <Button
@@ -87,7 +84,7 @@ export function WhitelistSheet({
             className="cursor-pointer"
             onClick={async () => {
               await setWhitelistEnabled(false);
-              window.location.reload();
+              onDisableWhitelist && onDisableWhitelist();
             }}>
             禁用白名单
           </Button>

@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[1752],{11752:(e,n,u)=>{u.r(n),u.d(n,{default:()=>f});var c=u(95155),s=u(91364),a=u(48599);function f(e){return s.wG.config({monaco:a}),(0,c.jsx)(s.KE,{...e})}}}]);

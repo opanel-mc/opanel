@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -14,7 +17,7 @@ export function SubPage({
   title,
   subTitle,
   icon,
-  noScrollPage = false,
+  outerClassName,
   className,
   ...props
 }: Readonly<React.ComponentProps<"div"> & {
@@ -22,11 +25,15 @@ export function SubPage({
   title: string
   subTitle?: string
   icon?: React.ReactNode
-  noScrollPage?: boolean
+  outerClassName?: string
   className?: string
 }>) {
+  useEffect(() => {
+    document.title = `OPanel - ${subTitle ?? title}`;
+  }, [title, subTitle]);
+
   return (
-    <div className={cn("px-16 max-md:px-12 max-sm:px-8 flex-1 flex flex-col gap-6 max-md:gap-2", noScrollPage && "max-h-screen")}>
+    <div className={cn("group px-16 max-md:px-12 max-sm:px-8 flex-1 flex flex-col gap-6 max-md:gap-2", outerClassName)}>
       <div className="pt-10 pb-5 flex flex-col gap-8">
         <div className="flex items-center gap-4">
           <SidebarTrigger className="cursor-pointer"/>
@@ -52,7 +59,7 @@ export function SubPage({
           <h1 className="text-3xl font-bold">{subTitle ?? title}</h1>
         </div>
       </div>
-      <div className={cn(className, "pb-16")} {...props}>
+      <div className={cn(className, "pb-14")} {...props}>
         {children}
       </div>
     </div>

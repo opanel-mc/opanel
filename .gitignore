@@ -1,4 +1,5 @@
 .gradle
+settings.json
 build/
 **/run/
 **/runs/

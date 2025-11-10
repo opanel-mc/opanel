@@ -27,7 +27,7 @@ public class SpigotOfflinePlayer implements OPanelPlayer {
         if(player.isOnline()) throw new IllegalStateException("The player is offline.");
 
         String uuid = player.getUniqueId().toString();
-        playerDataPath = server.getWorlds().getFirst().getWorldFolder().toPath().resolve("playerdata/"+ uuid +".dat");
+        playerDataPath = server.getWorlds().get(0).getWorldFolder().toPath().resolve("playerdata/"+ uuid +".dat");
         if(!Files.exists(playerDataPath)) {
             throw new NullPointerException("Player data file for UUID "+ uuid +" unavailable.");
         }

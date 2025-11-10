@@ -20,7 +20,7 @@ export function Alert({
   children
 }: PropsWithChildren<{
   title: string
-  description?: string
+  description?: string | React.ReactNode
   cancellable?: boolean
   onAction?: () => void
   asChild?: boolean

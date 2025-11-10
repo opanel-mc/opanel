@@ -1,4 +1,4 @@
-import type { APIResponse, InfoResponse } from "@/lib/types";
+import type { APIResponse, InfoResponse, VersionResponse } from "@/lib/types";
 import React from "react";
 
 function getAPIContext<R>() {
@@ -7,6 +7,7 @@ function getAPIContext<R>() {
   return ctx;
 }
 
+export const VersionContext = getAPIContext<VersionResponse>();
 export const InfoContext = getAPIContext<InfoResponse>();
 
 export const MonitorContext = React.createContext<{ memory: number, cpu: number, tps: number }[]>(undefined!);

@@ -5,11 +5,13 @@ import { cn } from "@/lib/utils";
 import { minecraftAE, minecraftAEOld, unifont } from "@/lib/fonts";
 
 export function MinecraftText({
-  maxLines,
+  maxLines = 1,
+  maxCharPerLine = Infinity,
   children,
   className
 }: {
   maxLines?: number
+  maxCharPerLine?: number
   children: string
   className?: string
 }) {
@@ -18,10 +20,10 @@ export function MinecraftText({
   useEffect(() => {
     if(!containerRef.current) return;
     containerRef.current.innerHTML = "";
-    containerRef.current.appendChild(parseText(children, maxLines));
+    containerRef.current.appendChild(parseText(children, maxLines, maxCharPerLine));
 
     enableObfuscate(containerRef.current);
-  }, [children, maxLines]);
+  }, [children, maxLines, maxCharPerLine]);
 
   return (
     <div

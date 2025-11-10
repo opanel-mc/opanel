@@ -19,18 +19,20 @@ export function transformText(text: string): string {
 /**
  * Parses a Minecraft text string with formatting codes into HTML elements.
  */
-export function parseText(text: string, maxLines = 1): HTMLSpanElement {
+export function parseText(text: string, maxLines = 1, maxCharPerLine = Infinity): HTMLSpanElement {
   const pure = purify(text);
   const root = document.createElement("span");
   root.className = "cc-root";
   let currentNode = root;
   let lines = 1;
+  let charAmountOfLine = 0; // will be reset when new line
 
   for(let i = 0; i < pure.length; i++) {
     const char = pure[i];
     if(char === "\n" && lines < maxLines) { // new line
       currentNode.appendChild(document.createElement("br"));
       lines++;
+      charAmountOfLine = 0;
       continue;
     }
     if(char === secSign) {
@@ -52,14 +54,15 @@ export function parseText(text: string, maxLines = 1): HTMLSpanElement {
       }
 
       const span = document.createElement("span");
-      /** @see /frontend/app/formatting-codes.css */
+      /** @see /frontend/style/formatting-codes.css */
       span.className = `cc-${code}`;
 
       currentNode.appendChild(span);
       currentNode = span;
       i++;
-    } else {
+    } else if(charAmountOfLine < maxCharPerLine) {
       currentNode.innerHTML += char;
+      charAmountOfLine++;
     }
   }
 

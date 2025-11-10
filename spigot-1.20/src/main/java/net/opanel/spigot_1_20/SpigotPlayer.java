@@ -5,8 +5,6 @@ import net.opanel.common.OPanelPlayer;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 
-import java.util.Date;
-
 public class SpigotPlayer implements OPanelPlayer {
     private final Main plugin;
     private final Player player;
