@@ -112,7 +112,6 @@ public class Main extends JavaPlugin implements Listener {
             try {
                 lock.wait();
             } catch (InterruptedException e) {
-                // 仅恢复中断标记，不抛出
                 Thread.currentThread().interrupt();
             }
         }
