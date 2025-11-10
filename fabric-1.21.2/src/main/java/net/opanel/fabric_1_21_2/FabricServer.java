@@ -2,7 +2,9 @@ package net.opanel.fabric_1_21_2;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.CommandNode;
+import net.fabricmc.fabric.api.gamerule.v1.rule.DoubleRule;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.BannedIpEntry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerMetadata;
 import net.minecraft.server.command.CommandManager;
@@ -25,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
 public class FabricServer implements OPanelServer {
@@ -43,6 +46,9 @@ public class FabricServer implements OPanelServer {
 
     @Override
     public byte[] getFavicon() {
+        byte[] serverIconPNG = OPanelServer.super.getFavicon();
+        if(serverIconPNG != null) return serverIconPNG;
+
         ServerMetadata metadata = server.getServerMetadata();
         if(metadata == null) return null;
 
@@ -51,6 +57,32 @@ public class FabricServer implements OPanelServer {
 
         ServerMetadata.Favicon favicon = faviconOptional.get();
         return favicon.iconBytes();
+    }
+
+    @Override
+    public void setFavicon(byte[] iconBytes) throws IOException {
+        OPanelServer.super.setFavicon(iconBytes);
+        // reload server favicon
+        ServerMetadata metadata = server.getServerMetadata();
+        ServerMetadata.Favicon favicon = new ServerMetadata.Favicon(iconBytes);
+        ServerMetadata newStatus = new ServerMetadata(
+                metadata.description(),
+                metadata.players(),
+                metadata.version(),
+                Optional.of(favicon),
+                metadata.secureChatEnforced()
+        );
+        try {
+            Field faviconField = MinecraftServer.class.getDeclaredField("field_42958"); // field_42958 -> favicon
+            faviconField.setAccessible(true);
+            faviconField.set(server, favicon);
+
+            Field metadataField = MinecraftServer.class.getDeclaredField("field_4593"); // field_4593 -> metadata
+            metadataField.setAccessible(true);
+            metadataField.set(server, newStatus);
+        } catch (Exception e) {
+            Main.LOGGER.warn("Cannot reload server favicon.");
+        }
     }
 
     @Override
@@ -63,7 +95,8 @@ public class FabricServer implements OPanelServer {
         // Call setMotd() first
         server.setMotd(motd);
         // Directly modify motd in server.properties
-        OPanelServer.writePropertiesContent(OPanelServer.getPropertiesContent().replaceAll("motd=.+", "motd="+ motd));
+        String formatted = motd.replaceAll("\n", Matcher.quoteReplacement("\\n"));
+        OPanelServer.writePropertiesContent(OPanelServer.getPropertiesContent().replaceAll("motd=.+", Matcher.quoteReplacement("motd="+ formatted)));
     }
 
     @Override
@@ -130,15 +163,15 @@ public class FabricServer implements OPanelServer {
         try(Stream<Path> stream = Files.list(playerDataPath)) {
             stream.filter(item -> !Files.isDirectory(item) && item.toString().endsWith(".dat"))
                     .forEach(item -> {
-                        final String uuid = item.getFileName().toString().replace(".dat", "");
-                        ServerPlayerEntity serverPlayer = server.getPlayerManager().getPlayer(UUID.fromString(uuid));
-                        if(serverPlayer != null && !serverPlayer.isDisconnected()) return;
-
                         try {
+                            final String uuid = item.getFileName().toString().replace(".dat", "");
+                            ServerPlayerEntity serverPlayer = server.getPlayerManager().getPlayer(UUID.fromString(uuid));
+                            if(serverPlayer != null && !serverPlayer.isDisconnected()) return;
+
                             FabricOfflinePlayer player = new FabricOfflinePlayer(server, UUID.fromString(uuid));
                             list.add(player);
-                        } catch (NullPointerException e) {
-                            //
+                        } catch (Exception e) {
+                            Main.LOGGER.warn("Cannot read the player data from "+ item.getFileName() +": "+ e.getMessage());
                         }
                     });
         } catch (IOException e) {
@@ -161,6 +194,33 @@ public class FabricServer implements OPanelServer {
             }
         }
         return null;
+    }
+
+    @Override
+    public void removePlayerData(String uuid) throws IOException {
+        final Path playerDataFolder = server.getSavePath(WorldSavePath.PLAYERDATA);
+        Files.deleteIfExists(playerDataFolder.resolve(uuid +".dat"));
+        Files.deleteIfExists(playerDataFolder.resolve(uuid +".dat_old"));
+    }
+
+    @Override
+    public List<String> getBannedIps() {
+        Collection<BannedIpEntry> entries = server.getPlayerManager().getIpBanList().values();
+        List<String> list = new ArrayList<>();
+        entries.forEach(entry -> list.add(entry.toText().getString()));
+        return list;
+    }
+
+    @Override
+    public void banIp(String ip) {
+        if(getBannedIps().contains(ip)) return;
+        server.getPlayerManager().getIpBanList().add(new BannedIpEntry(ip));
+    }
+
+    @Override
+    public void pardonIp(String ip) {
+        if(!getBannedIps().contains(ip)) return;
+        server.getPlayerManager().getIpBanList().remove(ip);
     }
 
     @Override
@@ -214,25 +274,31 @@ public class FabricServer implements OPanelServer {
 
     @Override
     public void setGamerules(HashMap<String, Object> gamerules) {
+        HashMap<String, Object> currentGamerules = getGamerules();
         final GameRules gameRulesObj = server.getGameRules();
         gameRulesObj.accept(new GameRules.Visitor() {
             @Override
             @SuppressWarnings("unchecked")
             public <T extends GameRules.Rule<T>> void visit(GameRules.Key<T> key, GameRules.Type<T> type) {
                 GameRules.Visitor.super.visit(key, type);
-                gamerules.forEach((ruleName, value) -> {
-                    if(value == null) return;
-                    if(key.getName().equals(ruleName)) {
-                        if(value instanceof Boolean) {
-                            gameRulesObj.get(key).setValue((T) new GameRules.BooleanRule((GameRules.Type<GameRules.BooleanRule>) type, (boolean) value), server);
-                        } else if(value instanceof Number) {
-                            gameRulesObj.get(key).setValue((T) new GameRules.IntRule((GameRules.Type<GameRules.IntRule>) type, Double.valueOf((double) value).intValue()), server);
-                        } else if(value instanceof String) {
-                            // Use command to set gamerule
-                            sendServerCommand("gamerule "+ ruleName +" "+ value);
-                        }
-                    }
-                });
+
+                final String ruleName = key.getName();
+                final Object value = gamerules.get(ruleName);
+                if(value == null) return;
+                final Object currentValue = currentGamerules.get(ruleName);
+                if(value.equals(currentValue)) return;
+
+                T rule = type.createRule();
+                if(rule instanceof GameRules.BooleanRule) { // boolean
+                    ((GameRules.BooleanRule) rule).set((boolean) value, server);
+                    gameRulesObj.get(key).setValue(rule, server);
+                } else if(rule instanceof GameRules.IntRule) { // integer
+                    int n = ((Number) value).intValue();
+                    ((GameRules.IntRule) rule).set(n, server);
+                    gameRulesObj.get(key).setValue(rule, server);
+                } else if(rule instanceof DoubleRule || value instanceof String) { // double, enum, string
+                    sendServerCommand("gamerule "+ ruleName +" "+ value);
+                }
             }
         });
     }

@@ -1,0 +1,29 @@
+@custom-variant max-sm-h {
+  @media (height < 20rem) {
+    @slot;
+  }
+}
+
+@custom-variant max-md-h {
+  @media (height < 24rem) {
+    @slot;
+  }
+}
+
+@custom-variant max-lg-h {
+  @media (height < 32rem) {
+    @slot;
+  }
+}
+
+@custom-variant max-xl-h {
+  @media (height < 52rem) {
+    @slot;
+  }
+}
+
+@custom-variant max-2xl-h {
+  @media (height < 64rem) {
+    @slot;
+  }
+}

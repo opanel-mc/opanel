@@ -66,10 +66,16 @@ export default function Logs() {
       <DataTable
         columns={columns}
         data={
-          logs.map((name) => ({
-            name,
-            type: (name.substring(name.lastIndexOf(".")) === ".gz" ? "gzip" : "log") as "gzip" | "log"
-          }))
+          (() => {
+            const dataList = logs.map((name) => ({
+              name,
+              type: (name.substring(name.lastIndexOf(".")) === ".gz" ? "gzip" : "log") as "gzip" | "log"
+            }));
+            return [
+              ...dataList.filter((item) => item.type === "log"),
+              ...dataList.filter((item) => item.type === "gzip")
+            ];
+          })()
         }
         pagination
         fallbackMessage="暂无日志"

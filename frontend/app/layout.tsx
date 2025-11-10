@@ -9,9 +9,8 @@ import { notoSansSC } from "@/lib/fonts";
 import LogoIcon from "@/assets/images/logo.png";
 
 export const metadata: Metadata = {
-  title: "OPanel",
-  description: "A Minecraft server management panel",
-  authors: [{ name: "NriotHrreion", url: "https://nocp.space" }],
+  description: "Minecraft 服务器管理面板",
+  authors: [{ name: "Norcleeh", url: "https://nocp.space" }],
   icons: LogoIcon.src
 };
 

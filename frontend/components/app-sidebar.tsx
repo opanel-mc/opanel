@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useContext } from "react";
 import { deleteCookie } from "cookies-next/client";
-import { Blocks, Earth, Gauge, Info, LogOut, PencilRuler, ScrollText, Settings, SquareTerminal, Users } from "lucide-react";
+import { compare } from "semver";
+import { Blocks, BookText, Earth, Gauge, HeartHandshake, Info, LogOut, PencilRuler, ScrollText, Settings, SquareArrowOutUpRight, SquareTerminal, Users } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -22,6 +24,7 @@ import { ThemeToggle } from "./theme-toggle";
 import { cn } from "@/lib/utils";
 import { minecraftAE } from "@/lib/fonts";
 import { Logo } from "./logo";
+import { VersionContext } from "@/contexts/api-context";
 
 const serverGroupItems = [
   {
@@ -61,6 +64,12 @@ const managementGroupItems = [
     name: "日志",
     url: "/panel/logs",
     icon: ScrollText
+  },
+  {
+    name: "行为准则",
+    url: "/panel/code-of-conduct",
+    icon: HeartHandshake,
+    minVersion: "1.21.9"
   }
 ];
 
@@ -74,16 +83,25 @@ const helpGroupItems = [
     name: "关于",
     url: "/about",
     icon: Info
-  }
+  },
+  {
+    name: "文档",
+    url: "https://opanel.cn/docs/quick-start.html",
+    icon: BookText,
+    newTab: true
+  },
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const versionCtx = useContext(VersionContext);
 
   const handleLogout = () => {
     deleteCookie("token");
     window.location.href = "/login";
   };
+
+  if(!versionCtx) return <></>;
 
   return (
     <Sidebar collapsible="icon">
@@ -104,7 +122,7 @@ export function AppSidebar() {
                     <Link href={item.url} className="pl-3">
                       {pathname.startsWith(item.url) && <SidebarIndicator className="left-2"/>}
                       <item.icon />
-                      <span>{item.name}</span>
+                      <span className="whitespace-nowrap">{item.name}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -116,7 +134,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>管理</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {managementGroupItems.map((item, i) => (
+              {managementGroupItems.map((item, i) => (!item.minVersion || (item.minVersion && compare(versionCtx?.version, item.minVersion) >= 0)) && (
                 <SidebarMenuItem key={i}>
                   <SidebarMenuButton
                     isActive={pathname.startsWith(item.url)}
@@ -124,7 +142,7 @@ export function AppSidebar() {
                     <Link href={item.url} className="pl-3">
                       {pathname.startsWith(item.url) && <SidebarIndicator className="left-2"/>}
                       <item.icon />
-                      <span>{item.name}</span>
+                      <span className="whitespace-nowrap">{item.name}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -141,10 +159,14 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     isActive={pathname.startsWith(item.url)}
                     asChild>
-                    <Link href={item.url} className="pl-3">
+                    <Link
+                      href={item.url}
+                      target={item.newTab ? "_blank" : "_self"}
+                      className="pl-3">
                       {pathname.startsWith(item.url) && <SidebarIndicator className="left-2"/>}
                       <item.icon />
-                      <span>{item.name}</span>
+                      <span className="whitespace-nowrap">{item.name}</span>
+                      {item.newTab && <SquareArrowOutUpRight className="!size-3 ml-1" stroke="var(--color-muted-foreground)"/>}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

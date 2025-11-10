@@ -2,6 +2,7 @@
 
 import {
   AtSign,
+  BookText,
   ChevronLeft,
   Earth,
   FileText,
@@ -41,23 +42,13 @@ const info = [
     icon: AtSign
   },
   {
-    name: "官网",
-    value: <a href="https://opanel.cn" target="_blank">https://opanel.cn</a>,
-    icon: Earth
-  },
-  {
-    name: "仓库",
+    name: "源码",
     value: <a href="https://github.com/opanel-mc/opanel" target="_blank">opanel-mc/opanel</a>,
     icon: Github
   },
   {
-    name: "打赏",
-    value: <a href="https://afdian.com/a/opanel" target="_blank">https://afdian.com/a/opanel</a>,
-    icon: HandCoins
-  },
-  {
     name: "许可",
-    value: "MPL-2.0",
+    value: <a href="https://raw.githubusercontent.com/opanel-mc/opanel/refs/heads/main/LICENSE" target="_blank">MPL-2.0</a>,
     icon: FileText
   }
 ];
@@ -102,19 +93,37 @@ export default function About() {
           <Button
             variant="secondary"
             size="icon"
-            title="作者个人网站"
+            title="打赏"
             asChild>
-            <Link href="https://nocp.space">
+            <Link href="https://afdian.com/a/opanel" target="_blank">
+              <HandCoins />
+            </Link>
+          </Button>
+          <Button
+            variant="secondary"
+            size="icon"
+            title="Github主页"
+            asChild>
+            <Link href="https://github.com/opanel-mc" target="_blank">
+              <Github />
+            </Link>
+          </Button>
+          <Button
+            variant="secondary"
+            size="icon"
+            title="OPanel官网"
+            asChild>
+            <Link href="https://opanel.cn" target="_blank">
               <Earth />
             </Link>
           </Button>
           <Button
             variant="secondary"
             size="icon"
-            title="作者Github主页"
+            title="OPanel文档"
             asChild>
-            <Link href="https://github.com/NriotHrreion">
-              <Github />
+            <Link href="https://opanel.cn/docs/quick-start.html" target="_blank">
+              <BookText />
             </Link>
           </Button>
         </div>

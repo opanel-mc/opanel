@@ -14,27 +14,18 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
 public class Main extends JavaPlugin implements Listener {
-    public static final boolean isPaper;
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(Main.class);
     public final Logger LOGGER = getLogger();
     public OPanel instance;
 
     private BukkitTask serverTickListener;
     private LogListenerManagerImpl logListenerAppender;
-
-    static {
-        boolean _isPaper;
-        try {
-            Class.forName("com.destroystokyo.paper.PaperConfig");
-            _isPaper = true;
-        } catch (ClassNotFoundException e) {
-            _isPaper = false;
-        }
-        isPaper = _isPaper;
-    }
 
     @Override
     public void onEnable() {
@@ -110,6 +101,19 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     public void runTask(Runnable task) {
-        Bukkit.getScheduler().runTask(this, task);
+        Object lock = new Object();
+        synchronized(lock) {
+            Bukkit.getScheduler().runTask(this, () -> {
+                task.run();
+                synchronized(lock) {
+                    lock.notify();
+                }
+            });
+            try {
+                lock.wait();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 }

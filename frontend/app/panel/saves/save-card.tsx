@@ -78,8 +78,8 @@ export function SaveCard({
         <TooltipContent>{path}</TooltipContent>
       </Tooltip>
       <div className="flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <span className="text-sm pl-1">{gameModeToString(defaultGameMode)}</span>
+        <div className="flex items-center flex-wrap gap-3 pl-1">
+          <span className="text-sm">{gameModeToString(defaultGameMode)}</span>
           {isRunning && (
             <Badge variant="outline" className="h-fit border-emerald-700 dark:border-green-900">
               <div className="w-2 h-2 rounded-full bg-green-600"/>
@@ -88,7 +88,7 @@ export function SaveCard({
           )}
           <span className="mr-2 text-sm text-muted-foreground font-[Consolas]">{formatDataSize(size)}</span>
         </div>
-        <div className="[&_button]:cursor-pointer">
+        <div className="flex self-end [&_button]:cursor-pointer">
           {
             isCurrent
             ? (

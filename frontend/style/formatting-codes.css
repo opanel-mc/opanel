@@ -6,6 +6,10 @@
 .cc-root {
   @apply text-lg;
 
+  & span {
+    @apply wrap-anywhere;
+  }
+
   .cc-0 {
     @apply text-[#000];
   }

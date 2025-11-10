@@ -78,8 +78,14 @@ public class LogsServlet extends BaseServlet {
             return;
         }
 
+        final String fileName = reqPath.substring(1);
+        if(fileName.endsWith(".log")) {
+            sendResponse(res, HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+
         try {
-            logger.deleteLog(reqPath.substring(1));
+            logger.deleteLog(fileName);
         } catch (IOException e) {
             sendResponse(res, HttpServletResponse.SC_NOT_FOUND, e.getMessage());
             return;

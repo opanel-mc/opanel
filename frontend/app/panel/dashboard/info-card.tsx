@@ -1,12 +1,12 @@
 "use client";
 
-import { useContext, useState } from "react";
-import { PenLine, Power, RotateCw, Settings, UserPen } from "lucide-react";
+import { useContext, useRef, useState } from "react";
+import { Pencil, PenLine, Power, RotateCw, Settings, UserPen } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { base64ToString, cn } from "@/lib/utils";
 import { apiUrl, sendPostRequest } from "@/lib/api";
-import { InfoContext } from "@/contexts/api-context";
+import { InfoContext, MonitorContext, VersionContext } from "@/contexts/api-context";
 import { MinecraftText } from "@/components/mc-text";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { WhitelistSheet } from "../players/whitelist-sheet";
 import { ServerSheet } from "./server-sheet";
 import { MotdEditor } from "./motd-editor";
+import { FaviconDialog } from "./favicon-dialog";
 
 import PackIcon from "@/assets/images/pack.png";
 
@@ -23,6 +24,7 @@ function ControlButtonGroup({
 }: {
   className?: string
 }) {
+  const versionCtx = useContext(VersionContext);
   const ctx = useContext(InfoContext);
   const [isReloadingServer, setIsReloadingServer] = useState(false);
   const [isStoppingServer, setIsStoppingServer] = useState(false);
@@ -59,13 +61,21 @@ function ControlButtonGroup({
         variant="ghost"
         size="icon"
         title="重载服务器"
-        disabled={isReloadingServer}
+        disabled={versionCtx?.serverType === "Folia" || isReloadingServer}
         onClick={() => {
           setIsReloadingServer(true);
           toast.promise(sendPostRequest("/api/control/reload"), {
             loading: "正在重载服务器...",
             success: () => {
               setIsReloadingServer(false);
+              if(
+                versionCtx?.serverType === "Bukkit"
+                || versionCtx?.serverType === "Spigot"
+                || versionCtx?.serverType === "Paper"
+                || versionCtx?.serverType === "Folia"
+              ) {
+                window.location.reload();
+              }
               return {
                 message: "重载完毕"
               };
@@ -105,21 +115,36 @@ export function InfoCard({
 }: Readonly<{
   className?: string
 }>) {
+  const versionCtx = useContext(VersionContext);
   const ctx = useContext(InfoContext);
+  const monitorCtx = useContext(MonitorContext);
+  const faviconRef = useRef<HTMLImageElement>(null);
+  const warningState = monitorCtx[monitorCtx.length - 1].cpu >= 80 || monitorCtx[monitorCtx.length - 1].tps <= 16;
 
   return (
     <Card className={cn(className, "flex flex-col rounded-md max-lg:gap-3")}>
       <div className="min-lg:flex-1 flex max-md:flex-col gap-6 max-lg:border-b max-lg:pb-3">
-        <img
-          className="aspect-square h-full rounded-xs image-pixelated"
-          src={(ctx && ctx.favicon) ? (apiUrl + ctx.favicon) : PackIcon.src}
-          alt="favicon"/>
+        <div className="relative group/favicon">
+          <img
+            className="aspect-square h-full max-md:w-32 max-md:h-32 rounded-xs image-pixelated"
+            src={(ctx && ctx.favicon) ? (apiUrl + ctx.favicon) : PackIcon.src}
+            alt="favicon"
+            ref={faviconRef}/>
+          <FaviconDialog asChild>
+            <Button
+              variant="secondary"
+              size="icon-sm"
+              className="absolute bottom-0 ml-2 mb-2 cursor-pointer hidden group-hover/favicon:flex">
+              <Pencil />
+            </Button>
+          </FaviconDialog>
+        </div>
         
         <div className="flex-1 flex flex-col gap-2">
           <div className="flex max-lg:flex-col gap-4 max-lg:gap-1 [&>*]:space-x-2">
             <div>
               <span className="font-semibold text-nowrap">版本:</span>
-              <span>{ctx?.version}</span>
+              <span>{`${versionCtx?.serverType} ${versionCtx?.version}`}</span>
             </div>
             <div>
               <span className="font-semibold text-nowrap">端口:</span>
@@ -127,13 +152,13 @@ export function InfoCard({
             </div>
           </div>
           <div className="h-fit text-sm">
-            {ctx && <MinecraftText maxLines={2}>{"§7"+ base64ToString(ctx.motd)}</MinecraftText>}
+            {ctx && <MinecraftText maxLines={2} maxCharPerLine={45}>{"§7"+ base64ToString(ctx.motd)}</MinecraftText>}
           </div>
         </div>
         <div className="flex flex-col justify-between">
-          <Badge className="self-end max-lg:hidden" variant="outline">
-            <div className={cn("w-2 h-2 rounded-full", ctx ? "bg-green-600" : "bg-red-700")}/>
-            {ctx ? "正在运行" : "未运行"}
+          <Badge className="self-end max-lg:hidden cursor-default" variant="outline">
+            <div className={cn("w-2 h-2 rounded-full", ctx ? (warningState ? "bg-yellow-600" : "bg-green-600") : "bg-red-700")}/>
+            {ctx ? (warningState ? "状态异常" : "正在运行") : "未运行"}
           </Badge>
           <ControlButtonGroup className="self-end max-lg:hidden"/>
         </div>

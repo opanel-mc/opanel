@@ -35,9 +35,9 @@ export default function Dashboard() {
   };
 
   const requestMonitor = async () => {
+    const { mem, cpu, tps } = await sendGetRequest<MonitorResponse>("/api/monitor");
     const currentData = await getCurrentState(setMonitorData);
     const newData = [...currentData];
-    const { mem, cpu, tps } = await sendGetRequest<MonitorResponse>("/api/monitor");
     newData.shift();
     newData.push({ memory: mem, cpu, tps });
     setMonitorData(newData);
@@ -61,8 +61,9 @@ export default function Dashboard() {
     <SubPage
       title="仪表盘"
       icon={<Gauge />}
-      noScrollPage
-      className="flex-1 min-h-0 max-xl:h-fit grid grid-rows-5 grid-cols-3 max-xl:flex flex-col gap-3 pb-20 [&>*]:p-4">
+      /*             | window maximized                         | height not enough    | for mobile layout */
+      outerClassName="min-xl:max-h-screen min-xl:overflow-y-auto max-xl-h:max-h-[850px] max-xl:!max-h-none"
+      className="flex-1 min-h-0 grid grid-rows-5 grid-cols-3 max-xl:grid-rows-subgrid max-xl:grid-cols-2 max-lg:flex flex-col gap-3 pb-20 [&>*]:p-4">
       <InfoContext.Provider value={info}>
         <MonitorContext.Provider value={monitorData}>
           <InfoCard className="row-start-1 col-span-2"/>
@@ -70,7 +71,7 @@ export default function Dashboard() {
           <PlayersCard className="row-span-3 row-start-2"/>
           <MonitorCard className="row-span-3 row-start-2"/>
           <TPSCard className="row-start-5"/>
-          <TerminalCard className="row-span-5"></TerminalCard>
+          <TerminalCard className="row-span-5 max-xl:col-span-2"></TerminalCard>
         </MonitorContext.Provider>
       </InfoContext.Provider>
     </SubPage>

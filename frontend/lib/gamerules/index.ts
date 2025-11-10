@@ -1,0 +1,24 @@
+import type { LucideIcon } from "lucide-react";
+import { z } from "zod";
+
+export interface Gamerule {
+  id: string
+  name: string
+  description?: string
+  type: "boolean" | "number"
+  icon?: LucideIcon
+}
+
+export type ServerGamerules = Record<string, boolean | number>;
+
+export function generateFormSchema(gamerules: ServerGamerules): z.ZodObject<z.ZodRawShape> {
+  const schemeList: z.ZodRawShape = {};
+  for(const key in gamerules) {
+    schemeList[key] = (
+      typeof gamerules[key] === "boolean"
+      ? z.boolean()
+      : z.number().or(z.string())
+    );
+  }
+  return z.object(schemeList);
+}

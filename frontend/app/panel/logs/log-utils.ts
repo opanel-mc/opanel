@@ -23,6 +23,7 @@ export async function deleteLog(name: string) {
     toastError(e, "无法删除日志", [
       [400, "请求参数错误"],
       [401, "未登录"],
+      [403, "当前日志不可删除"],
       [404, "找不到该日志"]
     ]);
   }

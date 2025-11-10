@@ -1,9 +1,10 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+import locale from "locale-codes";
 import { GameMode } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 export function gameModeToString(gameMode: GameMode) {
@@ -23,6 +24,15 @@ export function gameModeToString(gameMode: GameMode) {
 
 export function getRandom(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+export function generateRandomString(length: number): string {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  for(let i = 0; i < length; i++) {
+    result += chars[getRandom(0, chars.length - 1)];
+  }
+  return result;
 }
 
 export function getRandomArrayItem<T>(arr: T[]): T {
@@ -69,7 +79,7 @@ export function getCurrentArgumentNumber(str: string, cursor: number): number {
   return arr.length;
 }
 
-export function objectToMap<V>(obj: { [key: string]: V }): Map<string, V> {
+export function objectToMap<V>(obj: Record<string, V>): Map<string, V> {
   const map = new Map<string, V>();
   for(const key in obj) {
     map.set(key, obj[key]);
@@ -106,4 +116,42 @@ export function base64ToString(base64: string): string {
 export function isNumeric(str: string): boolean {
   if(str === "") return false;
   return !Number.isNaN(Number(str));
+}
+
+export function validateLocaleCode(localeCode: string): boolean {
+  if(localeCode === "") return false;
+  return locale.getByTag(localeCode.toLowerCase().replaceAll("_", "-")) !== undefined;
+}
+
+/** @see https://stackoverflow.com/questions/5284147/validating-ipv4-addresses-with-regexp */
+export function validateIpv4Address(ip: string): boolean {
+  return /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/.test(ip);
+}
+
+export async function fileToDataUrl(file: File): Promise<string> {
+  const reader = new FileReader();
+  return new Promise((resolve, reject) => {
+    reader.addEventListener("load", () => {
+      resolve(reader.result as string);
+    });
+    reader.addEventListener("error", () => {
+      reject(reader.error);
+    });
+    reader.readAsDataURL(file);
+  });
+}
+
+export function purifyUnsafeText(text: string): string {
+  return text
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll("\"", "&quot;")
+    .replaceAll("'", "&apos;");
+}
+
+export async function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }

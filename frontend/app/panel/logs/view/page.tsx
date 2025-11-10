@@ -69,6 +69,7 @@ export default function LogView() {
             variant="ghost"
             size="icon"
             title="删除日志"
+            disabled={log?.endsWith(".log")}
             onClick={async () => {
               await deleteLog(log ?? "");
               push("/panel/logs");
@@ -79,9 +80,9 @@ export default function LogView() {
       </div>
       <MonacoEditor
         height="550px"
-        defaultLanguage="txt"
+        defaultLanguage="server-log"
         defaultValue={content}
-        theme={theme === "dark" ? "vs-dark" : "vs"}
+        theme={theme === "dark" ? "server-log-theme-dark" : "server-log-theme"}
         options={{
           readOnly: true,
           readOnlyMessage: {

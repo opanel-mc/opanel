@@ -24,13 +24,13 @@ import {
 } from "@/components/ui/select";
 import { defaultLogLevel, type ConsoleLogLevel } from "@/lib/terminal/log-levels";
 import { SubPage } from "../sub-page";
-import { getSettings } from "@/lib/settings";
+import { changeSettings, getSettings } from "@/lib/settings";
 
 export default function Terminal() {
   const client = useTerminal();
   const inputRef = useRef<HTMLInputElement>(null);
   const [autocompleteList, setAutocompleteList] = useState<string[]>([]);
-  const [historyList, setHistoryList] = useState<string[]>([]);
+  const [historyList, setHistoryList] = useState<string[]>(getSettings("state.terminal.history"));
   const [logLevel, setLogLevel] = useState(defaultLogLevel);
 
   const handleClear = () => {
@@ -85,11 +85,15 @@ export default function Terminal() {
     });
   }, [client]);
 
+  useEffect(() => {
+    changeSettings("state.terminal.history", historyList);
+  }, [historyList]);
+
   return (
     <SubPage
       title="后台"
       icon={<SquareTerminal />}
-      noScrollPage
+      outerClassName="max-h-screen overflow-y-hidden"
       className="flex-1 min-h-0 flex gap-3">
       <div className="flex-4/5 max-lg:flex-3/4 max-md:flex-2/3 min-w-0 flex flex-col gap-3">
         <TerminalConnector client={client} level={logLevel} className="flex-1"/>

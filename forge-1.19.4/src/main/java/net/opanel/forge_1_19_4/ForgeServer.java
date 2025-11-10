@@ -9,6 +9,7 @@ import net.minecraft.network.protocol.status.ServerStatus;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.IpBanListEntry;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.storage.LevelResource;
 import net.opanel.ServerType;
@@ -19,10 +20,12 @@ import net.opanel.common.OPanelWhitelist;
 import net.opanel.utils.Utils;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
 public class ForgeServer implements OPanelServer {
@@ -41,6 +44,9 @@ public class ForgeServer implements OPanelServer {
 
     @Override
     public byte[] getFavicon() {
+        byte[] serverIconPNG = OPanelServer.super.getFavicon();
+        if(serverIconPNG != null) return serverIconPNG;
+
         ServerStatus status = server.getStatus();
         if(status == null) return null;
 
@@ -49,6 +55,33 @@ public class ForgeServer implements OPanelServer {
 
         ServerStatus.Favicon favicon = faviconOptional.get();
         return favicon.iconBytes();
+    }
+
+    @Override
+    public void setFavicon(byte[] iconBytes) throws IOException {
+        OPanelServer.super.setFavicon(iconBytes);
+        // reload server favicon
+        ServerStatus status = server.getStatus();
+        ServerStatus.Favicon favicon = new ServerStatus.Favicon(iconBytes);
+        ServerStatus newStatus = new ServerStatus(
+                status.description(),
+                status.players(),
+                status.version(),
+                Optional.of(favicon),
+                status.enforcesSecureChat(),
+                status.forgeData()
+        );
+        try {
+            Field statusIconField = MinecraftServer.class.getDeclaredField("f_271173_"); // f_271173_ -> statusIcon
+            statusIconField.setAccessible(true);
+            statusIconField.set(server, favicon);
+
+            Field statusField = MinecraftServer.class.getDeclaredField("f_129757_"); // f_129757_ -> status
+            statusField.setAccessible(true);
+            statusField.set(server, newStatus);
+        } catch (Exception e) {
+            Main.LOGGER.warn("Cannot reload server favicon.");
+        }
     }
 
     @Override
@@ -61,7 +94,8 @@ public class ForgeServer implements OPanelServer {
         // Call setMotd() first
         server.setMotd(motd);
         // Directly modify motd in server.properties
-        OPanelServer.writePropertiesContent(OPanelServer.getPropertiesContent().replaceAll("motd=.+", "motd="+ motd));
+        String formatted = motd.replaceAll("\n", Matcher.quoteReplacement("\\n"));
+        OPanelServer.writePropertiesContent(OPanelServer.getPropertiesContent().replaceAll("motd=.+", Matcher.quoteReplacement("motd="+ formatted)));
     }
 
     @Override
@@ -128,15 +162,15 @@ public class ForgeServer implements OPanelServer {
         try(Stream<Path> stream = Files.list(playerDataPath)) {
             stream.filter(item -> !Files.isDirectory(item) && item.toString().endsWith(".dat"))
                     .forEach(item -> {
-                        final String uuid = item.getFileName().toString().replace(".dat", "");
-                        ServerPlayer serverPlayer = server.getPlayerList().getPlayer(UUID.fromString(uuid));
-                        if(serverPlayer != null && !serverPlayer.hasDisconnected()) return;
-
                         try {
+                            final String uuid = item.getFileName().toString().replace(".dat", "");
+                            ServerPlayer serverPlayer = server.getPlayerList().getPlayer(UUID.fromString(uuid));
+                            if(serverPlayer != null && !serverPlayer.hasDisconnected()) return;
+
                             ForgeOfflinePlayer player = new ForgeOfflinePlayer(server, UUID.fromString(uuid));
                             list.add(player);
-                        } catch (NullPointerException e) {
-                            //
+                        } catch (Exception e) {
+                            Main.LOGGER.warn("Cannot read the player data from "+ item.getFileName() +": "+ e.getMessage());
                         }
                     });
         } catch (IOException e) {
@@ -159,6 +193,33 @@ public class ForgeServer implements OPanelServer {
             }
         }
         return null;
+    }
+
+    @Override
+    public void removePlayerData(String uuid) throws IOException {
+        final Path playerDataFolder = server.getWorldPath(LevelResource.PLAYER_DATA_DIR);
+        Files.deleteIfExists(playerDataFolder.resolve(uuid +".dat"));
+        Files.deleteIfExists(playerDataFolder.resolve(uuid +".dat_old"));
+    }
+
+    @Override
+    public List<String> getBannedIps() {
+        Collection<IpBanListEntry> entries = server.getPlayerList().getIpBans().getEntries();
+        List<String> list = new ArrayList<>();
+        entries.forEach(entry -> list.add(entry.getDisplayName().getString()));
+        return list;
+    }
+
+    @Override
+    public void banIp(String ip) {
+        if(getBannedIps().contains(ip)) return;
+        server.getPlayerList().getIpBans().add(new IpBanListEntry(ip));
+    }
+
+    @Override
+    public void pardonIp(String ip) {
+        if(!getBannedIps().contains(ip)) return;
+        server.getPlayerList().getIpBans().remove(ip);
     }
 
     @Override
@@ -212,25 +273,31 @@ public class ForgeServer implements OPanelServer {
 
     @Override
     public void setGamerules(HashMap<String, Object> gamerules) {
+        HashMap<String, Object> currentGamerules = getGamerules();
         final GameRules gameRulesObj = server.getGameRules();
         GameRules.visitGameRuleTypes(new GameRules.GameRuleTypeVisitor() {
             @Override
             @SuppressWarnings("unchecked")
             public <T extends GameRules.Value<T>> void visit(GameRules.Key<T> key, GameRules.Type<T> type) {
                 GameRules.GameRuleTypeVisitor.super.visit(key, type);
-                gamerules.forEach((ruleName, value) -> {
-                    if(value == null) return;
-                    if(key.getId().equals(ruleName)) {
-                        if(value instanceof Boolean) {
-                            gameRulesObj.getRule(key).setFrom((T) new GameRules.BooleanValue((GameRules.Type<GameRules.BooleanValue>) type, (boolean) value), server);
-                        } else if(value instanceof Number) {
-                            gameRulesObj.getRule(key).setFrom((T) new GameRules.IntegerValue((GameRules.Type<GameRules.IntegerValue>) type, Double.valueOf((double) value).intValue()), server);
-                        } else if(value instanceof String) {
-                            // Use command to set gamerule
-                            sendServerCommand("gamerule "+ ruleName +" "+ value);
-                        }
-                    }
-                });
+
+                final String ruleName = key.getId();
+                final Object value = gamerules.get(ruleName);
+                if(value == null) return;
+                final Object currentValue = currentGamerules.get(ruleName);
+                if(value.equals(currentValue)) return;
+
+                T rule = type.createRule();
+                if(rule instanceof GameRules.BooleanValue) { // boolean
+                    ((GameRules.BooleanValue) rule).set((boolean) value, server);
+                    gameRulesObj.getRule(key).setFrom(rule, server);
+                } else if(rule instanceof GameRules.IntegerValue) { // integer
+                    int n = ((Number) value).intValue();
+                    ((GameRules.IntegerValue) rule).set(n, server);
+                    gameRulesObj.getRule(key).setFrom(rule, server);
+                } else { // string
+                    sendServerCommand("gamerule "+ ruleName +" "+ value);
+                }
             }
         });
     }

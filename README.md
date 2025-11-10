@@ -49,8 +49,8 @@ See [Contributing Guidelines](https://opanel.cn/docs/contributing.html) for more
 
 ## Friend Links
 
-[<img src="./images/miaocloud.png" width="300"/>](https://cloud.miaostars.com)
-[<img src="./images/rainyun.png" width="300"/>](https://rainyun.com)
+[<img src="./images/friends/rainyun.png" width="300"/>](https://rainyun.com)
+[<img src="./images/friends/chuqiyun.png" width="300"/>](https://chuqiyun.com)
 
 ## License
 

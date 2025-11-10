@@ -6,6 +6,7 @@ import net.opanel.OPanel;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelServer;
+import net.opanel.utils.Utils;
 import net.opanel.web.BaseServlet;
 
 import java.io.IOException;
@@ -52,7 +53,8 @@ public class PlayersServlet extends BaseServlet {
                 playerInfo.put("isOp", player.isOp());
                 playerInfo.put("isBanned", player.isBanned());
                 playerInfo.put("gamemode", player.getGameMode().getName());
-                playerInfo.put("banReason", player.getBanReason());
+                final String banReason = player.getBanReason();
+                playerInfo.put("banReason", banReason != null ? Utils.stringToBase64(banReason) : null);
                 if(isWhitelistEnabled) playerInfo.put("isWhitelisted", whitelistNames.contains(player.getName()));
                 players.add(playerInfo);
             }
@@ -81,7 +83,7 @@ public class PlayersServlet extends BaseServlet {
         }
 
         String uuid = req.getParameter("uuid");
-        String reason = req.getParameter("r"); // only for `kick` and `ban`
+        String reason = req.getParameter("r"); // base64, only for `kick` and `ban`
         String gamemode = req.getParameter("gm"); // only for `gamemode`
         if(uuid == null) {
             sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
@@ -89,6 +91,11 @@ public class PlayersServlet extends BaseServlet {
         }
 
         final OPanelPlayer player = server.getPlayer(uuid);
+        if(player == null) {
+            sendResponse(res, HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
         switch(reqPath.substring(1)) {
             case "op" -> player.giveOp();
             case "deop" -> player.depriveOp();
@@ -97,9 +104,9 @@ public class PlayersServlet extends BaseServlet {
                     sendResponse(res, HttpServletResponse.SC_FORBIDDEN);
                     return;
                 }
-                player.kick(reason);
+                player.kick(reason != null ? Utils.base64ToString(reason) : null);
             }
-            case "ban" -> player.ban(reason);
+            case "ban" -> player.ban(reason != null ? Utils.base64ToString(reason) : null);
             case "pardon" -> player.pardon();
             case "gamemode" -> {
                 if(gamemode == null) {
@@ -110,6 +117,30 @@ public class PlayersServlet extends BaseServlet {
             }
         }
 
+        sendResponse(res, HttpServletResponse.SC_OK);
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        if(!authCookie(req)) {
+            sendResponse(res, HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
+
+        final OPanelServer server = plugin.getServer();
+
+        String uuid = req.getParameter("uuid");
+        if(uuid == null) {
+            sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        if(server.getPlayer(uuid) == null) {
+            sendResponse(res, HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        server.removePlayerData(uuid);
         sendResponse(res, HttpServletResponse.SC_OK);
     }
 }

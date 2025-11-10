@@ -1,13 +1,20 @@
-import { Axe, BedDouble, Bomb, BookMarked, BowArrow, Boxes, BugOff, Cat, Clock, ClockFading, CloudSunRain, Flame, Gauge, GitBranch, HandCoins, Handshake, HeartMinus, HeartPlus, Hourglass, Link, MapPin, Megaphone, Minimize2, MountainSnow, Pickaxe, Radius, ShieldCheck, Skull, Snowflake, Sprout, Sword, Trophy, Volume2, Waves, WavesLadder } from "lucide-react";
+import type { Gamerule } from ".";
+import { Axe, BedDouble, Bomb, BookMarked, BowArrow, Boxes, BugOff, Cat, Clock, ClockFading, CloudSunRain, Flame, Gauge, GitBranch, HandCoins, Handshake, HeartMinus, HeartPlus, Hourglass, Link, MapPin, Megaphone, Minimize2, MountainSnow, Pickaxe, Radius, Settings, ShieldCheck, Skull, Snowflake, Sprout, Sword, Swords, Trophy, Volume2, Waves, WavesLadder } from "lucide-react";
 
 /** @see https://zh.minecraft.wiki/w/%E6%B8%B8%E6%88%8F%E8%A7%84%E5%88%99#%E6%B8%B8%E6%88%8F%E8%A7%84%E5%88%99%E5%88%97%E8%A1%A8 */
-const gamerulePresets = [
+const gamerulePresets: Gamerule[] = [
   {
     id: "allowFireTicksAwayFromPlayer",
     name: "允许火在远离玩家处蔓延",
     description: "控制火和熔岩是否能够在距离任何玩家超过8个区块处蔓延",
     type: "boolean",
     icon: Flame
+  },
+  {
+    id: "allowEnteringNetherUsingPortals",
+    name: "允许进入下界	",
+    description: "控制玩家能否进入下界",
+    type: "boolean"
   },
   {
     id: "announceAdvancements",
@@ -27,6 +34,12 @@ const gamerulePresets = [
     name: "广播命令方块输出",
     type: "boolean",
     icon: Megaphone
+  },
+  {
+    id: "commandBlocksEnabled",
+    name: "启用命令方块",
+    type: "boolean",
+    icon: Settings
   },
   {
     id: "commandModificationBlockLimit",
@@ -282,6 +295,13 @@ const gamerulePresets = [
     icon: BowArrow
   },
   {
+    id: "pvp",
+    name: "启用PvP",
+    description: "控制玩家间能否互相伤害",
+    type: "boolean",
+    icon: Swords
+  },
+  {
     id: "randomTickSpeed",
     name: "随机刻速率",
     type: "number",
@@ -319,6 +339,17 @@ const gamerulePresets = [
     description: "主世界出生点周围保持加载的区块数量。",
     type: "number",
     icon: Radius
+  },
+  {
+    id: "spawnMonsters",
+    name: "生成怪物",
+    description: "控制怪物能否自然生成",
+    type: "boolean"
+  },
+  {
+    id: "spawnerBlocksEnabled",
+    name: "启用刷怪笼方块",
+    type: "boolean"
   },
   {
     id: "spawnRadius",

@@ -2,7 +2,7 @@ import type { ConsoleLog, WebSocketClient } from "@/lib/terminal/client";
 import { useEffect, useRef, useState } from "react";
 import { format } from "date-format-parse";
 import AnsiConverter from "ansi-to-html";
-import { cn } from "@/lib/utils";
+import { cn, purifyUnsafeText } from "@/lib/utils";
 import { defaultLogLevel, getLogLevelId, type ConsoleLogLevel } from "@/lib/terminal/log-levels";
 import { getSettings } from "@/lib/settings";
 
@@ -88,6 +88,7 @@ export function TerminalConnector({
   const pushLog = (log: ConsoleLog) => {
     setLogs((current) => {
       if(current.length + 1 > MAX_LOG_LINES) current.shift();
+      log.line = purifyUnsafeText(log.line);
       return [...current, log];
     });
   };
