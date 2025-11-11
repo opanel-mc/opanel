@@ -1,25 +1,21 @@
 package net.opanel.terminal;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import jakarta.websocket.*;
-import jakarta.websocket.server.ServerEndpoint;
-import jakarta.websocket.server.ServerEndpointConfig;
+import io.javalin.websocket.WsCloseContext;
+import io.javalin.websocket.WsConfig;
+import io.javalin.websocket.WsConnectContext;
+import io.javalin.websocket.WsMessageContext;
 import net.opanel.OPanel;
 import net.opanel.common.OPanelPlayer;
-import net.opanel.logger.Loggable;
-import net.opanel.utils.Utils;
 import net.opanel.web.JwtManager;
+import org.eclipse.jetty.websocket.api.Session;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.Collections;
 
-@ServerEndpoint(value = TerminalEndpoint.route, configurator = TerminalEndpoint.Configurator.class)
 public class TerminalEndpoint {
-    public static final String route = "/terminal";
     private final OPanel plugin;
-    private final Loggable logger;
     private final LogListenerManager logListenerManager;
 
     private static final Set<Session> sessions = Collections.synchronizedSet(new HashSet<>());
@@ -28,10 +24,13 @@ public class TerminalEndpoint {
     // which can lead to plenty duplicated logs in the frontend terminal
     private static volatile boolean hasLogListenerRegistered = false;
 
-    public TerminalEndpoint(OPanel plugin) {
+    public TerminalEndpoint(WsConfig ws, OPanel plugin) {
         this.plugin = plugin;
-        logger = plugin.logger;
         logListenerManager = plugin.getLogListenerManager();
+
+        ws.onConnect(this::onConnect);
+        ws.onMessage(this::onMessage);
+        ws.onClose(this::onClose);
 
         if(!hasLogListenerRegistered) {
             logListenerManager.addListener(log -> {
@@ -41,109 +40,84 @@ public class TerminalEndpoint {
         }
     }
 
-    @OnOpen
-    public void onOpen(Session session) {
+    public void onConnect(WsConnectContext ctx) {
         // Connection established silently to avoid log spam
     }
 
-    @OnMessage
-    public void onMessage(String message, Session session) throws IOException {
-        try {
-            Gson gson = new Gson();
-            TerminalPacket packet = gson.fromJson(message, TerminalPacket.class);
+    public void onMessage(WsMessageContext ctx) throws IOException {
+        TerminalPacket packet = ctx.messageAsClass(TerminalPacket.class);
+        Session session = ctx.session;
 
-            switch(packet.type) {
-                case TerminalPacket.AUTH -> {
-                    String token = (String) packet.data;
-                    final String hashedRealKey = plugin.getConfig().accessKey; // hashed 2
-                    if(token != null && JwtManager.verifyToken(token, hashedRealKey, plugin.getConfig().salt)) {
-                        // Register session
-                        sessions.add(session);
-                        // Send recent logs
-                        sendMessage(session, new TerminalPacket<>(TerminalPacket.INIT, logListenerManager.getRecentLogs()));
-                    } else {
-                        session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "Unauthorized."));
-                    }
+        switch(packet.type) {
+            case TerminalPacket.AUTH -> {
+                String token = (String) packet.data;
+                final String hashedRealKey = plugin.getConfig().accessKey; // hashed 2
+                if(token != null && JwtManager.verifyToken(token, hashedRealKey, plugin.getConfig().salt)) {
+                    // Register session
+                    sessions.add(session);
+                    // Send recent logs
+                    ctx.send(new TerminalPacket<>(TerminalPacket.INIT, logListenerManager.getRecentLogs()));
+                } else {
+                    ctx.closeSession(1008, "Unauthorized.");
                 }
-                case TerminalPacket.COMMAND -> {
-                    if(!sessions.contains(session)) {
-                        session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "Unauthorized."));
-                        return;
-                    }
-                    if(packet.data instanceof String) {
-                        String command = (String) packet.data;
-                        if(command.startsWith("/")) {
-                            command = command.replace("/", "");
-                        }
-                        plugin.getServer().sendServerCommand(command);
-                    } else {
-                        sendErrorMessage(session, "Unexpected type of data.");
-                    }
-                }
-                case TerminalPacket.AUTOCOMPLETE -> {
-                    if(!sessions.contains(session)) {
-                        session.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "Unauthorized."));
-                        return;
-                    }
-
-                    if(packet.data instanceof Number) {
-                        Number arg = (Number) packet.data;
-                        if(arg.equals(1.0)) {
-                            sendMessage(session, new TerminalPacket<>(TerminalPacket.AUTOCOMPLETE, plugin.getServer().getCommands()));
-                            return;
-                        }
-                        List<OPanelPlayer> players = plugin.getServer().getOnlinePlayers();
-                        List<String> nameList = new ArrayList<>();
-                        for(OPanelPlayer player : players) {
-                            nameList.add(player.getName());
-                        }
-                        sendMessage(session, new TerminalPacket<>(TerminalPacket.AUTOCOMPLETE, nameList));
-                    } else {
-                        sendErrorMessage(session, "Unexpected type of data.");
-                    }
-                }
-                default -> sendErrorMessage(session, "Unexpected type of packet.");
             }
-        } catch(JsonSyntaxException e) {
-            // Use System.err to avoid recursive logging through LogListenerAppender
-            System.err.println("[OPanel] JSON parsing error in terminal: " + e.getMessage());
-            sendErrorMessage(session, "Json syntax error: "+ e.getMessage());
+            case TerminalPacket.COMMAND -> {
+                if(!sessions.contains(session)) {
+                    ctx.closeSession(1008, "Unauthorized.");
+                    return;
+                }
+                if(packet.data instanceof String) {
+                    String command = (String) packet.data;
+                    if(command.startsWith("/")) {
+                        command = command.replace("/", "");
+                    }
+                    plugin.getServer().sendServerCommand(command);
+                } else {
+                    sendErrorMessage(ctx, "Unexpected type of data.");
+                }
+            }
+            case TerminalPacket.AUTOCOMPLETE -> {
+                if(!sessions.contains(session)) {
+                    ctx.closeSession(1008, "Unauthorized.");
+                    return;
+                }
+
+                if(packet.data instanceof Number) {
+                    Number arg = (Number) packet.data;
+                    if(arg.equals(1.0)) {
+                        ctx.send(new TerminalPacket<>(TerminalPacket.AUTOCOMPLETE, plugin.getServer().getCommands()));
+                        return;
+                    }
+                    List<OPanelPlayer> players = plugin.getServer().getOnlinePlayers();
+                    List<String> nameList = new ArrayList<>();
+                    for(OPanelPlayer player : players) {
+                        nameList.add(player.getName());
+                    }
+                    ctx.send(new TerminalPacket<>(TerminalPacket.AUTOCOMPLETE, nameList));
+                } else {
+                    sendErrorMessage(ctx, "Unexpected type of data.");
+                }
+            }
+            default -> sendErrorMessage(ctx, "Unexpected type of packet.");
         }
     }
 
-    @OnClose
-    public void onClose(Session session) {
-        sessions.remove(session);
+    public void onClose(WsCloseContext ctx) {
+        sessions.remove(ctx.session);
         // Connection closed silently to avoid log spam
     }
 
-    private <T> void sendMessage(Session session, TerminalPacket<T> packet) {
-        if(session.isOpen()) {
-            try {
-                Gson gson = new Gson();
-                session.getBasicRemote().sendText(gson.toJson(packet));
-            } catch(IOException e) {
-                // Use System.err to avoid recursive logging through LogListenerAppender
-                System.err.println("[OPanel] Failed to send WebSocket message: " + e.getMessage());
-            }
-        }
-    }
-
-    private void sendErrorMessage(Session session, String err) {
-        sendMessage(session, new TerminalPacket<>(TerminalPacket.ERROR, err));
+    private void sendErrorMessage(WsMessageContext ctx, String err) {
+        ctx.send(new TerminalPacket<>(TerminalPacket.ERROR, err));
     }
 
     private <T> void broadcast(TerminalPacket<T> packet) {
         String message = new Gson().toJson(packet);
-        synchronized (sessions) {
+        synchronized(sessions) {
             sessions.removeIf(session -> !session.isOpen());
             for(Session session : sessions) {
                 try {
-                    session.getAsyncRemote().sendText(message, result -> {
-                        if(!result.isOK()) {
-                            System.err.println("[OPanel] Failed to broadcast message to session: "+ result.getException().getMessage());
-                        }
-                    });
+                    session.getRemote().sendString(message);
                 } catch(Exception e) {
                     // Use System.err to avoid recursive logging through LogListenerAppender
                     System.err.println("[OPanel] Failed to broadcast message to session: " + e.getMessage());
@@ -154,28 +128,8 @@ public class TerminalEndpoint {
 
     public static void closeAllSessions() throws IOException {
         for(Session session : sessions) {
-            session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, "Server is stopping."));
+            session.close(1000, "Server is stopping.");
         }
         sessions.clear();
-    }
-
-    public static class Configurator extends ServerEndpointConfig.Configurator {
-        private static OPanel pluginInstance;
-
-        public static void setPlugin(OPanel plugin) {
-            pluginInstance = plugin;
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        public <T> T getEndpointInstance(Class<T> endpointClass) throws InstantiationException {
-            if(TerminalEndpoint.class.equals(endpointClass)) {
-                if(pluginInstance == null) {
-                    throw new IllegalStateException("Plugin instance has not been set in the EndpointConfigurator.");
-                }
-                return (T) new TerminalEndpoint(pluginInstance);
-            }
-            throw new InstantiationException("The provided endpoint class is not equal to TerminalEndpoint.");
-        }
     }
 }
