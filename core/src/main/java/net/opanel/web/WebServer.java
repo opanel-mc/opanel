@@ -6,10 +6,7 @@ import io.javalin.jetty.JettyServer;
 import net.opanel.OPanel;
 import net.opanel.api.*;
 import net.opanel.terminal.TerminalEndpoint;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.Jetty;
-import org.eclipse.jetty.util.component.LifeCycle;
 
 import java.io.IOException;
 import java.util.Map;
@@ -66,11 +63,17 @@ public class WebServer {
 
         // Controllers
         AuthController authController = new AuthController(plugin);
+        BannedIpsController bannedIpsController = new BannedIpsController(plugin);
 
         // API Routes
         app.routes(() -> path("api", () -> {
             get("auth", authController.getCram);
             post("auth", authController.validateCram);
+            path("banned-ips", () -> {
+                get("/", bannedIpsController.getBannedIps);
+                post("add", bannedIpsController.banIp);
+                post("remove", bannedIpsController.pardonIp);
+            });
         }));
 
         app.start(PORT);
