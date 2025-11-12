@@ -50,6 +50,8 @@ public class WebServer {
 
         // Authorization
         app.before("/api/*", ctx -> {
+            ctx.header("X-Powered-By", "OPanel");
+
             if(ctx.path().equals("/api/auth") || ctx.path().equals("/api/icon")) return;
 
             String token = ctx.header("X-Credential-Token"); // jws
