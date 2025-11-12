@@ -1,27 +1,25 @@
 package net.opanel.api;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import io.javalin.http.Context;
+import io.javalin.http.Handler;
 import net.opanel.OPanel;
 import net.opanel.utils.TPS;
-import net.opanel.web.BaseServlet;
+import net.opanel.web.BaseController;
 import oshi.SystemInfo;
 import oshi.hardware.GlobalMemory;
 
 import java.util.HashMap;
 
-public class MonitorServlet extends BaseServlet {
-
+public class MonitorController extends BaseController {
     public static final String route = "/api/monitor";
 
-    public MonitorServlet(OPanel plugin) {
+    public MonitorController(OPanel plugin) {
         super(plugin);
     }
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse res) {
-        if(!authCookie(req)) {
-            sendResponse(res, HttpServletResponse.SC_UNAUTHORIZED);
+    public Handler getMonitor = ctx -> {
+        if (!authCookie(ctx)) {
+            sendResponse(ctx, 401);
             return;
         }
 
@@ -30,8 +28,8 @@ public class MonitorServlet extends BaseServlet {
         obj.put("mem", getMemRate());
         obj.put("tps", TPS.getRecentTPS());
 
-        sendResponse(res, obj);
-    }
+        sendResponse(ctx, obj);
+    };
 
     public double getCpuRate() {
         SystemInfo si = new SystemInfo();

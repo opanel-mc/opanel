@@ -64,15 +64,23 @@ public class WebServer {
         // Controllers
         AuthController authController = new AuthController(plugin);
         BannedIpsController bannedIpsController = new BannedIpsController(plugin);
+        SecurityController securityController = new SecurityController(plugin);
+        PlayersController playersController = new PlayersController(plugin);
 
         // API Routes
         app.routes(() -> path("api", () -> {
             get("auth", authController.getCram);
             post("auth", authController.validateCram);
+            post("security", securityController.updateSecurity);
             path("banned-ips", () -> {
                 get("/", bannedIpsController.getBannedIps);
                 post("add", bannedIpsController.banIp);
                 post("remove", bannedIpsController.pardonIp);
+            });
+            path("players", () -> {
+                get("/", playersController.getPlayers);
+                post("/", playersController.handlePlayerAction);
+                delete("/", playersController.deletePlayer);
             });
         }));
 
