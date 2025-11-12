@@ -65,6 +65,7 @@ public class WebServer {
         AuthController authController = new AuthController(plugin);
         BannedIpsController bannedIpsController = new BannedIpsController(plugin);
         ControlController controlController = new ControlController(plugin);
+        GamerulesController gamerulesController = new GamerulesController(plugin);
 
         // API Routes
         app.routes(() -> path("api", () -> {
@@ -84,6 +85,10 @@ public class WebServer {
                 post("stop", controlController.stopServer);
                 post("reload", controlController.reloadServer);
                 post("world", controlController.switchSave);
+            });
+            path("gamerules", () -> {
+                get("/", gamerulesController.getGamerules);
+                post("/", gamerulesController.changeGamerule);
             });
         }));
 
