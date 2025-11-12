@@ -5,6 +5,7 @@ import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import jakarta.servlet.http.HttpServletResponse;
 import net.opanel.OPanel;
+import net.opanel.common.OPanelServer;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -12,9 +13,11 @@ import java.util.HashMap;
 
 public class BaseController {
     protected final OPanel plugin;
+    protected final OPanelServer server;
 
     public BaseController(OPanel plugin) {
         this.plugin = plugin;
+        server = plugin.getServer();
     }
 
     protected void sendResponse(Context ctx, HttpStatus status) {

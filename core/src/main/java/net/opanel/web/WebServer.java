@@ -64,6 +64,7 @@ public class WebServer {
         // Controllers
         AuthController authController = new AuthController(plugin);
         BannedIpsController bannedIpsController = new BannedIpsController(plugin);
+        ControlController controlController = new ControlController(plugin);
 
         // API Routes
         app.routes(() -> path("api", () -> {
@@ -73,6 +74,16 @@ public class WebServer {
                 get("/", bannedIpsController.getBannedIps);
                 post("add", bannedIpsController.banIp);
                 post("remove", bannedIpsController.pardonIp);
+            });
+            path("control", () -> {
+                get("properties", controlController.getServerProperties);
+                post("properties", controlController.setServerProperties);
+                get("code-of-conduct", controlController.getCodeOfConducts);
+                post("code-of-conduct", controlController.changeCodeOfConduct);
+                delete("code-of-conduct", controlController.removeCodeOfConduct);
+                post("stop", controlController.stopServer);
+                post("reload", controlController.reloadServer);
+                post("world", controlController.switchSave);
             });
         }));
 
