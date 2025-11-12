@@ -1,20 +1,20 @@
 package net.opanel.web;
 
-import com.google.gson.Gson;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
-import jakarta.servlet.http.HttpServletResponse;
 import net.opanel.OPanel;
+import net.opanel.common.OPanelServer;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.HashMap;
 
 public class BaseController {
     protected final OPanel plugin;
+    protected final OPanelServer server;
 
     public BaseController(OPanel plugin) {
         this.plugin = plugin;
+        server = plugin.getServer();
     }
 
     protected void sendResponse(Context ctx, HttpStatus status) {
@@ -36,5 +36,14 @@ public class BaseController {
         jsonObj.put("code", okStatus.getCode());
         jsonObj.put("error", okStatus.getMessage());
         ctx.json(jsonObj);
+    }
+
+    protected void sendContent(Context ctx, byte[] bytes, String contentType) {
+        try(InputStream is = new ByteArrayInputStream(bytes)) {
+            ctx.writeSeekableStream(is, contentType);
+        } catch (IOException e) {
+            e.printStackTrace();
+            sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
 }
