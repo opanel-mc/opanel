@@ -4,6 +4,7 @@ import net.opanel.utils.Utils;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public abstract class Loggable {
     public String getLogContent(String fileName) throws IOException {
         final Path filePath = Paths.get(logFolderPath.toString(), fileName);
         if(!Files.exists(filePath)) {
-            throw new IOException("Cannot find the specified log file.");
+            throw new NoSuchFileException("Cannot find the specified log file.");
         }
         if(filePath.toString().endsWith(".log") || filePath.toString().endsWith("txt")) {
             return Utils.readTextFile(filePath);
@@ -45,13 +46,13 @@ public abstract class Loggable {
         if(filePath.toString().endsWith(".gz")) {
             return Utils.decompressTextGzip(filePath);
         }
-        throw new IOException("Unexpected file extension.");
+        throw new IllegalArgumentException("Unexpected file extension.");
     }
 
     public void deleteLog(String fileName) throws IOException {
         final Path filePath = Paths.get(logFolderPath.toString(), fileName);
         if(!Files.exists(filePath)) {
-            throw new IOException("Cannot find the specified log file.");
+            throw new NoSuchFileException("Cannot find the specified log file.");
         }
         Files.delete(filePath);
     }

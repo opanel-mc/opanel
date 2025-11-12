@@ -69,6 +69,7 @@ public class WebServer {
         ControlController controlController = new ControlController(plugin);
         GamerulesController gamerulesController = new GamerulesController(plugin);
         InfoController infoController = new InfoController(plugin);
+        LogsController logsController = new LogsController(plugin);
 
         // API Routes
         app.routes(() -> path("api", () -> {
@@ -96,6 +97,12 @@ public class WebServer {
             path("info", () -> {
                 get("/", infoController.getServerInfo);
                 post("motd", infoController.setMotd);
+            });
+            path("logs", () -> {
+                get("/", logsController.getLogFileList);
+                get("{fileName}", logsController.getLogContent);
+                delete("/", logsController.clearLogs);
+                delete("{fileName}", logsController.deleteLog);
             });
         }));
 
