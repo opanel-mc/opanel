@@ -1,11 +1,14 @@
 package net.opanel.api;
 
+import io.javalin.http.Handler;
+import io.javalin.http.HttpStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import net.opanel.OPanel;
 import net.opanel.common.OPanelServer;
 import net.opanel.utils.TPS;
 import net.opanel.utils.Utils;
+import net.opanel.web.BaseController;
 import net.opanel.web.BaseServlet;
 
 import java.io.IOException;
@@ -13,22 +16,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class InfoServlet extends BaseServlet {
-    public static final String route = "/api/info/*";
-
-    public InfoServlet(OPanel plugin) {
+public class InfoController extends BaseController {
+    public InfoController(OPanel plugin) {
         super(plugin);
     }
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse res) {
-        if(!authCookie(req)) {
-            sendResponse(res, HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-
-        final OPanelServer server = plugin.getServer();
-
+    public Handler getServerInfo = ctx -> {
         HashMap<String, Object> obj = new HashMap<>();
         obj.put("favicon", server.getFavicon() != null ? (IconServlet.route +"?t="+ System.currentTimeMillis()) : null);
         obj.put("motd", Utils.stringToBase64(server.getMotd()));
@@ -56,38 +49,25 @@ public class InfoServlet extends BaseServlet {
                 .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
         obj.put("onlinePlayers", players);
 
-        sendResponse(res, obj);
-    }
+        sendResponse(ctx, obj);
+    };
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse res) {
-        if(!authCookie(req)) {
-            sendResponse(res, HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        }
-
-        final String reqPath = req.getPathInfo();
-        final OPanelServer server = plugin.getServer();
-
-        if(reqPath.substring(1).equals("motd")) {
-            try {
-                String motd = getRequestBody(req, String.class);
-                if(motd == null || motd.trim().isEmpty()) {
-                    sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
-                    return;
-                }
-
-                server.setMotd(Utils.base64ToString(motd));
-                sendResponse(res, HttpServletResponse.SC_OK);
-            } catch (IOException e) {
-                plugin.logger.error("Failed to update MOTD: " + e.getMessage());
-                sendResponse(res, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            } catch (IllegalArgumentException e) {
-                plugin.logger.error("Invalid Base64 encoding in MOTD: " + e.getMessage());
-                sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
+    public Handler setMotd = ctx -> {
+        try {
+            String motd = ctx.body();
+            if(motd.isEmpty() || motd.trim().isEmpty()) {
+                sendResponse(ctx, HttpStatus.BAD_REQUEST, "Motd is missing.");
+                return;
             }
-        } else {
-            sendResponse(res, HttpServletResponse.SC_BAD_REQUEST);
+
+            server.setMotd(Utils.base64ToString(motd));
+            sendResponse(ctx, HttpStatus.OK);
+        } catch (IOException e) {
+            plugin.logger.error("Failed to update motd: " + e.getMessage());
+            sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        } catch (IllegalArgumentException e) {
+            plugin.logger.error("Invalid Base64 encoding in motd: " + e.getMessage());
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Invalid Base64 encoding in motd.");
         }
-    }
+    };
 }
