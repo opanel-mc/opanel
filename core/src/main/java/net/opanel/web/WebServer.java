@@ -2,9 +2,12 @@ package net.opanel.web;
 
 import com.google.gson.Gson;
 import io.javalin.Javalin;
+import io.javalin.http.HandlerType;
+import io.javalin.http.HttpStatus;
 import io.javalin.http.UnauthorizedResponse;
 import io.javalin.jetty.JettyServer;
 import io.javalin.json.JavalinGson;
+import io.javalin.plugin.bundled.CorsPluginConfig;
 import net.opanel.OPanel;
 import net.opanel.api.*;
 import net.opanel.terminal.TerminalEndpoint;
@@ -39,9 +42,6 @@ public class WebServer {
             config.plugins.enableCors(cors -> {
                 cors.add(it -> {
                     it.allowHost("http://localhost:3001"); // for dev
-                    it.exposeHeader("X-Requested-With");
-                    it.exposeHeader("Content-Type");
-                    it.exposeHeader("X-Credential-Token");
                 });
             });
 
@@ -60,7 +60,7 @@ public class WebServer {
         app.before("/api/*", ctx -> {
             ctx.header("X-Powered-By", "OPanel");
 
-            if(ctx.path().equals("/api/auth") || ctx.path().equals("/api/icon")) return;
+            if(ctx.path().equals("/api/auth") || ctx.path().equals("/api/icon") || ctx.method() == HandlerType.OPTIONS) return;
 
             String token = ctx.header("X-Credential-Token"); // jws
             if(token == null) throw new UnauthorizedResponse("Token is missing.");
@@ -75,10 +75,22 @@ public class WebServer {
         /** @see https://github.com/vercel/next.js/discussions/59394 */
         app.before("/*", ctx -> {
             String reqPath = ctx.path();
-            if(!reqPath.contains(".txt") || ctx.queryParam("_rsc") == null || reqPath.contains(DEFAULT_RSC_FILE)) return;
+            if(reqPath.contains(".txt") && ctx.queryParam("_rsc") != null && !reqPath.contains(DEFAULT_RSC_FILE)) {
+                String transformedPath = ctx.fullUrl().replace(".txt", "/"+ DEFAULT_RSC_FILE);
+                ctx.redirect(transformedPath);
+            }
+        });
 
-            String transformedPath = ctx.fullUrl().replace(".txt", "/"+ DEFAULT_RSC_FILE);
-            ctx.redirect(transformedPath);
+        // Handle fonts
+        app.before("/*", ctx -> {
+            if(
+                    ctx.path().endsWith(".ttf")
+                    || ctx.path().endsWith(".otf")
+                    || ctx.path().endsWith(".woff")
+                    || ctx.path().endsWith(".woff2")
+            ) {
+                ctx.status(HttpStatus.OK);
+            }
         });
 
         // Controllers
@@ -98,21 +110,10 @@ public class WebServer {
         app.routes(() -> path("api", () -> {
             get("auth", authController.getCram);
             post("auth", authController.validateCram);
-            get("monitor", monitorController.getMonitor);
             path("banned-ips", () -> {
                 get("/", bannedIpsController.getBannedIps);
                 post("add", bannedIpsController.banIp);
                 post("remove", bannedIpsController.pardonIp);
-            });
-            path("players", () -> {
-                get("/", playersController.getPlayers);
-                post("op", playersController.giveOp);
-                post("deop", playersController.takeOp);
-                post("kick", playersController.kickPlayer);
-                post("ban", playersController.banPlayer);
-                post("pardon", playersController.pardonPlayer);
-                post("gamemode", playersController.setGamemode);
-                delete("/", playersController.deletePlayerData);
             });
             path("control", () -> {
                 get("properties", controlController.getServerProperties);
@@ -132,6 +133,23 @@ public class WebServer {
                 get("/", infoController.getServerInfo);
                 post("motd", infoController.setMotd);
             });
+            path("logs", () -> {
+                get("/", logsController.getLogFileList);
+                get("{fileName}", logsController.getLogContent);
+                delete("/", logsController.clearLogs);
+                delete("{fileName}", logsController.deleteLog);
+            });
+            get("monitor", monitorController.getMonitor);
+            path("players", () -> {
+                get("/", playersController.getPlayers);
+                delete("/", playersController.deletePlayerData);
+                post("op", playersController.giveOp);
+                post("deop", playersController.depriveOp);
+                post("kick", playersController.kickPlayer);
+                post("ban", playersController.banPlayer);
+                post("pardon", playersController.pardonPlayer);
+                post("gamemode", playersController.setGamemode);
+            });
             post("security", securityController.updateAccessKey);
             get("version", versionController.getVersionInfo);
             path("whitelist", () -> {
@@ -141,12 +159,6 @@ public class WebServer {
                 post("write", whitelistController.writeWhitelist);
                 post("add", whitelistController.addWhitelistEntry);
                 post("remove", whitelistController.removeWhitelistEntry);
-            });
-            path("logs", () -> {
-                get("/", logsController.getLogFileList);
-                get("{fileName}", logsController.getLogContent);
-                delete("/", logsController.clearLogs);
-                delete("{fileName}", logsController.deleteLog);
             });
         }));
 

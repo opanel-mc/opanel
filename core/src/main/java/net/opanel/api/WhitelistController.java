@@ -1,7 +1,5 @@
 package net.opanel.api;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
@@ -16,7 +14,6 @@ import java.util.List;
 
 public class WhitelistController extends BaseController {
     private static final Type whitelistType = new TypeToken<List<OPanelWhitelist.OPanelWhitelistEntry>>() {}.getType();
-    private final Gson gson = new Gson();
 
     public WhitelistController(OPanel plugin) {
         super(plugin);
@@ -43,16 +40,14 @@ public class WhitelistController extends BaseController {
     };
 
     public Handler writeWhitelist = ctx -> {
+        List<OPanelWhitelist.OPanelWhitelistEntry> entries = ctx.bodyAsClass(whitelistType);
+        if(entries == null) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Invalid whitelist payload.");
+            return;
+        }
         try {
-            List<OPanelWhitelist.OPanelWhitelistEntry> entries = gson.fromJson(ctx.body(), whitelistType);
-            if(entries == null) {
-                sendResponse(ctx, HttpStatus.BAD_REQUEST, "Invalid whitelist payload.");
-                return;
-            }
             server.getWhitelist().write(entries);
             sendResponse(ctx, HttpStatus.OK);
-        } catch (JsonSyntaxException e) {
-            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Malformed JSON payload.");
         } catch (IOException e) {
             sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }

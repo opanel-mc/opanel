@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.List;
 
 public class PlayersController extends BaseController {
-
     public PlayersController(OPanel plugin) {
         super(plugin);
     }
@@ -57,7 +56,7 @@ public class PlayersController extends BaseController {
         sendResponse(ctx, HttpStatus.OK);
     };
 
-    public Handler takeOp = ctx -> {
+    public Handler depriveOp = ctx -> {
         OPanelPlayer player = getTargetPlayer(ctx);
         if(player == null) return;
         player.depriveOp();

@@ -24,13 +24,13 @@ public class MonitorController extends BaseController {
         sendResponse(ctx, obj);
     };
 
-    public double getCpuRate() {
+    private double getCpuRate() {
         SystemInfo si = new SystemInfo();
         double load = si.getHardware().getProcessor().getSystemCpuLoad(500) * 100;
         return Math.round(load);
     }
 
-    public double getMemRate() {
+    private double getMemRate() {
         SystemInfo si = new SystemInfo();
         GlobalMemory gm = si.getHardware().getMemory();
 

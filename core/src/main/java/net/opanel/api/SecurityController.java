@@ -9,10 +9,8 @@ import net.opanel.web.BaseController;
 import net.opanel.web.JwtManager;
 
 import java.util.HashMap;
-import java.util.Objects;
 
 public class SecurityController extends BaseController {
-
     public SecurityController(OPanel plugin) {
         super(plugin);
     }
@@ -20,7 +18,7 @@ public class SecurityController extends BaseController {
     public Handler updateAccessKey = ctx -> {
         RequestBodyType reqBody = ctx.bodyAsClass(RequestBodyType.class);
         if(reqBody == null || reqBody.currentKey == null || reqBody.newKey == null) {
-            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Invalid body.");
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Invalid request body.");
             return;
         }
 
@@ -28,7 +26,7 @@ public class SecurityController extends BaseController {
         final String newKey = reqBody.newKey; // hashed 1
         final String realKey = plugin.getConfig().accessKey; // hashed 2
 
-        if(!Objects.equals(Utils.md5(currentKey), realKey)) {
+        if(!Utils.md5(currentKey).equals(realKey)) {
             sendResponse(ctx, HttpStatus.FORBIDDEN, "Access key mismatch.");
             return;
         }

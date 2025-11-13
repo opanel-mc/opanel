@@ -7,7 +7,6 @@ import net.opanel.web.BaseController;
 import java.util.HashMap;
 
 public class VersionController extends BaseController {
-
     public VersionController(OPanel plugin) {
         super(plugin);
     }
