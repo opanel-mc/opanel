@@ -2,12 +2,9 @@ package net.opanel.api;
 
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import net.opanel.OPanel;
 import net.opanel.logger.Loggable;
 import net.opanel.web.BaseController;
-import net.opanel.web.BaseServlet;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

@@ -62,7 +62,6 @@ public class AuthController extends BaseController {
         }
 
         final String remoteHost = ctx.host();
-        final int remotePort = ctx.port();
         final String challengeResult = reqBody.result; // hashed 3
         final String storedRealKey = plugin.getConfig().accessKey; // hashed 2
         final String realResult = Utils.md5(storedRealKey + cramMap.get(reqBody.id)); // hashed 3
@@ -81,7 +80,7 @@ public class AuthController extends BaseController {
                 failedRecords.put(remoteHost, 0);
             }
 
-            plugin.logger.warn("A failed login request from "+ remoteHost +":"+ remotePort +" (Failed for "+ (current + 1) +" times)");
+            plugin.logger.warn("A failed login request from "+ remoteHost +" (Failed for "+ (current + 1) +" times)");
             sendResponse(ctx, HttpStatus.UNAUTHORIZED);
         }
     };

@@ -19,6 +19,7 @@ import java.util.Properties;
 
 public class OPanel {
     public static final String VERSION;
+    public static final String JAVALIN_VERSION;
     public static final Path OPANEL_DIR_PATH = Paths.get("").resolve("opanel");
     public static final Path TMP_DIR_PATH = OPANEL_DIR_PATH.resolve(".tmp");
     public static final Path INITIAL_ACCESS_KEY_PATH = OPANEL_DIR_PATH.resolve("INITIAL_ACCESS_KEY.txt");
@@ -33,10 +34,25 @@ public class OPanel {
                 version = props.getProperty("version", "unknown");
             }
         } catch (IOException e) {
-            System.err.println("Failed to load version information: " + e.getMessage());
+            System.err.println("Failed to load version information: "+ e.getMessage());
         }
 
         VERSION = version;
+    }
+
+    static {
+        String version = "unknown";
+        try(InputStream is = OPanel.class.getClassLoader().getResourceAsStream("META-INF/maven/io.javalin/javalin/pom.properties")) {
+            if(is != null) {
+                Properties props = new Properties();
+                props.load(is);
+                version = props.getProperty("version", "unknown");
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to load javalin version information: "+ e.getMessage());
+        }
+
+        JAVALIN_VERSION = version;
     }
 
     private final ConfigManager configManager;
@@ -162,7 +178,7 @@ public class OPanel {
         sb.append("§r§7Version: §f").append(VERSION).append("\n");
         sb.append("§r§7Status: ").append(getWebServer().isRunning() ? "§aRunning" : "§cStopped").append("\n");
         sb.append("§r§7Port: §f").append(getConfig().webServerPort).append("\n");
-        sb.append("§r§7Jetty Version: §f").append(getWebServer().getJettyVersion());
+        sb.append("§r§7Javalin Version: §f").append(JAVALIN_VERSION);
         return sb.toString();
     }
 }

@@ -8,7 +8,7 @@ import net.opanel.common.OPanelServer;
 import java.io.*;
 import java.util.HashMap;
 
-public class BaseController {
+public abstract class BaseController {
     protected final OPanel plugin;
     protected final OPanelServer server;
 

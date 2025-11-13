@@ -42,6 +42,7 @@ shadowJar {
     relocate 'net.kyori', 'net.opanel.deps.kyori'
     relocate 'de.tr7zw.changeme.nbtapi', 'net.opanel.deps.nbtapi'
     relocate 'oshi', 'net.opanel.deps.oshi'
+    relocate 'io.javalin', 'net.opanel.deps.javalin'
 
     exclude 'META-INF/*.SF'
     exclude 'META-INF/*.DSA'

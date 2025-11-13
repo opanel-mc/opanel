@@ -3,16 +3,12 @@ package net.opanel.web;
 import com.google.gson.Gson;
 import io.javalin.Javalin;
 import io.javalin.config.SizeUnit;
-import io.javalin.http.HandlerType;
-import io.javalin.http.HttpStatus;
-import io.javalin.http.UnauthorizedResponse;
 import io.javalin.jetty.JettyServer;
 import io.javalin.json.JavalinGson;
-import io.javalin.plugin.bundled.CorsPluginConfig;
+import io.javalin.util.JavalinLogger;
 import net.opanel.OPanel;
 import net.opanel.api.*;
 import net.opanel.terminal.TerminalEndpoint;
-import org.eclipse.jetty.util.Jetty;
 
 import java.io.IOException;
 import java.util.Map;
@@ -25,11 +21,11 @@ public class WebServer {
     private final OPanel plugin;
     private Javalin app;
 
-    private static final String DEFAULT_RSC_FILE = "index.txt";
-
     public WebServer(OPanel plugin) {
         this.plugin = plugin;
         PORT = plugin.getConfig().webServerPort;
+
+        JavalinLogger.enabled = false;
     }
 
     public void start() throws Exception {
@@ -61,44 +57,8 @@ public class WebServer {
         // Websocket
         app.ws("/terminal", ws -> new TerminalEndpoint(ws, plugin));
 
-        // Authorization
-        app.before("/api/*", ctx -> {
-            ctx.header("X-Powered-By", "OPanel");
-
-            if(ctx.path().equals("/api/auth") || ctx.path().equals("/api/icon") || ctx.method() == HandlerType.OPTIONS) return;
-
-            String token = ctx.header("X-Credential-Token"); // jws
-            if(token == null) throw new UnauthorizedResponse("Token is missing.");
-
-            final String hashedRealKey = plugin.getConfig().accessKey; // hashed 2
-            if(!JwtManager.verifyToken(token, hashedRealKey, plugin.getConfig().salt)) {
-                throw new UnauthorizedResponse("Token is invalid.");
-            }
-        });
-
-        // Next.js Rsc
-        /** @see https://github.com/vercel/next.js/discussions/59394 */
-        app.before("/*", ctx -> {
-            String reqPath = ctx.path();
-            if(reqPath.contains(".txt") && ctx.queryParam("_rsc") != null && !reqPath.contains(DEFAULT_RSC_FILE)) {
-                String transformedPath = ctx.fullUrl().replace(".txt", "/"+ DEFAULT_RSC_FILE);
-                ctx.redirect(transformedPath);
-            }
-        });
-
-        // Handle fonts
-        app.before("/*", ctx -> {
-            if(
-                    ctx.path().endsWith(".ttf")
-                    || ctx.path().endsWith(".otf")
-                    || ctx.path().endsWith(".woff")
-                    || ctx.path().endsWith(".woff2")
-            ) {
-                ctx.status(HttpStatus.OK);
-            }
-        });
-
         // Controllers
+        BeforeController beforeController = new BeforeController(plugin);
         AuthController authController = new AuthController(plugin);
         BannedIpsController bannedIpsController = new BannedIpsController(plugin);
         ControlController controlController = new ControlController(plugin);
@@ -114,7 +74,11 @@ public class WebServer {
         WhitelistController whitelistController = new WhitelistController(plugin);
 
         // API Routes
+        app.before("/*", beforeController.handleRsc);
+        app.before("/*", beforeController.handleFonts);
         app.routes(() -> path("api", () -> {
+            before("/*", beforeController.authCookie);
+
             path("auth", () -> {
                 get("/", authController.getCram);
                 post("/", authController.validateCram);
@@ -207,9 +171,5 @@ public class WebServer {
     public boolean isRunning() {
         JettyServer jettyServer = app.jettyServer();
         return app != null && jettyServer != null && jettyServer.started;
-    }
-
-    public String getJettyVersion() {
-        return Jetty.VERSION;
     }
 }
