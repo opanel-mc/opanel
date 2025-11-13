@@ -18,4 +18,13 @@ public enum ServerType {
     public String getName() {
         return name;
     }
+
+    public boolean isBukkitSeries() {
+        return (
+                this == BUKKIT
+                || this == SPIGOT
+                || this == PAPER
+                || this == FOLIA
+        );
+    }
 }

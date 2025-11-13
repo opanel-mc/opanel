@@ -2,14 +2,10 @@ package net.opanel.api;
 
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import net.opanel.OPanel;
-import net.opanel.common.OPanelServer;
 import net.opanel.utils.TPS;
 import net.opanel.utils.Utils;
 import net.opanel.web.BaseController;
-import net.opanel.web.BaseServlet;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,7 +19,7 @@ public class InfoController extends BaseController {
 
     public Handler getServerInfo = ctx -> {
         HashMap<String, Object> obj = new HashMap<>();
-        obj.put("favicon", server.getFavicon() != null ? (IconServlet.route +"?t="+ System.currentTimeMillis()) : null);
+        obj.put("favicon", server.getFavicon() != null ? ("/api/icon?t="+ System.currentTimeMillis()) : null);
         obj.put("motd", Utils.stringToBase64(server.getMotd()));
         obj.put("port", server.getPort());
         obj.put("maxPlayerCount", server.getMaxPlayerCount());

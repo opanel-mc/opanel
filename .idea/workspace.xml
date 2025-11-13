@@ -6,12 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="90587dcf-15dc-47d2-9c29-bb98b36eacd0" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/AGENTS.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/MonitorController.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/MonitorController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/PlayersController.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/PlayersController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/SecurityController.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/SecurityController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/VersionController.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/VersionController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/WhitelistController.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/WhitelistController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/ServerType.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/ServerType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/IconServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/IconController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/InfoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/InfoController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/SavesServlet.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/SavesController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/WebServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/WebServer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

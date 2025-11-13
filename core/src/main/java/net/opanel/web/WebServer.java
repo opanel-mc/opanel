@@ -2,6 +2,7 @@ package net.opanel.web;
 
 import com.google.gson.Gson;
 import io.javalin.Javalin;
+import io.javalin.config.SizeUnit;
 import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 import io.javalin.http.UnauthorizedResponse;
@@ -44,6 +45,10 @@ public class WebServer {
                     it.allowHost("http://localhost:3001"); // for dev
                 });
             });
+
+            // Multipart configuration
+            config.jetty.multipartConfig.cacheDirectory(OPanel.TMP_DIR_PATH.toString());
+            config.jetty.multipartConfig.maxInMemoryFileSize(10, SizeUnit.MB);
 
             // Frontend
             config.staticFiles.add(staticFiles -> {
@@ -98,18 +103,22 @@ public class WebServer {
         BannedIpsController bannedIpsController = new BannedIpsController(plugin);
         ControlController controlController = new ControlController(plugin);
         GamerulesController gamerulesController = new GamerulesController(plugin);
+        IconController iconController = new IconController(plugin);
         InfoController infoController = new InfoController(plugin);
         LogsController logsController = new LogsController(plugin);
         MonitorController monitorController = new MonitorController(plugin);
         PlayersController playersController = new PlayersController(plugin);
+        SavesController savesController = new SavesController(plugin);
         SecurityController securityController = new SecurityController(plugin);
         VersionController versionController = new VersionController(plugin);
         WhitelistController whitelistController = new WhitelistController(plugin);
 
         // API Routes
         app.routes(() -> path("api", () -> {
-            get("auth", authController.getCram);
-            post("auth", authController.validateCram);
+            path("auth", () -> {
+                get("/", authController.getCram);
+                post("/", authController.validateCram);
+            });
             path("banned-ips", () -> {
                 get("/", bannedIpsController.getBannedIps);
                 post("add", bannedIpsController.banIp);
@@ -128,6 +137,10 @@ public class WebServer {
             path("gamerules", () -> {
                 get("/", gamerulesController.getGamerules);
                 post("/", gamerulesController.changeGamerule);
+            });
+            path("icon", () -> {
+                get("/", iconController.getFavicon);
+                post("/", iconController.uploadFavicon);
             });
             path("info", () -> {
                 get("/", infoController.getServerInfo);
@@ -149,6 +162,13 @@ public class WebServer {
                 post("ban", playersController.banPlayer);
                 post("pardon", playersController.pardonPlayer);
                 post("gamemode", playersController.setGamemode);
+            });
+            path("saves", () -> {
+                get("/", savesController.getSaves);
+                post("/", savesController.uploadSave);
+                get("{saveName}", savesController.downloadSave);
+                post("{saveName}", savesController.editSave);
+                delete("{saveName}", savesController.deleteSave);
             });
             post("security", securityController.updateAccessKey);
             get("version", versionController.getVersionInfo);
