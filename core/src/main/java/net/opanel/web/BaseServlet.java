@@ -13,7 +13,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 
-/** @deprecated */
+@Deprecated
 public abstract class BaseServlet extends HttpServlet {
     protected final OPanel plugin;
 

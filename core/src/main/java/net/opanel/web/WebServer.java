@@ -1,8 +1,10 @@
 package net.opanel.web;
 
+import com.google.gson.Gson;
 import io.javalin.Javalin;
 import io.javalin.http.UnauthorizedResponse;
 import io.javalin.jetty.JettyServer;
+import io.javalin.json.JavalinGson;
 import net.opanel.OPanel;
 import net.opanel.api.*;
 import net.opanel.terminal.TerminalEndpoint;
@@ -19,6 +21,8 @@ public class WebServer {
     private final OPanel plugin;
     private Javalin app;
 
+    private static final String DEFAULT_RSC_FILE = "index.txt";
+
     public WebServer(OPanel plugin) {
         this.plugin = plugin;
         PORT = plugin.getConfig().webServerPort;
@@ -26,6 +30,11 @@ public class WebServer {
 
     public void start() throws Exception {
         app = Javalin.create(config -> {
+            config.showJavalinBanner = false;
+
+            // Gson configuration
+            config.jsonMapper(new JavalinGson(new Gson()));
+
             // CORS configuration
             config.plugins.enableCors(cors -> {
                 cors.add(it -> {
@@ -41,7 +50,6 @@ public class WebServer {
                 staticFiles.hostedPath = "/";
                 staticFiles.directory = "/web";
                 staticFiles.headers = Map.of("X-Powered-By", "OPanel");
-                staticFiles.mimeTypes.add("application/octet-stream", "ttf");
             });
         });
 
@@ -61,6 +69,16 @@ public class WebServer {
             if(!JwtManager.verifyToken(token, hashedRealKey, plugin.getConfig().salt)) {
                 throw new UnauthorizedResponse("Token is invalid.");
             }
+        });
+
+        // Next.js Rsc
+        /** @see https://github.com/vercel/next.js/discussions/59394 */
+        app.before("/*", ctx -> {
+            String reqPath = ctx.path();
+            if(!reqPath.contains(".txt") || ctx.queryParam("_rsc") == null || reqPath.contains(DEFAULT_RSC_FILE)) return;
+
+            String transformedPath = ctx.fullUrl().replace(".txt", "/"+ DEFAULT_RSC_FILE);
+            ctx.redirect(transformedPath);
         });
 
         // Controllers

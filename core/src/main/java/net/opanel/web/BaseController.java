@@ -32,13 +32,16 @@ public class BaseController {
 
     protected void sendResponse(Context ctx, HashMap<String, Object> jsonObj) {
         HttpStatus okStatus = HttpStatus.OK;
+        ctx.status(okStatus);
 
         jsonObj.put("code", okStatus.getCode());
-        jsonObj.put("error", okStatus.getMessage());
+        jsonObj.put("error", "");
         ctx.json(jsonObj);
     }
 
     protected void sendContent(Context ctx, byte[] bytes, String contentType) {
+        ctx.status(HttpStatus.OK);
+
         try(InputStream is = new ByteArrayInputStream(bytes)) {
             ctx.writeSeekableStream(is, contentType);
         } catch (IOException e) {

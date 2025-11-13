@@ -7,7 +7,7 @@ import net.opanel.OPanel;
 import java.io.IOException;
 import java.io.InputStream;
 
-/** @deprecated */
+@Deprecated
 public class StaticFileServlet extends BaseServlet {
     public static final String route = "/";
 
