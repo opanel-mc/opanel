@@ -70,15 +70,31 @@ public class WebServer {
         GamerulesController gamerulesController = new GamerulesController(plugin);
         InfoController infoController = new InfoController(plugin);
         LogsController logsController = new LogsController(plugin);
+        MonitorController monitorController = new MonitorController(plugin);
+        PlayersController playersController = new PlayersController(plugin);
+        SecurityController securityController = new SecurityController(plugin);
+        VersionController versionController = new VersionController(plugin);
+        WhitelistController whitelistController = new WhitelistController(plugin);
 
         // API Routes
         app.routes(() -> path("api", () -> {
             get("auth", authController.getCram);
             post("auth", authController.validateCram);
+            get("monitor", monitorController.getMonitor);
             path("banned-ips", () -> {
                 get("/", bannedIpsController.getBannedIps);
                 post("add", bannedIpsController.banIp);
                 post("remove", bannedIpsController.pardonIp);
+            });
+            path("players", () -> {
+                get("/", playersController.getPlayers);
+                post("op", playersController.giveOp);
+                post("deop", playersController.takeOp);
+                post("kick", playersController.kickPlayer);
+                post("ban", playersController.banPlayer);
+                post("pardon", playersController.pardonPlayer);
+                post("gamemode", playersController.setGamemode);
+                delete("/", playersController.deletePlayerData);
             });
             path("control", () -> {
                 get("properties", controlController.getServerProperties);
@@ -97,6 +113,16 @@ public class WebServer {
             path("info", () -> {
                 get("/", infoController.getServerInfo);
                 post("motd", infoController.setMotd);
+            });
+            post("security", securityController.updateAccessKey);
+            get("version", versionController.getVersionInfo);
+            path("whitelist", () -> {
+                get("/", whitelistController.getWhitelist);
+                post("enable", whitelistController.enableWhitelist);
+                post("disable", whitelistController.disableWhitelist);
+                post("write", whitelistController.writeWhitelist);
+                post("add", whitelistController.addWhitelistEntry);
+                post("remove", whitelistController.removeWhitelistEntry);
             });
             path("logs", () -> {
                 get("/", logsController.getLogFileList);
