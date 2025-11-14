@@ -50,7 +50,6 @@ public class WebServer {
             config.staticFiles.add(staticFiles -> {
                 staticFiles.hostedPath = "/";
                 staticFiles.directory = "/web";
-                staticFiles.headers = Map.of("X-Powered-By", "OPanel");
             });
         });
 
@@ -74,6 +73,7 @@ public class WebServer {
         WhitelistController whitelistController = new WhitelistController(plugin);
 
         // API Routes
+        app.before("/*", beforeController.beforeAll);
         app.before("/*", beforeController.handleRsc);
         app.before("/*", beforeController.handleFonts);
         app.routes(() -> path("api", () -> {

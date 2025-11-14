@@ -1,5 +1,6 @@
 package net.opanel.api;
 
+import io.javalin.http.ContentType;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 import io.javalin.http.UploadedFile;
@@ -23,7 +24,7 @@ public class IconController extends BaseController {
             return;
         }
 
-        sendContent(ctx, favicon, "image/png");
+        sendContent(ctx, favicon, ContentType.IMAGE_PNG);
     };
 
     public Handler uploadFavicon = ctx -> {

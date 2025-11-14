@@ -30,7 +30,7 @@ public class ControlController extends BaseController {
 
     public Handler setServerProperties = ctx -> {
         try {
-            final String properties = ctx.body();
+            final String properties = ctx.bodyAsClass(String.class);
             if(properties.isEmpty()) {
                 sendResponse(ctx, HttpStatus.BAD_REQUEST, "server.properties content is missing.");
                 return;
@@ -72,7 +72,7 @@ public class ControlController extends BaseController {
 
         try {
             final String lang = ctx.queryParam("lang");
-            final String content = ctx.body();
+            final String content = ctx.bodyAsClass(String.class);
             if(lang == null) {
                 sendResponse(ctx, HttpStatus.BAD_REQUEST, "Language is missing.");
                 return;

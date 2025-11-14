@@ -5,46 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="90587dcf-15dc-47d2-9c29-bb98b36eacd0" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/BeforeController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/core/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/OPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/OPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/AuthController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/GamerulesController.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/GamerulesController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/ControlController.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/ControlController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/IconController.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/IconController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/InfoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/InfoController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/LogsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/LogsController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/SavesController.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/api/SavesController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/BaseController.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/BaseController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/BaseServlet.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/StaticFileServlet.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/BeforeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/BeforeController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/WebServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/core/src/main/java/net/opanel/web/WebServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.19.4/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.19.4/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.19/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.19/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.20.2/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.20.2/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.20.3/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.20.3/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.20/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.20/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.2/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.2/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.5/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.5/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21.9/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21.9/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/fabric-1.21/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/fabric-1.21/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/folia-1.20/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/folia-1.20/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/folia-1.21/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/folia-1.21/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.19.4/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.19.4/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.20.1/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.20.1/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.20.2/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.20.2/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.20.3/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.20.3/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.20.6/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.20.6/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.21.3/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21.3/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.21.5/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21.5/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.21.8/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21.8/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.21.9/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21.9/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/forge-1.21/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/forge-1.21/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/neoforge-1.21.5/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/neoforge-1.21.5/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.16.1/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.16.1/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.19.4/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.19.4/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.20/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.20/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21.9/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21.9/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/spigot-1.21/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/spigot-1.21/build.gradle" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -140,6 +109,24 @@
                 <item name="Tasks" type="e4a08cd1:TasksNode" />
                 <item name="build" type="c8890929:TasksNode$1" />
               </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="opanel" type="f1a62948:ProjectNode" />
+                <item name="spigot-1.21.9" type="2d1252cf:ModuleNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="opanel" type="f1a62948:ProjectNode" />
+                <item name="spigot-1.21.9" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="opanel" type="f1a62948:ProjectNode" />
+                <item name="spigot-1.21.9" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="build" type="c8890929:TasksNode$1" />
+              </path>
             </expand>
             <select />
           </tree_state>
@@ -202,7 +189,7 @@
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;
   }
 }</component>
-  <component name="RunManager" selected="Gradle.opanel [build]">
+  <component name="RunManager" selected="Gradle.opanel:spigot-1.21.9 [build]">
     <configuration name="Neoforge-1.21.5: Client" type="Application" factoryName="Application">
       <envs>
         <env name="MOD_CLASSES" value="neoforge-1.21.5%%D:\opanel\neoforge-1.21.5\build\sourcesSets\main;neoforge-1.21.5%%D:\opanel\neoforge-1.21.5\build\sourcesSets\main" />
@@ -322,10 +309,10 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="opanel:spigot-1.16.1 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="opanel:fabric-1.21.9 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/spigot-1.16.1" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/fabric-1.21.9" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -344,10 +331,10 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="opanel:spigot-1.20 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="opanel:spigot-1.16.1 [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$/spigot-1.20" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/spigot-1.16.1" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" />
         <option name="taskDescriptions">
@@ -407,11 +394,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.opanel:spigot-1.21.9 [build]" />
+        <item itemvalue="Gradle.opanel:fabric-1.21.9 [build]" />
         <item itemvalue="Gradle.opanel [build]" />
         <item itemvalue="Gradle.opanel [clean]" />
         <item itemvalue="Gradle.opanel:spigot-1.16.1 [build]" />
-        <item itemvalue="Gradle.opanel:spigot-1.21.9 [build]" />
-        <item itemvalue="Gradle.opanel:spigot-1.20 [build]" />
       </list>
     </recent_temporary>
   </component>

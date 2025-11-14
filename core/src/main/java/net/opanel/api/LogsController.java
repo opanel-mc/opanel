@@ -1,5 +1,6 @@
 package net.opanel.api;
 
+import io.javalin.http.ContentType;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 import net.opanel.OPanel;
@@ -31,7 +32,7 @@ public class LogsController extends BaseController {
         final Loggable logger = plugin.logger;
         final String fileName = ctx.pathParam("fileName");
         try {
-            sendContent(ctx, logger.getLogContent(fileName).getBytes(StandardCharsets.UTF_8), "application/octet-stream");
+            sendContent(ctx, logger.getLogContent(fileName).getBytes(StandardCharsets.UTF_8), ContentType.APPLICATION_OCTET_STREAM);
         } catch (NoSuchFileException e) {
             sendResponse(ctx, HttpStatus.NOT_FOUND, "Cannot find the specified log file.");
         } catch (IllegalArgumentException e) {

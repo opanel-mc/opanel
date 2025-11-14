@@ -1,11 +1,16 @@
 package net.opanel.web;
 
+import io.javalin.http.ContentType;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
+import jakarta.servlet.ServletOutputStream;
 import net.opanel.OPanel;
 import net.opanel.common.OPanelServer;
+import net.opanel.utils.Utils;
 
 import java.io.*;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.util.HashMap;
 
 public abstract class BaseController {
@@ -39,11 +44,11 @@ public abstract class BaseController {
         ctx.json(jsonObj);
     }
 
-    protected void sendContent(Context ctx, byte[] bytes, String contentType) {
+    protected void sendContent(Context ctx, byte[] bytes, ContentType contentType) {
         ctx.status(HttpStatus.OK);
 
         try(InputStream is = new ByteArrayInputStream(bytes)) {
-            ctx.writeSeekableStream(is, contentType);
+            ctx.writeSeekableStream(is, contentType.toString());
         } catch (IOException e) {
             e.printStackTrace();
             sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());

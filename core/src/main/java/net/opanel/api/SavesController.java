@@ -1,8 +1,6 @@
 package net.opanel.api;
 
-import io.javalin.http.Handler;
-import io.javalin.http.HttpStatus;
-import io.javalin.http.UploadedFile;
+import io.javalin.http.*;
 import net.opanel.OPanel;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelSave;
@@ -10,6 +8,8 @@ import net.opanel.utils.Utils;
 import net.opanel.utils.ZipUtility;
 import net.opanel.web.BaseController;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -19,6 +19,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Stream;
 import java.util.zip.ZipException;
 
@@ -48,41 +49,43 @@ public class SavesController extends BaseController {
     };
 
     public Handler downloadSave = ctx -> {
-        final String saveName = ctx.pathParam("saveName");
-        OPanelSave save = server.getSave(saveName);
-        if(save == null) {
-            sendResponse(ctx, HttpStatus.NOT_FOUND, "Cannot find the specified save.");
-            return;
-        }
-
-        // force saving world before making zip if the save is currently running on the server
-        if(save.isRunning()) server.saveAll();
-
-        Path savePath = save.getPath();
-        Path zipPath = OPanel.TMP_DIR_PATH.resolve(save.getName() +".zip");
-
-        /*
-         * Bukkit separates nether and the end dimension from the save folder,
-         * so we need to put them together when processing the save files
-         */
-        if(server.getServerType().isBukkitSeries()) {
-            Utils.copyDirectoryRecursively(Paths.get("").resolve(saveName +"_nether/DIM-1"), savePath.resolve("DIM-1"));
-            Utils.copyDirectoryRecursively(Paths.get("").resolve(saveName +"_the_end/DIM1"), savePath.resolve("DIM1"));
-        }
-
         try {
+            final String saveName = ctx.pathParam("saveName");
+            OPanelSave save = server.getSave(saveName);
+            if(save == null) {
+                sendResponse(ctx, HttpStatus.NOT_FOUND, "Cannot find the specified save.");
+                return;
+            }
+
+            // force saving world before making zip if the save is currently running on the server
+            if(save.isRunning()) server.saveAll();
+
+            Path savePath = save.getPath();
+            Path zipPath = OPanel.TMP_DIR_PATH.resolve(UUID.randomUUID() +".zip");
+
+            /*
+             * Bukkit separates nether and the end dimension from the save folder,
+             * so we need to put them together when processing the save files
+             */
+            if(server.getServerType().isBukkitSeries()) {
+                Path netherDim = Paths.get("").resolve(saveName +"_nether/DIM-1");
+                Path theEndDim = Paths.get("").resolve(saveName +"_the_end/DIM1");
+                if(Files.exists(netherDim)) Utils.copyDirectoryRecursively(netherDim, savePath.resolve("DIM-1"));
+                if(Files.exists(theEndDim)) Utils.copyDirectoryRecursively(theEndDim, savePath.resolve("DIM1"));
+            }
+
             ZipUtility.zip(savePath, zipPath);
-            sendContent(ctx, Utils.readFile(zipPath), "application/octet-stream");
-        } catch (IOException e) {
+            sendContent(ctx, Utils.readFile(zipPath), ContentType.APPLICATION_OCTET_STREAM);
+            Files.delete(zipPath);
+
+            // Finally, don't forget to delete the DIM-1 and DIM1 folders manually copied by us
+            if(server.getServerType().isBukkitSeries()) {
+                if(Files.exists(savePath.resolve("DIM-1"))) Utils.deleteDirectoryRecursively(savePath.resolve("DIM-1"));
+                if(Files.exists(savePath.resolve("DIM1"))) Utils.deleteDirectoryRecursively(savePath.resolve("DIM1"));
+            }
+        } catch (Exception e) {
             e.printStackTrace();
             sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
-        }
-        Files.delete(zipPath);
-
-        // Finally, don't forget to delete the DIM-1 and DIM1 folders manually copied by us
-        if(server.getServerType().isBukkitSeries()) {
-            Utils.deleteDirectoryRecursively(savePath.resolve("DIM-1"));
-            Utils.deleteDirectoryRecursively(savePath.resolve("DIM1"));
         }
     };
 
