@@ -49,7 +49,7 @@ See [Contributing Guidelines](https://opanel.cn/docs/contributing.html) for more
 
 ## Friend Links
 
-[<img src="./images/friends/rainyun.png" width="300"/>](https://rainyun.com)
+[<img src="./images/friends/rainyun.png" width="300"/>](https://rainyun.com/opanel_)
 [<img src="./images/friends/chuqiyun.png" width="300"/>](https://chuqiyun.com)
 
 ## License
