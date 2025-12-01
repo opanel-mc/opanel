@@ -35,6 +35,9 @@ public class BeforeController extends BaseController {
     /** @see <a href="https://github.com/vercel/next.js/discussions/59394">https://github.com/vercel/next.js/discussions/59394</a> */
     public Handler handleRsc = ctx -> {
         String reqPath = ctx.path();
+        if (reqPath.startsWith("/_next/") || reqPath.startsWith("/next/")) {
+            return;
+        }
         if(reqPath.contains(".txt") && ctx.queryParam("_rsc") != null && !reqPath.contains(DEFAULT_RSC_FILE)) {
             String transformedPath = ctx.fullUrl().replace(".txt", "/"+ DEFAULT_RSC_FILE);
             ctx.redirect(transformedPath);
