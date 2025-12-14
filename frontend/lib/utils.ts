@@ -1,25 +1,15 @@
+import type { GameMode } from "./types";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import locale from "locale-codes";
-import { GameMode } from "./types";
+import { $ } from "./i18n";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 export function gameModeToString(gameMode: GameMode) {
-  switch(gameMode) {
-    case GameMode.ADVENTURE:
-      return "冒险";
-    case GameMode.SURVIVAL:
-      return "生存";
-    case GameMode.CREATIVE:
-      return "创造";
-    case GameMode.SPECTATOR:
-      return "旁观";
-    default:
-      return "未知";
-  }
+  return $(`common.gamemode.${gameMode}`);
 }
 
 export function getRandom(min: number, max: number): number {

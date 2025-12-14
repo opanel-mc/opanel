@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { $ } from "@/lib/i18n";
 
 export const metadata: Metadata = {
-  title: "OPanel - 登录"
+  title: "OPanel - "+ $("login")
 };
 
 export default function LoginLayout({

@@ -7,6 +7,7 @@ import { FunctionalCard } from "@/components/functional-card";
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
 import { MonitorContext } from "@/contexts/api-context";
+import { $ } from "@/lib/i18n";
 
 const chartConfig = {
   tps: {
@@ -24,7 +25,7 @@ export function TPSCard({
   return (
     <FunctionalCard
       icon={Server}
-      title="TPS监控"
+      title={$("dashboard.tps.title")}
       className={cn(className, "justify-between")}
       innerClassName="!overflow-hidden">
       <ChartContainer config={chartConfig} className="w-full max-h-20">

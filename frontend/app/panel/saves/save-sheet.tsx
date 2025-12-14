@@ -34,9 +34,10 @@ import { MinecraftText } from "@/components/mc-text";
 import { sendPostRequest, toastError } from "@/lib/api";
 import { emitter } from "@/lib/emitter";
 import { base64ToString, stringToBase64 } from "@/lib/utils";
+import { $ } from "@/lib/i18n";
 
 const formSchema = z.object({
-  displayName: z.string().nonempty("存档名称不得为空"),
+  displayName: z.string().nonempty($("saves.edit.form.name.empty")),
   defaultGameMode: z.enum(Object.values(GameMode) as [string, ...string[]])
 });
 
@@ -62,9 +63,9 @@ export function SaveSheet({
       await sendPostRequest(`/api/saves/${save.name}`, values);
       emitter.emit("refresh-data");
     } catch (e: any) {
-      toastError(e, "无法保存存档信息", [
-        [401, "未登录"],
-        [500, "服务器内部错误"]
+      toastError(e, $("saves.edit.error"), [
+        [401, $("common.error.401")],
+        [500, $("common.error.500")]
       ]);
     }
   };
@@ -76,9 +77,9 @@ export function SaveSheet({
         <Form {...form}>
           <form className="flex-1 flex flex-col" onSubmit={form.handleSubmit(handleSubmit)}>
             <SheetHeader>
-              <SheetTitle>编辑存档</SheetTitle>
+              <SheetTitle>{$("saves.edit.title")}</SheetTitle>
               <SheetDescription>
-                在此编辑该存档的信息。
+                {$("saves.edit.description")}
               </SheetDescription>
             </SheetHeader>
             <div className="flex-1 px-4 flex flex-col gap-5">
@@ -87,13 +88,13 @@ export function SaveSheet({
                 name="displayName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>存档名称</FormLabel>
+                    <FormLabel>{$("saves.edit.form.name.label")}</FormLabel>
                     <MinecraftText className="text-center [&_*]:wrap-anywhere">{field.value}</MinecraftText>
                     <div className="flex gap-2">
                       <FormControl>
                         <Input
                           {...field}
-                          placeholder="请输入存档名称..."
+                          placeholder={$("saves.edit.form.name.placeholder")}
                           autoFocus
                           autoComplete="off"/>
                       </FormControl>
@@ -116,17 +117,17 @@ export function SaveSheet({
                 name="defaultGameMode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>默认游戏模式</FormLabel>
+                    <FormLabel>{$("saves.edit.form.gamemode.label")}</FormLabel>
                     <FormControl>
                       <Select {...field} onValueChange={field.onChange}>
                         <SelectTrigger className="w-full">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="adventure">冒险</SelectItem>
-                          <SelectItem value="survival">生存</SelectItem>
-                          <SelectItem value="creative">创造</SelectItem>
-                          <SelectItem value="spectator">旁观</SelectItem>
+                          <SelectItem value={GameMode.ADVENTURE}>{$("common.gamemode.adventure")}</SelectItem>
+                          <SelectItem value={GameMode.SURVIVAL}>{$("common.gamemode.survival")}</SelectItem>
+                          <SelectItem value={GameMode.CREATIVE}>{$("common.gamemode.creative")}</SelectItem>
+                          <SelectItem value={GameMode.SPECTATOR}>{$("common.gamemode.spectator")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -139,14 +140,14 @@ export function SaveSheet({
                 <Button
                   type="submit"
                   className="cursor-pointer">
-                  确定
+                  {$("dialog.save")}
                 </Button>
               </SheetClose>
               <SheetClose asChild>
                 <Button
                   variant="outline"
                   className="cursor-pointer">
-                  取消
+                  {$("dialog.cancel")}
                 </Button>
               </SheetClose>
             </SheetFooter>

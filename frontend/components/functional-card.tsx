@@ -4,6 +4,7 @@ import { type LucideIcon, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { $ } from "@/lib/i18n";
 
 export function FunctionalCard({
   title,
@@ -32,7 +33,7 @@ export function FunctionalCard({
           className="text-muted-foreground cursor-pointer"
           asChild>
           <Link href={moreLink}>
-            更多
+            {$("functional-card.more")}
             <ChevronRight />
           </Link>
         </Button>}

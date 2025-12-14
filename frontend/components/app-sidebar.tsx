@@ -25,20 +25,21 @@ import { cn } from "@/lib/utils";
 import { minecraftAE } from "@/lib/fonts";
 import { Logo } from "./logo";
 import { VersionContext } from "@/contexts/api-context";
+import { $ } from "@/lib/i18n";
 
 const serverGroupItems = [
   {
-    name: "仪表盘",
+    name: $("sidebar.server.dashboard"),
     url: "/panel/dashboard",
     icon: Gauge
   },
   {
-    name: "存档",
+    name: $("sidebar.server.saves"),
     url: "/panel/saves",
     icon: Earth
   },
   {
-    name: "玩家",
+    name: $("sidebar.server.players"),
     url: "/panel/players",
     icon: Users
   }
@@ -46,27 +47,27 @@ const serverGroupItems = [
 
 const managementGroupItems = [
   {
-    name: "游戏规则",
+    name: $("sidebar.management.gamerules"),
     url: "/panel/gamerules",
     icon: PencilRuler
   },
   {
-    name: "插件",
+    name: $("sidebar.management.plugins"),
     url: "/panel/plugins",
     icon: Blocks
   },
   {
-    name: "后台",
+    name: $("sidebar.management.terminal"),
     url: "/panel/terminal",
     icon: SquareTerminal
   },
   {
-    name: "日志",
+    name: $("sidebar.management.logs"),
     url: "/panel/logs",
     icon: ScrollText
   },
   {
-    name: "行为准则",
+    name: $("sidebar.management.code-of-conduct"),
     url: "/panel/code-of-conduct",
     icon: HeartHandshake,
     minVersion: "1.21.9"
@@ -75,17 +76,17 @@ const managementGroupItems = [
 
 const helpGroupItems = [
   {
-    name: "设置",
+    name: $("sidebar.help.settings"),
     url: "/panel/settings",
     icon: Settings
   },
   {
-    name: "关于",
+    name: $("sidebar.help.about"),
     url: "/about",
     icon: Info
   },
   {
-    name: "文档",
+    name: $("sidebar.help.docs"),
     url: "https://opanel.cn/docs/quick-start.html",
     icon: BookText,
     newTab: true
@@ -111,7 +112,7 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>服务器</SidebarGroupLabel>
+          <SidebarGroupLabel>{$("sidebar.server")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {serverGroupItems.map((item, i) => (
@@ -131,7 +132,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>管理</SidebarGroupLabel>
+          <SidebarGroupLabel>{$("sidebar.management")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {managementGroupItems.map((item, i) => (!item.minVersion || (item.minVersion && compare(versionCtx?.version, item.minVersion) >= 0)) && (
@@ -151,7 +152,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>帮助</SidebarGroupLabel>
+          <SidebarGroupLabel>{$("sidebar.help")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {helpGroupItems.map((item, i) => (

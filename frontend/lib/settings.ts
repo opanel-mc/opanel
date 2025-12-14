@@ -1,3 +1,4 @@
+import type { LanguageCode } from "@/lang";
 import type { ConsoleLogLevel } from "./terminal/log-levels";
 import {
   AvatarProvider,
@@ -32,7 +33,8 @@ export type SettingsStorageType = {
   "code-of-conduct.auto-saving-interval": number
   "monaco.word-wrap": boolean
   "monaco.font-size": number
-  "security.access-key"?: never
+  "system.language": LanguageCode
+  "system.access-key"?: never
   "state.players.tab": "player-list" | "banned-list"
   "state.terminal.history": string[]
   "state.code-of-conduct.current-editing"?: string
@@ -55,6 +57,7 @@ const defaultSettings: SettingsStorageType = {
   "code-of-conduct.auto-saving-interval": 2000, // ms
   "monaco.word-wrap": false,
   "monaco.font-size": 14, // px
+  "system.language": "zh-cn",
   "state.players.tab": "player-list",
   "state.terminal.history": [],
   "state.code-of-conduct.current-editing": undefined

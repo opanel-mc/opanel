@@ -7,13 +7,14 @@ import { FunctionalCard } from "@/components/functional-card";
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
 import { MonitorContext } from "@/contexts/api-context";
+import { $ } from "@/lib/i18n";
 
 const chartConfig = {
   memory: {
-    label: "内存占用"
+    label: $("dashboard.monitor.chart.memory")
   },
   cpu: {
-    label: "CPU占用"
+    label: $("dashboard.monitor.chart.cpu")
   }
 } satisfies ChartConfig;
 
@@ -27,7 +28,7 @@ export function MonitorCard({
   return (
     <FunctionalCard
       icon={ChartLine}
-      title="资源监控"
+      title={$("dashboard.monitor.title")}
       className={cn(className, "justify-between")}
       innerClassName="!overflow-hidden">
       <ChartContainer config={chartConfig} className="w-full max-h-96">

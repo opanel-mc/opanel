@@ -18,6 +18,7 @@ import { SecurityDialog } from "./security-dialog";
 import { cn } from "@/lib/utils";
 import { googleSansCode } from "@/lib/fonts";
 import { AvatarProvider, CapeProvider, SkinProvider } from "@/lib/types";
+import { type LanguageCode, languages } from "@/lang";
 
 function SettingsItem<K extends keyof SettingsStorageType>({
   name,
@@ -186,9 +187,26 @@ export default function Settings() {
             description="编辑器内字体显示大小（单位: px）"
             control={<SettingsNumberInput id="monaco.font-size" min={1} max={30}/>}/>
         </Section>
-        <Section title="安全">
+        <Section title="系统">
           <SettingsItem
-            id="security.access-key"
+            id="system.language"
+            name="语言"
+            control={
+              <Select
+                defaultValue={getSettings("system.language")}
+                onValueChange={(value) => changeSettings("system.language", value as LanguageCode)}>
+                <SelectTrigger className={controlWidth}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.keys(languages).map((lang, i) => (
+                    <SelectItem value={lang} key={i}>{languages[lang]["$lang"]}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            }/>
+          <SettingsItem
+            id="system.access-key"
             name="访问密钥"
             control={
               <SecurityDialog asChild>

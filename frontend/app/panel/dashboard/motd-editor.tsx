@@ -26,11 +26,13 @@ import { sendPostRequest, toastError } from "@/lib/api";
 import { purify, transformText } from "@/lib/formatting-codes/text";
 import { emitter } from "@/lib/emitter";
 import { stringToBase64 } from "@/lib/utils";
+import { $ } from "@/lib/i18n";
+import { Text } from "@/components/i18n-text";
 
 const formSchema = z.object({
   motd: z.string()
-    .nonempty("Motd不可为空")
-    .refine((str) => str.split("\n").length <= 2, "Motd行数最大为2")
+    .nonempty($("dashboard.motd.textarea.empty"))
+    .refine((str) => str.split("\n").length <= 2, $("dashboard.motd.textarea.max-lines"))
 });
 
 export function MotdEditor({
@@ -54,10 +56,10 @@ export function MotdEditor({
       emitter.emit("refresh-data");
       setDialogOpen(false);
     } catch (e: any) {
-      toastError(e, "修改Motd失败", [
-        [400, "请求参数错误"],
-        [401, "未登录"],
-        [500, "服务器内部错误"]
+      toastError(e, $("dashboard.motd.error"), [
+        [400, $("common.error.400")],
+        [401, $("common.error.401")],
+        [500, $("common.error.500")]
       ]);
     }
   };
@@ -71,9 +73,11 @@ export function MotdEditor({
         <Form {...form}>
           <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(handleSubmit)}>
             <DialogHeader>
-              <DialogTitle>编辑 Motd</DialogTitle>
+              <DialogTitle>{$("dashboard.motd.title")}</DialogTitle>
               <DialogDescription>
-                在此编辑和预览服务器 Motd。<span className="text-red-700 dark:text-red-400">注：此功能在Fabric不稳定，原因未知。</span>
+                <Text
+                  id="dashboard.motd.description"
+                  className="[&>span]:text-red-700 dark:[&>span]:text-red-400"/>
               </DialogDescription>
             </DialogHeader>
             <FormField
@@ -87,7 +91,7 @@ export function MotdEditor({
                       <Textarea
                         {...field}
                         rows={2}
-                        placeholder="请输入文本..."
+                        placeholder={$("dashboard.motd.textarea.placeholder")}
                         onKeyDown={(e) => (e.key === "Enter" && e.ctrlKey) && form.handleSubmit(handleSubmit)()}/>
                     </div>
                   </FormControl>
@@ -104,17 +108,22 @@ export function MotdEditor({
                   onClick={() => form.setValue("motd", form.getValues().motd + "§")}>
                   §
                 </Button>
-                <span className="text-sm text-muted-foreground max-sm:hidden"><kbd>ctrl</kbd>+<kbd>Enter</kbd> 以保存更改</span>
+                <Text
+                  id="dashboard.motd.hint"
+                  args={[
+                    <><kbd>ctrl</kbd>+<kbd>Enter</kbd></>
+                  ]}
+                  className="text-sm text-muted-foreground max-sm:hidden"/>
               </div>
               <div className="space-x-2">
                 <DialogClose asChild>
                   <Button
                     variant="outline"
                     onClick={() => form.reset()}>
-                    取消
+                    {$("dialog.cancel")}
                   </Button>
                 </DialogClose>
-                <Button type="submit">保存</Button>
+                <Button type="submit">{$("dialog.save")}</Button>
               </div>
             </DialogFooter>
           </form>

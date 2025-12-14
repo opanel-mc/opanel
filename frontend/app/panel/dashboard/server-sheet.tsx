@@ -35,6 +35,8 @@ import {
 import serverPropertiesPresets from "@/lib/server-config/presets";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
+import { $ } from "@/lib/i18n";
+import { Text } from "@/components/i18n-text";
 
 export function ServerSheet({
   children,
@@ -69,9 +71,9 @@ export function ServerSheet({
 
       setProperties(propertiesObj);
     } catch (e: any) {
-      toastError(e, "无法获取server.properties", [
-        [401, "未登录"],
-        [500, "服务器内部错误"]
+      toastError(e, $("dashboard.properties.fetch.error"), [
+        [401, $("common.error.401")],
+        [500, $("common.error.500")]
       ]);
     }
   };
@@ -90,13 +92,13 @@ export function ServerSheet({
 
     try {
       await sendPostRequest(`/api/control/properties`, transformText(stringToBase64(rawProperties)));
-      toast.success("保存成功", { description: "重启服务器以使改动生效" });
+      toast.success($("dashboard.properties.save.success"), { description: $("dashboard.properties.save.success.description") });
       setChanged(false);
       setProperties({});
     } catch (e: any) {
-      toastError(e, "无法保存server.properties", [
-        [401, "未登录"],
-        [500, "服务器内部错误"]
+      toastError(e, $("dashboard.properties.save.error"), [
+        [401, $("common.error.401")],
+        [500, $("common.error.500")]
       ]);
     }
   };
@@ -108,9 +110,13 @@ export function ServerSheet({
         <Form {...form}>
           <form className="min-h-0 flex flex-col gap-4" onSubmit={form.handleSubmit(handleSubmit)} onChange={() => setChanged(true)}>
             <SheetHeader>
-              <SheetTitle>编辑 server.properties</SheetTitle>
+              <SheetTitle>{$("dashboard.properties.title")}</SheetTitle>
               <SheetDescription>
-                在此编辑服务器配置文件，你也可以直接编辑服务器目录下的<code>server.properties</code>文件。
+                <Text
+                  id="dashboard.properties.description"
+                  args={[
+                    <code key={0}>server.properties</code>
+                  ]}/>
               </SheetDescription>
             </SheetHeader>
             <div className="flex flex-col overflow-y-auto">
@@ -171,16 +177,30 @@ export function ServerSheet({
               })}
             </div>
             <SheetFooter>
-              <span className="text-sm text-muted-foreground">需重启服务器以使改动生效。</span>
+              <span className="text-sm text-muted-foreground">{$("dashboard.properties.hint1")}</span>
               <span className="text-sm text-muted-foreground">
-                服务器配置属性描述信息均来自<Link href="https://zh.minecraft.wiki/w/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F" target="_blank">Minecraft Wiki</Link>与<Link href="https://docs.papermc.io/paper/reference/server-properties">Paper文档</Link>。
+                <Text
+                  id="dashboard.properties.hint2"
+                  args={[
+                    <Link
+                      href="https://zh.minecraft.wiki/w/服务端配置文件格式"
+                      target="_blank"
+                      key={0}>
+                      Minecraft Wiki
+                    </Link>,
+                    <Link
+                      href="https://docs.papermc.io/paper/reference/server-properties"
+                      key={1}>
+                      Paper Docs
+                    </Link>
+                  ]}/>
               </span>
               <SheetClose asChild>
                 <Button
                   type="submit"
                   className="cursor-pointer"
                   disabled={!hasChanged}>
-                  保存设置
+                  {$("dialog.save")}
                 </Button>
               </SheetClose>
             </SheetFooter>

@@ -13,6 +13,7 @@ import { Alert } from "@/components/alert";
 import { SaveSheet } from "./save-sheet";
 import { emitter } from "@/lib/emitter";
 import { googleSansCode } from "@/lib/fonts";
+import { $ } from "@/lib/i18n";
 
 export function SaveCard({
   save,
@@ -41,7 +42,7 @@ export function SaveCard({
       await sendDeleteRequest(`/api/saves/${name}`);
       emitter.emit("refresh-data");
     } catch (e: any) {
-      toast.error(`无法删除存档 ${name}`, { description: e.message });
+      toast.error($("saves.list.item.delete.error", name), { description: e.message });
     }
   };
 
@@ -50,13 +51,19 @@ export function SaveCard({
     try {
       await sendPostRequest(`/api/control/world?save=${name}`);
       emitter.emit("refresh-data");
-      toast.success("切换成功", { description: !isRunning ? "重启服务器以使改动生效" : "当前存档正在运行" });
+      toast.success($("saves.list.item.switch.success"), {
+        description: (
+          !isRunning
+          ? $("saves.list.item.switch.success.description1")
+          : $("saves.list.item.switch.success.description2")
+        )
+      });
     } catch (e: any) {
-      toastError(e, "无法切换当前存档", [
-        [400, "请求参数错误"],
-        [401, "未登录"],
-        [404, "找不到该存档"],
-        [500, "服务器内部错误"]
+      toastError(e, $("saves.list.item.switch.error"), [
+        [400, $("common.error.400")],
+        [401, $("common.error.401")],
+        [404, $("saves.list.item.switch.error.404")],
+        [500, $("common.error.500")]
       ]);
     }
   };
@@ -84,7 +91,7 @@ export function SaveCard({
           {isRunning && (
             <Badge variant="outline" className="h-fit border-emerald-700 dark:border-green-900">
               <div className="w-2 h-2 rounded-full bg-green-600"/>
-              正在运行
+              {$("saves.list.item.current")}
             </Badge>
           )}
           <span className={cn("mr-2 text-xs text-muted-foreground", googleSansCode.className)}>{formatDataSize(size)}</span>
@@ -94,17 +101,17 @@ export function SaveCard({
             isCurrent
             ? (
               <Alert
-                title={`确定要保存并下载当前存档 "${name}" 吗？`}
-                description="将要下载的存档是当前服务器正在运行的存档，在处理存档前服务器会对存档进行保存，此操作可能影响服务器性能。"
+                title={$("saves.list.item.download.alert.title", name)}
+                description={$("saves.list.item.download.alert.description")}
                 onAction={() => toast.promise(handleDownload(), {
-                  loading: "正在处理文件...",
-                  error: `无法下载存档 ${name}.zip`
+                  loading: $("saves.list.item.download.loading"),
+                  error: $("saves.list.item.download.error", name)
                 })}
                 asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  title="下载存档">
+                  title={$("saves.list.item.download.tooltip")}>
                   <Download />
                 </Button>
               </Alert>
@@ -113,10 +120,10 @@ export function SaveCard({
               <Button
                 variant="ghost"
                 size="icon"
-                title="下载存档"
+                title={$("saves.list.item.download.tooltip")}
                 onClick={() => toast.promise(handleDownload(), {
-                  loading: "正在处理文件...",
-                  error: `无法下载存档 ${name}.zip`
+                  loading: $("saves.list.item.download.loading"),
+                  error: $("saves.list.item.download.error", name)
                 })}>
                 <Download />
               </Button>
@@ -126,20 +133,20 @@ export function SaveCard({
             <Button
               variant="ghost"
               size="icon"
-              title="编辑存档">
+              title={$("saves.list.item.edit.tooltip")}>
               <FolderPen />
             </Button>
           </SaveSheet>
           <Alert
-            title={`确定要删除存档 "${name}" 吗？`}
-            description="此操作不可逆，被删除的存档将无法恢复。"
+            title={$("saves.list.item.delete.alert.title", name)}
+            description={$("saves.list.item.delete.alert.description")}
             onAction={() => handleDelete()}
             asChild>
             <Button
               variant="ghost"
               size="icon"
               disabled={isRunning || isCurrent}
-              title="删除存档">
+              title={$("saves.list.item.delete.tooltip")}>
               <Trash2 />
             </Button>
           </Alert>

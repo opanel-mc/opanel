@@ -6,6 +6,7 @@ import { FunctionalCard } from "@/components/functional-card";
 import { InfoContext } from "@/contexts/api-context";
 import { gameTickToTime, millisToTime } from "@/lib/time";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { $ } from "@/lib/i18n";
 
 const dayTicks = 24000;
 
@@ -46,7 +47,7 @@ export function TimeCard({
   return (
     <FunctionalCard
       icon={Clock}
-      title="时间"
+      title={$("dashboard.time.title")}
       className={className}
       innerClassName="h-full p-4 pt-0 flex max-sm:flex-col max-sm:gap-4 [&>*]:flex-1">
       {
@@ -54,16 +55,16 @@ export function TimeCard({
           <>
             <div className="flex flex-col gap-1 justify-center items-center">
               <div className="text-2xl font-bold">{millisToTime(uptime)}</div>
-              <span className="text-xs max-xl:text-sm text-muted-foreground">服务器已正常运行</span>
+              <span className="text-xs max-xl:text-sm text-muted-foreground">{$("dashboard.time.uptime")}</span>
             </div>
             <Tooltip>
               <TooltipTrigger>
                 <div className="h-full flex flex-col gap-1 justify-center items-center">
                   <div className="text-2xl font-bold">{gameTickToTime(ingameTime % dayTicks)}</div>
-                  <span className="text-xs max-xl:text-sm text-muted-foreground">游戏内时间</span>
+                  <span className="text-xs max-xl:text-sm text-muted-foreground">{$("dashboard.time.ingame-time")}</span>
                 </div>
               </TooltipTrigger>
-              <TooltipContent>请以游戏内实际时间为准，此处仅供参考</TooltipContent>
+              <TooltipContent>{$("dashboard.time.ingame-time.tooltip")}</TooltipContent>
             </Tooltip>
           </>
         )

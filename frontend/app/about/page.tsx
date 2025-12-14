@@ -29,25 +29,26 @@ import { copyrightInfo, version } from "@/lib/global";
 import { cn } from "@/lib/utils";
 import { minecraftAE } from "@/lib/fonts";
 import { Brand } from "@/components/logo";
+import { $ } from "@/lib/i18n";
 
 const info = [
   {
-    name: "版本",
+    name: $("about.info.version"),
     value: version,
     icon: Milestone
   },
   {
-    name: "作者",
+    name: $("about.info.author"),
     value: "Norcleeh",
     icon: AtSign
   },
   {
-    name: "源码",
+    name: $("about.info.source"),
     value: <a href="https://github.com/opanel-mc/opanel" target="_blank">opanel-mc/opanel</a>,
     icon: Github
   },
   {
-    name: "许可",
+    name: $("about.info.license"),
     value: <a href="https://raw.githubusercontent.com/opanel-mc/opanel/refs/heads/main/LICENSE" target="_blank">MPL-2.0</a>,
     icon: FileText
   }
@@ -57,12 +58,12 @@ export default function About() {
   return (
     <Card className="w-3xl max-md:rounded-none">
       <CardHeader>
-        <CardTitle>关于</CardTitle>
+        <CardTitle>{$("about.title")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
         <Brand className="w-fit mx-auto my-10 [&_svg]:w-72"/>
         <p>
-          <span className={cn("text-theme font-semibold", minecraftAE.className)}>OPanel</span> 是一个开箱即用的 Minecraft 服务器管理面板，支持Bukkit、Fabric和Forge等多个平台。
+          <span className={cn("text-theme font-semibold", minecraftAE.className)}>OPanel</span> {$("about.description")}
         </p>
         <Table>
           <TableBody>
@@ -77,7 +78,7 @@ export default function About() {
             ))}
           </TableBody>
         </Table>
-        <p className="text-center text-lg font-bold">感谢使用 OPanel</p>
+        <p className="text-center text-lg font-bold">{$("about.thanks")}</p>
         <p className="text-center text-sm text-muted-foreground">{copyrightInfo}</p>
       </CardContent>
       <CardFooter className="flex justify-between">
@@ -87,14 +88,14 @@ export default function About() {
             variant="link"
             onClick={() => window.location.href = "/"}>
             <ChevronLeft />
-            返回
+            {$("about.footer.back")}
           </Button>
         </div>
         <div className="space-x-2">
           <Button
             variant="secondary"
             size="icon"
-            title="打赏"
+            title={$("about.footer.donate")}
             asChild>
             <Link href="https://afdian.com/a/opanel" target="_blank">
               <HandCoins />
@@ -103,7 +104,7 @@ export default function About() {
           <Button
             variant="secondary"
             size="icon"
-            title="Github主页"
+            title={$("about.footer.github")}
             asChild>
             <Link href="https://github.com/opanel-mc" target="_blank">
               <Github />
@@ -112,7 +113,7 @@ export default function About() {
           <Button
             variant="secondary"
             size="icon"
-            title="OPanel官网"
+            title={$("about.footer.website")}
             asChild>
             <Link href="https://opanel.cn" target="_blank">
               <Earth />
@@ -121,7 +122,7 @@ export default function About() {
           <Button
             variant="secondary"
             size="icon"
-            title="OPanel文档"
+            title={$("about.footer.docs")}
             asChild>
             <Link href="https://opanel.cn/docs/quick-start.html" target="_blank">
               <BookText />

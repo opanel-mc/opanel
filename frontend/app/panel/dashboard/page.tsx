@@ -15,6 +15,7 @@ import { TPSCard } from "./tps-card";
 import { SubPage } from "../sub-page";
 import { emitter } from "@/lib/emitter";
 import { getSettings } from "@/lib/settings";
+import { $ } from "@/lib/i18n";
 
 const requestMonitorInterval = getSettings("dashboard.monitor-interval");
 
@@ -27,9 +28,9 @@ export default function Dashboard() {
       const res = await sendGetRequest<InfoResponse>("/api/info");
       setInfo(res);
     } catch (e: any) {
-      toastError(e, "无法连接到服务器", [
-        [401, "未登录"],
-        [500, "服务器内部错误"]
+      toastError(e, $("dashboard.error"), [
+        [401, $("common.error.401")],
+        [500, $("common.error.500")]
       ]);
     }
   };
@@ -59,7 +60,7 @@ export default function Dashboard() {
 
   return (
     <SubPage
-      title="仪表盘"
+      title={$("dashboard.title")}
       icon={<Gauge />}
       /*             | window maximized                         | height not enough    | for mobile layout */
       outerClassName="min-xl:max-h-screen min-xl:overflow-y-auto max-xl-h:max-h-[850px] max-xl:!max-h-none"

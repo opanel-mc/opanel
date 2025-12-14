@@ -17,6 +17,7 @@ import { ServerSheet } from "./server-sheet";
 import { MotdEditor } from "./motd-editor";
 import { FaviconDialog } from "./favicon-dialog";
 import { googleSansCode } from "@/lib/fonts";
+import { $ } from "@/lib/i18n";
 
 import PackIcon from "@/assets/images/pack.png";
 
@@ -37,7 +38,7 @@ function ControlButtonGroup({
           <Button
             variant="ghost"
             size="icon"
-            title="编辑白名单">
+            title={$("dashboard.info.controls.edit-whitelist")}>
             <UserPen />
           </Button>
         </WhitelistSheet>
@@ -46,7 +47,7 @@ function ControlButtonGroup({
         <Button
           variant="ghost"
           size="icon"
-          title="编辑Motd">
+          title={$("dashboard.info.controls.edit-motd")}>
           <PenLine />
         </Button>
       </MotdEditor>
@@ -54,19 +55,19 @@ function ControlButtonGroup({
         <Button
           variant="ghost"
           size="icon"
-          title="编辑server.properties">
+          title={$("dashboard.info.controls.edit-properties")}>
           <Settings />
         </Button>
       </ServerSheet>
       <Button
         variant="ghost"
         size="icon"
-        title="重载服务器"
+        title={$("dashboard.info.controls.reload")}
         disabled={versionCtx?.serverType === "Folia" || isReloadingServer}
         onClick={() => {
           setIsReloadingServer(true);
           toast.promise(sendPostRequest("/api/control/reload"), {
-            loading: "正在重载服务器...",
+            loading: $("dashboard.info.controls.reload.loading"),
             success: () => {
               setIsReloadingServer(false);
               if(
@@ -78,27 +79,27 @@ function ControlButtonGroup({
                 window.location.reload();
               }
               return {
-                message: "重载完毕"
+                message: $("dashboard.info.controls.reload.success")
               };
             },
-            error: "重载失败"
+            error: $("dashboard.info.controls.reload.error")
           });
         }}>
         <RotateCw />
       </Button>
       <Alert
-        title="确定要停止服务器吗？"
-        description="此操作将保存所有服务器信息并关闭服务器，OPanel也将无法访问，之后您可以从后台手动启动服务器。"
+        title={$("dashboard.info.controls.stop.alert.title")}
+        description={$("dashboard.info.controls.stop.alert.description")}
         onAction={() => {
           sendPostRequest("/api/control/stop");
           setIsStoppingServer(true);
-          toast.loading("正在停止服务器...");
+          toast.loading($("dashboard.info.controls.stop.loading"));
         }}
         asChild>
         <Button
           variant="outline"
           size="icon"
-          title="停止服务器"
+          title={$("dashboard.info.controls.stop")}
           disabled={isStoppingServer}>
           {
             isStoppingServer
@@ -144,11 +145,11 @@ export function InfoCard({
         <div className="flex-1 flex flex-col gap-2">
           <div className="flex max-lg:flex-col gap-4 max-lg:gap-1 [&>*]:space-x-2">
             <div>
-              <span className="font-semibold text-nowrap">版本:</span>
+              <span className="font-semibold text-nowrap">{$("dashboard.info.version")}</span>
               <span>{`${versionCtx?.serverType} ${versionCtx?.version}`}</span>
             </div>
             <div>
-              <span className="font-semibold text-nowrap">端口:</span>
+              <span className="font-semibold text-nowrap">{$("dashboard.info.port")}</span>
               <span className={cn("text-emerald-500", googleSansCode.className)}>{ctx ? ctx.port : ""}</span>
             </div>
           </div>
@@ -159,7 +160,15 @@ export function InfoCard({
         <div className="flex flex-col justify-between">
           <Badge className="self-end max-lg:hidden cursor-default" variant="outline">
             <div className={cn("w-2 h-2 rounded-full", ctx ? (warningState ? "bg-yellow-600" : "bg-green-600") : "bg-red-700")}/>
-            {ctx ? (warningState ? "状态异常" : "正在运行") : "未运行"}
+            {
+              ctx
+              ? (
+                warningState
+                ? $("dashboard.info.status.warning")
+                : $("dashboard.info.status.running")
+              )
+              : $("dashboard.info.status.stopped")
+            }
           </Badge>
           <ControlButtonGroup className="self-end max-lg:hidden"/>
         </div>

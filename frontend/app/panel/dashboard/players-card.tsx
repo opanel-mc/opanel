@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/tooltip";
 import { cn, gameModeToString } from "@/lib/utils";
 import { googleSansCode } from "@/lib/fonts";
+import { $ } from "@/lib/i18n";
 
 export function PlayersCard({
   className,
@@ -28,16 +29,16 @@ export function PlayersCard({
   return (
     <FunctionalCard
       icon={Users}
-      title={`在线玩家 (${ctx ? ctx.onlinePlayers.length : 0} / ${ctx?.maxPlayerCount ?? 0})`}
+      title={`${$("dashboard.players.title")} (${ctx ? ctx.onlinePlayers.length : 0} / ${ctx?.maxPlayerCount ?? 0})`}
       moreLink="/panel/players"
       className={className}
       innerClassName="p-4 pt-0">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>玩家</TableHead>
-            <TableHead className="text-center">游戏模式</TableHead>
-            <TableHead className="text-right">延迟</TableHead>
+            <TableHead>{$("dashboard.players.table.player")}</TableHead>
+            <TableHead className="text-center">{$("dashboard.players.table.gamemode")}</TableHead>
+            <TableHead className="text-right">{$("dashboard.players.table.ping")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

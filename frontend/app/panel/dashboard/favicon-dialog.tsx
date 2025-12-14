@@ -18,6 +18,7 @@ import { fileToDataUrl } from "@/lib/utils";
 
 import PackIcon from "@/assets/images/pack.png";
 import { emitter } from "@/lib/emitter";
+import { $ } from "@/lib/i18n";
 
 export function FaviconDialog({
   children,
@@ -37,10 +38,10 @@ export function FaviconDialog({
       emitter.emit("refresh-data");
       setDialogOpen(false);
     } catch (e: any) {
-      toastError(e, "无法上传图片", [
-        [400, "图片格式错误，请上传一个64*64大小的png文件"],
-        [401, "未登录"],
-        [500, "服务器内部错误"]
+      toastError(e, $("dashboard.favicon.error"), [
+        [400, $("dashboard.favicon.error.400")],
+        [401, $("common.error.401")],
+        [500, $("common.error.500")]
       ]);
     }
   };
@@ -69,9 +70,9 @@ export function FaviconDialog({
       <DialogTrigger asChild={asChild}>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>修改服务器图标</DialogTitle>
+          <DialogTitle>{$("dashboard.favicon.title")}</DialogTitle>
           <DialogDescription>
-            在此上传图片作为服务器的新图标。
+            {$("dashboard.favicon.description")}
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col items-center gap-4">
@@ -84,7 +85,7 @@ export function FaviconDialog({
             }
             alt="favicon"/>
           <Field>
-            <FieldLabel>上传图片</FieldLabel>
+            <FieldLabel>{$("dashboard.favicon.input.label")}</FieldLabel>
             <Input
               type="file"
               accept="image/png"
@@ -100,21 +101,21 @@ export function FaviconDialog({
                 setPreviewDataUrl(await fileToDataUrl(fileList[0]));
               }}/>
             <FieldDescription>
-              <span>请选择一个64*64大小的png格式图片作为服务器图标。</span><br />
+              <span>{$("dashboard.favicon.input.description")}</span><br />
               {(file !== null && !isSizeValid) && (
-                <span className="text-destructive">图片大小错误，尺寸应为64*64</span>
+                <span className="text-destructive">{$("dashboard.favicon.input.error")}</span>
               )}
             </FieldDescription>
           </Field>
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">取消</Button>
+            <Button variant="outline">{$("dialog.cancel")}</Button>
           </DialogClose>
           <Button
             disabled={file === null || !isSizeValid}
             onClick={() => file && handleUpload(file)}>
-            确认
+            {$("dialog.confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>

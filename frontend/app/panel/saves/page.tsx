@@ -11,9 +11,20 @@ import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import { emitter } from "@/lib/emitter";
 import { Button } from "@/components/ui/button";
-import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { $ } from "@/lib/i18n";
+import { Text } from "@/components/i18n-text";
 
 export default function Saves() {
   const [saves, setSaves] = useState<Save[]>([]);
@@ -27,9 +38,9 @@ export default function Saves() {
       const res = await sendGetRequest<SavesResponse>("/api/saves");
       setSaves(res.saves);
     } catch (e: any) {
-      toastError(e, "无法获取存档列表", [
-        [400, "请求参数错误"],
-        [401, "未登录"]
+      toastError(e, $("saves.fetch.error"), [
+        [400, $("common.error.400")],
+        [401, $("common.error.401")]
       ]);
     }
   };
@@ -38,7 +49,7 @@ export default function Saves() {
     setUploadVisible(false);
 
     if(!file.name.endsWith(".zip")) {
-      toast.error("无法上传存档", { description: "存档格式不正确，请上传一个zip文件" });
+      toast.error($("saves.upload.error"), { description: $("saves.upload.error.description") });
       return;
     }
 
@@ -49,12 +60,12 @@ export default function Saves() {
       });
       fetchServerWorlds();
     } catch (e: any) {
-      toastError(e, "上传失败", [
-        [400, "存档格式不正确，请上传一个包含地图存档的zip文件"],
-        [401, "未登录"],
-        [403, "检测到非法压缩包"],
-        [409, "存档名称冲突"],
-        [500, "服务器内部错误"]
+      toastError(e, $("saves.upload.error"), [
+        [400, $("saves.upload.error.400")],
+        [401, $("common.error.401")],
+        [403, $("saves.upload.error.403")],
+        [409, $("saves.upload.error.409")],
+        [500, $("common.error.500")]
       ]);
     }
   };
@@ -67,7 +78,7 @@ export default function Saves() {
 
   return (
     <SubPage
-      title="存档"
+      title={$("saves.title")}
       icon={<Earth />}
       className="relative h-full z-20"
       onDragEnter={() => setUploadVisible(true)}>
@@ -82,37 +93,39 @@ export default function Saves() {
           onDragOver={(e) => e.preventDefault()}
           onDragLeave={() => setUploadVisible(false)}/>
         <Upload size={60} stroke="var(--color-muted-foreground)"/>
-        <span className="text-muted-foreground">将地图文件拖拽至此处以上传</span>
+        <span className="text-muted-foreground">{$("saves.dnd.label")}</span>
       </div>
 
       <div className="flex flex-col gap-4">
         <div className="flex justify-between max-lg:flex-col max-lg:gap-4">
           <div className="flex flex-col gap-3">
-            <span className="text-sm text-muted-foreground max-md:hidden">将存档压缩包 (zip格式) 拖入页面以进行导入。若存档压缩包内包含单个存档文件夹，则压缩包名称需与文件夹名称一致，否则拒绝导入。</span>
-            <span className="text-sm text-muted-foreground">点击存档名以切换当前存档，切换后需重启服务器使改动生效。</span>
+            <span className="text-sm text-muted-foreground max-md:hidden">{$("saves.description.line1")}</span>
+            <span className="text-sm text-muted-foreground">{$("saves.description.line2")}</span>
           </div>
           {uploadProgress && (
             <div className="w-72 self-end max-md:w-full flex flex-col justify-end items-end gap-2">
-              <span>正在上传 {uploadName}...</span>
+              <Text
+                id="saves.progress.label"
+                args={[uploadName]}/>
               <Progress value={uploadProgress * 100} className="h-1"/>
             </div>
           )}
         </div>
         <div className="flex justify-between items-end">
-          <h2 className="text-lg font-semibold">所有存档</h2>
+          <h2 className="text-lg font-semibold">{$("saves.list.title")}</h2>
           <AlertDialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
             <AlertDialogTrigger asChild>
               <Button className="cursor-pointer">
                 <Upload />
-                上传
+                {$("saves.list.upload")}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>上传存档</AlertDialogTitle>
-                <AlertDialogDescription>在此上传存档。若存档压缩包内包含单个存档文件夹，则压缩包名称需与文件夹名称一致，否则拒绝导入。</AlertDialogDescription>
+                <AlertDialogTitle>{$("saves.list.upload.title")}</AlertDialogTitle>
+                <AlertDialogDescription>{$("saves.list.upload.description")}</AlertDialogDescription>
               </AlertDialogHeader>
-              <Label>存档 (zip格式)</Label>
+              <Label>{$("saves.list.upload.input.label")}</Label>
               <Input
                 type="file"
                 onChange={(e) => {
@@ -121,7 +134,7 @@ export default function Saves() {
                   setUploadDialogOpen(false);
                 }}/>
               <AlertDialogFooter>
-                <AlertDialogCancel>关闭</AlertDialogCancel>
+                <AlertDialogCancel>{$("dialog.close")}</AlertDialogCancel>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
