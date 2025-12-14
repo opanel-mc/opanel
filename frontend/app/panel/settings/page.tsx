@@ -19,7 +19,6 @@ import { cn } from "@/lib/utils";
 import { googleSansCode } from "@/lib/fonts";
 import { AvatarProvider, CapeProvider, SkinProvider } from "@/lib/types";
 import { type LanguageCode, languages } from "@/lang";
-import { $ } from "@/lib/i18n";
 
 function SettingsItem<K extends keyof SettingsStorageType>({
   name,
@@ -45,21 +44,21 @@ function SettingsItem<K extends keyof SettingsStorageType>({
 
 export default function Settings() {
   return (
-    <SubPage title={$("settings.title")} icon={<SettingsIcon />} className="px-64 max-xl:px-0">
-      <span className="text-sm text-muted-foreground">{$("settings.hint")}</span>
+    <SubPage title="设置" icon={<SettingsIcon />} className="px-64 max-xl:px-0">
+      <span className="text-sm text-muted-foreground">所有设置选项将保存于本地，不会同步至服务端。</span>
       <div className="flex flex-col gap-7 mt-4">
-        <Section title={$("settings.dashboard.title")}>
+        <Section title="仪表盘">
           <SettingsItem
             id="dashboard.monitor-interval"
-            name={$("settings.dashboard.monitor-interval")}
-            description={$("settings.dashboard.monitor-interval")}
+            name="资源监控刷新间隔"
+            description="刷新监控数据时间间隔（单位: ms）"
             control={<SettingsNumberInput id="dashboard.monitor-interval" min={1}/>}/>
         </Section>
-        <Section title={$("settings.players.title")}>
+        <Section title="玩家">
           <SettingsItem
             id="players.avatar-provider"
-            name={$("settings.players.avatar-provider")}
-            description={$("settings.players.avatar-provider.description")}
+            name="头像贴图提供方"
+            description="头像贴图API提供方的URL地址"
             control={
               <Select
                 defaultValue={getSettings("players.avatar-provider")}
@@ -78,8 +77,8 @@ export default function Settings() {
             }/>
           <SettingsItem
             id="players.skin-provider"
-            name={$("settings.players.skin-provider")}
-            description={$("settings.players.skin-provider.description")}
+            name="皮肤贴图提供方"
+            description="皮肤贴图API提供方的URL地址"
             control={
               <Select
                 defaultValue={getSettings("players.skin-provider")}
@@ -98,8 +97,8 @@ export default function Settings() {
             }/>
           <SettingsItem
             id="players.cape-provider"
-            name={$("settings.players.cape-provider")}
-            description={$("settings.players.cape-provider.description")}
+            name="披风贴图提供方"
+            description="披风贴图API提供方的URL地址"
             control={
               <Select
                 defaultValue={getSettings("players.cape-provider")}
@@ -115,29 +114,29 @@ export default function Settings() {
               </Select>
             }/>
         </Section>
-        <Section title={$("settings.terminal.title")}>
+        <Section title="后台终端">
           <SettingsItem
             id="terminal.autocomplete"
-            name={$("settings.terminal.autocomplete")}
+            name="命令补全"
             control={<SettingsSwitch id="terminal.autocomplete"/>}/>
           <SettingsItem
             id="terminal.word-wrap"
-            name={$("settings.terminal.word-wrap")}
+            name="自动换行"
             control={<SettingsSwitch id="terminal.word-wrap"/>}/>
           <SettingsItem
             id="terminal.font-size"
-            name={$("settings.terminal.font-size")}
-            description={$("settings.terminal.font-size.description")}
+            name="字体大小"
+            description="终端内字体显示大小（单位: px）"
             control={<SettingsNumberInput id="terminal.font-size" min={1} max={30}/>}/>
           <SettingsItem
             id="terminal.max-log-lines"
-            name={$("settings.terminal.max-log-lines")}
-            description={$("settings.terminal.max-log-lines.description")}
+            name="日志最大行数"
+            description="终端内显示日志的最大行数（最大为20000）"
             control={<SettingsNumberInput id="terminal.max-log-lines" min={100} max={20000}/>}/>
           <SettingsItem
             id="terminal.log-level"
-            name={$("settings.terminal.log-level")}
-            description={$("settings.terminal.log-level.description")}
+            name="日志等级"
+            description="终端所显示的最低日志等级"
             control={
               <Select
                 defaultValue={getSettings("terminal.log-level")}
@@ -154,44 +153,44 @@ export default function Settings() {
             }/>
           <SettingsItem
             id="terminal.log-time"
-            name={$("settings.terminal.log-time")}
+            name="显示日志时间"
             control={<SettingsSwitch id="terminal.log-time"/>}/>
           <SettingsItem
             id="terminal.thread-name"
-            name={$("settings.terminal.thread-name")}
+            name="显示线程名称"
             control={<SettingsSwitch id="terminal.thread-name"/>}/>
           <SettingsItem
             id="terminal.source-name"
-            name={$("settings.terminal.source-name")}
+            name="显示日志源"
             control={<SettingsSwitch id="terminal.source-name"/>}/>
           <SettingsItem
             id="terminal.convert-ansi-code"
-            name={$("settings.terminal.convert-ansi-code")}
-            description={$("settings.terminal.convert-ansi-code.description")}
+            name="转换ANSI代码"
+            description="将终端内的ANSI代码转换为更易读的HTML"
             control={<SettingsSwitch id="terminal.convert-ansi-code"/>}/>
         </Section>
-        <Section title={$("settings.code-of-conduct.title")}>
+        <Section title="行为准则编辑器">
           <SettingsItem
             id="code-of-conduct.auto-saving-interval"
-            name={$("settings.code-of-conduct.auto-saving-interval")}
-            description={$("settings.code-of-conduct.auto-saving-interval.description")}
+            name="自动保存间隔"
+            description="编辑器自动保存时间间隔（单位: ms）"
             control={<SettingsNumberInput id="code-of-conduct.auto-saving-interval" min={1000}/>}/>
         </Section>
-        <Section title={$("settings.monaco.title")}>
+        <Section title="Monaco 编辑器">
           <SettingsItem
             id="monaco.word-wrap"
-            name={$("settings.monaco.word-wrap")}
+            name="自动换行"
             control={<SettingsSwitch id="monaco.word-wrap"/>}/>
           <SettingsItem
             id="monaco.font-size"
-            name={$("settings.monaco.font-size")}
-            description={$("settings.monaco.font-size.description")}
+            name="字体大小"
+            description="编辑器内字体显示大小（单位: px）"
             control={<SettingsNumberInput id="monaco.font-size" min={1} max={30}/>}/>
         </Section>
-        <Section title={$("settings.system.title")}>
+        <Section title="系统">
           <SettingsItem
             id="system.language"
-            name={$("settings.system.language")}
+            name="语言"
             control={
               <Select
                 defaultValue={getSettings("system.language")}
@@ -208,10 +207,10 @@ export default function Settings() {
             }/>
           <SettingsItem
             id="system.access-key"
-            name={$("settings.system.access-key")}
+            name="访问密钥"
             control={
               <SecurityDialog asChild>
-                <Button className="cursor-pointer" size="sm">{$("settings.system.access-key.modify")}</Button>
+                <Button className="cursor-pointer" size="sm">修改</Button>
               </SecurityDialog>
             }/>
         </Section>
@@ -223,7 +222,7 @@ export default function Settings() {
               resetSettings();
               window.location.reload();
             }}>
-            {$("settings.reset")}
+            恢复默认设置
           </Button>
         </div>
       </div>

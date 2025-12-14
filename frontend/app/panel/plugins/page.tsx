@@ -1,12 +1,11 @@
 import { Blocks } from "lucide-react";
 import { SubPage } from "../sub-page";
-import { $ } from "@/lib/i18n";
 
 export default function Plugins() {
   return (
-    <SubPage title={$("plugins.title")} icon={<Blocks />}>
+    <SubPage title="插件" icon={<Blocks />}>
       <div className="flex justify-center">
-        <span className="text-muted-foreground">{$("plugins.wip")}</span>
+        <span className="text-muted-foreground">此功能尚未完工</span>
       </div>
     </SubPage>
   );
