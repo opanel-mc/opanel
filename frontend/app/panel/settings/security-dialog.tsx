@@ -24,10 +24,11 @@ import {
 } from "@/components/ui/dialog";
 import { sendPostRequest, toastError } from "@/lib/api";
 import { PasswordInput } from "@/components/password-input";
+import { $ } from "@/lib/i18n";
 
 const formSchema = z.object({
-  currentKey: z.string().nonempty("此项不可为空"),
-  newKey: z.string().nonempty("此项不可为空").min(6, "访问密钥长度不应小于6")
+  currentKey: z.string().nonempty($("settings.security.empty")),
+  newKey: z.string().nonempty($("settings.security.empty")).min(6, $("settings.security.min"))
 });
 
 export function SecurityDialog({
@@ -54,11 +55,11 @@ export function SecurityDialog({
       window.location.reload();
     } catch (e: any) {
       if(e.status === 403) {
-        form.setError("currentKey", { message: "访问密钥错误" });
+        form.setError("currentKey", { message: $("settings.security.error.400") });
         return;
       }
-      toastError(e, "无法修改访问密钥", [
-        [401, "未登录"]
+      toastError(e, $("settings.security.error.401"), [
+        [401, $("common.error.401")]
       ]);
     }
   };
@@ -70,9 +71,9 @@ export function SecurityDialog({
         <Form {...form}>
           <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(handleSubmit)}>
             <DialogHeader>
-              <DialogTitle>修改访问密钥</DialogTitle>
+              <DialogTitle>{$("settings.security.title")}</DialogTitle>
               <DialogDescription>
-                在此修改OPanel面板的访问密钥。
+                {$("settings.security.description")}
               </DialogDescription>
             </DialogHeader>
             <FormField
@@ -80,9 +81,9 @@ export function SecurityDialog({
               name="currentKey"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>当前密钥</FormLabel>
+                  <FormLabel>{$("settings.security.current-key.label")}</FormLabel>
                   <PasswordInput
-                    placeholder="请输入当前访问密钥..."
+                    placeholder={$("settings.security.current-key.placeholder")}
                     {...field}/>
                   <FormMessage />
                 </FormItem>
@@ -92,9 +93,9 @@ export function SecurityDialog({
               name="newKey"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>新密钥</FormLabel>
+                  <FormLabel>{$("settings.security.new-key.label")}</FormLabel>
                   <PasswordInput
-                    placeholder="请输入新访问密钥..."
+                    placeholder={$("settings.security.new-key.placeholder")}
                     {...field}/>
                   <FormMessage />
                 </FormItem>
@@ -104,10 +105,10 @@ export function SecurityDialog({
                 <Button
                   variant="outline"
                   onClick={() => form.reset()}>
-                  取消
+                  {$("dialog.cancel")}
                 </Button>
               </DialogClose>
-              <Button type="submit">确认</Button>
+              <Button type="submit">{$("dialog.confirm")}</Button>
             </DialogFooter>
           </form>
         </Form>
