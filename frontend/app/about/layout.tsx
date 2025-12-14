@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { $ } from "@/lib/i18n";
 
 export const metadata: Metadata = {
-  title: "OPanel - "+ $("about")
+  title: "OPanel"
 };
 
 export default function AboutLayout({
