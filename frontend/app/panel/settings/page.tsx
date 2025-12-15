@@ -52,7 +52,7 @@ export default function Settings() {
           <SettingsItem
             id="dashboard.monitor-interval"
             name={$("settings.dashboard.monitor-interval")}
-            description={$("settings.dashboard.monitor-interval")}
+            description={$("settings.dashboard.monitor-interval.description")}
             control={<SettingsNumberInput id="dashboard.monitor-interval" min={1}/>}/>
         </Section>
         <Section title={$("settings.players.title")}>

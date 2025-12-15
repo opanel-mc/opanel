@@ -27,8 +27,8 @@ import { PasswordInput } from "@/components/password-input";
 import { $ } from "@/lib/i18n";
 
 const formSchema = z.object({
-  currentKey: z.string().nonempty($("settings.security.empty")),
-  newKey: z.string().nonempty($("settings.security.empty")).min(6, $("settings.security.min"))
+  currentKey: z.string().nonempty($("settings.security.form.empty")),
+  newKey: z.string().nonempty($("settings.security.form.empty")).min(6, $("settings.security.form.new-key.min"))
 });
 
 export function SecurityDialog({
@@ -81,9 +81,9 @@ export function SecurityDialog({
               name="currentKey"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{$("settings.security.current-key.label")}</FormLabel>
+                  <FormLabel>{$("settings.security.form.current-key.label")}</FormLabel>
                   <PasswordInput
-                    placeholder={$("settings.security.current-key.placeholder")}
+                    placeholder={$("settings.security.form.current-key.placeholder")}
                     {...field}/>
                   <FormMessage />
                 </FormItem>
@@ -93,9 +93,9 @@ export function SecurityDialog({
               name="newKey"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{$("settings.security.new-key.label")}</FormLabel>
+                  <FormLabel>{$("settings.security.form.new-key.label")}</FormLabel>
                   <PasswordInput
-                    placeholder={$("settings.security.new-key.placeholder")}
+                    placeholder={$("settings.security.form.new-key.placeholder")}
                     {...field}/>
                   <FormMessage />
                 </FormItem>

@@ -34,6 +34,7 @@ import gamerulePresets from "@/lib/gamerules/presets";
 import { SubPage } from "../sub-page";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { $ } from "@/lib/i18n";
+import { Text } from "@/components/i18n-text";
 
 export default function Gamerules() {
   const [serverGamerules, setServerGamerules] = useState<ServerGamerules>({});
@@ -51,8 +52,8 @@ export default function Gamerules() {
       const res = await sendGetRequest<GamerulesResponse>("/api/gamerules");
       setServerGamerules(res.gamerules);
     } catch (e: any) {
-      toastError(e, $("gamerule.fetch.error"), [
-        [401, $("gamerule.fetch.error.401")]
+      toastError(e, $("gamerules.fetch.error"), [
+        [401, $("common.error.401")]
       ]);
     }
   };
@@ -70,12 +71,12 @@ export default function Gamerules() {
     
     try {
       await sendPostRequest("/api/gamerules", { gamerules: data });
-      toast.success($("gamerule.save.success"));
+      toast.success($("gamerules.save.success"));
       setChanged(false);
     } catch (e: any) {
-      toastError(e, $("gamerule.save.error"), [
-        [400, $("gamerule.save.error.400")],
-        [401, $("gamerule.save.error.401")]
+      toastError(e, $("gamerules.save.error"), [
+        [400, $("common.error.400")],
+        [401, $("common.error.401")]
       ]);
     }
   };
@@ -86,20 +87,20 @@ export default function Gamerules() {
   
   return (
     <SubPage
-      title={$("gamerule.title")}
+      title={$("gamerules.title")}
       icon={<PencilRuler />}
       outerClassName="max-h-screen overflow-y-hidden"
       className="flex-1 min-h-0 flex flex-col gap-3"
       onKeyDown={(e) => (e.ctrlKey && e.key === "s") && form.handleSubmit(handleSubmit)()}>
       <div className="flex justify-between items-center gap-2 max-sm:flex-col max-sm:items-start">
-        <span className="text-sm text-muted-foreground">{$("gamerule.hint")}</span>
+        <span className="text-sm text-muted-foreground">{$("gamerules.hint1")}</span>
         <InputGroup className="w-fit">
           <InputGroupAddon>
             <Search />
           </InputGroupAddon>
           <InputGroupInput
             value={searchString}
-            placeholder={$("gamerule.placeholder")}
+            placeholder={$("gamerules.search.placeholder")}
             autoFocus
             onChange={(e) => setSearchString(e.target.value)}/>
         </InputGroup>
@@ -180,12 +181,25 @@ export default function Gamerules() {
               <Button
                 type="reset"
                 variant="outline"
-                onClick={() => window.location.reload()}>{$("gamerule.reset")}</Button>
-              <span className="text-sm text-muted-foreground max-sm:hidden"><kbd>ctrl</kbd>+<kbd>S</kbd> {$("gamerule.hint2")}</span>
+                onClick={() => window.location.reload()}>{$("gamerules.reset")}</Button>
+              <Text
+                id="gamerules.hint2"
+                args={[
+                  <><kbd>ctrl</kbd>+<kbd>S</kbd></>
+                ]}
+                className="text-sm text-muted-foreground max-sm:hidden"/>
             </div>
-            <span className="text-sm text-muted-foreground">
-              {$("gamerule.link")}<Link href="https://zh.minecraft.wiki/w/%E6%B8%B8%E6%88%8F%E8%A7%84%E5%88%99#%E6%B8%B8%E6%88%8F%E8%A7%84%E5%88%99%E5%88%97%E8%A1%A8" target="_blank">Minecraft Wiki</Link>
-            </span>
+            <Text
+              id="gamerules.hint3"
+              args={[
+                <Link
+                  href="https://zh.minecraft.wiki/w/游戏规则#游戏规则列表"
+                  target="_blank"
+                  key={0}>
+                  Minecraft Wiki
+                </Link>
+              ]}
+              className="text-sm text-muted-foreground"/>
           </div>
         </form>
       </Form>

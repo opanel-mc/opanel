@@ -178,23 +178,22 @@ export function ServerSheet({
             </div>
             <SheetFooter>
               <span className="text-sm text-muted-foreground">{$("dashboard.properties.hint1")}</span>
-              <span className="text-sm text-muted-foreground">
-                <Text
-                  id="dashboard.properties.hint2"
-                  args={[
-                    <Link
-                      href="https://zh.minecraft.wiki/w/服务端配置文件格式"
-                      target="_blank"
-                      key={0}>
-                      Minecraft Wiki
-                    </Link>,
-                    <Link
-                      href="https://docs.papermc.io/paper/reference/server-properties"
-                      key={1}>
-                      Paper Docs
-                    </Link>
-                  ]}/>
-              </span>
+              <Text
+                id="dashboard.properties.hint2"
+                args={[
+                  <Link
+                    href="https://zh.minecraft.wiki/w/服务端配置文件格式"
+                    target="_blank"
+                    key={0}>
+                    Minecraft Wiki
+                  </Link>,
+                  <Link
+                    href="https://docs.papermc.io/paper/reference/server-properties"
+                    key={1}>
+                    Paper Docs
+                  </Link>
+                ]}
+                className="text-sm text-muted-foreground"/>
               <SheetClose asChild>
                 <Button
                   type="submit"
