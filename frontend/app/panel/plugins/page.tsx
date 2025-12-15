@@ -1,3 +1,5 @@
+"use client";
+
 import { Blocks } from "lucide-react";
 import { SubPage } from "../sub-page";
 import { $ } from "@/lib/i18n";
