@@ -1,4 +1,4 @@
-package net.opanel.forge_1_21_9;
+package net.opanel.forge_1_21_11;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.CommandNode;

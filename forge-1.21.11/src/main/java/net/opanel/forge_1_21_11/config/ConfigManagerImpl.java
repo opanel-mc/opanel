@@ -1,4 +1,4 @@
-package net.opanel.forge_1_21_9.config;
+package net.opanel.forge_1_21_11.config;
 
 import net.opanel.config.ConfigManager;
 import net.opanel.config.OPanelConfiguration;

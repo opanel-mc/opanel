@@ -1,4 +1,4 @@
-package net.opanel.forge_1_21_9;
+package net.opanel.forge_1_21_11;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;

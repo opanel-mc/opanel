@@ -1,4 +1,4 @@
-package net.opanel.forge_1_21_9;
+package net.opanel.forge_1_21_11;
 
 import net.opanel.logger.Loggable;
 import net.opanel.utils.Utils;
