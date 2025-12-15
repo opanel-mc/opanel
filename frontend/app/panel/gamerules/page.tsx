@@ -33,6 +33,7 @@ import {
 import gamerulePresets from "@/lib/gamerules/presets";
 import { SubPage } from "../sub-page";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { $ } from "@/lib/i18n";
 
 export default function Gamerules() {
   const [serverGamerules, setServerGamerules] = useState<ServerGamerules>({});
@@ -50,8 +51,8 @@ export default function Gamerules() {
       const res = await sendGetRequest<GamerulesResponse>("/api/gamerules");
       setServerGamerules(res.gamerules);
     } catch (e: any) {
-      toastError(e, "无法获取服务器游戏规则信息", [
-        [401, "未登录"]
+      toastError(e, $("gamerule.fetch.error"), [
+        [401, $("gamerule.fetch.error.401")]
       ]);
     }
   };
@@ -69,12 +70,12 @@ export default function Gamerules() {
     
     try {
       await sendPostRequest("/api/gamerules", { gamerules: data });
-      toast.success("保存成功");
+      toast.success($("gamerule.save.success"));
       setChanged(false);
     } catch (e: any) {
-      toastError(e, "无法保存游戏规则", [
-        [400, "请求参数错误"],
-        [401, "未登录"]
+      toastError(e, $("gamerule.save.error"), [
+        [400, $("gamerule.save.error.400")],
+        [401, $("gamerule.save.error.401")]
       ]);
     }
   };
@@ -85,20 +86,20 @@ export default function Gamerules() {
   
   return (
     <SubPage
-      title="游戏规则"
+      title={$("gamerule.title")}
       icon={<PencilRuler />}
       outerClassName="max-h-screen overflow-y-hidden"
       className="flex-1 min-h-0 flex flex-col gap-3"
       onKeyDown={(e) => (e.ctrlKey && e.key === "s") && form.handleSubmit(handleSubmit)()}>
       <div className="flex justify-between items-center gap-2 max-sm:flex-col max-sm:items-start">
-        <span className="text-sm text-muted-foreground">编辑游戏规则后需保存以生效。</span>
+        <span className="text-sm text-muted-foreground">{$("gamerule.hint")}</span>
         <InputGroup className="w-fit">
           <InputGroupAddon>
             <Search />
           </InputGroupAddon>
           <InputGroupInput
             value={searchString}
-            placeholder="搜索游戏规则..."
+            placeholder={$("gamerule.placeholder")}
             autoFocus
             onChange={(e) => setSearchString(e.target.value)}/>
         </InputGroup>
@@ -175,15 +176,15 @@ export default function Gamerules() {
           </div>
           <div className="flex max-lg:flex-col justify-between items-center max-lg:items-start max-lg:gap-4">
             <div className="flex items-center gap-2 [&>*]:cursor-pointer">
-              <Button type="submit" disabled={!hasChanged}>保存</Button>
+              <Button type="submit" disabled={!hasChanged}>{$("dialog.save")}</Button>
               <Button
                 type="reset"
                 variant="outline"
-                onClick={() => window.location.reload()}>重置</Button>
-              <span className="text-sm text-muted-foreground max-sm:hidden"><kbd>ctrl</kbd>+<kbd>S</kbd> 以保存更改</span>
+                onClick={() => window.location.reload()}>{$("gamerule.reset")}</Button>
+              <span className="text-sm text-muted-foreground max-sm:hidden"><kbd>ctrl</kbd>+<kbd>S</kbd> {$("gamerule.hint2")}</span>
             </div>
             <span className="text-sm text-muted-foreground">
-              游戏规则名称与描述信息均来自<Link href="https://zh.minecraft.wiki/w/%E6%B8%B8%E6%88%8F%E8%A7%84%E5%88%99#%E6%B8%B8%E6%88%8F%E8%A7%84%E5%88%99%E5%88%97%E8%A1%A8" target="_blank">Minecraft Wiki</Link>
+              {$("gamerule.link")}<Link href="https://zh.minecraft.wiki/w/%E6%B8%B8%E6%88%8F%E8%A7%84%E5%88%99#%E6%B8%B8%E6%88%8F%E8%A7%84%E5%88%99%E5%88%97%E8%A1%A8" target="_blank">Minecraft Wiki</Link>
             </span>
           </div>
         </form>
