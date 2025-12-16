@@ -19,6 +19,7 @@ import { changeSettings, getSettings, monacoSettingsOptions } from "@/lib/settin
 import { CodeOfConductItem } from "./coc-item";
 import { CreateCodeOfConductDialog } from "./create-coc-dialog";
 import { Spinner } from "@/components/ui/spinner";
+import { $ } from "@/lib/i18n";
 
 const MonacoEditor = dynamic(() => import("@/components/monaco-editor"), { ssr: false });
 
@@ -64,11 +65,11 @@ export default function CodeOfConduct() {
 
       setCurrentEditing(storedCurrentEditing);
     } catch (e: any) {
-      toastError(e, "无法获取行为准则信息", [
-        [400, "请求参数错误"],
-        [401, "未登录"],
-        [500, "服务器内部错误"],
-        [503, "该服务端版本不支持行为准则"]
+      toastError(e, $("coc.fetch.error"), [
+        [400, $("common.error.400")],
+        [401, $("common.error.401")],
+        [500, $("common.error.500")],
+        [503, $("coc.error.503")]
       ]);
     }
   }, [push, versionCtx]);
@@ -78,11 +79,11 @@ export default function CodeOfConduct() {
       await sendPostRequest(`/api/control/code-of-conduct?lang=${lang}`);
       emitter.emit("refresh-data");
     } catch (e: any) {
-      toastError(e, "无法创建行为准则", [
-        [400, "请求参数错误"],
-        [401, "未登录"],
-        [500, "服务器内部错误"],
-        [503, "该服务端版本不支持行为准则"]
+      toastError(e, $("coc.empty.create.error"), [
+        [400, $("common.error.400")],
+        [401, $("common.error.401")],
+        [500, $("common.error.500")],
+        [503, $("coc.error.503")]
       ]);
     }
   };
@@ -98,11 +99,11 @@ export default function CodeOfConduct() {
       await sendPostRequest(`/api/control/code-of-conduct?lang=${lang}`, stringToBase64(current));
       emitter.emit("refresh-data");
     } catch (e: any) {
-      toastError(e, "无法修改行为准则", [
-        [400, "请求参数错误"],
-        [401, "未登录"],
-        [500, "服务器内部错误"],
-        [503, "该服务端版本不支持行为准则"]
+      toastError(e, $("coc.save.error"), [
+        [400, $("common.error.400")],
+        [401, $("common.error.401")],
+        [500, $("common.error.500")],
+        [503, $("coc.error.503")]
       ]);
     } finally {
       setTimeout(() => setIsSaving(false), 300);
@@ -140,7 +141,7 @@ export default function CodeOfConduct() {
 
   return (
     <SubPage
-      title="行为准则"
+      title={$("coc.title")}
       icon={<HeartHandshake />}
       outerClassName="max-h-screen overflow-y-hidden max-lg:max-h-none max-lg:overflow-y-auto"
       className="flex-1 min-h-0">
@@ -188,7 +189,7 @@ export default function CodeOfConduct() {
                 <div className="h-6 px-2 border-t max-lg:border-t-0 max-lg:border-b flex justify-between items-center [&>*]:text-xs [&>*]:text-muted-foreground cursor-default">
                   <div className="flex items-center gap-3">
                     <span>{locale.getByTag(currentEditing.toLowerCase().replaceAll("_", "-")).name}</span>
-                    <span>{editorValue.length +" 个字"}</span>
+                    <span>{$("coc.editor.status-bar.words", editorValue.length)}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     {
@@ -196,12 +197,10 @@ export default function CodeOfConduct() {
                       ? (
                         <>
                           <Spinner />
-                          <span>正在保存...</span>
+                          <span>{$("coc.editor.status-bar.saving")}</span>
                         </>
                       )
-                      : (
-                        <span>已保存</span>
-                      )
+                      : <span>{$("coc.editor.status-bar.saved")}</span>
                     }
                   </div>
                 </div>
@@ -214,9 +213,9 @@ export default function CodeOfConduct() {
                 <EmptyMedia variant="icon">
                   <HeartHandshake />
                 </EmptyMedia>
-                <EmptyTitle>暂无行为准则文档</EmptyTitle>
+                <EmptyTitle>{$("coc.empty.title")}</EmptyTitle>
                 <EmptyDescription>
-                  此服务器上还没有编写任何行为准则，你可以在此创建第一个行为准则文档。
+                  {$("coc.empty.description")}
                 </EmptyDescription>
               </EmptyHeader>
               <EmptyContent>
@@ -224,7 +223,7 @@ export default function CodeOfConduct() {
                   className="cursor-pointer"
                   onClick={() => handleCreateCodeOfConduct("zh_cn")/* zh_cn by default */}>
                   <FilePlus2 />
-                  新建行为准则
+                  {$("coc.empty.create")}
                 </Button>
               </EmptyContent>
             </Empty>

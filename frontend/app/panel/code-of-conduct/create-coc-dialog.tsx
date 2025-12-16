@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { validateLocaleCode } from "@/lib/utils";
+import { Text } from "@/components/i18n-text";
+import { $ } from "@/lib/i18n";
 
 export function CreateCodeOfConductDialog({
   excludedLocales,
@@ -32,11 +34,11 @@ export function CreateCodeOfConductDialog({
   const handleAction = useCallback(() => {
     const formattedLang = inputtedLang.toLowerCase().replaceAll("-", "_");
     if(formattedLang === "" || !validateLocaleCode(formattedLang)) {
-      toast.error("请输入有效的语言代码，如：zh_cn");
+      toast.error($("coc.create.invalid-lang"));
       return;
     }
     if(excludedLocales.includes(formattedLang)) {
-      toast.warning("你所要创建的语言版本已存在");
+      toast.warning($("coc.create.exist"));
       return;
     }
     
@@ -50,32 +52,52 @@ export function CreateCodeOfConductDialog({
       <DialogTrigger asChild={asChild}>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>新建行为准则文档</DialogTitle>
+          <DialogTitle>{$("coc.create.title")}</DialogTitle>
           <DialogDescription>
-            在此新建一个特定语言的行为准则文档。
+            {$("coc.create.description")}
           </DialogDescription>
         </DialogHeader>
         <div>
           <Field>
-            <FieldLabel>语言</FieldLabel>
+            <FieldLabel>{$("coc.create.input.label")}</FieldLabel>
             <Input
               value={inputtedLang}
-              placeholder="请输入语言代码...（如：zh_cn）"
+              placeholder={$("coc.create.input.placeholder")}
               onInput={(e) => setInputtedLang((e.target as HTMLInputElement).value)}/>
             <FieldDescription>
-              语言代码可参考 <Link href="https://simplelocalize.io/data/locales" target="_blank">https://simplelocalize.io/data/locales</Link><br />
-              遵循<Link href="https://iso.org/iso-639-language-code" target="_blank">ISO-639-1</Link>与<Link href="https://iso.org/iso-3166-country-codes.html" target="_blank">ISO-3166</Link>国际标准。
+              <Text
+                id="coc.create.input.description"
+                args={[
+                  <Link
+                    href="https://simplelocalize.io/data/locales"
+                    target="_blank"
+                    key={0}>
+                    https://simplelocalize.io/data/locales
+                  </Link>,
+                  <Link
+                    href="https://iso.org/iso-639-language-code"
+                    target="_blank"
+                    key={1}>
+                    ISO-639-1
+                  </Link>,
+                  <Link
+                    href="https://iso.org/iso-3166-country-codes.html"
+                    target="_blank"
+                    key={2}>
+                    ISO-3166
+                  </Link>
+                ]}/>
             </FieldDescription>
           </Field>
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">取消</Button>
+            <Button variant="outline">{$("dialog.cancel")}</Button>
           </DialogClose>
           <Button
             disabled={inputtedLang === ""}
             onClick={() => handleAction()}>
-            新建
+            {$("dialog.create")}
           </Button>
         </DialogFooter>
       </DialogContent>

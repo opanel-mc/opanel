@@ -49,11 +49,11 @@ export function BannedIpsDialog({
 
   const banIp = async (ip: string) => {
     if(ip === "" || !validateIpv4Address(ip)) {
-      toast.error($("players.banned-ips.add.error1"), { description: $("players.banned-ips.add.error1.400") });
+      toast.error($("players.banned-ips.add.error"), { description: $("players.banned-ips.add.error.400") });
       return;
     }
     if(bannedIps.includes(ip)) {
-      toast.warning($("players.banned-ips.add.error2"));
+      toast.warning($("players.banned-ips.add.exist"));
       return;
     }
     
@@ -63,8 +63,8 @@ export function BannedIpsDialog({
       emitter.emit("refresh-data");
       toast.success($("players.banned-ips.add.success"));
     } catch (e: any) {
-      toastError(e, $("players.banned-ips.add.error1"), [
-        [400, $("players.banned-ips.add.error1.400")],
+      toastError(e, $("players.banned-ips.add.error"), [
+        [400, $("players.banned-ips.add.error.400")],
         [401, $("common.error.401")]
       ]);
     }

@@ -69,6 +69,9 @@ export function localizeRich(id: TranslationKey, ...args: (string | React.ReactN
     i++;
   }
 
+  // Process escape sequences
+  parsed = parsed.replaceAll("\n", "<br>");
+
   return parsed;
 }
 

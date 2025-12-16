@@ -10,6 +10,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from "./ui/alert-dialog";
+import { $ } from "@/lib/i18n";
 
 export function Alert({
   title,
@@ -38,12 +39,12 @@ export function Alert({
           )}
         </AlertDialogHeader>
         <AlertDialogFooter>
-          {cancellable && <AlertDialogCancel>取消</AlertDialogCancel>}
+          {cancellable && <AlertDialogCancel>{$("dialog.cancel")}</AlertDialogCancel>}
           <AlertDialogAction
             onClick={() => {
               onAction && onAction();
             }}>
-            确定
+            {$("dialog.confirm")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

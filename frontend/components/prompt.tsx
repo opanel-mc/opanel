@@ -12,6 +12,7 @@ import {
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { $ } from "@/lib/i18n";
 
 export function Prompt({
   title,
@@ -49,14 +50,14 @@ export function Prompt({
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">取消</Button>
+            <Button variant="outline">{$("dialog.cancel")}</Button>
           </DialogClose>
           <DialogClose asChild>
             <Button onClick={() => {
               if(!inputRef.current) return;
               onAction && onAction(inputRef.current.value);
             }}>
-              确定
+              {$("dialog.confirm")}
             </Button>
           </DialogClose>
         </DialogFooter>

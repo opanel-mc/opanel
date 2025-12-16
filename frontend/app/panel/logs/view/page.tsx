@@ -11,6 +11,8 @@ import { sendGetRequest, toastError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { deleteLog, downloadLog } from "../log-utils";
 import { monacoSettingsOptions } from "@/lib/settings";
+import { $ } from "@/lib/i18n";
+import { Text } from "@/components/i18n-text";
 
 const MonacoEditor = dynamic(() => import("@/components/monaco-editor"), { ssr: false });
 
@@ -32,11 +34,11 @@ export default function LogView() {
       const res = await sendGetRequest<string>(`/api/logs/${log}`);
       setContent(res);
     } catch (e: any) {
-      toastError(e, "无法获取日志内容", [
-        [400, "请求参数错误"],
-        [401, "未登录"],
-        [404, "找不到该日志"],
-        [500, "服务器内部错误"]
+      toastError(e, $("logs.view.fetch.error"), [
+        [400, $("common.error.400")],
+        [401, $("common.error.401")],
+        [404, $("logs.view.fetch.error.404")],
+        [500, $("common.error.500")]
       ]);
     }
   }, [log, push]);
@@ -52,23 +54,30 @@ export default function LogView() {
   }, [fetchLogContent]);
 
   return (
-    <SubPage title="日志" subTitle={log ?? ""}>
+    <SubPage title={$("logs.title")} subTitle={log ?? ""}>
       <div className="mb-3 flex justify-between items-center">
-        <span className="text-sm text-muted-foreground">
-          文件类型：{log?.endsWith(".log.gz") ? "gzip (已解压)" : "log"}
-        </span>
+        <Text
+          id="logs.view.hint"
+          args={[
+            (
+              log?.endsWith(".log.gz")
+              ? `gzip (${$("logs.view.decompressed")})`
+              : "log"
+            )
+          ]}
+          className="text-sm text-muted-foreground"/>
         <div className="[&>*]:cursor-pointer">
           <Button
             variant="ghost"
             size="icon"
-            title="下载日志"
+            title={$("logs.action.download")}
             onClick={() => downloadLog(log ?? "")}>
             <Download />
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            title="删除日志"
+            title={$("logs.action.delete")}
             disabled={log?.endsWith(".log")}
             onClick={async () => {
               await deleteLog(log ?? "");
@@ -86,7 +95,7 @@ export default function LogView() {
         options={{
           readOnly: true,
           readOnlyMessage: {
-            value: "日志不可编辑"
+            value: $("logs.view.monaco.readonly")
           },
           ...monacoSettingsOptions
         }}

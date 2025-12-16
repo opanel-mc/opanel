@@ -9,7 +9,6 @@ import { googleSansCode, notoSansSC } from "@/lib/fonts";
 import LogoIcon from "@/assets/images/logo.png";
 
 export const metadata: Metadata = {
-  description: "Minecraft 服务器管理面板",
   authors: [{ name: "Norcleeh", url: "https://nocp.space" }],
   icons: LogoIcon.src
 };

@@ -26,6 +26,7 @@ import { defaultLogLevel, type ConsoleLogLevel } from "@/lib/terminal/log-levels
 import { SubPage } from "../sub-page";
 import { changeSettings, getSettings } from "@/lib/settings";
 import { googleSansCode } from "@/lib/fonts";
+import { $ } from "@/lib/i18n";
 
 export default function Terminal() {
   const client = useTerminal();
@@ -45,7 +46,7 @@ export default function Terminal() {
 
     const command = inputRef.current.value;
     if(command.length === 0) {
-      toast.warning("请输入指令以发送");
+      toast.warning($("terminal.input.empty"));
       return;
     }
 
@@ -92,7 +93,7 @@ export default function Terminal() {
 
   return (
     <SubPage
-      title="后台"
+      title={$("terminal.title")}
       icon={<SquareTerminal />}
       outerClassName="max-h-screen overflow-y-hidden"
       className="flex-1 min-h-0 flex gap-3">
@@ -113,7 +114,7 @@ export default function Terminal() {
           </Select>
           <AutocompleteInput
             className={cn("flex-1 w-full rounded-sm", googleSansCode.className)}
-            placeholder="发送消息 / 指令..."
+            placeholder={$("terminal.input.placeholder")}
             autoFocus
             itemList={autocompleteList}
             enabled={getSettings("terminal.autocomplete")}
@@ -125,14 +126,14 @@ export default function Terminal() {
             variant="ghost"
             size="icon"
             className="cursor-pointer max-sm:hidden"
-            title="清空"
+            title={$("terminal.clear")}
             onClick={() => handleClear()}>
             <X />
           </Button>
           <Button
             size="icon"
             className="cursor-pointer"
-            title="发送"
+            title={$("terminal.send")}
             onClick={() => handleSend()}>
             <ArrowUp />
           </Button>
@@ -140,7 +141,7 @@ export default function Terminal() {
       </div>
       <div className="flex-1/5 max-lg:flex-1/4 max-md:flex-1/3 min-w-0 flex flex-col gap-2 max-lg:hidden">
         <div className="px-3 flex justify-between items-center">
-          <h2 className="text-md font-semibold">历史记录</h2>
+          <h2 className="text-md font-semibold">{$("terminal.history")}</h2>
           <Button
             variant="ghost"
             size="icon"

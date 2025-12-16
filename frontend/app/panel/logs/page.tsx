@@ -11,6 +11,7 @@ import { Alert } from "@/components/alert";
 import { columns } from "./columns";
 import { SubPage } from "../sub-page";
 import { emitter } from "@/lib/emitter";
+import { $ } from "@/lib/i18n";
 
 export default function Logs() {
   const [logs, setLogs] = useState<string[]>([]);
@@ -20,10 +21,10 @@ export default function Logs() {
       const res = await sendGetRequest<LogsResponse>("/api/logs");
       setLogs(res.logs);
     } catch (e: any) {
-      toastError(e, "无法获取日志列表", [
-        [400, "请求参数错误"],
-        [401, "未登录"],
-        [500, "服务器内部错误"]
+      toastError(e, $("logs.fetch.error"), [
+        [400, $("common.error.400")],
+        [401, $("common.error.401")],
+        [500, $("common.error.500")]
       ]);
     }
   };
@@ -31,12 +32,12 @@ export default function Logs() {
   const handleClearLogs = async () => {
     try {
       await sendDeleteRequest("/api/logs");
-      toast.success("已清空除当前日志外的所有日志");
+      toast.success($("logs.clear.success"));
       fetchServerLogs();
     } catch (e: any) {
-      toastError(e, "清空日志失败", [
-        [401, "未登录"],
-        [500, "服务器内部错误"]
+      toastError(e, $("logs.clear.error"), [
+        [401, $("common.error.401")],
+        [500, $("common.error.500")]
       ]);
     }
   };
@@ -48,18 +49,21 @@ export default function Logs() {
   }, []);
 
   return (
-    <SubPage title="日志" icon={<ScrollText />} className="flex-1 flex flex-col gap-5">
+    <SubPage
+      title={$("logs.title")}
+      icon={<ScrollText />}
+      className="flex-1 flex flex-col gap-5">
       <div className="flex justify-end">
         <Alert
-          title="确定要清空所有日志文件吗？"
-          description="此操作不会清除当前的服务器日志，但被清空的日志文件将不可恢复。"
+          title={$("logs.clear.alert.title")}
+          description={$("logs.clear.alert.description")}
           onAction={() => handleClearLogs()}
           asChild>
           <Button
             variant="destructive"
             className="cursor-pointer">
             <Trash2 />
-            清空日志
+            {$("logs.clear")}
           </Button>
         </Alert>
       </div>
@@ -78,7 +82,7 @@ export default function Logs() {
           })()
         }
         pagination
-        fallbackMessage="暂无日志"
+        fallbackMessage={$("logs.empty")}
         className="overflow-y-auto"/>
     </SubPage>
   );

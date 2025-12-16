@@ -4,6 +4,7 @@ import { Download, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { deleteLog, downloadLog } from "./log-utils";
 import { emitter } from "@/lib/emitter";
+import { $ } from "@/lib/i18n";
 
 export interface Log {
   name: string
@@ -14,7 +15,7 @@ export const columns: ColumnDef<Log>[] = [
   {
     accessorKey: "name",
     header: () => (
-      <span className="pl-3">日志</span>
+      <span className="pl-3">{$("logs.columns.name")}</span>
     ),
     cell: ({ row }) => {
       const name = row.getValue<string>("name") ?? "";
@@ -31,7 +32,7 @@ export const columns: ColumnDef<Log>[] = [
   },
   {
     accessorKey: "type",
-    header: "类型",
+    header: $("logs.columns.type"),
     cell: ({ row }) => (
       <span className="text-muted-foreground">{row.getValue("type")}</span>
     )
@@ -45,14 +46,14 @@ export const columns: ColumnDef<Log>[] = [
           <Button
             variant="ghost"
             size="icon"
-            title="下载日志"
+            title={$("logs.action.download")}
             onClick={() => downloadLog(name)}>
             <Download />
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            title="删除日志"
+            title={$("logs.action.delete")}
             disabled={name.endsWith(".log")}
             onClick={async () => {
               await deleteLog(name);

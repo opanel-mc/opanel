@@ -20,12 +20,13 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { ButtonGroup } from "./ui/button-group";
+import { $ } from "@/lib/i18n";
 
 export function DataTable<D, V>({
   columns,
   data,
   pagination = false,
-  fallbackMessage = "暂无数据",
+  fallbackMessage = $("table.empty"),
   className
 }: {
   columns: ColumnDef<D, V>[]
@@ -101,7 +102,7 @@ export function DataTable<D, V>({
             <Button
               variant="outline"
               size="icon"
-              title="跳转至第一页"
+              title={$("table.to-first")}
               onClick={() => table.firstPage()}
               disabled={!table.getCanPreviousPage()}>
               <ChevronsLeft />
@@ -112,26 +113,28 @@ export function DataTable<D, V>({
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}>
                 <ChevronLeft />
-                上一页
+                {$("table.previous")}
               </Button>
               <Button
                 variant="outline"
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}>
-                下一页
+                {$("table.next")}
                 <ChevronRight />
               </Button>
             </ButtonGroup>
             <Button
               variant="outline"
               size="icon"
-              title="跳转至最后一页"
+              title={$("table.to-last")}
               onClick={() => table.lastPage()}
               disabled={!table.getCanNextPage()}>
               <ChevronsRight />
             </Button>
           </div>
-          <span className="text-muted-foreground text-sm">第 {paginationState.pageIndex + 1} 页 / 共 {table.getPageCount()} 页</span>
+          <span className="text-muted-foreground text-sm">
+            {$("table.status", paginationState.pageIndex + 1, table.getPageCount())}
+          </span>
         </div>
       )}
     </div>

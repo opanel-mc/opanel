@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { sendDeleteRequest, toastError } from "@/lib/api";
 import { emitter } from "@/lib/emitter";
 import { cn } from "@/lib/utils";
+import { $ } from "@/lib/i18n";
 
 export function CodeOfConductItem({
   lang,
@@ -19,11 +20,11 @@ export function CodeOfConductItem({
       await sendDeleteRequest(`/api/control/code-of-conduct?lang=${lang}`);
       emitter.emit("refresh-data");
     } catch (e: any) {
-      toastError(e, `无法删除行为准则: ${lang}.txt`, [
-        [400, "请求参数错误"],
-        [401, "未登录"],
-        [500, "服务器内部错误"],
-        [503, "该服务端版本不支持行为准则"]
+      toastError(e, $("coc.item.delete.error", lang), [
+        [400, $("common.error.400")],
+        [401, $("common.error.401")],
+        [500, $("common.error.500")],
+        [503, $("coc.error.503")]
       ]);
     }
   };
@@ -37,13 +38,14 @@ export function CodeOfConductItem({
         <span className="text-sm">{lang +".txt"}</span>
       </div>
       <Alert
-        title={`确定要删除行为准则文档 ${lang}.txt 吗？`}
-        description="被删除的行为准则文档将不可恢复。"
+        title={$("coc.item.delete.alert.title", lang)}
+        description={$("coc.item.delete.alert.description")}
         onAction={() => handleDelete()}
         asChild>
         <Button
           variant="ghost"
           size="icon-sm"
+          title={$("coc.item.delete")}
           className="cursor-pointer">
           <Trash />
         </Button>
