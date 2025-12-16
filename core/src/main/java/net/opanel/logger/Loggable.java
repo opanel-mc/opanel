@@ -35,8 +35,12 @@ public abstract class Loggable {
         return fileList;
     }
 
+    public Path getLogPath(String fileName) {
+        return Paths.get(logFolderPath.toString(), fileName);
+    }
+
     public String getLogContent(String fileName) throws IOException {
-        final Path filePath = Paths.get(logFolderPath.toString(), fileName);
+        final Path filePath = getLogPath(fileName);
         if(!Files.exists(filePath)) {
             throw new NoSuchFileException("Cannot find the specified log file.");
         }
@@ -50,7 +54,7 @@ public abstract class Loggable {
     }
 
     public void deleteLog(String fileName) throws IOException {
-        final Path filePath = Paths.get(logFolderPath.toString(), fileName);
+        final Path filePath = getLogPath(fileName);
         if(!Files.exists(filePath)) {
             throw new NoSuchFileException("Cannot find the specified log file.");
         }

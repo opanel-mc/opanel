@@ -13,7 +13,7 @@ public class ErrorController extends BaseController {
 
     // 404
     public Handler notFound = ctx -> {
-        if(ctx.path().startsWith("/api")) return;
+        if(ctx.path().startsWith("/api") || ctx.path().startsWith("/file")) return;
 
         try(InputStream is = getClass().getClassLoader().getResourceAsStream("web/404.html")) {
             if(is == null) return;

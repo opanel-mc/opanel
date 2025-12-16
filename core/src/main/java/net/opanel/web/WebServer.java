@@ -39,6 +39,7 @@ public class WebServer {
             config.plugins.enableCors(cors -> {
                 cors.add(it -> {
                     it.allowHost("http://localhost:3001"); // for dev
+                    it.allowCredentials = true;
                 });
             });
 
@@ -59,6 +60,7 @@ public class WebServer {
         // Controllers
         BeforeController beforeController = new BeforeController(plugin);
         ErrorController errorController = new ErrorController(plugin);
+        DownloadController downloadController = new DownloadController(plugin);
         AuthController authController = new AuthController(plugin);
         BannedIpsController bannedIpsController = new BannedIpsController(plugin);
         ControlController controlController = new ControlController(plugin);
@@ -77,6 +79,10 @@ public class WebServer {
         app.before("/*", beforeController.beforeAll);
         app.before("/*", beforeController.handleRsc);
         app.before("/*", beforeController.handleFonts);
+        app.routes(() -> path("file", () -> {
+            before("/*", beforeController.authCookie);
+            get("/{id}/{fileName}", downloadController.downloadFile);
+        }));
         app.routes(() -> path("api", () -> {
             before("/*", beforeController.authCookie);
 
@@ -114,6 +120,7 @@ public class WebServer {
             path("logs", () -> {
                 get("/", logsController.getLogFileList);
                 get("{fileName}", logsController.getLogContent);
+                get("{fileName}/download", logsController.downloadLog);
                 delete("/", logsController.clearLogs);
                 delete("{fileName}", logsController.deleteLog);
             });
@@ -168,12 +175,15 @@ public class WebServer {
     public void stop() throws Exception {
         if(isRunning()) {
             app.stop();
+            app = null;
             plugin.logger.info("Web server is stopped.");
         }
     }
 
     public boolean isRunning() {
+        if(app == null) return false;
+
         JettyServer jettyServer = app.jettyServer();
-        return app != null && jettyServer != null && jettyServer.started;
+        return jettyServer != null && jettyServer.started;
     }
 }

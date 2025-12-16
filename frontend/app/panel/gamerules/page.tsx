@@ -3,10 +3,11 @@
 import type { z } from "zod";
 import type { GamerulesResponse } from "@/lib/types";
 import Link from "next/link";
-import { useEffect, useMemo, useState, Fragment } from "react";
+import { useEffect, useMemo, useState, Fragment, useContext } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { compare } from "semver";
 import { PencilRuler, Search } from "lucide-react";
 import {
   Form,
@@ -30,13 +31,22 @@ import {
   ItemDescription,
   ItemTitle
 } from "@/components/ui/item";
-import gamerulePresets from "@/lib/gamerules/presets";
+import _gamerulePresets from "@/lib/gamerules/presets";
+import _gamerulePresetsOld from "@/lib/gamerules/presets-old";
 import { SubPage } from "../sub-page";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { $ } from "@/lib/i18n";
 import { Text } from "@/components/i18n-text";
+import { VersionContext } from "@/contexts/api-context";
 
 export default function Gamerules() {
+  const versionCtx = useContext(VersionContext);
+  const gamerulePresets = useMemo(() => {
+    if(versionCtx && compare(versionCtx.version, "1.21.11") < 0) {
+      return _gamerulePresetsOld;
+    }
+    return _gamerulePresets;
+  }, [versionCtx]);
   const [serverGamerules, setServerGamerules] = useState<ServerGamerules>({});
   const [searchString, setSearchString] = useState<string>("");
   const [hasChanged, setChanged] = useState<boolean>(false);
@@ -90,11 +100,10 @@ export default function Gamerules() {
       title={$("gamerules.title")}
       icon={<PencilRuler />}
       outerClassName="max-h-screen overflow-y-hidden"
-      className="flex-1 min-h-0 flex flex-col gap-3"
+      className="flex-1 min-h-0 px-64 max-xl:px-0 flex flex-col gap-3"
       onKeyDown={(e) => (e.ctrlKey && e.key === "s") && form.handleSubmit(handleSubmit)()}>
-      <div className="flex justify-between items-center gap-2 max-sm:flex-col max-sm:items-start">
-        <span className="text-sm text-muted-foreground">{$("gamerules.hint1")}</span>
-        <InputGroup className="w-fit">
+      <div className="flex justify-between items-center gap-6 max-sm:flex-col-reverse max-sm:items-start">
+        <InputGroup className="flex-1">
           <InputGroupAddon>
             <Search />
           </InputGroupAddon>
@@ -104,6 +113,7 @@ export default function Gamerules() {
             autoFocus
             onChange={(e) => setSearchString(e.target.value)}/>
         </InputGroup>
+        <span className="text-sm text-muted-foreground">{$("gamerules.hint1")}</span>
       </div>
       <Form {...form}>
         <form className="min-h-0 flex flex-col gap-4" onSubmit={form.handleSubmit(handleSubmit)} onChange={() => setChanged(true)}>
@@ -176,19 +186,6 @@ export default function Gamerules() {
             })}
           </div>
           <div className="flex max-lg:flex-col justify-between items-center max-lg:items-start max-lg:gap-4">
-            <div className="flex items-center gap-2 [&>*]:cursor-pointer">
-              <Button type="submit" disabled={!hasChanged}>{$("dialog.save")}</Button>
-              <Button
-                type="reset"
-                variant="outline"
-                onClick={() => window.location.reload()}>{$("gamerules.reset")}</Button>
-              <Text
-                id="gamerules.hint2"
-                args={[
-                  <><kbd>ctrl</kbd>+<kbd>S</kbd></>
-                ]}
-                className="text-sm text-muted-foreground max-sm:hidden"/>
-            </div>
             <Text
               id="gamerules.hint3"
               args={[
@@ -200,6 +197,19 @@ export default function Gamerules() {
                 </Link>
               ]}
               className="text-sm text-muted-foreground"/>
+            <div className="flex max-lg:flex-row-reverse items-center gap-2 [&>button]:cursor-pointer">
+              <Text
+                id="gamerules.hint2"
+                args={[
+                  <><kbd>ctrl</kbd>+<kbd>S</kbd></>
+                ]}
+                className="mr-2 text-sm text-muted-foreground max-sm:hidden"/>
+              <Button
+                type="reset"
+                variant="outline"
+                onClick={() => window.location.reload()}>{$("gamerules.reset")}</Button>
+              <Button type="submit" disabled={!hasChanged}>{$("dialog.save")}</Button>
+            </div>
           </div>
         </form>
       </Form>

@@ -97,9 +97,9 @@ export default function Terminal() {
       icon={<SquareTerminal />}
       outerClassName="max-h-screen overflow-y-hidden"
       className="flex-1 min-h-0 flex gap-3">
-      <div className="flex-4/5 max-lg:flex-3/4 max-md:flex-2/3 min-w-0 flex flex-col gap-3">
-        <TerminalConnector client={client} level={logLevel} className="flex-1"/>
-        <div className="flex gap-2">
+      <div className="flex-4/5 max-lg:flex-3/4 max-md:flex-2/3 min-w-0 flex flex-col gap-3 border rounded-sm">
+        <TerminalConnector client={client} level={logLevel} className="flex-1 border-none"/>
+        <div className="p-3 flex gap-2">
           <Select
             defaultValue={defaultLogLevel}
             onValueChange={(value) => setLogLevel(value as ConsoleLogLevel)}>

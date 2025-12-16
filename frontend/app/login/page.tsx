@@ -25,7 +25,7 @@ import {
   FormLabel,
   FormMessage
 } from "@/components/ui/form";
-import { sendGetRequestWithoutToken, sendPostRequestWithoutToken } from "@/lib/api";
+import { sendGetRequest, sendPostRequest } from "@/lib/api";
 import { Brand } from "@/components/logo";
 import { PasswordInput } from "@/components/password-input";
 import { Alert } from "@/components/alert";
@@ -62,10 +62,10 @@ export default function Login() {
     
     try {
       const id = generateRandomString(5);
-      const { cram } = await sendGetRequestWithoutToken<{ cram: string }>(`/api/auth?id=${id}`);
+      const { cram } = await sendGetRequest<{ cram: string }>(`/api/auth?id=${id}`, false);
       const challengeResult = md5(hashedKey + cram); // hashed 3
 
-      const res = await sendPostRequestWithoutToken<{ token: string }>("/api/auth", { id, result: challengeResult });
+      const res = await sendPostRequest<{ token: string }>("/api/auth", { id, result: challengeResult }, false);
       setCookie("token", res.token);
       router.push("/panel/dashboard");
     } catch (e: any) {

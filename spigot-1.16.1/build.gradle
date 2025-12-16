@@ -66,4 +66,8 @@ build {
     dependsOn shadowJar
 }
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = JavaLanguageVersion.of(14)
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(14)
+    }
+}

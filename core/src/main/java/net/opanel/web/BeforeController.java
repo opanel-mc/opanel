@@ -18,7 +18,7 @@ public class BeforeController extends BaseController {
     public Handler authCookie = ctx -> {
         if(ctx.path().equals("/api/auth") || ctx.path().equals("/api/icon") || ctx.method() == HandlerType.OPTIONS) return;
 
-        String token = ctx.header("X-Credential-Token"); // jws
+        String token = ctx.cookie("token"); // jws
         if(token == null) {
             sendResponse(ctx, HttpStatus.UNAUTHORIZED, "Token is missing.");
             clearContextTasks(ctx);

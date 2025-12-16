@@ -13,6 +13,8 @@ import java.nio.file.NoSuchFileException;
 import java.util.HashMap;
 
 public class LogsController extends BaseController {
+    private final DownloadController downloadController = getControllerInstance(DownloadController.class);
+
     public LogsController(OPanel plugin) {
         super(plugin);
     }
@@ -32,7 +34,7 @@ public class LogsController extends BaseController {
         final Loggable logger = plugin.logger;
         final String fileName = ctx.pathParam("fileName");
         try {
-            sendContent(ctx, logger.getLogContent(fileName).getBytes(StandardCharsets.UTF_8), ContentType.APPLICATION_OCTET_STREAM);
+            sendContent(ctx, logger.getLogContent(fileName).getBytes(StandardCharsets.UTF_8), ContentType.TEXT_PLAIN);
         } catch (NoSuchFileException e) {
             sendResponse(ctx, HttpStatus.NOT_FOUND, "Cannot find the specified log file.");
         } catch (IllegalArgumentException e) {
@@ -40,6 +42,14 @@ public class LogsController extends BaseController {
         } catch (IOException e) {
             sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
+    };
+
+    public Handler downloadLog = ctx -> {
+        final Loggable logger = plugin.logger;
+        final String fileName = ctx.pathParam("fileName");
+        final String downloadedFileName = fileName.endsWith(".log.gz") ? fileName.replace(".log.gz", ".log") : fileName;
+        final String downloadId = downloadController.registerContent(logger.getLogContent(fileName));
+        ctx.redirect("/file/"+ downloadId +"/"+ downloadedFileName);
     };
 
     public Handler clearLogs = ctx -> {

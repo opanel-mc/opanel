@@ -215,7 +215,7 @@ public class FoliaServer implements OPanelServer {
 
     @Override
     public HashMap<String, Object> getGamerules() {
-        final World world = server.getWorlds().getFirst();
+        final World world = server.getWorlds().get(0);
         HashMap<String, Object> gamerules = new HashMap<>();
         for(String key : world.getGameRules()) {
             GameRule<?> rule = GameRule.getByName(key);
@@ -230,7 +230,7 @@ public class FoliaServer implements OPanelServer {
     public void setGamerules(HashMap<String, Object> gamerules) {
         HashMap<String, Object> currentGamerules = getGamerules();
         plugin.runTask(() -> {
-            final World world = server.getWorlds().getFirst();
+            final World world = server.getWorlds().get(0);
             gamerules.forEach((key, value) -> {
                 if(value == null) return;
                 final Object currentValue = currentGamerules.get(key);
@@ -262,6 +262,6 @@ public class FoliaServer implements OPanelServer {
 
     @Override
     public long getIngameTime() {
-        return server.getWorlds().getFirst().getTime();
+        return server.getWorlds().get(0).getTime();
     }
 }

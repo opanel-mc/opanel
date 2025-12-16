@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.11-SNAPSHOT'
+    id 'fabric-loom' version '1.13-SNAPSHOT'
     id 'com.gradleup.shadow' version '8.3.8'
 }
 
@@ -95,4 +95,8 @@ java {
     withSourcesJar()
 }
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = JavaLanguageVersion.of(17)
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}

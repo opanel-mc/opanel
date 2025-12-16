@@ -2,7 +2,9 @@ plugins {
     id 'java-library'
 }
 
-archivesBaseName = "${rootProject.name}-core"
+base {
+    archivesName = "${rootProject.name}-core"
+}
 
 repositories {
     mavenCentral()
@@ -38,4 +40,8 @@ processResources {
     dependsOn generateOPanelProperties
 }
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = JavaLanguageVersion.of(14)
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(14)
+    }
+}

@@ -1,19 +1,9 @@
-import download from "downloadjs";
 import { toast } from "sonner";
-import { sendDeleteRequest, sendGetRequest, toastError } from "@/lib/api";
+import { apiUrl, sendDeleteRequest, toastError } from "@/lib/api";
 import { $ } from "@/lib/i18n";
 
 export async function downloadLog(name: string) {
-  const fileName = name.endsWith(".log.gz") ? name.replace(".log.gz", ".log") : name;
-  try {
-    const res = await sendGetRequest<string>(`/api/logs/${name}`);
-    download(res, fileName, "text/plain");
-  } catch (e: any) {
-    toastError(e, $("logs.action.download.error", fileName), [
-      [401, $("common.error.401")],
-      [404, $("logs.action.download.error.404")]
-    ]);
-  }
+  window.open(`${apiUrl}/api/logs/${name}/download`, "_blank");
 }
 
 export async function deleteLog(name: string) {

@@ -23,7 +23,7 @@ archivesBaseName = "${rootProject.name}-spigot"
 
 dependencies {
     compileOnly "org.spigotmc:spigot-api:${minecraft_version}-R0.1-SNAPSHOT"
-    shadowImplementation "de.tr7zw:item-nbt-api:2.15.3"
+    shadowImplementation "de.tr7zw:item-nbt-api:2.15.5"
     compileOnly "org.apache.logging.log4j:log4j-core:2.24.1"
 
     shadowImplementation(project(":core")) {
@@ -69,4 +69,8 @@ build {
     dependsOn shadowJar
 }
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = JavaLanguageVersion.of(17)
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}

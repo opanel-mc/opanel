@@ -15,12 +15,19 @@ import java.nio.file.Path;
 import java.util.HashMap;
 
 public abstract class BaseController {
+    private static final HashMap<Class<? extends BaseController>, BaseController> instances = new HashMap<>();
+
     protected final OPanel plugin;
     protected final OPanelServer server;
 
     public BaseController(OPanel plugin) {
         this.plugin = plugin;
         server = plugin.getServer();
+
+        if(instances.containsKey(getClass())) {
+            throw new IllegalStateException(getClass().getName() +" has been instantiated and registered before");
+        }
+        instances.put(getClass(), this);
     }
 
     protected void sendResponse(Context ctx, HttpStatus status) {
@@ -45,6 +52,13 @@ public abstract class BaseController {
         ctx.json(jsonObj);
     }
 
+    protected void sendContent(Context ctx, byte[] bytes, ContentType contentType, String fileName) {
+        if(fileName != null) {
+            ctx.header("Content-Disposition", "attachment; filename=\""+ fileName +"\"");
+        }
+        sendContent(ctx, bytes, contentType);
+    }
+
     protected void sendContent(Context ctx, byte[] bytes, ContentType contentType) {
         ctx.status(HttpStatus.OK);
 
@@ -55,5 +69,10 @@ public abstract class BaseController {
             e.printStackTrace();
             sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <C extends BaseController> C getControllerInstance(Class<C> controllerClass) {
+        return (C) instances.get(controllerClass);
     }
 }

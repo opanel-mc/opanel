@@ -125,6 +125,11 @@ export interface SavesResponse {
   saves: Save[]
 }
 
+/** `/api/saves/{saveName}` */
+export interface DownloadSaveResponse {
+  download: string
+}
+
 /** `/api/players` */
 export interface PlayersResponse {
   maxPlayerCount: number

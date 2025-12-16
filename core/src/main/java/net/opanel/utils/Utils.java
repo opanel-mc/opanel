@@ -205,8 +205,8 @@ public class Utils {
         return sb.toString();
     }
 
-    public static String generateRandomCharSequence(int length) {
-        final String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@$";
+    public static String generateRandomCharSequence(int length, boolean specialChars) {
+        final String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"+ (specialChars ? "@$" : "");
         StringBuilder result = new StringBuilder();
         while(result.length() < length) {
             int charIndex = generateRandomInt(0, chars.length() - 1);
