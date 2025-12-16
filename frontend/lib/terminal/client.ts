@@ -2,6 +2,7 @@ import type { ConsoleLogLevel } from "./log-levels";
 import { getCookie, hasCookie } from "cookies-next/client";
 import { toast } from "sonner";
 import { wsUrl } from "../api";
+import { $ } from "../i18n";
 
 export interface ConsoleLog {
   time: number
@@ -46,7 +47,7 @@ export class WebSocketClient {
     });
     this.socket?.addEventListener("error", (err) => {
       console.log("Terminal connection failed. ", err);
-      toast.error("无法连接到终端WebSocket");
+      toast.error($("terminal.ws.error"));
     });
     this.socket?.addEventListener("close", () => {
       console.log("Terminal disconnected.");

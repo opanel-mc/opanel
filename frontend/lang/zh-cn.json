@@ -279,6 +279,7 @@
   "plugins.wip": "此功能尚未完工",
 
   "terminal.title": "后台",
+  "terminal.ws.error": "无法连接到终端WebSocket",
   "terminal.input.empty": "请输入指令以发送",
   "terminal.input.placeholder": "发送消息 / 指令...",
   "terminal.clear": "清空",
