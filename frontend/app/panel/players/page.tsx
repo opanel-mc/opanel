@@ -15,6 +15,7 @@ import { emitter } from "@/lib/emitter";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { changeSettings, getSettings, type SettingsStorageType } from "@/lib/settings";
 import { BannedIpsDialog } from "./banned-ips-dialog";
+import { $ } from "@/lib/i18n";
 
 export default function Players() {
   type TabValueType = SettingsStorageType["state.players.tab"];
@@ -39,10 +40,10 @@ export default function Players() {
       setMaxPlayerCount(res.maxPlayerCount);
       setWhitelistEnabledState(res.whitelist);
     } catch (e: any) {
-      toastError(e, "无法获取玩家列表", [
-        [400, "请求参数错误"],
-        [401, "未登录"],
-        [500, "服务器内部错误"]
+      toastError(e, $("players.error"), [
+        [400, $("common.error.400")],
+        [401, $("common.error.401")],
+        [500, $("common.error.500")]
       ]);
     }
   };
@@ -65,11 +66,11 @@ export default function Players() {
 
   return (
     <SubPage
-      title="玩家"
-      subTitle={currentTab === "player-list" ? "玩家列表" : "封禁列表"}
+      title={$("players.title")}
+      subTitle={currentTab === "player-list" ? $("players.player-list.title") : $("players.banned-list.title")}
       icon={<Users />}
       className="flex flex-col gap-3">
-      <span className="text-sm text-muted-foreground">点击玩家名以进行更多操作。</span>
+      <span className="text-sm text-muted-foreground">{$("players.hint")}</span>
       <Tabs
         value={currentTab}
         onValueChange={(value) => {
@@ -79,10 +80,10 @@ export default function Players() {
         <div className="flex justify-between items-center max-lg:flex-col-reverse max-lg:items-start max-lg:gap-2">
           <TabsList className="[&>*]:cursor-pointer">
             <TabsTrigger value="player-list">
-              {`玩家列表 (${players.filter(({ isOnline }) => isOnline).length} / ${maxPlayerCount})`}
+              {`${$("players.player-list.title")} (${players.filter(({ isOnline }) => isOnline).length} / ${maxPlayerCount})`}
             </TabsTrigger>
             <TabsTrigger value="banned-list">
-              {`封禁列表 (${players.filter(({ isBanned }) => isBanned).length})`}
+              {`${$("players.banned-list.title")} (${players.filter(({ isBanned }) => isBanned).length})`}
             </TabsTrigger>
           </TabsList>
           <div className="flex gap-2 max-sm:flex-col max-sm:items-start">
@@ -92,7 +93,7 @@ export default function Players() {
               </InputGroupAddon>
               <InputGroupInput
                 value={searchString}
-                placeholder="搜索玩家..."
+                placeholder={$("players.search.placeholder")}
                 onChange={(e) => setSearchString(e.target.value)}/>
             </InputGroup>
             <BannedIpsDialog asChild>
@@ -100,7 +101,7 @@ export default function Players() {
                 variant="outline"
                 className="cursor-pointer">
                 <Ban />
-                管理封禁IP
+                {$("players.banned-ips")}
               </Button>
             </BannedIpsDialog>
             {
@@ -113,7 +114,7 @@ export default function Players() {
                     variant="outline"
                     className="cursor-pointer">
                     <UserPen />
-                    编辑白名单
+                    {$("players.edit-whitelist")}
                   </Button>
                 </WhitelistSheet>
               )
@@ -131,7 +132,7 @@ export default function Players() {
                     setWhitelistEnabledState(true);
                   }}>
                   <Contact />
-                  启用白名单
+                  {$("players.enable-whitelist")}
                 </Button>
               )
             }
@@ -147,14 +148,14 @@ export default function Players() {
               ...unnamedPlayers
             ]}
             pagination
-            fallbackMessage="暂无玩家"/>
+            fallbackMessage={$("players.empty")}/>
         </TabsContent>
         <TabsContent value="banned-list">
           <DataTable
             columns={bannedColumns}
             data={bannedPlayers.filter(({ name }) => name.toLowerCase().includes(searchString.toLowerCase()))}
             pagination
-            fallbackMessage="暂无玩家"/>
+            fallbackMessage={$("players.empty")}/>
         </TabsContent>
       </Tabs>
     </SubPage>

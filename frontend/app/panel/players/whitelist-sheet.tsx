@@ -17,6 +17,8 @@ import { Button } from "@/components/ui/button";
 import { sendGetRequest, sendPostRequest, toastError } from "@/lib/api";
 import { setWhitelistEnabled } from "./player-utils";
 import { monacoSettingsOptions } from "@/lib/settings";
+import { $ } from "@/lib/i18n";
+import { Text } from "@/components/i18n-text";
 
 const MonacoEditor = dynamic(() => import("@/components/monaco-editor"), { ssr: false });
 
@@ -60,9 +62,13 @@ export function WhitelistSheet({
       <SheetTrigger asChild={asChild}>{children}</SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>编辑白名单</SheetTitle>
+          <SheetTitle>{$("players.edit-whitelist.title")}</SheetTitle>
           <SheetDescription>
-            在此编辑服务器玩家白名单，你也可以直接编辑服务器目录下的<code>whitelist.json</code>文件。
+            <Text
+              id="players.edit-whitelist.description"
+              args={[
+                <code key={0}>whitelist.json</code>
+              ]}/>
           </SheetDescription>
         </SheetHeader>
         <div className="flex flex-col h-full">
@@ -86,12 +92,12 @@ export function WhitelistSheet({
               await setWhitelistEnabled(false);
               onDisableWhitelist && onDisableWhitelist();
             }}>
-            禁用白名单
+            {$("players.disable-whitelist")}
           </Button>
           <SheetClose asChild>
             <Button
               className="cursor-pointer"
-              onClick={() => saveServerWhitelist()}>保存设置</Button>
+              onClick={() => saveServerWhitelist()}>{$("dialog.save")}</Button>
           </SheetClose>
         </SheetFooter>
       </SheetContent>

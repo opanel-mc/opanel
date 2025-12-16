@@ -29,8 +29,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Prompt } from "@/components/prompt";
-import { addToWhitelist, ban, depriveOp, giveOp, kick, pardon, removeFromWhitelist, setGameMode } from "./player-utils";
+import {
+  addToWhitelist,
+  ban,
+  depriveOp,
+  giveOp,
+  kick,
+  pardon,
+  removeFromWhitelist,
+  setGameMode
+} from "./player-utils";
 import { emitter } from "@/lib/emitter";
+import { $ } from "@/lib/i18n";
 
 const formSchema = z.object({
   gamemode: z.enum(Object.values(GameMode) as [string, ...string[]]),
@@ -72,9 +82,9 @@ export function PlayerSheet({
         <Form {...form}>
           <form className="flex-1 flex flex-col" onSubmit={form.handleSubmit(handleSubmit)}>
             <SheetHeader>
-              <SheetTitle>编辑玩家</SheetTitle>
+              <SheetTitle>{$("players.edit.title")}</SheetTitle>
               <SheetDescription>
-                在此设置和管理该玩家的状态和角色。
+                {$("players.edit.description")}
               </SheetDescription>
             </SheetHeader>
             <div className="flex-1 px-4 flex flex-col gap-5">
@@ -84,7 +94,11 @@ export function PlayerSheet({
                 {
                   player.name
                   ? <h2 className="inline-block text-lg font-semibold">{player.name}</h2>
-                  : <span className="text-muted-foreground italic">&lt;无名玩家&gt;</span>
+                  : (
+                    <span className="text-muted-foreground italic">
+                      &lt;{$("players.unnamed")}&gt;
+                    </span>
+                  )
                 }
               </div>
               <FormField
@@ -92,17 +106,17 @@ export function PlayerSheet({
                 name="gamemode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>游戏模式</FormLabel>
+                    <FormLabel>{$("players.edit.form.gamemode.label")}</FormLabel>
                     <FormControl>
                       <Select {...field} onValueChange={field.onChange}>
                         <SelectTrigger className="w-full">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="adventure">冒险</SelectItem>
-                          <SelectItem value="survival">生存</SelectItem>
-                          <SelectItem value="creative">创造</SelectItem>
-                          <SelectItem value="spectator">旁观</SelectItem>
+                          <SelectItem value="adventure">{$("common.gamemode.adventure")}</SelectItem>
+                          <SelectItem value="survival">{$("common.gamemode.survival")}</SelectItem>
+                          <SelectItem value="creative">{$("common.gamemode.creative")}</SelectItem>
+                          <SelectItem value="spectator">{$("common.gamemode.spectator")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -114,7 +128,7 @@ export function PlayerSheet({
                 name="isOp"
                 render={({ field }) => (
                   <FormItem className="flex justify-between">
-                    <FormLabel>OP权限</FormLabel>
+                    <FormLabel>{$("players.edit.form.op.label")}</FormLabel>
                     <FormControl>
                       <Switch
                         {...field}
@@ -126,7 +140,7 @@ export function PlayerSheet({
                   </FormItem>
                 )}/>
               <div className="space-y-3">
-                <Label>管理</Label>
+                <Label>{$("players.edit.form.manage")}</Label>
                 <div className="grid grid-rows-2 grid-cols-2 gap-2 [&>*]:cursor-pointer">
                   {(player.name && player.isWhitelisted !== undefined) && (
                     player.isWhitelisted
@@ -138,7 +152,7 @@ export function PlayerSheet({
                           emitter.emit("refresh-data");
                         }}>
                         <UserMinus />
-                        移出白名单
+                        {$("players.action.remove-from-whitelist")}
                       </Button>
                     )
                     : (
@@ -149,15 +163,15 @@ export function PlayerSheet({
                           emitter.emit("refresh-data");
                         }}>
                         <UserPlus />
-                        加入白名单
+                        {$("players.action.add-to-whitelist")}
                       </Button>
                     )
                   )}
                   <Prompt
-                    title="踢出玩家"
-                    description="将玩家踢出服务器，之后玩家可重新加入服务器"
-                    label="原因"
-                    placeholder="请输入踢出原因..."
+                    title={$("players.action.kick.prompt.title")}
+                    description={$("players.action.kick.prompt.description")}
+                    label={$("players.action.kick.prompt.label")}
+                    placeholder={$("players.action.kick.prompt.placeholder")}
                     onAction={async (reason) => {
                       await kick(player.uuid, reason);
                       emitter.emit("refresh-data");
@@ -168,17 +182,17 @@ export function PlayerSheet({
                       className={player.isWhitelisted === undefined ? "col-start-1" : "col-start-2"}
                       disabled={!player.isOnline}>
                       <BrushCleaning />
-                      踢出服务器
+                      {$("players.action.kick")}
                     </Button>
                   </Prompt>
                   {
                     !player.isBanned
                     ? (
                       <Prompt
-                        title="封禁玩家"
-                        description="将玩家踢出服务器并加入封禁列表，之后玩家将不可重新加入服务器"
-                        label="原因"
-                        placeholder="请输入封禁原因..."
+                        title={$("players.action.ban.prompt.title")}
+                        description={$("players.action.ban.prompt.description")}
+                        label={$("players.action.ban.prompt.label")}
+                        placeholder={$("players.action.ban.prompt.placeholder")}
                         onAction={async (reason) => {
                           await ban(player.uuid, reason);
                           emitter.emit("refresh-data");
@@ -188,7 +202,7 @@ export function PlayerSheet({
                           variant="destructive"
                           className={player.isWhitelisted === undefined ? "col-start-2" : "col-span-2"}>
                           <Ban />
-                          封禁玩家
+                          {$("players.action.ban")}
                         </Button>
                       </Prompt>
                     )
@@ -201,7 +215,7 @@ export function PlayerSheet({
                           emitter.emit("refresh-data");
                         }}>
                         <ShieldOff />
-                        解除封禁
+                        {$("players.action.pardon")}
                       </Button>
                     )
                   }
@@ -213,14 +227,14 @@ export function PlayerSheet({
                 <Button
                   type="submit"
                   className="cursor-pointer">
-                  确定
+                  {$("dialog.confirm")}
                 </Button>
               </SheetClose>
               <SheetClose asChild>
                 <Button
                   variant="outline"
                   className="cursor-pointer">
-                  取消
+                  {$("dialog.cancel")}
                 </Button>
               </SheetClose>
             </SheetFooter>

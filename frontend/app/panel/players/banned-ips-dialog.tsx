@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { sendGetRequest, sendPostRequest, toastError } from "@/lib/api";
 import { cn, validateIpv4Address } from "@/lib/utils";
 import { emitter } from "@/lib/emitter";
+import { $ } from "@/lib/i18n";
 
 export function BannedIpsDialog({
   children,
@@ -39,20 +40,20 @@ export function BannedIpsDialog({
       const res = await sendGetRequest<BannedIpsResponse>("/api/banned-ips");
       setBannedIps(res.bannedIps);
     } catch (e: any) {
-      toastError(e, "无法获取封禁IP列表", [
-        [400, "请求参数错误"],
-        [401, "未登录"]
+      toastError(e, $("players.banned-ips.fetch.error"), [
+        [400, $("common.error.400")],
+        [401, $("common.error.401")]
       ]);
     }
   };
 
   const banIp = async (ip: string) => {
     if(ip === "" || !validateIpv4Address(ip)) {
-      toast.error("无法添加该IP到封禁列表", { description: "无效的IP地址" });
+      toast.error($("players.banned-ips.add.error1"), { description: $("players.banned-ips.add.error1.400") });
       return;
     }
     if(bannedIps.includes(ip)) {
-      toast.warning("该IP已在封禁列表中");
+      toast.warning($("players.banned-ips.add.error2"));
       return;
     }
     
@@ -60,11 +61,11 @@ export function BannedIpsDialog({
       await sendPostRequest(`/api/banned-ips/add?ip=${ip}`);
       setInputtedIp("");
       emitter.emit("refresh-data");
-      toast.success("添加成功");
+      toast.success($("players.banned-ips.add.success"));
     } catch (e: any) {
-      toastError(e, "无法添加该IP到封禁列表", [
-        [400, "无效的IP地址"],
-        [401, "未登录"]
+      toastError(e, $("players.banned-ips.add.error1"), [
+        [400, $("players.banned-ips.add.error1.400")],
+        [401, $("common.error.401")]
       ]);
     }
   };
@@ -73,11 +74,11 @@ export function BannedIpsDialog({
     try {
       await sendPostRequest(`/api/banned-ips/remove?ip=${ip}`);
       emitter.emit("refresh-data");
-      toast.success("移除成功");
+      toast.success($("players.banned-ips.pardon.success"));
     } catch (e: any) {
-      toastError(e, "无法从封禁列表移除该IP", [
-        [400, "无效的IP地址"],
-        [401, "未登录"]
+      toastError(e, $("players.banned-ips.pardon.error"), [
+        [400, $("players.banned-ips.pardon.error.400")],
+        [401, $("common.error.401")]
       ]);
     }
   };
@@ -101,9 +102,9 @@ export function BannedIpsDialog({
       <DialogTrigger asChild={asChild}>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>管理封禁IP</DialogTitle>
+          <DialogTitle>{$("players.banned-ips.title")}</DialogTitle>
           <DialogDescription>
-            在此添加 / 移除被封禁的IP地址。
+            {$("players.banned-ips.description")}
           </DialogDescription>
         </DialogHeader>
         <div className="border rounded-md">
@@ -118,7 +119,7 @@ export function BannedIpsDialog({
                         variant="ghost"
                         size="icon"
                         className="float-right h-4 cursor-pointer hover:!bg-transparent"
-                        title="解除封禁"
+                        title={$("players.banned-ips.pardon")}
                         onClick={() => pardonIp(ip)}>
                         <ShieldOff className="stroke-green-600"/>
                       </Button>
@@ -131,7 +132,7 @@ export function BannedIpsDialog({
           <div className={cn("flex gap-2 p-2", bannedIps.length > 0 && "border-t")}>
             <Input
               value={inputtedIp}
-              placeholder="请输入IP地址以添加..."
+              placeholder={$("players.banned-ips.input.placeholder")}
               className="h-8"
               onInput={(e) => setInputtedIp((e.target as HTMLInputElement).value)}
               onKeyDown={(e) => (e.key === "Enter" && inputtedIp.length > 0) && banIp(inputtedIp)}/>
@@ -147,7 +148,7 @@ export function BannedIpsDialog({
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">关闭</Button>
+            <Button variant="outline">{$("dialog.close")}</Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

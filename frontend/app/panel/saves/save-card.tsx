@@ -111,7 +111,7 @@ export function SaveCard({
                 <Button
                   variant="ghost"
                   size="icon"
-                  title={$("saves.list.item.download.tooltip")}>
+                  title={$("saves.list.item.download")}>
                   <Download />
                 </Button>
               </Alert>
@@ -120,7 +120,7 @@ export function SaveCard({
               <Button
                 variant="ghost"
                 size="icon"
-                title={$("saves.list.item.download.tooltip")}
+                title={$("saves.list.item.download")}
                 onClick={() => toast.promise(handleDownload(), {
                   loading: $("saves.list.item.download.loading"),
                   error: $("saves.list.item.download.error", name)
@@ -133,7 +133,7 @@ export function SaveCard({
             <Button
               variant="ghost"
               size="icon"
-              title={$("saves.list.item.edit.tooltip")}>
+              title={$("saves.list.item.edit")}>
               <FolderPen />
             </Button>
           </SaveSheet>
@@ -146,7 +146,7 @@ export function SaveCard({
               variant="ghost"
               size="icon"
               disabled={isRunning || isCurrent}
-              title={$("saves.list.item.delete.tooltip")}>
+              title={$("saves.list.item.delete")}>
               <Trash2 />
             </Button>
           </Alert>
