@@ -32,7 +32,7 @@ dependencies {
     compileOnly "com.mojang:brigadier:1.0.18"
 
     shadowImplementation(project(":core"))
-    shadowImplementation(project(":bukkit-helper"))
+    compileOnly(project(":bukkit-helper"))
     shadowImplementation "com.github.oshi:oshi-core:6.8.2"
 }
 
@@ -56,6 +56,10 @@ shadowJar {
     exclude 'META-INF/*.RSA'
 }
 
+tasks.named('compileJava', JavaCompile) {
+    source(project(":bukkit-helper").sourceSets.main.allSource)
+}
+
 tasks.named('processResources', ProcessResources) {
     var replaceProperties = [
             version: project.version,
@@ -66,6 +70,8 @@ tasks.named('processResources', ProcessResources) {
     filesMatching("plugin.yml") {
         expand replaceProperties + [project: project]
     }
+
+    from project(":bukkit-helper").sourceSets.main.resources
 }
 
 build {

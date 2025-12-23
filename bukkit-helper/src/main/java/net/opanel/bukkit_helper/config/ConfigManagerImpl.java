@@ -1,15 +1,15 @@
-package net.opanel.folia_1_21.config;
+package net.opanel.bukkit_helper.config;
 
 import net.opanel.config.ConfigManager;
 import net.opanel.config.OPanelConfiguration;
-import net.opanel.folia_1_21.Main;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class ConfigManagerImpl implements ConfigManager {
     private final FileConfiguration configSrc;
-    private final Main plugin;
+    private final JavaPlugin plugin;
 
-    public ConfigManagerImpl(FileConfiguration configSrc, Main plugin) {
+    public ConfigManagerImpl(FileConfiguration configSrc, JavaPlugin plugin) {
         this.configSrc = configSrc;
         this.plugin = plugin;
     }

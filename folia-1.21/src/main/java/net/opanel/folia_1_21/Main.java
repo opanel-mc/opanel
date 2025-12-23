@@ -4,8 +4,8 @@ import de.tr7zw.changeme.nbtapi.NBT;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import net.opanel.OPanel;
 import net.opanel.bukkit_helper.TaskRunner;
-import net.opanel.folia_1_21.command.OPanelCommand;
-import net.opanel.folia_1_21.config.ConfigManagerImpl;
+import net.opanel.bukkit_helper.command.OPanelCommand;
+import net.opanel.bukkit_helper.config.ConfigManagerImpl;
 import net.opanel.folia_1_21.terminal.LogListenerManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.bukkit.Bukkit;
@@ -15,7 +15,6 @@ import org.bukkit.event.server.ServerLoadEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 public class Main extends JavaPlugin implements Listener, TaskRunner {

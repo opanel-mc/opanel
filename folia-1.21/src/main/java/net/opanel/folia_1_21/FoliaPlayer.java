@@ -1,5 +1,7 @@
 package net.opanel.folia_1_21;
 
+import net.opanel.annotation.Rewrite;
+import net.opanel.bukkit_helper.BaseBukkitPlayer;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
 import org.bukkit.*;
@@ -7,52 +9,12 @@ import org.bukkit.entity.Player;
 
 import java.util.Date;
 
-public class FoliaPlayer implements OPanelPlayer {
-    private final Main plugin;
-    private final Player player;
-
+public class FoliaPlayer extends BaseBukkitPlayer implements OPanelPlayer {
     public FoliaPlayer(Main plugin, Player player) {
-        this.plugin = plugin;
-        this.player = player;
+        super(plugin, player);
     }
 
-    @Override
-    public String getName() {
-        return player.getName();
-    }
-
-    @Override
-    public String getUUID() {
-        return player.getUniqueId().toString();
-    }
-
-    @Override
-    public boolean isOnline() {
-        return true;
-    }
-
-    @Override
-    public boolean isOp() {
-        return player.isOp();
-    }
-
-    @Override
-    public boolean isBanned() {
-        return false;
-    }
-
-    @Override
-    public OPanelGameMode getGameMode() {
-        GameMode gamemode = player.getGameMode();
-        switch(gamemode) {
-            case ADVENTURE -> { return OPanelGameMode.ADVENTURE; }
-            case SURVIVAL -> { return OPanelGameMode.SURVIVAL; }
-            case CREATIVE -> { return OPanelGameMode.CREATIVE; }
-            case SPECTATOR -> { return OPanelGameMode.SPECTATOR; }
-        }
-        return null;
-    }
-
+    @Rewrite
     @Override
     public void setGameMode(OPanelGameMode gamemode) {
         // Use entity scheduler for player-specific tasks in Folia
@@ -66,6 +28,7 @@ public class FoliaPlayer implements OPanelPlayer {
         }, null);
     }
 
+    @Rewrite
     @Override
     public void giveOp() {
         if(isOp()) return;
@@ -73,6 +36,7 @@ public class FoliaPlayer implements OPanelPlayer {
         player.getScheduler().run(plugin, (task) -> player.setOp(true), null);
     }
 
+    @Rewrite
     @Override
     public void depriveOp() {
         if(!isOp()) return;
@@ -95,14 +59,6 @@ public class FoliaPlayer implements OPanelPlayer {
             player.kickPlayer(reason);
         }, null);
     }
-
-    @Override
-    public String getBanReason() {
-        return null;
-    }
-
-    @Override
-    public void pardon() { }
 
     @Override
     public int getPing() {

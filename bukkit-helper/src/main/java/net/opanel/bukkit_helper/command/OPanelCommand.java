@@ -1,4 +1,4 @@
-package net.opanel.folia_1_21.command;
+package net.opanel.bukkit_helper.command;
 
 import net.opanel.OPanel;
 import net.opanel.common.Constants;
