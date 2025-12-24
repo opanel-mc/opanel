@@ -1,43 +1,19 @@
 package net.opanel.forge_1_20_3;
 
-import com.mojang.authlib.GameProfile;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.players.PlayerList;
 import net.minecraft.server.players.UserBanList;
 import net.minecraft.server.players.UserBanListEntry;
 import net.minecraft.world.level.GameType;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
+import net.opanel.forge_helper.BaseForgePlayer;
 
 import java.util.Date;
 
-public class ForgePlayer implements OPanelPlayer {
-    private final ServerPlayer player;
-    private final PlayerList playerManager;
-    private final GameProfile profile;
-
+public class ForgePlayer extends BaseForgePlayer implements OPanelPlayer {
     public ForgePlayer(ServerPlayer player) {
-        this.player = player;
-        playerManager = player.getServer().getPlayerList();
-        profile = player.getGameProfile();
-    }
-
-    @Override
-    public String getName() {
-        if(player == null) return "";
-        return player.getName().getString();
-    }
-
-    @Override
-    public String getUUID() {
-        if(player == null) return null;
-        return player.getStringUUID();
-    }
-
-    @Override
-    public boolean isOnline() {
-        return true;
+        super(player, player.getServer());
     }
 
     @Override
@@ -48,34 +24,17 @@ public class ForgePlayer implements OPanelPlayer {
     }
 
     @Override
-    public boolean isBanned() {
-        return false;
-    }
-
-    @Override
     public OPanelGameMode getGameMode() {
         if(player == null) return null;
 
         GameType gamemode = player.gameMode.getGameModeForPlayer();
-        switch(gamemode) {
-            case ADVENTURE -> { return OPanelGameMode.ADVENTURE; }
-            case SURVIVAL -> { return OPanelGameMode.SURVIVAL; }
-            case CREATIVE -> { return OPanelGameMode.CREATIVE; }
-            case SPECTATOR -> { return OPanelGameMode.SPECTATOR; }
-        }
-        return null;
+        return OPanelGameMode.fromId(gamemode.getId());
     }
 
     @Override
     public void setGameMode(OPanelGameMode gamemode) {
         if(player == null) return;
-
-        switch(gamemode) {
-            case ADVENTURE -> player.setGameMode(GameType.ADVENTURE);
-            case SURVIVAL -> player.setGameMode(GameType.SURVIVAL);
-            case CREATIVE -> player.setGameMode(GameType.CREATIVE);
-            case SPECTATOR -> player.setGameMode(GameType.SPECTATOR);
-        }
+        player.setGameMode(GameType.byId(gamemode.getId()));
     }
 
     @Override
@@ -102,12 +61,6 @@ public class ForgePlayer implements OPanelPlayer {
         bannedList.add(entry);
         kick(reason);
     }
-
-    @Override
-    public String getBanReason() { return null; }
-
-    @Override
-    public void pardon() { }
 
     @Override
     public int getPing() {

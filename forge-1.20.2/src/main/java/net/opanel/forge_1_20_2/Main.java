@@ -14,9 +14,9 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.opanel.OPanel;
 import net.opanel.forge_1_20_2.command.OPanelCommand;
-import net.opanel.forge_1_20_2.config.Config;
-import net.opanel.forge_1_20_2.config.ConfigManagerImpl;
 import net.opanel.forge_1_20_2.terminal.LogListenerManagerImpl;
+import net.opanel.forge_helper.config.Config;
+import net.opanel.forge_helper.config.ConfigManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
 

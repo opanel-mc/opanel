@@ -9,15 +9,14 @@ import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.opanel.OPanel;
 import net.opanel.forge_1_20_6.command.OPanelCommand;
-import net.opanel.forge_1_20_6.config.Config;
-import net.opanel.forge_1_20_6.config.ConfigManagerImpl;
 import net.opanel.forge_1_20_6.terminal.LogListenerManagerImpl;
+import net.opanel.forge_helper.config.Config;
+import net.opanel.forge_helper.config.ConfigManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
 

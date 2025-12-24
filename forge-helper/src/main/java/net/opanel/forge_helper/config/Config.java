@@ -1,4 +1,4 @@
-package net.opanel.forge_1_21_9.config;
+package net.opanel.forge_helper.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.opanel.config.OPanelConfiguration;

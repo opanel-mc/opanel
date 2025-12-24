@@ -5,47 +5,28 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.server.*;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.GameProfileCache;
-import net.minecraft.server.players.PlayerList;
 import net.minecraft.server.players.UserBanList;
 import net.minecraft.server.players.UserBanListEntry;
-import net.minecraft.world.level.GameType;
-import net.minecraft.world.level.storage.LevelResource;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
+import net.opanel.forge_helper.BaseForgeOfflinePlayer;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
-public class ForgeOfflinePlayer implements OPanelPlayer {
-    private final PlayerList playerManager;
-    private final Path playerDataPath;
+public class ForgeOfflinePlayer extends BaseForgeOfflinePlayer implements OPanelPlayer {
     private final GameProfile profile;
 
-    private final UUID uuid;
-
     public ForgeOfflinePlayer(MinecraftServer server, UUID uuid) {
-        playerManager = server.getPlayerList();
-        playerDataPath = server.getWorldPath(LevelResource.PLAYER_DATA_DIR).resolve(uuid +".dat");
-        GameProfileCache profileCache = server.getProfileCache();
-        this.uuid = uuid;
+        super(server, uuid);
 
-        if(!Files.exists(playerDataPath)) {
-            throw new NullPointerException("Player data file for UUID "+ uuid +" unavailable.");
-        }
+        GameProfileCache profileCache = server.getProfileCache();
 
         if(profileCache == null) {
             throw new NullPointerException("Cannot get player profile cache.");
-        }
-
-        ServerPlayer serverPlayer = playerManager.getPlayer(uuid);
-        if(serverPlayer != null && !serverPlayer.hasDisconnected()) {
-            throw new IllegalStateException("The provided player is online, please use ForgePlayer class instead.");
         }
 
         Optional<GameProfile> profileOpt = profileCache.get(uuid);
@@ -62,16 +43,6 @@ public class ForgeOfflinePlayer implements OPanelPlayer {
     }
 
     @Override
-    public String getUUID() {
-        return uuid.toString();
-    }
-
-    @Override
-    public boolean isOnline() {
-        return false;
-    }
-
-    @Override
     public boolean isOp() {
         return playerManager.isOp(profile);
     }
@@ -84,15 +55,9 @@ public class ForgeOfflinePlayer implements OPanelPlayer {
     @Override
     public OPanelGameMode getGameMode() {
         try {
-            CompoundTag nbt = NbtIo.readCompressed(playerDataPath, NbtAccounter.create(2097152L)); // 2 MB
+            CompoundTag nbt = NbtIo.readCompressed(playerDataPath, NbtAccounter.create(NBT_TRACKER_SIZE));
             int gamemodeId = nbt.getIntOr("playerGameType", 0);
-            GameType gamemode = GameType.byId(gamemodeId);
-            switch(gamemode) {
-                case ADVENTURE -> { return OPanelGameMode.ADVENTURE; }
-                case SURVIVAL -> { return OPanelGameMode.SURVIVAL; }
-                case CREATIVE -> { return OPanelGameMode.CREATIVE; }
-                case SPECTATOR -> { return OPanelGameMode.SPECTATOR; }
-            }
+            return OPanelGameMode.fromId(gamemodeId);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -102,13 +67,8 @@ public class ForgeOfflinePlayer implements OPanelPlayer {
     @Override
     public void setGameMode(OPanelGameMode gamemode) {
         try {
-            CompoundTag nbt = NbtIo.readCompressed(playerDataPath, NbtAccounter.create(2097152L)); // 2 MB
-            switch(gamemode) {
-                case ADVENTURE -> nbt.putInt("playerGameType", 2);
-                case SURVIVAL -> nbt.putInt("playerGameType", 0);
-                case CREATIVE -> nbt.putInt("playerGameType", 1);
-                case SPECTATOR -> nbt.putInt("playerGameType", 3);
-            }
+            CompoundTag nbt = NbtIo.readCompressed(playerDataPath, NbtAccounter.create(NBT_TRACKER_SIZE));
+            nbt.putInt("playerGameType", gamemode.getId());
             NbtIo.writeCompressed(nbt, playerDataPath);
         } catch (IOException e) {
             e.printStackTrace();
@@ -125,11 +85,6 @@ public class ForgeOfflinePlayer implements OPanelPlayer {
     public void depriveOp() {
         if(!isOp()) return;
         playerManager.deop(profile);
-    }
-
-    @Override
-    public void kick(String reason) {
-        throw new IllegalStateException("The player is offline.");
     }
 
     @Override
@@ -152,10 +107,5 @@ public class ForgeOfflinePlayer implements OPanelPlayer {
     public void pardon() {
         if(!isBanned()) return;
         playerManager.getBans().remove(profile);
-    }
-
-    @Override
-    public int getPing() {
-        throw new IllegalStateException("The player is offline.");
     }
 }
