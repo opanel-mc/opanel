@@ -4,44 +4,26 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.server.*;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.UserCache;
-import net.minecraft.util.WorldSavePath;
-import net.minecraft.world.GameMode;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
+import net.opanel.fabric_helper.BaseFabricOfflinePlayer;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
-public class FabricOfflinePlayer implements OPanelPlayer {
-    private final PlayerManager playerManager;
-    private final Path playerDataPath;
+public class FabricOfflinePlayer extends BaseFabricOfflinePlayer implements OPanelPlayer {
     private final GameProfile profile;
 
-    private final UUID uuid;
-
     public FabricOfflinePlayer(MinecraftServer server, UUID uuid) {
-        playerManager = server.getPlayerManager();
-        playerDataPath = server.getSavePath(WorldSavePath.PLAYERDATA).resolve(uuid +".dat");
-        UserCache userCache = server.getUserCache();
-        this.uuid = uuid;
+        super(server, uuid);
 
-        if(!Files.exists(playerDataPath)) {
-            throw new NullPointerException("Player data file for UUID "+ uuid +" unavailable.");
-        }
+        UserCache userCache = server.getUserCache();
 
         if(userCache == null) {
             throw new NullPointerException("Cannot get server user cache.");
-        }
-
-        ServerPlayerEntity serverPlayer = playerManager.getPlayer(uuid);
-        if(serverPlayer != null && !serverPlayer.isDisconnected()) {
-            throw new IllegalStateException("The provided player is online, please use FabricPlayer class instead.");
         }
 
         Optional<GameProfile> profileOpt = userCache.getByUuid(uuid);
@@ -55,16 +37,6 @@ public class FabricOfflinePlayer implements OPanelPlayer {
     @Override
     public String getName() {
         return profile.getName();
-    }
-
-    @Override
-    public String getUUID() {
-        return uuid.toString();
-    }
-
-    @Override
-    public boolean isOnline() {
-        return false;
     }
 
     @Override
@@ -82,13 +54,7 @@ public class FabricOfflinePlayer implements OPanelPlayer {
         try {
             NbtCompound nbt = NbtIo.readCompressed(playerDataPath.toFile());
             int gamemodeId = nbt.getInt("playerGameType");
-            GameMode gamemode = GameMode.byId(gamemodeId);
-            switch(gamemode) {
-                case ADVENTURE -> { return OPanelGameMode.ADVENTURE; }
-                case SURVIVAL -> { return OPanelGameMode.SURVIVAL; }
-                case CREATIVE -> { return OPanelGameMode.CREATIVE; }
-                case SPECTATOR -> { return OPanelGameMode.SPECTATOR; }
-            }
+            return OPanelGameMode.fromId(gamemodeId);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -99,12 +65,7 @@ public class FabricOfflinePlayer implements OPanelPlayer {
     public void setGameMode(OPanelGameMode gamemode) {
         try {
             NbtCompound nbt = NbtIo.readCompressed(playerDataPath.toFile());
-            switch(gamemode) {
-                case ADVENTURE -> nbt.putInt("playerGameType", 2);
-                case SURVIVAL -> nbt.putInt("playerGameType", 0);
-                case CREATIVE -> nbt.putInt("playerGameType", 1);
-                case SPECTATOR -> nbt.putInt("playerGameType", 3);
-            }
+            nbt.putInt("playerGameType", gamemode.getId());
             NbtIo.writeCompressed(nbt, playerDataPath.toFile());
         } catch (IOException e) {
             e.printStackTrace();
@@ -121,11 +82,6 @@ public class FabricOfflinePlayer implements OPanelPlayer {
     public void depriveOp() {
         if(!isOp()) return;
         playerManager.removeFromOperators(profile);
-    }
-
-    @Override
-    public void kick(String reason) {
-        throw new IllegalStateException("The player is offline.");
     }
 
     @Override
@@ -148,10 +104,5 @@ public class FabricOfflinePlayer implements OPanelPlayer {
     public void pardon() {
         if(!isBanned()) return;
         playerManager.getUserBanList().remove(profile);
-    }
-
-    @Override
-    public int getPing() {
-        throw new IllegalStateException("The player is offline.");
     }
 }

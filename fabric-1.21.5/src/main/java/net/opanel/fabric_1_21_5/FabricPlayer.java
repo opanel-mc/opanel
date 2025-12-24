@@ -1,43 +1,19 @@
 package net.opanel.fabric_1_21_5;
 
-import com.mojang.authlib.GameProfile;
 import net.minecraft.server.BannedPlayerEntry;
 import net.minecraft.server.BannedPlayerList;
-import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.world.GameMode;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
+import net.opanel.fabric_helper.BaseFabricPlayer;
 
 import java.util.Date;
 
-public class FabricPlayer implements OPanelPlayer {
-    private final ServerPlayerEntity player;
-    private final PlayerManager playerManager;
-    private final GameProfile profile;
-
+public class FabricPlayer extends BaseFabricPlayer implements OPanelPlayer {
     public FabricPlayer(ServerPlayerEntity player) {
-        this.player = player;
-        playerManager = player.getServer().getPlayerManager();
-        profile = player.getGameProfile();
-    }
-
-    @Override
-    public String getName() {
-        if(player == null) return "";
-        return player.getName().getString();
-    }
-
-    @Override
-    public String getUUID() {
-        if(player == null) return null;
-        return player.getUuidAsString();
-    }
-
-    @Override
-    public boolean isOnline() {
-        return true;
+        super(player, player.getServer());
     }
 
     @Override
@@ -48,34 +24,18 @@ public class FabricPlayer implements OPanelPlayer {
     }
 
     @Override
-    public boolean isBanned() {
-        return false;
-    }
-
-    @Override
     public OPanelGameMode getGameMode() {
         if(player == null) return null;
 
         GameMode gamemode = player.getGameMode();
-        switch(gamemode) {
-            case ADVENTURE -> { return OPanelGameMode.ADVENTURE; }
-            case SURVIVAL -> { return OPanelGameMode.SURVIVAL; }
-            case CREATIVE -> { return OPanelGameMode.CREATIVE; }
-            case SPECTATOR -> { return OPanelGameMode.SPECTATOR; }
-        }
-        return null;
+        return OPanelGameMode.fromId(gamemode.getIndex());
     }
 
     @Override
     public void setGameMode(OPanelGameMode gamemode) {
         if(player == null) return;
 
-        switch(gamemode) {
-            case ADVENTURE -> player.changeGameMode(GameMode.ADVENTURE);
-            case SURVIVAL -> player.changeGameMode(GameMode.SURVIVAL);
-            case CREATIVE -> player.changeGameMode(GameMode.CREATIVE);
-            case SPECTATOR -> player.changeGameMode(GameMode.SPECTATOR);
-        }
+        player.changeGameMode(GameMode.byIndex(gamemode.getId()));
     }
 
     @Override
@@ -102,12 +62,6 @@ public class FabricPlayer implements OPanelPlayer {
         bannedList.add(entry);
         kick(reason);
     }
-
-    @Override
-    public String getBanReason() { return null; }
-
-    @Override
-    public void pardon() { }
 
     @Override
     public int getPing() {

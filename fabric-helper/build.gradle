@@ -9,6 +9,9 @@ base {
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://repo.codemc.io/repository/tetoe-mc")
+    }
 }
 
 dependencies {
@@ -16,6 +19,7 @@ dependencies {
     mappings "net.fabricmc:yarn:${common_yarn_mappings}:v2"
     modCompileOnly "net.fabricmc:fabric-loader:${common_fabric_loader_version}"
     modCompileOnly "net.fabricmc.fabric-api:fabric-api:${common_fabric_api_version}+${common_minecraft_version}"
+    modCompileOnly "space.nocp:configx:2.0.3"
     compileOnly(project(":core"))
 }
 

@@ -1,4 +1,4 @@
-package net.opanel.fabric_1_19.config;
+package net.opanel.fabric_helper.config;
 
 import net.opanel.config.ConfigManager;
 import net.opanel.config.OPanelConfiguration;

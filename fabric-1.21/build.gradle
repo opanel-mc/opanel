@@ -49,7 +49,7 @@ dependencies {
         // To avoid conflict
         exclude group: 'com.github.oshi', module: 'oshi-core'
     }
-    shadowImplementation(project(":fabric-helper"))
+    compileOnly(project(":fabric-helper"))
 
     modImplementation "com.github.oshi:oshi-core:6.8.2"
 }
@@ -78,6 +78,10 @@ remapJar {
     destinationDirectory = file "../build/libs"
 }
 
+tasks.named('compileJava', JavaCompile) {
+    source(project(":fabric-helper").sourceSets.main.allSource)
+}
+
 tasks.named('processResources', ProcessResources) {
     var replaceProperties = [
             version: project.version,
@@ -89,6 +93,8 @@ tasks.named('processResources', ProcessResources) {
     filesMatching("fabric.mod.json") {
         expand replaceProperties + [project: project]
     }
+
+    from project(":fabric-helper").sourceSets.main.resources
 }
 
 java {
