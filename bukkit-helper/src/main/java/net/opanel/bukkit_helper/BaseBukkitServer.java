@@ -103,33 +103,6 @@ public abstract class BaseBukkitServer implements OPanelServer {
     }
 
     @Override
-    public List<String> getCommandTabList(int argIndex, String command) {
-        if(argIndex == 1) return getCommands();
-
-        List<String> tabList = new ArrayList<>();
-        String[] args = command.split(" ");
-
-        try {
-            CommandDispatcher<?> dispatcher = BukkitUtils.getCommandDispatcher();
-            CommandNode<?> currentNode = dispatcher.getRoot();
-            for(int i = 0; i <= args.length; i++) {
-                if(currentNode == null) break;
-                if(i + 1 == argIndex) {
-                    for(CommandNode<?> subNode : currentNode.getChildren()) {
-                        tabList.add(subNode.getName());
-                    }
-                    break;
-                }
-                if(i == args.length) break;
-                currentNode = currentNode.getChild(args[i]);
-            }
-        } catch (Exception e) {
-            //
-        }
-        return tabList;
-    }
-
-    @Override
     public void reload() {
         runner.runTask(server::reload);
     }

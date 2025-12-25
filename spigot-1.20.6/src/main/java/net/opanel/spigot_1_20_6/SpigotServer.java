@@ -1,4 +1,4 @@
-package net.opanel.spigot_1_20;
+package net.opanel.spigot_1_20_6;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.CommandNode;
@@ -149,7 +149,7 @@ public class SpigotServer extends BaseBukkitServer implements OPanelServer, Bukk
         String[] args = command.split(" ");
 
         try {
-            CommandDispatcher<?> dispatcher = BukkitUtils.getCommandDispatcher(true);
+            CommandDispatcher<?> dispatcher = BukkitUtils.getCommandDispatcher(false);
             CommandNode<?> currentNode = dispatcher.getRoot();
             for(int i = 0; i <= args.length; i++) {
                 if(currentNode == null) break;

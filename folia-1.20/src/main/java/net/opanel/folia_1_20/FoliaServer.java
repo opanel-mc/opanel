@@ -1,7 +1,10 @@
 package net.opanel.folia_1_20;
 
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.tree.CommandNode;
 import net.opanel.annotation.Rewrite;
 import net.opanel.bukkit_helper.BaseBukkitServer;
+import net.opanel.bukkit_helper.BukkitUtils;
 import net.opanel.common.ServerType;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelSave;
@@ -130,6 +133,33 @@ public class FoliaServer extends BaseBukkitServer implements OPanelServer, Bukki
     @Override
     public OPanelWhitelist getWhitelist() {
         return new FoliaWhitelist((Main) plugin, server, server.getWhitelistedPlayers());
+    }
+
+    @Override
+    public List<String> getCommandTabList(int argIndex, String command) {
+        if(argIndex == 1) return getCommands();
+
+        List<String> tabList = new ArrayList<>();
+        String[] args = command.split(" ");
+
+        try {
+            CommandDispatcher<?> dispatcher = BukkitUtils.getCommandDispatcher(true);
+            CommandNode<?> currentNode = dispatcher.getRoot();
+            for(int i = 0; i <= args.length; i++) {
+                if(currentNode == null) break;
+                if(i + 1 == argIndex) {
+                    for(CommandNode<?> subNode : currentNode.getChildren()) {
+                        tabList.add(subNode.getName());
+                    }
+                    break;
+                }
+                if(i == args.length) break;
+                currentNode = currentNode.getChild(args[i]);
+            }
+        } catch (Exception e) {
+            //
+        }
+        return tabList;
     }
 
     @Override

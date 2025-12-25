@@ -64,12 +64,7 @@ public abstract class BaseBukkitOfflinePlayer implements OPanelPlayer {
         try {
             ReadWriteNBT nbt = NBT.readFile(playerDataPath.toFile());
             int gamemode = nbt.getInteger("playerGameType");
-            switch(gamemode) {
-                case 2 -> { return OPanelGameMode.ADVENTURE; }
-                case 0 -> { return OPanelGameMode.SURVIVAL; }
-                case 1 -> { return OPanelGameMode.CREATIVE; }
-                case 3 -> { return OPanelGameMode.SPECTATOR; }
-            }
+            return OPanelGameMode.fromId(gamemode);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -80,12 +75,7 @@ public abstract class BaseBukkitOfflinePlayer implements OPanelPlayer {
     public void setGameMode(OPanelGameMode gamemode) {
         try {
             ReadWriteNBT nbt = NBT.readFile(playerDataPath.toFile());
-            switch(gamemode) {
-                case ADVENTURE -> nbt.setInteger("playerGameType", 2);
-                case SURVIVAL -> nbt.setInteger("playerGameType", 0);
-                case CREATIVE -> nbt.setInteger("playerGameType", 1);
-                case SPECTATOR -> nbt.setInteger("playerGameType", 3);
-            }
+            nbt.setInteger("playerGameType", gamemode.getId());
             NBT.writeFile(playerDataPath.toFile(), nbt);
         } catch (IOException e) {
             e.printStackTrace();
