@@ -1,8 +1,7 @@
-package net.opanel.spigot_1_20_6;
+package net.opanel.spigot_1_20_5;
 
 import net.opanel.bukkit_helper.BaseBukkitPlayer;
 import net.opanel.common.OPanelPlayer;
-import org.bukkit.*;
 import org.bukkit.entity.Player;
 
 import java.util.Date;

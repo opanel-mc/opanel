@@ -1,11 +1,11 @@
-package net.opanel.spigot_1_20_6;
+package net.opanel.spigot_1_20_5;
 
 import de.tr7zw.changeme.nbtapi.NBT;
 import net.opanel.OPanel;
 import net.opanel.bukkit_helper.TaskRunner;
 import net.opanel.bukkit_helper.command.OPanelCommand;
 import net.opanel.bukkit_helper.config.ConfigManagerImpl;
-import net.opanel.spigot_1_20_6.terminal.LogListenerManagerImpl;
+import net.opanel.spigot_1_20_5.terminal.LogListenerManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;

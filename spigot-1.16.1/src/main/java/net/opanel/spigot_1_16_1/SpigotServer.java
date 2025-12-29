@@ -148,15 +148,17 @@ public class SpigotServer extends BaseBukkitServer implements OPanelServer, Bukk
     }
 
     @Override
-    public HashMap<String, Object> getGamerules() {
-        final World world = server.getWorlds().get(0);
-        HashMap<String, Object> gamerules = new HashMap<>();
-        for(String key : world.getGameRules()) {
-            GameRule<?> rule = GameRule.getByName(key);
-            if(rule == null) continue;
-            gamerules.put(key, world.getGameRuleValue(rule));
-        }
-        return gamerules;
+    public void sendServerCommand(String command) {
+        runner.runTask(() -> {
+            try {
+                Object dedicatedServer = BukkitUtils.getDedicatedServer();
+                Object manager = dedicatedServer.getClass().getMethod("getCommandDispatcher").invoke(dedicatedServer);
+                Object source = dedicatedServer.getClass().getMethod("getServerCommandListener").invoke(dedicatedServer);
+                manager.getClass().getMethod("dispatchServerCommand", source.getClass(), String.class).invoke(manager, source, command);
+            } catch (ReflectiveOperationException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     @Override
@@ -167,7 +169,9 @@ public class SpigotServer extends BaseBukkitServer implements OPanelServer, Bukk
         String[] args = command.split(" ");
 
         try {
-            CommandDispatcher<?> dispatcher = BukkitUtils.getCommandDispatcher(true);
+            Object dedicatedServer = BukkitUtils.getDedicatedServer();
+            Object manager = dedicatedServer.getClass().getMethod("getCommandDispatcher").invoke(dedicatedServer);
+            CommandDispatcher<?> dispatcher = (CommandDispatcher<?>) manager.getClass().getMethod("a").invoke(manager); // a -> getDispatcher
             CommandNode<?> currentNode = dispatcher.getRoot();
             for(int i = 0; i <= args.length; i++) {
                 if(currentNode == null) break;
@@ -184,6 +188,18 @@ public class SpigotServer extends BaseBukkitServer implements OPanelServer, Bukk
             //
         }
         return tabList;
+    }
+
+    @Override
+    public HashMap<String, Object> getGamerules() {
+        final World world = server.getWorlds().get(0);
+        HashMap<String, Object> gamerules = new HashMap<>();
+        for(String key : world.getGameRules()) {
+            GameRule<?> rule = GameRule.getByName(key);
+            if(rule == null) continue;
+            gamerules.put(key, world.getGameRuleValue(rule));
+        }
+        return gamerules;
     }
 
     @Override

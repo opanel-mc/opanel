@@ -1,4 +1,4 @@
-package net.opanel.spigot_1_20_6.terminal;
+package net.opanel.spigot_1_20_5.terminal;
 
 import net.opanel.terminal.ConsoleLog;
 import net.opanel.terminal.LogListenerManager;

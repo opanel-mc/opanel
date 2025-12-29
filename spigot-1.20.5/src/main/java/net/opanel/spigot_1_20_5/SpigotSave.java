@@ -1,4 +1,4 @@
-package net.opanel.spigot_1_20_6;
+package net.opanel.spigot_1_20_5;
 
 import net.opanel.bukkit_helper.BaseBukkitSave;
 import net.opanel.common.OPanelSave;

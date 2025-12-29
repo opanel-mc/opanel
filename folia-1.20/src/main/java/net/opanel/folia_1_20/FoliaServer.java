@@ -136,6 +136,17 @@ public class FoliaServer extends BaseBukkitServer implements OPanelServer, Bukki
     }
 
     @Override
+    public void sendServerCommand(String command) {
+        runner.runTask(() -> {
+            try {
+                BukkitUtils.performCommand(command, true);
+            } catch (ReflectiveOperationException e) {
+                //
+            }
+        });
+    }
+
+    @Override
     public List<String> getCommandTabList(int argIndex, String command) {
         if(argIndex == 1) return getCommands();
 

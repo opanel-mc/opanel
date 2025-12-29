@@ -1,16 +1,8 @@
-package net.opanel.spigot_1_20_6;
+package net.opanel.spigot_1_20_5;
 
 import net.opanel.logger.Loggable;
-import net.opanel.utils.Utils;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 public class LoggerImpl extends Loggable {
     private final Logger logger;

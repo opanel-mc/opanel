@@ -1,7 +1,5 @@
 package net.opanel.bukkit_helper;
 
-import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.tree.CommandNode;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelServer;
 import org.bukkit.*;
@@ -86,11 +84,6 @@ public abstract class BaseBukkitServer implements OPanelServer {
     @Override
     public void setWhitelistEnabled(boolean enabled) {
         runner.runTask(() -> server.setWhitelist(enabled));
-    }
-
-    @Override
-    public void sendServerCommand(String command) {
-        runner.runTask(() -> Bukkit.dispatchCommand(server.getConsoleSender(), command));
     }
 
     @Override

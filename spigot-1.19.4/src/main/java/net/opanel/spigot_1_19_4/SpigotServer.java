@@ -149,15 +149,14 @@ public class SpigotServer extends BaseBukkitServer implements OPanelServer, Bukk
     }
 
     @Override
-    public HashMap<String, Object> getGamerules() {
-        final World world = server.getWorlds().get(0);
-        HashMap<String, Object> gamerules = new HashMap<>();
-        for(String key : world.getGameRules()) {
-            GameRule<?> rule = GameRule.getByName(key);
-            if(rule == null) continue;
-            gamerules.put(key, world.getGameRuleValue(rule));
-        }
-        return gamerules;
+    public void sendServerCommand(String command) {
+        runner.runTask(() -> {
+            try {
+                BukkitUtils.performCommand(command, true);
+            } catch (ReflectiveOperationException e) {
+                //
+            }
+        });
     }
 
     @Override
@@ -185,6 +184,18 @@ public class SpigotServer extends BaseBukkitServer implements OPanelServer, Bukk
             //
         }
         return tabList;
+    }
+
+    @Override
+    public HashMap<String, Object> getGamerules() {
+        final World world = server.getWorlds().get(0);
+        HashMap<String, Object> gamerules = new HashMap<>();
+        for(String key : world.getGameRules()) {
+            GameRule<?> rule = GameRule.getByName(key);
+            if(rule == null) continue;
+            gamerules.put(key, world.getGameRuleValue(rule));
+        }
+        return gamerules;
     }
 
     @Override

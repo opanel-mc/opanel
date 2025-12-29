@@ -1,4 +1,4 @@
-package net.opanel.spigot_1_20_6;
+package net.opanel.spigot_1_20_5;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.CommandNode;
@@ -139,6 +139,17 @@ public class SpigotServer extends BaseBukkitServer implements OPanelServer, Bukk
     @Override
     public OPanelWhitelist getWhitelist() {
         return new SpigotWhitelist((Main) plugin, server, server.getWhitelistedPlayers());
+    }
+
+    @Override
+    public void sendServerCommand(String command) {
+        runner.runTask(() -> {
+            try {
+                BukkitUtils.performCommand(command, false);
+            } catch (ReflectiveOperationException e) {
+                //
+            }
+        });
     }
 
     @Override
