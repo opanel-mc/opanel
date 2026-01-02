@@ -139,7 +139,7 @@ public class FoliaServer extends BaseBukkitServer implements OPanelServer, Bukki
     public void sendServerCommand(String command) {
         runner.runTask(() -> {
             try {
-                BukkitUtils.performCommand(command, true);
+                BukkitUtils.performCommand(command, false);
             } catch (ReflectiveOperationException e) {
                 //
             }
@@ -154,7 +154,7 @@ public class FoliaServer extends BaseBukkitServer implements OPanelServer, Bukki
         String[] args = command.split(" ");
 
         try {
-            CommandDispatcher<?> dispatcher = BukkitUtils.getCommandDispatcher(true);
+            CommandDispatcher<?> dispatcher = BukkitUtils.getCommandDispatcher(false);
             CommandNode<?> currentNode = dispatcher.getRoot();
             for(int i = 0; i <= args.length; i++) {
                 if(currentNode == null) break;
