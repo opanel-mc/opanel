@@ -118,7 +118,7 @@ export function SystemCard({
       title={$("dashboard.system.title")}
       moreDialog={SystemDialog as ExoticComponent}
       className={className}
-      innerClassName="h-full mt-2 pb-4 px-6 grid grid-rows-subgrid grid-cols-2 *:col-span-2 *:whitespace-nowrap gap-2 overflow-x-auto">
+      innerClassName="h-full mt-2 pb-4 px-6 grid grid-rows-subgrid grid-cols-2 *:col-span-2 *:whitespace-nowrap gap-2 overflow-x-auto o-scrollbar">
       <SystemInfoItem
         icon={Server}
         name="OS">

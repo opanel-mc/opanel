@@ -13,6 +13,7 @@ import { cn, getCurrentArgumentIndex, getCurrentState, getInputtedArgumentStr } 
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { googleSansCode } from "@/lib/fonts";
+import { usePrevious } from "@/hooks/use-previous";
 
 function AutocompleteItem({
   name,
@@ -33,7 +34,10 @@ function AutocompleteItem({
     <Button
       variant="ghost"
       size="sm"
-      className={cn("block h-5 p-1 rounded-xs text-xs text-left cursor-pointer transition-none hover:bg-transparent active:bg-muted data-[selected=true]:text-yellow-6a00 dark:data-[selected=true]:text-yellow-300", googleSansCode.className)}
+      className={cn(
+        "block h-5 p-1 rounded-xs text-xs text-left cursor-pointer transition-none hover:bg-transparent active:bg-muted data-[selected=true]:text-yellow-700 dark:data-[selected=true]:text-yellow-300",
+        googleSansCode.className
+      )}
       data-selected={selected}
       onClick={() => setSelected(index)}
       onDoubleClick={() => complete()}>
@@ -61,8 +65,10 @@ export function AutocompleteInput({
   const hasPrefix = prefix && value.startsWith(prefix);
   const [top, setTop] = useState(0);
   const [left, setLeft] = useState(0);
-  const [advisedList, setAdvisedList] = useState(itemList);
+  const [advisedList, setAdvisedList] = useState<string[]>([]);
   const [selected, setSelected] = useState<number | null>(null); // index
+  const [positionReady, setPositionReady] = useState(false);
+  const prevItemList = usePrevious(itemList);
   const listContainerRef = useRef<HTMLDivElement>(null);
   const isInvisible = value.length === 0 || advisedList.length === 0;
 
@@ -91,6 +97,7 @@ export function AutocompleteInput({
   const handleKeydown = async (e: KeyboardEvent<HTMLInputElement>) => {
     if(!listContainerRef.current) return;
     const listContainer = listContainerRef.current;
+    const listRect = listContainer.getBoundingClientRect();
     const advised = await getCurrentState(setAdvisedList);
     const cSelected = await getCurrentState(setSelected);
 
@@ -115,8 +122,13 @@ export function AutocompleteInput({
       case "ArrowUp":
         if(cSelected === null) return;
         e.preventDefault();
-        setSelected((cSelected > 0) ? (cSelected - 1) : (advised.length - 1));
-        if(listContainer.scrollTop > 0 && cSelected <= advised.length - 6) {
+        const nextSelectedUp = (cSelected > 0) ? (cSelected - 1) : (advised.length - 1);
+        setSelected(nextSelectedUp);
+
+        const nextItemUp = listContainer.children[nextSelectedUp] as HTMLButtonElement;
+        const itemUpRect = nextItemUp.getBoundingClientRect();
+
+        if(itemUpRect.top < listRect.top) {
           listContainer.scrollTop -= (listContainer.firstChild as HTMLButtonElement).clientHeight;
         }
         if(cSelected === 0) {
@@ -126,8 +138,13 @@ export function AutocompleteInput({
       case "ArrowDown":
         if(cSelected === null) return;
         e.preventDefault();
-        setSelected((cSelected < advised.length - 1) ? (cSelected + 1) : 0);
-        if(listContainer.scrollTop < listContainer.scrollHeight && cSelected >= 5) {
+        const nextSelectedDown = (cSelected < advised.length - 1) ? (cSelected + 1) : 0;
+        setSelected(nextSelectedDown);
+
+        const nextItemDown = listContainer.children[nextSelectedDown] as HTMLButtonElement;
+        const itemDownRect = nextItemDown.getBoundingClientRect();
+
+        if(itemDownRect.bottom > listRect.bottom) {
           listContainer.scrollTop += (listContainer.firstChild as HTMLButtonElement).clientHeight;
         }
         if(cSelected === advised.length - 1) {
@@ -140,31 +157,32 @@ export function AutocompleteInput({
   };
 
   useEffect(() => {
-    setAdvisedList(itemList);
-  }, [itemList]);
-
-  useEffect(() => {
     if(!inputRef.current) return;
     const input = inputRef.current;
+    // To prevent meaningless expensive re-rendering
+    if(value.length === 0 || (value.endsWith(" ") && prevItemList === itemList)) {
+      setAdvisedList([]);
+      setSelected(null);
+      return;
+    }
     const inputtedCommand = hasPrefix ? value.substring(prefix.length) : value;
 
     // Update advised item list
-    const advised = [];
     const cursorPos = input.selectionStart;
-    for(const item of itemList) {
-      if(item.startsWith(getInputtedArgumentStr(inputtedCommand, (cursorPos ?? 0) - (hasPrefix ? 1 : 0)))) {
-        advised.push(item);
-      }
-    }
+    const inputtedArgStr = getInputtedArgumentStr(inputtedCommand, (cursorPos ?? 0) - (hasPrefix ? 1 : 0));
+    const advised = itemList.filter((item) => item.startsWith(inputtedArgStr));
     setAdvisedList(advised);
     
     // Select the first item by default
     setSelected(advised.length > 0 ? 0 : null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, hasPrefix, itemList, prefix, inputRef]);
 
   // Set the position of autocomplete container when `advisedList` being updated
   useEffect(() => {
     if(!inputRef.current || !listContainerRef.current) return;
+    setPositionReady(false);
+
     const input = inputRef.current;
     const inputRect = input.getBoundingClientRect();
     const listRect = listContainerRef.current.getBoundingClientRect();
@@ -173,6 +191,7 @@ export function AutocompleteInput({
 
     setTop(inputRect.top - listRect.height - 2); // y offset 2px
     setLeft(input.offsetLeft + getCaretCoordinates(input, input.selectionStart ?? 0).left);
+    setPositionReady(true);
   }, [advisedList, inputRef, listContainerRef]);
 
   return (
@@ -193,7 +212,12 @@ export function AutocompleteInput({
         data-current-selected={selected ?? 0}
         ref={inputRef}/>
       <div
-        className={cn("absolute flex flex-col bg-popover min-w-40 w-fit max-h-32 p-1 border rounded-sm overflow-y-auto", (!enabled || isInvisible) ? "hidden" : "")}
+        className={cn(
+          "absolute flex flex-col bg-popover min-w-40 w-fit max-h-32 p-1 border rounded-sm overflow-hidden overflow-y-auto",
+          "o-scrollbar",
+          (!enabled || isInvisible) ? "hidden" : "",
+          positionReady ? "visible" : "invisible"
+        )}
         style={{ top, left }}
         ref={listContainerRef}>
         {advisedList.map((item, i) => (

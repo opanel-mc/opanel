@@ -5,8 +5,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.server.ServerLifecycleEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -38,7 +38,7 @@ public class Main {
     }
 
     @SubscribeEvent
-    public void onServerStarting(ServerLifecycleEvent event) {
+    public void onServerStarting(ServerStartingEvent event) {
         instance = new OPanel(new ConfigManagerImpl(), new LoggerImpl(LOGGER));
         instance.setLogListenerManager(logListenerAppender);
 

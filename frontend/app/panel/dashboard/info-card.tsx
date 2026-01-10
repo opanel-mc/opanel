@@ -120,13 +120,14 @@ export function InfoCard({
   const versionCtx = useContext(VersionContext);
   const ctx = useContext(InfoContext);
   const monitorCtx = useContext(MonitorContext);
+  const [showingJavaVersion, setShowingJavaVersion] = useState(false);
   const faviconRef = useRef<HTMLImageElement>(null);
   const warningState = monitorCtx[monitorCtx.length - 1].cpu >= 80 || monitorCtx[monitorCtx.length - 1].tps <= 16;
 
   return (
     <Card className={cn(className, "flex flex-col rounded-md max-lg:gap-3")}>
       <div className="min-lg:flex-1 flex max-md:flex-col gap-6 max-lg:border-b max-lg:pb-3">
-        <div className="relative group/favicon">
+        <div className="aspect-square max-md:aspect-auto relative group/favicon">
           <img
             className="aspect-square h-full max-md:w-32 max-md:h-32 rounded-xs image-pixelated"
             src={(ctx && ctx.favicon) ? (apiUrl + ctx.favicon) : PackIcon.src}
@@ -143,18 +144,22 @@ export function InfoCard({
         </div>
         
         <div className="flex-1 flex flex-col gap-2">
-          <div className="flex max-lg:flex-col gap-4 max-lg:gap-1 [&>*]:space-x-2">
+          <div className="flex max-lg:flex-col gap-4 max-lg:gap-1 [&>*]:space-x-2 [&>*]:whitespace-nowrap">
             <div>
               <span className="font-semibold text-nowrap">{$("dashboard.info.version")}</span>
-              <span>{`${versionCtx?.serverType} ${versionCtx?.version}`}</span>
+              <span
+                className="cursor-pointer select-none"
+                onClick={() => setShowingJavaVersion(!showingJavaVersion)}>
+                {
+                  !showingJavaVersion
+                  ? `${versionCtx?.serverType} ${versionCtx?.version}`
+                  : `Java ${ctx?.system.java}`
+                }
+              </span>
             </div>
             <div>
               <span className="font-semibold text-nowrap">{$("dashboard.info.port")}</span>
               <span className={cn("text-emerald-500", googleSansCode.className)}>{ctx ? ctx.port : ""}</span>
-            </div>
-            <div>
-              <span className="font-semibold text-nowrap">Java:</span>
-              <span>{ctx?.system.java}</span>
             </div>
           </div>
           <div className="h-fit text-sm">

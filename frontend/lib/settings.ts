@@ -58,7 +58,7 @@ const defaultSettings: SettingsStorageType = {
   "terminal.convert-ansi-code": true,
   "code-of-conduct.auto-saving-interval": 2000, // ms
   "monaco.word-wrap": false,
-  "monaco.font-size": 14, // px
+  "monaco.font-size": 13, // px
   "system.language": "zh-cn",
   "state.players.tab": "player-list",
   "state.terminal.history": [],
@@ -73,7 +73,8 @@ export const monacoSettingsOptions: EditorOptionsType = {
     ambiguousCharacters: false
   },
   quickSuggestions: true,
-  wordBasedSuggestions: "currentDocument"
+  wordBasedSuggestions: "currentDocument",
+  fontFamily: "googleSansCode"
 };
 
 function getSettingsStorage(): SettingsStorageType {

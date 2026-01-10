@@ -7,6 +7,8 @@ import net.opanel.OPanel;
 import net.opanel.common.OPanelServer;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 
 public abstract class BaseController {
@@ -59,6 +61,25 @@ public abstract class BaseController {
 
         try(InputStream is = new ByteArrayInputStream(bytes)) {
             ctx.result(""); // Clear the response content before writing
+            ctx.writeSeekableStream(is, contentType.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+            sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    protected void sendContent(Context ctx, Path filePath, ContentType contentType, String fileName) {
+        if(fileName != null) {
+            ctx.header("Content-Disposition", "attachment; filename=\""+ fileName +"\"");
+        }
+        sendContent(ctx, filePath, contentType);
+    }
+
+    protected void sendContent(Context ctx, Path filePath, ContentType contentType) {
+        ctx.status(HttpStatus.OK);
+
+        try {
+            InputStream is = Files.newInputStream(filePath);
             ctx.writeSeekableStream(is, contentType.toString());
         } catch (IOException e) {
             e.printStackTrace();

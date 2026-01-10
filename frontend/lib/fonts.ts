@@ -1,10 +1,13 @@
 import localFont from "next/font/local";
 
 export const notoSansSC = localFont({
-  src: [
-    { path: "../assets/fonts/NotoSansSC-VariableFont_wght.ttf", style: "normal" },
-    { path: "../assets/fonts/NotoSans-VariableFont_wdth,wght.ttf", style: "normal" },
-  ]
+  src: [{ path: "../assets/fonts/NotoSansSC-VariableFont_wght.ttf", style: "normal" }],
+  fallback: ["notoColorEmoji"]
+});
+
+export const notoColorEmoji = localFont({
+  src: [{ path: "../assets/fonts/NotoColorEmoji-Regular.ttf", style: "normal" }],
+  variable: "--font-noto-color-emoji"
 });
 
 export const googleSansCode = localFont({

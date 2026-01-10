@@ -15,6 +15,8 @@ import net.opanel.controller.api.*;
 import net.opanel.endpoint.PlayersEndpoint;
 import net.opanel.endpoint.TerminalEndpoint;
 
+import java.util.HashMap;
+
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class WebServer {
@@ -165,6 +167,17 @@ public class WebServer {
 
         // Not found page
         app.error(HttpStatus.NOT_FOUND, errorController.notFound);
+
+        // Exception handling
+        app.exception(Exception.class, (e, ctx) -> {
+            e.printStackTrace();
+            ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
+
+            HashMap<String, Object> jsonObj = new HashMap<>();
+            jsonObj.put("code", 500);
+            jsonObj.put("error", e.getMessage());
+            ctx.json(jsonObj);
+        });
 
         app.start(PORT);
         plugin.logger.info("OPanel web server is ready on port "+ PORT);
