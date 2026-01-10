@@ -53,7 +53,7 @@ export function PlayersCard({
       title={`${$("dashboard.players.title")} (${onlinePlayers.length} / ${ctx?.maxPlayerCount ?? 0})`}
       moreLink="/panel/players"
       className={className}
-      innerClassName="p-4 pt-0">
+      innerClassName="mr-1 mb-2 px-4 o-scrollbar">
       <Table>
         <TableHeader>
           <TableRow>

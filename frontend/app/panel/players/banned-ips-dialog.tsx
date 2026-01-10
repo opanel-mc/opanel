@@ -109,7 +109,7 @@ export function BannedIpsDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="border rounded-md">
-          <div className="max-h-64 overflow-y-auto">
+          <div className="max-h-64 overflow-y-auto o-scrollbar">
             <Table>
               <TableBody>
                 {bannedIps.map((ip, i) => (

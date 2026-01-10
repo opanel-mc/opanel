@@ -36,10 +36,17 @@ public class BeforeController extends BaseController {
     /** @see <a href="https://github.com/vercel/next.js/discussions/59394">https://github.com/vercel/next.js/discussions/59394</a> */
     public Handler handleRsc = ctx -> {
         String reqPath = ctx.path();
-        if(reqPath.contains(".txt") && ctx.queryParam("_rsc") != null && !reqPath.contains(DEFAULT_RSC_FILE)) {
-            String transformedPath = ctx.fullUrl().replace(".txt", "/"+ DEFAULT_RSC_FILE);
-            ctx.redirect(transformedPath);
+        if(!reqPath.contains(".txt") || reqPath.contains(DEFAULT_RSC_FILE)) return;
+
+        // Maybe a next.js bug, which will lead user to <page_name>.txt file without _rsc param
+        // just redirect it to the correct page
+        if(ctx.queryParam("_rsc") == null) {
+            ctx.redirect(reqPath.replaceAll("\\.txt/?$", "") +"?"+ ctx.queryString());
+            return;
         }
+
+        // Rsc file request
+        ctx.redirect(reqPath.replaceAll("\\.txt$", "/"+ DEFAULT_RSC_FILE) +"?"+ ctx.queryString());
     };
 
     public Handler handleFonts = ctx -> {

@@ -46,7 +46,7 @@ function Log({
   return (
     <p
       className={cn(
-        "leading-[133%] space-x-1 cursor-default",
+        "leading-[133%] space-x-1 selection:bg-foreground selection:text-background cursor-default",
         getSettings("terminal.word-wrap") ? "text-wrap wrap-break-word whitespace-pre-wrap" : "whitespace-pre",
         !visible ? "hidden" : "",
         googleSansCode.className
@@ -129,7 +129,7 @@ export function TerminalConnector({
   
   return (
     <div
-      className={cn(className, "border rounded-sm bg-background overflow-auto p-2")}
+      className={cn(className, "border rounded-sm bg-background overflow-auto o-scrollbar p-2")}
       ref={terminalRef}>
       {logs.map((log, i) => (
         <Log

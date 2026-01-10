@@ -2,6 +2,11 @@
 @import "tw-animate-css";
 @import "./lib.css";
 
+@plugin "tailwind-scrollbar" {
+  nocompatible: true;
+  preferredStrategy: "pseudoelements";
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -135,14 +140,20 @@
 }
 
 @layer components {
-  .image-pixelated {
-    image-rendering: pixelated;
-  }
   [data-slot="alert-dialog-description"] {
     span {
       a, b {
         @apply text-foreground;
       }
     }
+  }
+}
+
+@layer utilities {
+  .image-pixelated {
+    image-rendering: pixelated;
+  }
+  .o-scrollbar {
+    @apply scrollbar scrollbar-w-1 scrollbar-h-1 scrollbar-thumb-muted-foreground scrollbar-thumb-rounded-full scrollbar-track-transparent;
   }
 }

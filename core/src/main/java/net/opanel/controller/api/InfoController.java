@@ -7,12 +7,10 @@ import net.opanel.time.TPS;
 import net.opanel.utils.Utils;
 import net.opanel.controller.BaseController;
 import oshi.SystemInfo;
-import oshi.hardware.GraphicsCard;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
 public class InfoController extends BaseController {
     private final SystemInfo si = new SystemInfo();

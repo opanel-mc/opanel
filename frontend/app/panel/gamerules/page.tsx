@@ -117,7 +117,7 @@ export default function Gamerules() {
       </div>
       <Form {...form}>
         <form className="min-h-0 flex flex-col gap-4" onSubmit={form.handleSubmit(handleSubmit)} onChange={() => setChanged(true)}>
-          <div className="flex-1 overflow-y-auto space-y-5 pr-2">
+          <div className="flex-1 overflow-y-auto o-scrollbar space-y-5 pr-2">
             {Array.from(gamerulesMap).map(([key, value]) => {
               const preset = gamerulePresets.find(({ id, type }) => (id === key && typeof value === type));
 

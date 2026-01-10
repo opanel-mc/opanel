@@ -191,7 +191,7 @@ export default function Settings() {
         <Section title={$("settings.system.title")}>
           <SettingsItem
             id="system.language"
-            name={$("settings.system.language")}
+            name="🇨🇳 🇩🇪 🇺🇸 🇫🇷 🇰🇷 🇰🇵 🇯🇵"
             control={
               <Select
                 defaultValue={getSettings("system.language")}

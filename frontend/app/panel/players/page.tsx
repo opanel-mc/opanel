@@ -176,7 +176,7 @@ export default function Players() {
               ...nonBannedPlayers.filter(({ name, isOnline }) => name.toLowerCase().includes(searchString.toLowerCase()) && isOnline),
               ...nonBannedPlayers.filter(({ name, isOnline, isOp }) => name.toLowerCase().includes(searchString.toLowerCase()) && !isOnline && isOp),
               ...nonBannedPlayers.filter(({ name, isOnline, isOp }) => name.toLowerCase().includes(searchString.toLowerCase()) && !isOnline && !isOp),
-              ...unnamedPlayers
+              ...unnamedPlayers,
             ]}
             pagination
             fallbackMessage={$("players.empty")}/>

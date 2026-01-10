@@ -32,7 +32,7 @@ public class DownloadController extends BaseController {
         final String fileName = ctx.pathParam("fileName");
 
         if(pathMap.containsKey(id)) {
-            sendContent(ctx, Utils.readFile(pathMap.get(id)), ContentType.APPLICATION_OCTET_STREAM, fileName);
+            sendContent(ctx, pathMap.get(id), ContentType.APPLICATION_OCTET_STREAM, fileName);
             if(callbackMap.containsKey(id)) {
                 Callback cb = callbackMap.get(id);
                 cb.action();

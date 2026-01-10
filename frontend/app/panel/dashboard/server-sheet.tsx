@@ -119,7 +119,7 @@ export function ServerSheet({
                   ]}/>
               </SheetDescription>
             </SheetHeader>
-            <div className="flex flex-col overflow-y-auto">
+            <div className="flex flex-col overflow-y-auto o-scrollbar">
               {Array.from(propertiesMap).map(([key, value]) => {
                 const preset = serverPropertiesPresets.find(({ id }) => id === key);
 
