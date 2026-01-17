@@ -43,6 +43,7 @@ body:
     id: version
     attributes:
       label: OPanel版本
+      description: OPanel版本可以在“关于”页面或OPanel的jar包文件名中找到
     validations:
       required: true
   - type: checkboxes
