@@ -1,14 +1,17 @@
 name: Bug 反馈
 description: 反馈 Bug 来帮助我们改进项目
-title: ''
+title: '[Bug] '
 labels: bug
 body:
   - type: markdown
+    attributes:
+      value: |
+        ↑ 请在上方标题栏中简短地概括一下你遇到的问题
   - type: markdown
     id: description
     attributes:
       label: 问题描述
-      description: 描述一下你遇到的问题
+      description: 详细描述一下你遇到的问题
     validations:
       required: true
   - type: markdown
