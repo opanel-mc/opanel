@@ -1,0 +1,54 @@
+name: Bug 反馈
+description: 反馈 Bug 来帮助我们改进项目
+title: ''
+labels: bug
+body:
+  - type: markdown
+  - type: markdown
+    id: description
+    attributes:
+      label: 问题描述
+      description: 描述一下你遇到的问题
+    validations:
+      required: true
+  - type: markdown
+    id: repro
+    attributes:
+      label: 复现步骤
+      description: 描述一下如何复现这个Bug
+  - type: dropdown
+    id: platform
+    attributes:
+      label: 服务端平台
+      options:
+        - Bukkit
+        - Spigot
+        - Paper
+        - Folia
+        - Fabric
+        - Forge
+        - Neoforge
+    validations:
+      required: true
+  - type: input
+    id: mcversion
+    attributes:
+      label: Minecraft版本
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: OPanel版本
+    validations:
+      required: true
+  - type: checkboxes
+    id: checkagain
+    attributes:
+      label: 请确认以下事项
+      description: |
+        1. **我已仔细阅读[官方文档](https://opanel.cn/docs/quick-start.html)和[常见问题](https://opanel.cn/docs/faq.html)**
+        2. 我已确认该问题在之前没有被其他人反馈过
+      options:
+        - label: 我已确认以上事项
+          required: true
