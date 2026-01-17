@@ -1,0 +1,24 @@
+name: Feature request
+description: Suggest an idea for this project
+title: '[Feature] '
+labels: enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ↑ Please have a brief description about the new feature in the title
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the new feature in detail
+  - type: checkboxes
+    id: checkagain
+    attributes:
+      label: Please check the following
+      description: |
+        1. **I've read [FAQ](https://opanel.cn/en/docs/faq.html)**
+        2. I'm sure this feature has NOT been suggested before
+      options:
+        - label: I checked
+          required: true

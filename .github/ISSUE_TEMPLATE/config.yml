@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 空白 Issue
+    url: https://github.com/opanel-mc/opanel/issues/new
+    about: 创建一个空白的 Issue，不使用 Issue 模板
+  - name: 官方文档
+    url: https://opanel.cn/docs/quick-start.html
+    about: 在反馈问题之前请阅读官方文档
+  - name: 常见问题
+    url: https://opanel.cn/docs/faq.html
+    about: 在反馈问题和请求新功能之前请阅读常见问题

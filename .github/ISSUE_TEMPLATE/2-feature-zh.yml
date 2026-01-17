@@ -1,0 +1,24 @@
+name: 请求新功能
+description: 请求添加新功能
+title: '[Feature] '
+labels: enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ↑ 请在上方标题栏中简短地概括一下你想要的新功能
+  - type: textarea
+    id: description
+    attributes:
+      label: 功能描述
+      description: 详细描述一下你想要的新功能
+  - type: checkboxes
+    id: checkagain
+    attributes:
+      label: 请确认以下事项
+      description: |
+        1. **我已仔细阅读[常见问题](https://opanel.cn/docs/faq.html)**
+        2. 我已确认该功能在之前没有被其他人建议过
+      options:
+        - label: 我已确认以上事项
+          required: true
