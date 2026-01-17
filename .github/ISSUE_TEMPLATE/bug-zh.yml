@@ -7,14 +7,14 @@ body:
     attributes:
       value: |
         ↑ 请在上方标题栏中简短地概括一下你遇到的问题
-  - type: markdown
+  - type: textarea
     id: description
     attributes:
       label: 问题描述
       description: 详细描述一下你遇到的问题
     validations:
       required: true
-  - type: markdown
+  - type: textarea
     id: repro
     attributes:
       label: 复现步骤
