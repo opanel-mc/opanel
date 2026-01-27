@@ -25,7 +25,7 @@
       @apply font-semibold;
     }
     a {
-      @apply text-theme underline hover:text-theme-hovered;
+      @apply text-theme underline inline-block hover:text-theme-hovered;
     }
     hr {
       @apply border-2;
@@ -50,6 +50,15 @@
     }
     ol li {
       @apply list-decimal marker:text-secondary-foreground;
+    }
+    table {
+      @apply border;
+      tr {
+        @apply border-b;
+      }
+      th, td {
+        @apply p-2 border-r last:border-r-0;
+      }
     }
   }
 }

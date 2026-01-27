@@ -4,6 +4,8 @@ import io.javalin.http.*;
 import net.opanel.OPanel;
 import net.opanel.common.OPanelPlugin;
 import net.opanel.controller.BaseController;
+import net.opanel.plugin.Installer;
+import net.opanel.plugin.PluginProvider;
 import net.opanel.utils.Utils;
 
 import java.io.IOException;
@@ -161,5 +163,27 @@ public class PluginsController extends BaseController {
 
         final String downloadId = downloadController.registerPath(filePath);
         ctx.redirect("/file/"+ downloadId +"/"+ fileName.replaceAll("\\"+ OPanelPlugin.DISABLED_SUFFIX +"$", ""));
+    };
+
+    public Handler installPlugin = ctx -> {
+        final String source = ctx.queryParam("source");
+        final String id = ctx.queryParam("id");
+        if(source == null || id == null) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Install source or plugin id is missing.");
+            return;
+        }
+
+        PluginProvider provider = PluginProvider.fromId(source);
+        if(provider == null) {
+            sendResponse(ctx, HttpStatus.UNPROCESSABLE_CONTENT, "Unsupported install source.");
+            return;
+        }
+
+        Installer installer = provider.getInstaller();
+        try {
+            installer.install(id);
+        } catch (Exception e) {
+            sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     };
 }

@@ -1,8 +1,9 @@
 "use client";
 
 import type { Plugin, PluginsResponse } from "@/lib/types";
+import Link from "next/link";
 import { useContext, useEffect, useState } from "react";
-import { Blocks, PackageCheck, PackageX, RotateCw, Search, Upload } from "lucide-react";
+import { Blocks, PackageCheck, PackageX, RotateCw, Search, Store, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { SubPage } from "../sub-page";
 import { changeSettings, getSettings, type SettingsStorageType } from "@/lib/settings";
@@ -163,6 +164,14 @@ export default function Plugins() {
                   placeholder={$("plugins.search.placeholder")}
                   onChange={(e) => setSearchString(e.target.value)}/>
               </InputGroup>
+              <Button
+                variant="outline"
+                asChild>
+                <Link href="/panel/plugin-store">
+                  <Store />
+                  插件商城
+                </Link>
+              </Button>
               <AlertDialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
                 <AlertDialogTrigger asChild>
                   <Button className="cursor-pointer">

@@ -73,6 +73,36 @@ export interface Plugin {
   loaded: boolean
 }
 
+export type PluginLoader = (
+  "bukkit"
+  | "spigot"
+  | "paper"
+  | "folia"
+  | "purpur"
+  | "bungeecord"
+  | "velocity"
+  | "waterfall"
+  | "fabric"
+  | "quilt"
+  | "forge"
+  | "neoforge"
+  | "datapack"
+);
+
+export interface PluginStoreProject {
+  id: string
+  title: string
+  description: string
+  detailedUrl: string
+  sourceUrl?: string
+  docsUrl?: string
+  donationUrl?: string
+  iconUrl?: string
+  loaders: PluginLoader[]
+  downloads: number
+  readme: string // markdown
+}
+
 export type EditorRefType = Parameters<OnMount>[0];
 export type EditorOptionsType = React.ComponentProps<typeof Editor>["options"];
 

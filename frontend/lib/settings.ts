@@ -9,6 +9,7 @@ import {
 } from "./types";
 import { isPreviewVersion } from "./utils";
 import { version } from "./global";
+import { StoreProviderType } from "./plugin-store";
 
 const storageKey = "opanel.settings";
 
@@ -43,6 +44,7 @@ export type SettingsStorageType = {
   "system.check-update"?: never
   "state.players.tab": "player-list" | "banned-list"
   "state.plugins.tab": "enabled-list" | "disabled-list"
+  "state.plugin-store.provider": StoreProviderType
   "state.terminal.history": string[]
   "state.code-of-conduct.current-editing"?: string
   "state.bukkit-config.current-editing": ConfigFile
@@ -69,6 +71,7 @@ const defaultSettings: SettingsStorageType = {
   "system.preview-channel": isPreviewVersion(version),
   "state.players.tab": "player-list",
   "state.plugins.tab": "enabled-list",
+  "state.plugin-store.provider": StoreProviderType.MODRINTH,
   "state.terminal.history": [],
   "state.code-of-conduct.current-editing": undefined,
   "state.bukkit-config.current-editing": "bukkit"

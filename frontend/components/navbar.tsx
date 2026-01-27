@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { deleteCookie } from "cookies-next/client";
-import { BookText, Info, LogOut, Settings, SquareArrowOutUpRight } from "lucide-react";
+import { BookText, Info, LogOut, Settings, SquareArrowOutUpRight, Store } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { ThemeToggle } from "./theme-toggle";
@@ -19,6 +19,14 @@ export function Navbar({ className, ...props }: React.ComponentProps<"nav">) {
       {...props}>
       <SidebarTrigger className="mr-auto hidden max-md:flex cursor-pointer"/>
       <div className="space-x-2 mr-2 max-sm:mr-0 max-sm:space-x-0">
+        <Button
+          variant="ghost"
+          asChild>
+          <Link href="/panel/plugin-store">
+            <Store />
+            <span className="max-sm:hidden">插件商城</span>
+          </Link>
+        </Button>
         <Button
           variant="ghost"
           asChild>

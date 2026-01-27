@@ -167,6 +167,7 @@ public class WebServer {
                 get("{fileName}", pluginsController.downloadPlugin);
                 post("{fileName}", pluginsController.togglePlugin);
                 delete("{fileName}", pluginsController.deletePlugin);
+                post("/install", pluginsController.installPlugin);
             });
             post("security", securityController.updateAccessKey);
             get("version", versionController.getVersionInfo);
