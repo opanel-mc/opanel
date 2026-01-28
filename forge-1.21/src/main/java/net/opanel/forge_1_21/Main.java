@@ -12,9 +12,12 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraft.server.MinecraftServer;
 import net.opanel.OPanel;
 import net.opanel.forge_1_21.command.OPanelCommand;
 import net.opanel.forge_1_21.terminal.LogListenerManagerImpl;
+import net.opanel.forge_helper.InventorySerializer;
+import net.opanel.forge_helper.InventorySyncTask;
 import net.opanel.forge_helper.config.Config;
 import net.opanel.forge_helper.config.ConfigManagerImpl;
 import org.apache.logging.log4j.LogManager;
@@ -28,13 +31,16 @@ public class Main {
     public OPanel instance;
 
     private LogListenerManagerImpl logListenerAppender;
+    private ForgeListener forgeListener;
+    private InventorySyncTask inventorySyncTask;
+    private MinecraftServer server;
 
     public Main() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
         MinecraftForge.EVENT_BUS.register(this);
-        MinecraftForge.EVENT_BUS.register(new ForgeListener());
-
+        
         initLogListenerAppender();
+        initInventorySync();
     }
 
     @SubscribeEvent
@@ -52,6 +58,24 @@ public class Main {
         logger.addAppender(logListenerAppender);
     }
 
+    private void initInventorySync() {
+        // Inject version-specific ItemDataResolver
+        InventorySerializer.setResolver(new Forge121ItemDataResolver());
+        
+        // Create sync task with player factory
+        inventorySyncTask = new InventorySyncTask(
+            player -> new ForgePlayer(player),
+            20 // Sync every 20 ticks (1 second)
+        );
+        
+        // Create listener and link sync task
+        forgeListener = new ForgeListener();
+        forgeListener.setInventorySyncTask(inventorySyncTask);
+        
+        // Register listener with event bus
+        MinecraftForge.EVENT_BUS.register(forgeListener);
+    }
+
     private void disposeLogListenerAppender() {
         final org.apache.logging.log4j.core.Logger logger = (org.apache.logging.log4j.core.Logger) LogManager.getRootLogger();
         logger.removeAppender(logListenerAppender);
@@ -62,7 +86,8 @@ public class Main {
     public void onServerStart(ServerStartedEvent event) {
         if(instance == null) throw new NullPointerException("OPanel is not initialized.");
 
-        instance.setServer(new ForgeServer(event.getServer()));
+        this.server = event.getServer();
+        instance.setServer(new ForgeServer(server));
 
         try {
             instance.getWebServer().start(); // default port 3000
@@ -91,5 +116,10 @@ public class Main {
         if(instance == null) throw new NullPointerException("OPanel is not initialized.");
 
         instance.onTick();
+        
+        // Run inventory sync task
+        if (inventorySyncTask != null && server != null) {
+            inventorySyncTask.onTick(server);
+        }
     }
 }

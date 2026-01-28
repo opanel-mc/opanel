@@ -2,6 +2,8 @@ package net.opanel.spigot_1_21;
 
 import de.tr7zw.changeme.nbtapi.NBT;
 import net.opanel.OPanel;
+import net.opanel.bukkit_helper.InventorySerializer;
+import net.opanel.bukkit_helper.InventorySyncTask;
 import net.opanel.bukkit_helper.TaskRunner;
 import net.opanel.bukkit_helper.command.OPanelCommand;
 import net.opanel.bukkit_helper.config.ConfigManagerImpl;
@@ -23,7 +25,9 @@ public class Main extends JavaPlugin implements Listener, TaskRunner {
     public OPanel instance;
 
     private BukkitTask serverTickListener;
+    private BukkitTask inventorySyncTask;
     private LogListenerManagerImpl logListenerAppender;
+    private SpigotListener spigotListener;
 
     @Override
     public void onEnable() {
@@ -40,9 +44,10 @@ public class Main extends JavaPlugin implements Listener, TaskRunner {
 
         initLogListenerAppender();
         initServerTickListener();
+        initInventorySyncTask();
 
         Bukkit.getPluginManager().registerEvents(this, this);
-        Bukkit.getPluginManager().registerEvents(new SpigotListener(this), this);
+        Bukkit.getPluginManager().registerEvents(spigotListener, this);
 
         getCommand("opanel").setExecutor(new OPanelCommand(instance));
     }
@@ -61,6 +66,14 @@ public class Main extends JavaPlugin implements Listener, TaskRunner {
             }
         } catch (Exception e) {
             log.error("Failed to cancel server tick listener: " + e.getMessage());
+        }
+
+        try {
+            if(inventorySyncTask != null && !inventorySyncTask.isCancelled()) {
+                inventorySyncTask.cancel();
+            }
+        } catch (Exception e) {
+            log.error("Failed to cancel inventory sync task: " + e.getMessage());
         }
         
         try {
@@ -90,6 +103,20 @@ public class Main extends JavaPlugin implements Listener, TaskRunner {
 
     private void initServerTickListener() {
         serverTickListener = Bukkit.getScheduler().runTaskTimer(this, instance::onTick, 0L, 1L);
+    }
+
+    private void initInventorySyncTask() {
+        InventorySerializer.setResolver(new Spigot121ItemDataResolver());
+        
+        InventorySyncTask syncTask = new InventorySyncTask(
+            this,
+            player -> new SpigotPlayer(this, player)  // Player factory
+        );
+        
+        spigotListener = new SpigotListener(this);
+        spigotListener.setInventorySyncTask(syncTask);
+        
+        inventorySyncTask = syncTask.startAsync(20L);
     }
 
     @EventHandler
