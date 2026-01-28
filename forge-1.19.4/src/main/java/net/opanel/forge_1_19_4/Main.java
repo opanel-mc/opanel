@@ -1,6 +1,7 @@
 package net.opanel.forge_1_19_4;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
@@ -15,11 +16,21 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.opanel.OPanel;
 import net.opanel.forge_1_19_4.command.OPanelCommand;
 import net.opanel.forge_1_19_4.terminal.LogListenerManagerImpl;
+import net.opanel.forge_helper.InventorySerializer;
+import net.opanel.forge_helper.InventorySyncTask;
 import net.opanel.forge_helper.config.Config;
 import net.opanel.forge_helper.config.ConfigManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
 
+/**
+ * Main entry point for the OPanel Forge 1.19.4 mod.
+ * 
+ * THREAD SAFETY:
+ * - All TickEvent.ServerTickEvent callbacks run on the main server thread
+ * - Server lifecycle events run on the main server thread
+ * - InventorySyncTask.onTick() MUST be called from the main thread
+ */
 @Mod(Main.MODID)
 @OnlyIn(Dist.DEDICATED_SERVER)
 public class Main {
@@ -28,13 +39,16 @@ public class Main {
     public OPanel instance;
 
     private LogListenerManagerImpl logListenerAppender;
+    private ForgeListener forgeListener;
+    private InventorySyncTask inventorySyncTask;
+    private MinecraftServer server;
 
     public Main(FMLJavaModLoadingContext ctx) {
         ctx.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
         MinecraftForge.EVENT_BUS.register(this);
-        MinecraftForge.EVENT_BUS.register(new ForgeListener());
-
+        
         initLogListenerAppender();
+        initInventorySync();
     }
 
     @SubscribeEvent
@@ -52,6 +66,24 @@ public class Main {
         logger.addAppender(logListenerAppender);
     }
 
+    private void initInventorySync() {
+        // Inject version-specific ItemDataResolver
+        InventorySerializer.setResolver(new Forge1194ItemDataResolver());
+        
+        // Create sync task with player factory
+        inventorySyncTask = new InventorySyncTask(
+            player -> new ForgePlayer(player),
+            20 // Sync every 20 ticks (1 second)
+        );
+        
+        // Create listener and link sync task
+        forgeListener = new ForgeListener();
+        forgeListener.setInventorySyncTask(inventorySyncTask);
+        
+        // Register listener with event bus
+        MinecraftForge.EVENT_BUS.register(forgeListener);
+    }
+
     private void disposeLogListenerAppender() {
         final org.apache.logging.log4j.core.Logger logger = (org.apache.logging.log4j.core.Logger) LogManager.getRootLogger();
         logger.removeAppender(logListenerAppender);
@@ -60,14 +92,18 @@ public class Main {
 
     @SubscribeEvent
     public void onServerStart(ServerStartedEvent event) {
-        if(instance == null) throw new NullPointerException("OPanel is not initialized.");
+        if(instance == null) {
+            LOGGER.error("OPanel instance is not initialized during server start.");
+            return;
+        }
 
-        instance.setServer(new ForgeServer(event.getServer()));
+        this.server = event.getServer();
+        instance.setServer(new ForgeServer(server));
 
         try {
-            instance.getWebServer().start(); // default port 3000
+            instance.getWebServer().start();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to start OPanel web server: " + e.getMessage());
         }
     }
 
@@ -86,10 +122,23 @@ public class Main {
         }
     }
 
+    /**
+     * Called every server tick on the MAIN THREAD.
+     * Safe to access player inventories and emit events.
+     */
     @SubscribeEvent
-    public void onServerTick(TickEvent.ServerTickEvent evnet) {
-        if(instance == null) throw new NullPointerException("OPanel is not initialized.");
-
-        instance.onTick();
+    public void onServerTick(TickEvent.ServerTickEvent event) {
+        // Only process on END phase to avoid double processing
+        if (event.phase != TickEvent.Phase.END) return;
+        
+        if (instance != null) {
+            instance.onTick();
+        }
+        
+        // Run inventory sync task (main thread - safe for inventory access)
+        if (inventorySyncTask != null && server != null) {
+            inventorySyncTask.onTick(server);
+        }
     }
 }
+

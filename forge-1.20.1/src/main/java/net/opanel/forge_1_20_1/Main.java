@@ -1,6 +1,7 @@
 package net.opanel.forge_1_20_1;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
@@ -15,6 +16,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.opanel.OPanel;
 import net.opanel.forge_1_20_1.command.OPanelCommand;
 import net.opanel.forge_1_20_1.terminal.LogListenerManagerImpl;
+import net.opanel.forge_helper.InventorySerializer;
+import net.opanel.forge_helper.InventorySyncTask;
 import net.opanel.forge_helper.config.Config;
 import net.opanel.forge_helper.config.ConfigManagerImpl;
 import org.apache.logging.log4j.LogManager;
@@ -28,20 +31,22 @@ public class Main {
     public OPanel instance;
 
     private LogListenerManagerImpl logListenerAppender;
+    private ForgeListener forgeListener;
+    private InventorySyncTask inventorySyncTask;
+    private MinecraftServer server;
 
     public Main(FMLJavaModLoadingContext ctx) {
         ctx.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
         MinecraftForge.EVENT_BUS.register(this);
-        MinecraftForge.EVENT_BUS.register(new ForgeListener());
-
+        
         initLogListenerAppender();
+        initInventorySync();
     }
 
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
         instance = new OPanel(new ConfigManagerImpl(), new LoggerImpl(LOGGER));
         instance.setLogListenerManager(logListenerAppender);
-
         OPanelCommand.instance = instance;
     }
 
@@ -52,6 +57,14 @@ public class Main {
         logger.addAppender(logListenerAppender);
     }
 
+    private void initInventorySync() {
+        InventorySerializer.setResolver(new Forge1201ItemDataResolver());
+        inventorySyncTask = new InventorySyncTask(player -> new ForgePlayer(player), 20);
+        forgeListener = new ForgeListener();
+        forgeListener.setInventorySyncTask(inventorySyncTask);
+        MinecraftForge.EVENT_BUS.register(forgeListener);
+    }
+
     private void disposeLogListenerAppender() {
         final org.apache.logging.log4j.core.Logger logger = (org.apache.logging.log4j.core.Logger) LogManager.getRootLogger();
         logger.removeAppender(logListenerAppender);
@@ -60,36 +73,22 @@ public class Main {
 
     @SubscribeEvent
     public void onServerStart(ServerStartedEvent event) {
-        if(instance == null) throw new NullPointerException("OPanel is not initialized.");
-
-        instance.setServer(new ForgeServer(event.getServer()));
-
-        try {
-            instance.getWebServer().start(); // default port 3000
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        if(instance == null) { LOGGER.error("OPanel not initialized."); return; }
+        this.server = event.getServer();
+        instance.setServer(new ForgeServer(server));
+        try { instance.getWebServer().start(); } catch (Exception e) { LOGGER.error("Failed to start web server: " + e.getMessage()); }
     }
 
     @SubscribeEvent
     public void onServerStop(ServerStoppingEvent event) {
-        try {
-            if(logListenerAppender != null) disposeLogListenerAppender();
-        } catch(Exception e) {
-            LOGGER.error("Failed to dispose log listener appender: " + e.getMessage());
-        }
-        
-        try {
-            if(instance != null) instance.stop();
-        } catch(Exception e) {
-            LOGGER.error("Failed to stop OPanel instance: " + e.getMessage());
-        }
+        try { if(logListenerAppender != null) disposeLogListenerAppender(); } catch(Exception e) { LOGGER.error(e.getMessage()); }
+        try { if(instance != null) instance.stop(); } catch(Exception e) { LOGGER.error(e.getMessage()); }
     }
 
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event) {
-        if(instance == null) throw new NullPointerException("OPanel is not initialized.");
-
-        instance.onTick();
+        if (event.phase != TickEvent.Phase.END) return;
+        if (instance != null) instance.onTick();
+        if (inventorySyncTask != null && server != null) inventorySyncTask.onTick(server);
     }
 }
