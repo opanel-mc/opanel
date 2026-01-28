@@ -6,16 +6,34 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.event.*;
+import net.opanel.forge_helper.InventorySerializer;
+import net.opanel.forge_helper.InventorySyncTask;
+
+import java.util.Map;
 
 public class ForgeListener {
+    private InventorySyncTask inventorySyncTask;
+
     @SubscribeEvent
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
-        EventManager.get().emit(EventType.PLAYER_JOIN, new OPanelPlayerJoinEvent(new ForgePlayer((ServerPlayer) event.getEntity())));
+        ServerPlayer player = (ServerPlayer) event.getEntity();
+        EventManager.get().emit(EventType.PLAYER_JOIN, new OPanelPlayerJoinEvent(new ForgePlayer(player)));
+        
+        // Sync inventory on join (next tick)
+        if (inventorySyncTask != null) {
+            inventorySyncTask.syncPlayer(player);
+        }
     }
 
     @SubscribeEvent
     public void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent event) {
-        EventManager.get().emit(EventType.PLAYER_LEAVE, new OPanelPlayerLeaveEvent(new ForgePlayer((ServerPlayer) event.getEntity())));
+        ServerPlayer player = (ServerPlayer) event.getEntity();
+        EventManager.get().emit(EventType.PLAYER_LEAVE, new OPanelPlayerLeaveEvent(new ForgePlayer(player)));
+        
+        // Remove player from inventory tracking
+        if (inventorySyncTask != null) {
+            inventorySyncTask.removePlayer(player.getStringUUID());
+        }
     }
 
     @SubscribeEvent
@@ -30,5 +48,29 @@ public class ForgeListener {
             default -> opanelGamemode = null;
         }
         EventManager.get().emit(EventType.PLAYER_GAMEMODE_CHANGE, new OPanelPlayerGameModeChangeEvent(new ForgePlayer((ServerPlayer) event.getEntity()), opanelGamemode));
+    }
+
+    public void setInventorySyncTask(InventorySyncTask task) {
+        this.inventorySyncTask = task;
+    }
+
+    /**
+     * Emit inventory change event for a player.
+     */
+    public void emitInventoryChange(ServerPlayer player) {
+        if (player == null) return;
+        
+        String uuid = player.getStringUUID();
+        Map<String, Object> inventoryData = InventorySerializer.serializeInventory(player);
+        String hash = InventorySerializer.generateInventoryHash(player);
+        
+        if (inventorySyncTask != null) {
+            inventorySyncTask.updateHash(uuid, hash);
+        }
+        
+        EventManager.get().emit(
+            EventType.PLAYER_INVENTORY_CHANGE,
+            new OPanelPlayerInventoryChangeEvent(new ForgePlayer(player), inventoryData)
+        );
     }
 }

@@ -9,6 +9,8 @@ import net.opanel.*;
 import net.opanel.config.OPanelConfiguration;
 import net.opanel.fabric_1_21.command.OPanelCommand;
 import net.opanel.fabric_1_21.terminal.LogListenerManagerImpl;
+import net.opanel.fabric_helper.InventorySerializer;
+import net.opanel.fabric_helper.InventorySyncTask;
 import net.opanel.fabric_helper.config.ConfigManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
@@ -21,6 +23,8 @@ public class Main implements DedicatedServerModInitializer {
     public OPanel instance;
 
     private LogListenerManagerImpl logListenerAppender;
+    private FabricListener fabricListener;
+    private InventorySyncTask inventorySyncTask;
 
     @Override
     public void onInitializeServer() {
@@ -28,12 +32,11 @@ public class Main implements DedicatedServerModInitializer {
         instance = new OPanel(new ConfigManagerImpl(configSrc), new LoggerImpl(LOGGER));
 
         initLogListenerAppender();
+        initInventorySync();
 
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStart);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStop);
         ServerTickEvents.START_SERVER_TICK.register(this::onServerTick);
-
-        new FabricListener();
 
         CommandRegistrationCallback.EVENT.register(new OPanelCommand(instance));
     }
@@ -44,6 +47,21 @@ public class Main implements DedicatedServerModInitializer {
         logListenerAppender.start();
         logger.addAppender(logListenerAppender);
         instance.setLogListenerManager(logListenerAppender);
+    }
+
+    private void initInventorySync() {
+        // Inject version-specific ItemDataResolver
+        InventorySerializer.setResolver(new Fabric121ItemDataResolver());
+        
+        // Create sync task with player factory
+        inventorySyncTask = new InventorySyncTask(
+            player -> new FabricPlayer(player),
+            20 // Sync every 20 ticks (1 second)
+        );
+        
+        // Create listener and link sync task
+        fabricListener = new FabricListener();
+        fabricListener.setInventorySyncTask(inventorySyncTask);
     }
 
     private void disposeLogListenerAppender() {
@@ -78,5 +96,10 @@ public class Main implements DedicatedServerModInitializer {
 
     private void onServerTick(MinecraftServer server) {
         instance.onTick();
+        
+        // Run inventory sync task
+        if (inventorySyncTask != null) {
+            inventorySyncTask.onTick(server);
+        }
     }
 }
