@@ -15,25 +15,14 @@ public class InventorySerializer {
 
     private static ItemDataResolver resolver = null;
 
-    /**
-     * Inject the version-specific ItemDataResolver.
-     * Must be called during mod initialization before any serialization.
-     */
     public static void setResolver(ItemDataResolver dataResolver) {
         resolver = dataResolver;
     }
 
-    /**
-     * Get the current resolver.
-     */
     public static ItemDataResolver getResolver() {
         return resolver;
     }
 
-    /**
-     * Serialize a single ItemStack to a Map.
-     * Delegates to the injected resolver for version-specific handling.
-     */
     public static Map<String, Object> serializeItem(ItemStack item) {
         if (item == null || item.isEmpty()) {
             return null;
@@ -43,7 +32,6 @@ public class InventorySerializer {
             return resolver.serializeItem(item);
         }
 
-        // Fallback: basic serialization without resolver
         Map<String, Object> result = new HashMap<>();
         result.put("type", item.getItem().toString().toUpperCase());
         result.put("amount", item.getCount());
@@ -52,12 +40,6 @@ public class InventorySerializer {
 
     /**
      * Serialize entire player inventory to the 2D matrix format.
-     * 
-     * Structure:
-     * - hotbar: 9 slots (Slot 0-8)
-     * - inventory: 3x9 matrix (Slot 9-35)
-     * - armor: [helmet, chestplate, leggings, boots]
-     * - offhand: [item]
      */
     public static Map<String, Object> serializeInventory(ServerPlayerEntity player) {
         if (player == null) return null;
@@ -84,18 +66,21 @@ public class InventorySerializer {
         }
         result.put("inventory", mainInventory);
 
-        // Armor (helmet, chestplate, leggings, boots)
-        // Fabric uses index 3=head, 2=chest, 1=legs, 0=feet
+        // Armor - use version-specific resolver
         List<Map<String, Object>> armor = new ArrayList<>();
-        armor.add(serializeItem(inventory.armor.get(3))); // Helmet
-        armor.add(serializeItem(inventory.armor.get(2))); // Chestplate
-        armor.add(serializeItem(inventory.armor.get(1))); // Leggings
-        armor.add(serializeItem(inventory.armor.get(0))); // Boots
+        if (resolver != null) {
+            List<ItemStack> armorItems = resolver.getArmorItems(inventory);
+            for (ItemStack stack : armorItems) {
+                armor.add(serializeItem(stack));
+            }
+        }
         result.put("armor", armor);
 
-        // Offhand
+        // Offhand - use version-specific resolver
         List<Map<String, Object>> offhand = new ArrayList<>();
-        offhand.add(serializeItem(inventory.offHand.get(0)));
+        if (resolver != null) {
+            offhand.add(serializeItem(resolver.getOffhandItem(inventory)));
+        }
         result.put("offhand", offhand);
 
         return result;
@@ -110,20 +95,18 @@ public class InventorySerializer {
         StringBuilder sb = new StringBuilder();
         PlayerInventory inventory = player.getInventory();
 
-        // Hash main inventory
-        for (int i = 0; i < inventory.main.size(); i++) {
-            ItemStack stack = inventory.main.get(i);
-            appendItemHash(sb, stack);
+        // Hash main inventory (slots 0-35)
+        for (int i = 0; i < 36; i++) {
+            appendItemHash(sb, inventory.getStack(i));
         }
 
-        // Hash armor
-        for (ItemStack stack : inventory.armor) {
-            appendItemHash(sb, stack);
-        }
-
-        // Hash offhand
-        for (ItemStack stack : inventory.offHand) {
-            appendItemHash(sb, stack);
+        // Hash armor using version-specific resolver
+        if (resolver != null) {
+            for (ItemStack stack : resolver.getArmorItems(inventory)) {
+                appendItemHash(sb, stack);
+            }
+            // Hash offhand
+            appendItemHash(sb, resolver.getOffhandItem(inventory));
         }
 
         try {
@@ -150,3 +133,4 @@ public class InventorySerializer {
         }
     }
 }
+

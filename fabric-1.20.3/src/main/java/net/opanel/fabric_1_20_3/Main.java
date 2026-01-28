@@ -9,6 +9,8 @@ import net.opanel.*;
 import net.opanel.config.OPanelConfiguration;
 import net.opanel.fabric_1_20_3.command.OPanelCommand;
 import net.opanel.fabric_1_20_3.terminal.LogListenerManagerImpl;
+import net.opanel.fabric_helper.InventorySerializer;
+import net.opanel.fabric_helper.InventorySyncTask;
 import net.opanel.fabric_helper.config.ConfigManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
@@ -21,20 +23,18 @@ public class Main implements DedicatedServerModInitializer {
     public OPanel instance;
 
     private LogListenerManagerImpl logListenerAppender;
+    private FabricListener fabricListener;
+    private InventorySyncTask inventorySyncTask;
 
     @Override
     public void onInitializeServer() {
         Configuration<OPanelConfiguration> configSrc = ConfigManager.get().register(MODID, OPanelConfiguration.defaultConfig, OPanelConfiguration.class);
         instance = new OPanel(new ConfigManagerImpl(configSrc), new LoggerImpl(LOGGER));
-
         initLogListenerAppender();
-
+        initInventorySync();
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStart);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStop);
         ServerTickEvents.START_SERVER_TICK.register(this::onServerTick);
-
-        new FabricListener();
-
         CommandRegistrationCallback.EVENT.register(new OPanelCommand(instance));
     }
 
@@ -46,6 +46,13 @@ public class Main implements DedicatedServerModInitializer {
         instance.setLogListenerManager(logListenerAppender);
     }
 
+    private void initInventorySync() {
+        InventorySerializer.setResolver(new Fabric1203ItemDataResolver());
+        inventorySyncTask = new InventorySyncTask(player -> new FabricPlayer(player), 20);
+        fabricListener = new FabricListener();
+        fabricListener.setInventorySyncTask(inventorySyncTask);
+    }
+
     private void disposeLogListenerAppender() {
         final org.apache.logging.log4j.core.Logger logger = (org.apache.logging.log4j.core.Logger) LogManager.getRootLogger();
         logger.removeAppender(logListenerAppender);
@@ -54,29 +61,16 @@ public class Main implements DedicatedServerModInitializer {
 
     private void onServerStart(MinecraftServer server) {
         instance.setServer(new FabricServer(server));
-
-        try {
-            instance.getWebServer().start(); // default port 3000
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        try { instance.getWebServer().start(); } catch (Exception e) { LOGGER.error("Failed to start OPanel web server: " + e.getMessage()); }
     }
 
     private void onServerStop(MinecraftServer server) {
-        try {
-            if(logListenerAppender != null) disposeLogListenerAppender();
-        } catch(Exception e) {
-            LOGGER.error("Failed to dispose log listener appender: " + e.getMessage());
-        }
-        
-        try {
-            if(instance != null) instance.stop();
-        } catch(Exception e) {
-            LOGGER.error("Failed to stop OPanel instance: " + e.getMessage());
-        }
+        try { if(logListenerAppender != null) disposeLogListenerAppender(); } catch (Exception e) { LOGGER.error("Error: " + e.getMessage()); }
+        try { if(instance != null) instance.stop(); } catch (Exception e) { LOGGER.error("Error: " + e.getMessage()); }
     }
 
     private void onServerTick(MinecraftServer server) {
-        instance.onTick();
+        if (instance != null) instance.onTick();
+        if (inventorySyncTask != null) inventorySyncTask.onTick(server);
     }
 }

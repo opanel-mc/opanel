@@ -7,22 +7,35 @@ import net.opanel.event.EventManager;
 import net.opanel.event.EventType;
 import net.opanel.event.OPanelPlayerInventoryChangeEvent;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
- * Periodic task for syncing player inventories in Fabric.
+ * Main-thread scheduled task for periodically syncing player inventories in Fabric.
  * Acts as a safety net to catch any inventory changes missed by events.
  * 
- * Unlike Bukkit, Fabric doesn't have BukkitRunnable, so this uses
- * a simple tick counter approach via ServerTickEvents.
+ * THREAD SAFETY: This task MUST run on the main server thread.
+ * Unlike Bukkit, Fabric's ServerTickEvents.END_SERVER_TICK is already on the main thread,
+ * so no additional synchronization is needed. However, accessing player data
+ * from async threads is still unsafe and should be avoided.
+ * 
+ * This class supports player slicing to reduce main thread load:
+ * Instead of checking all players every tick, it checks a subset (slice)
+ * of players each tick, spreading the load across multiple ticks.
  */
 public class InventorySyncTask {
     private final Function<ServerPlayerEntity, OPanelPlayer> playerFactory;
     private final ConcurrentHashMap<String, String> inventoryHashes = new ConcurrentHashMap<>();
     private int tickCounter = 0;
     private final int syncIntervalTicks;
+    
+    // Slicing configuration
+    private static final int DEFAULT_PLAYERS_PER_TICK = 10;
+    private int playersPerTick = DEFAULT_PLAYERS_PER_TICK;
+    private int currentSliceIndex = 0;
 
     /**
      * Create a new inventory sync task.
@@ -36,7 +49,19 @@ public class InventorySyncTask {
     }
 
     /**
-     * Called every server tick. Syncs inventories when interval is reached.
+     * Set the number of players to process per tick.
+     * Lower values reduce main thread load but increase sync latency.
+     * 
+     * @param count Number of players to process per tick (default: 10)
+     */
+    public void setPlayersPerTick(int count) {
+        this.playersPerTick = Math.max(1, count);
+    }
+
+    /**
+     * Called every server tick from ServerTickEvents.END_SERVER_TICK.
+     * MUST be called from the main server thread.
+     * Syncs inventories when interval is reached using player slicing.
      */
     public void onTick(MinecraftServer server) {
         tickCounter++;
@@ -45,13 +70,38 @@ public class InventorySyncTask {
         }
         tickCounter = 0;
 
-        // Run sync on all online players
-        for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+        // Get player list snapshot
+        List<ServerPlayerEntity> allPlayers = new ArrayList<>(server.getPlayerManager().getPlayerList());
+        int totalPlayers = allPlayers.size();
+        
+        if (totalPlayers == 0) {
+            currentSliceIndex = 0;
+            return;
+        }
+
+        // Reset slice index if it exceeds player count
+        if (currentSliceIndex >= totalPlayers) {
+            currentSliceIndex = 0;
+        }
+
+        // Calculate slice bounds
+        int startIndex = currentSliceIndex;
+        int endIndex = Math.min(startIndex + playersPerTick, totalPlayers);
+        
+        // Process this slice of players
+        for (int i = startIndex; i < endIndex; i++) {
+            ServerPlayerEntity player = allPlayers.get(i);
             try {
                 syncPlayerIfChanged(player);
             } catch (Exception e) {
                 // Silently ignore errors for individual players
             }
+        }
+
+        // Move to next slice
+        currentSliceIndex = endIndex;
+        if (currentSliceIndex >= totalPlayers) {
+            currentSliceIndex = 0;
         }
     }
 
@@ -59,6 +109,8 @@ public class InventorySyncTask {
      * Sync a player's inventory if it has changed.
      */
     private void syncPlayerIfChanged(ServerPlayerEntity player) {
+        if (player == null) return;
+        
         String uuid = player.getUuidAsString();
         String currentHash = InventorySerializer.generateInventoryHash(player);
         String previousHash = inventoryHashes.get(uuid);
@@ -99,6 +151,7 @@ public class InventorySyncTask {
 
     /**
      * Force sync a specific player's inventory immediately.
+     * MUST be called from the main server thread.
      */
     public void syncPlayer(ServerPlayerEntity player) {
         if (player == null) return;

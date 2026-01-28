@@ -23,6 +23,14 @@ import net.opanel.forge_helper.config.ConfigManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
 
+/**
+ * Main entry point for the OPanel Forge 1.21 mod.
+ * 
+ * THREAD SAFETY:
+ * - All TickEvent.ServerTickEvent callbacks run on the main server thread
+ * - Server lifecycle events run on the main server thread
+ * - InventorySyncTask.onTick() MUST be called from the main thread
+ */
 @Mod(Main.MODID)
 @OnlyIn(Dist.DEDICATED_SERVER)
 public class Main {
@@ -63,6 +71,7 @@ public class Main {
         InventorySerializer.setResolver(new Forge121ItemDataResolver());
         
         // Create sync task with player factory
+        // The task uses slicing to process 10 players per tick for performance
         inventorySyncTask = new InventorySyncTask(
             player -> new ForgePlayer(player),
             20 // Sync every 20 ticks (1 second)
@@ -84,7 +93,10 @@ public class Main {
 
     @SubscribeEvent
     public void onServerStart(ServerStartedEvent event) {
-        if(instance == null) throw new NullPointerException("OPanel is not initialized.");
+        if(instance == null) {
+            LOGGER.error("OPanel instance is not initialized during server start.");
+            return;
+        }
 
         this.server = event.getServer();
         instance.setServer(new ForgeServer(server));
@@ -92,7 +104,7 @@ public class Main {
         try {
             instance.getWebServer().start(); // default port 3000
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to start OPanel web server: " + e.getMessage());
         }
     }
 
@@ -111,13 +123,20 @@ public class Main {
         }
     }
 
+    /**
+     * Called every server tick on the MAIN THREAD.
+     * Safe to access player inventories and emit events.
+     */
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event) {
-        if(instance == null) throw new NullPointerException("OPanel is not initialized.");
-
-        instance.onTick();
+        // Only process on END phase to avoid double processing
+        if (event.phase != TickEvent.Phase.END) return;
         
-        // Run inventory sync task
+        if (instance != null) {
+            instance.onTick();
+        }
+        
+        // Run inventory sync task (main thread - safe for inventory access)
         if (inventorySyncTask != null && server != null) {
             inventorySyncTask.onTick(server);
         }

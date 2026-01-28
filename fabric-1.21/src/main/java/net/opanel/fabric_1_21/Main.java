@@ -17,6 +17,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.nocp.configx.api.*;
 
+/**
+ * Main entry point for the OPanel Fabric 1.21 mod.
+ * 
+ * THREAD SAFETY:
+ * - All ServerTickEvents callbacks run on the main server thread
+ * - ServerLifecycleEvents callbacks run on the main server thread
+ * - InventorySyncTask.onTick() MUST be called from the main thread
+ */
 public class Main implements DedicatedServerModInitializer {
     public static final String MODID = "opanel";
     public static final Logger LOGGER = LoggerFactory.getLogger(MODID);
@@ -36,6 +44,8 @@ public class Main implements DedicatedServerModInitializer {
 
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStart);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStop);
+        
+        // START_SERVER_TICK runs on the main server thread - safe for inventory operations
         ServerTickEvents.START_SERVER_TICK.register(this::onServerTick);
 
         CommandRegistrationCallback.EVENT.register(new OPanelCommand(instance));
@@ -54,6 +64,7 @@ public class Main implements DedicatedServerModInitializer {
         InventorySerializer.setResolver(new Fabric121ItemDataResolver());
         
         // Create sync task with player factory
+        // The task uses slicing to process 10 players per tick for performance
         inventorySyncTask = new InventorySyncTask(
             player -> new FabricPlayer(player),
             20 // Sync every 20 ticks (1 second)
@@ -76,7 +87,7 @@ public class Main implements DedicatedServerModInitializer {
         try {
             instance.getWebServer().start(); // default port 3000
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Failed to start OPanel web server: " + e.getMessage());
         }
     }
 
@@ -94,10 +105,16 @@ public class Main implements DedicatedServerModInitializer {
         }
     }
 
+    /**
+     * Called every server tick on the MAIN THREAD.
+     * Safe to access player inventories and emit events.
+     */
     private void onServerTick(MinecraftServer server) {
-        instance.onTick();
+        if (instance != null) {
+            instance.onTick();
+        }
         
-        // Run inventory sync task
+        // Run inventory sync task (main thread - safe for inventory access)
         if (inventorySyncTask != null) {
             inventorySyncTask.onTick(server);
         }

@@ -1,5 +1,7 @@
-package net.opanel.bukkit_helper;
+package net.opanel.folia_1_20;
 
+import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
+import net.opanel.bukkit_helper.InventorySerializer;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.event.EventManager;
 import net.opanel.event.EventType;
@@ -7,8 +9,6 @@ import net.opanel.event.OPanelPlayerInventoryChangeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
-public class InventorySyncTask extends BukkitRunnable {
+/**
+ * Folia-specific inventory sync task using GlobalRegionScheduler.
+ * Unlike BukkitRunnable, this uses Folia's threaded regions scheduler.
+ */
+public class FoliaInventorySyncTask {
     private final JavaPlugin plugin;
     private final Function<Player, OPanelPlayer> playerFactory;
     private final ConcurrentHashMap<String, String> inventoryHashes = new ConcurrentHashMap<>();
@@ -24,56 +28,49 @@ public class InventorySyncTask extends BukkitRunnable {
     private static final int DEFAULT_PLAYERS_PER_TICK = 10;
     private int playersPerTick = DEFAULT_PLAYERS_PER_TICK;
     private int currentSliceIndex = 0;
+    private ScheduledTask scheduledTask;
 
-    /**
-     * Create a new inventory sync task.
-     * 
-     * @param plugin The plugin instance for scheduling
-     * @param playerFactory Function to convert Bukkit Player to OPanelPlayer
-     *                      (version-specific, e.g., player -> new SpigotPlayer(plugin, player))
-     */
-    public InventorySyncTask(JavaPlugin plugin, Function<Player, OPanelPlayer> playerFactory) {
+    public FoliaInventorySyncTask(JavaPlugin plugin, Function<Player, OPanelPlayer> playerFactory) {
         this.plugin = plugin;
         this.playerFactory = playerFactory;
     }
 
-    /**
-     * Set the number of players to process per tick.
-     * Lower values reduce main thread load but increase sync latency.
-     * 
-     * @param count Number of players to process per tick (default: 10)
-     */
     public void setPlayersPerTick(int count) {
         this.playersPerTick = Math.max(1, count);
     }
 
     /**
-     * Start this sync task on the main server thread.
-     * This is the recommended method for Bukkit-based servers.
-     * 
-     * @param intervalTicks Interval between syncs in ticks (20 ticks = 1 second)
-     * @return The scheduled BukkitTask
+     * Start this sync task using Folia's GlobalRegionScheduler.
+     * @param intervalTicks Interval between syncs in ticks
+     * @return The scheduled task
      */
-    public BukkitTask start(long intervalTicks) {
-        return this.runTaskTimer(plugin, intervalTicks, intervalTicks);
+    public ScheduledTask start(long intervalTicks) {
+        scheduledTask = Bukkit.getGlobalRegionScheduler().runAtFixedRate(
+            plugin, 
+            task -> run(), 
+            intervalTicks, 
+            intervalTicks
+        );
+        return scheduledTask;
     }
 
     /**
-     * @deprecated Async inventory access is unsafe in Bukkit and will cause server crashes.
-     *             Use {@link #start(long)} instead for main-thread execution.
-     * @throws UnsupportedOperationException Always thrown - async not supported
+     * Cancel the scheduled task.
      */
-    @Deprecated
-    public BukkitTask startAsync(long intervalTicks) {
-        throw new UnsupportedOperationException(
-            "Async inventory sync is not supported. " +
-            "Bukkit.getOnlinePlayers() and PlayerInventory access must occur on the main thread. " +
-            "Use start(long intervalTicks) instead."
-        );
+    public void cancel() {
+        if (scheduledTask != null && !scheduledTask.isCancelled()) {
+            scheduledTask.cancel();
+        }
     }
 
-    @Override
-    public void run() {
+    /**
+     * Check if the task is cancelled.
+     */
+    public boolean isCancelled() {
+        return scheduledTask == null || scheduledTask.isCancelled();
+    }
+
+    private void run() {
         List<? extends Player> allPlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
         int totalPlayers = allPlayers.size();
         
@@ -82,16 +79,13 @@ public class InventorySyncTask extends BukkitRunnable {
             return;
         }
 
-        // Reset slice index if it exceeds player count
         if (currentSliceIndex >= totalPlayers) {
             currentSliceIndex = 0;
         }
 
-        // Calculate slice bounds
         int startIndex = currentSliceIndex;
         int endIndex = Math.min(startIndex + playersPerTick, totalPlayers);
         
-        // Process this slice of players
         for (int i = startIndex; i < endIndex; i++) {
             Player player = allPlayers.get(i);
             try {
@@ -101,16 +95,12 @@ public class InventorySyncTask extends BukkitRunnable {
             }
         }
 
-        // Move to next slice
         currentSliceIndex = endIndex;
         if (currentSliceIndex >= totalPlayers) {
             currentSliceIndex = 0;
         }
     }
 
-    /**
-     * Process a single player's inventory for changes.
-     */
     private void processPlayer(Player player) {
         if (player == null || !player.isOnline()) return;
         
@@ -118,14 +108,9 @@ public class InventorySyncTask extends BukkitRunnable {
         String currentHash = InventorySerializer.generateInventoryHash(player);
         String previousHash = inventoryHashes.get(uuid);
 
-        // Only emit event if inventory has changed
         if (previousHash == null || !previousHash.equals(currentHash)) {
             inventoryHashes.put(uuid, currentHash);
-            
-            // Serialize inventory data
             Map<String, Object> inventoryData = InventorySerializer.serializeInventory(player);
-            
-            // Emit inventory change event
             OPanelPlayer opanelPlayer = playerFactory.apply(player);
             EventManager.get().emit(
                 EventType.PLAYER_INVENTORY_CHANGE,
@@ -134,26 +119,14 @@ public class InventorySyncTask extends BukkitRunnable {
         }
     }
 
-    /**
-     * Update the hash for a specific player.
-     * Called by event handlers to mark inventory as recently synced.
-     */
     public void updateHash(String uuid, String hash) {
         inventoryHashes.put(uuid, hash);
     }
 
-    /**
-     * Remove a player from tracking.
-     * Called when player leaves the server.
-     */
     public void removePlayer(String uuid) {
         inventoryHashes.remove(uuid);
     }
 
-    /**
-     * Force sync a specific player's inventory immediately.
-     * Must be called from the main thread.
-     */
     public void syncPlayer(Player player) {
         if (player == null) return;
         
@@ -169,9 +142,6 @@ public class InventorySyncTask extends BukkitRunnable {
         );
     }
 
-    /**
-     * Get the plugin instance.
-     */
     public JavaPlugin getPlugin() {
         return plugin;
     }

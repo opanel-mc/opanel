@@ -1,7 +1,9 @@
 package net.opanel.fabric_helper;
 
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,29 +19,28 @@ public interface ItemDataResolver {
 
     /**
      * Resolve extra/advanced data from an ItemStack that requires version-specific APIs.
-     * This includes NBT data, DataComponents, or any other version-specific item metadata.
-     * 
-     * @param item The ItemStack to extract data from
-     * @return A map containing version-specific data (nbt, components, etc.)
-     *         Keys may include: "nbt", "components", "customData", etc.
-     *         Returns empty map if no extra data available.
      */
     Map<String, Object> resolveExtraData(ItemStack item);
 
     /**
      * Serialize a single ItemStack to a Map with all item properties.
-     * This method handles both common properties (type, amount) and 
-     * version-specific properties (enchantments, lore, durability, etc.)
-     * 
-     * @param item The ItemStack to serialize
-     * @return A map containing all item data, or null if item is empty
      */
     Map<String, Object> serializeItem(ItemStack item);
 
     /**
+     * Serialize armor slots from player inventory.
+     * Returns list in order: [helmet, chestplate, leggings, boots]
+     */
+    List<ItemStack> getArmorItems(PlayerInventory inventory);
+
+    /**
+     * Get the offhand item from player inventory.
+     */
+    ItemStack getOffhandItem(PlayerInventory inventory);
+
+    /**
      * Get the version identifier this resolver is designed for.
-     * 
-     * @return Version string like "1.21", "1.20.5", etc.
      */
     String getTargetVersion();
 }
+

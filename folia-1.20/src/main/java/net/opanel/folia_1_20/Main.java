@@ -3,6 +3,7 @@ package net.opanel.folia_1_20;
 import de.tr7zw.changeme.nbtapi.NBT;
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import net.opanel.OPanel;
+import net.opanel.bukkit_helper.InventorySerializer;
 import net.opanel.bukkit_helper.TaskRunner;
 import net.opanel.bukkit_helper.command.OPanelCommand;
 import net.opanel.bukkit_helper.config.ConfigManagerImpl;
@@ -23,6 +24,8 @@ public class Main extends JavaPlugin implements Listener, TaskRunner {
     public OPanel instance;
 
     private ScheduledTask serverTickListener;
+    private FoliaInventorySyncTask inventorySyncTask;
+    private FoliaListener foliaListener;
     private LogListenerManagerImpl logListenerAppender;
 
     @Override
@@ -40,9 +43,10 @@ public class Main extends JavaPlugin implements Listener, TaskRunner {
 
         initLogListenerAppender();
         initServerTickListener();
+        initInventorySyncTask();
 
         Bukkit.getPluginManager().registerEvents(this, this);
-        Bukkit.getPluginManager().registerEvents(new FoliaListener(this), this);
+        Bukkit.getPluginManager().registerEvents(foliaListener, this);
 
         getCommand("opanel").setExecutor(new OPanelCommand(instance));
     }
@@ -61,6 +65,14 @@ public class Main extends JavaPlugin implements Listener, TaskRunner {
             }
         } catch(Exception e) {
             log.error("Failed to cancel server tick listener: " + e.getMessage());
+        }
+
+        try {
+            if(inventorySyncTask != null && !inventorySyncTask.isCancelled()) {
+                inventorySyncTask.cancel();
+            }
+        } catch(Exception e) {
+            log.error("Failed to cancel inventory sync task: " + e.getMessage());
         }
         
         try {
@@ -88,6 +100,20 @@ public class Main extends JavaPlugin implements Listener, TaskRunner {
         // Use Folia's global region scheduler for tick events
         serverTickListener = Bukkit.getGlobalRegionScheduler().runAtFixedRate(this, 
             (task) -> instance.onTick(), 1, 1);
+    }
+
+    private void initInventorySyncTask() {
+        InventorySerializer.setResolver(new Folia120ItemDataResolver());
+        
+        inventorySyncTask = new FoliaInventorySyncTask(
+            this,
+            player -> new FoliaPlayer(this, player)
+        );
+        
+        foliaListener = new FoliaListener(this);
+        foliaListener.setInventorySyncTask(inventorySyncTask);
+        
+        inventorySyncTask.start(20L);
     }
 
     @EventHandler

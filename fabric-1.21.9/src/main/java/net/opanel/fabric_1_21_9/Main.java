@@ -9,6 +9,8 @@ import net.opanel.*;
 import net.opanel.config.OPanelConfiguration;
 import net.opanel.fabric_1_21_9.command.OPanelCommand;
 import net.opanel.fabric_1_21_9.terminal.LogListenerManagerImpl;
+import net.opanel.fabric_helper.InventorySerializer;
+import net.opanel.fabric_helper.InventorySyncTask;
 import net.opanel.fabric_helper.config.ConfigManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
@@ -19,22 +21,21 @@ public class Main implements DedicatedServerModInitializer {
     public static final String MODID = "opanel";
     public static final Logger LOGGER = LoggerFactory.getLogger(MODID);
     public OPanel instance;
-
     private LogListenerManagerImpl logListenerAppender;
+    private FabricListener fabricListener;
+    private InventorySyncTask inventorySyncTask;
+    private MinecraftServer server;
 
     @Override
     public void onInitializeServer() {
         Configuration<OPanelConfiguration> configSrc = ConfigManager.get().register(MODID, OPanelConfiguration.defaultConfig, OPanelConfiguration.class);
         instance = new OPanel(new ConfigManagerImpl(configSrc), new LoggerImpl(LOGGER));
-
         initLogListenerAppender();
-
+        InventorySerializer.setResolver(new Fabric1219ItemDataResolver());
+        fabricListener = new FabricListener();
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStart);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStop);
         ServerTickEvents.START_SERVER_TICK.register(this::onServerTick);
-
-        new FabricListener();
-
         CommandRegistrationCallback.EVENT.register(new OPanelCommand(instance));
     }
 
@@ -53,30 +54,22 @@ public class Main implements DedicatedServerModInitializer {
     }
 
     private void onServerStart(MinecraftServer server) {
+        this.server = server;
+        inventorySyncTask = new InventorySyncTask(player -> new FabricPlayer(player, server), 20);
+        fabricListener.setInventorySyncTask(inventorySyncTask);
+        fabricListener.setServer(server);
         instance.setServer(new FabricServer(server));
-
-        try {
-            instance.getWebServer().start(); // default port 3000
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        try { instance.getWebServer().start(); } catch (Exception e) { LOGGER.error("Failed to start OPanel web server: " + e.getMessage()); }
     }
 
     private void onServerStop(MinecraftServer server) {
-        try {
-            if(logListenerAppender != null) disposeLogListenerAppender();
-        } catch (Exception e) {
-            LOGGER.error("Failed to dispose log listener appender: " + e.getMessage());
-        }
-        
-        try {
-            if(instance != null) instance.stop();
-        } catch (Exception e) {
-            LOGGER.error("Failed to stop OPanel instance: " + e.getMessage());
-        }
+        try { if(logListenerAppender != null) disposeLogListenerAppender(); } catch (Exception e) { LOGGER.error("Error: " + e.getMessage()); }
+        try { if(instance != null) instance.stop(); } catch (Exception e) { LOGGER.error("Error: " + e.getMessage()); }
     }
 
     private void onServerTick(MinecraftServer server) {
-        instance.onTick();
+        if (instance != null) instance.onTick();
+        if (inventorySyncTask != null) inventorySyncTask.onTick(server);
     }
 }
+

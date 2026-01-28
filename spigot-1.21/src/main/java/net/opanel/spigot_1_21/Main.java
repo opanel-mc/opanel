@@ -116,7 +116,7 @@ public class Main extends JavaPlugin implements Listener, TaskRunner {
         spigotListener = new SpigotListener(this);
         spigotListener.setInventorySyncTask(syncTask);
         
-        inventorySyncTask = syncTask.startAsync(20L);
+        inventorySyncTask = syncTask.start(20L);
     }
 
     @EventHandler
