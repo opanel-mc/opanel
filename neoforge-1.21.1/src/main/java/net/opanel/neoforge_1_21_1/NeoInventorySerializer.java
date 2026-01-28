@@ -1,4 +1,4 @@
-package net.opanel.forge_helper;
+package net.opanel.neoforge_1_21_1;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
@@ -8,35 +8,22 @@ import java.security.MessageDigest;
 import java.util.*;
 
 /**
- * Utility class for serializing Forge player inventory to JSON-compatible format.
- * Uses ItemDataResolver for version-specific item and inventory API handling.
- * 
- * CROSS-VERSION COMPATIBILITY:
- * - Main inventory (slots 0-35): Uses getItem() which is stable across all versions
- * - Armor/Offhand: Delegates to ItemDataResolver since APIs changed in 1.21.5+
+ * Utility class for serializing NeoForge player inventory to JSON-compatible format.
+ * Uses NeoItemDataResolver for version-specific item serialization.
  */
-public class InventorySerializer {
+public class NeoInventorySerializer {
 
-    private static ItemDataResolver resolver = null;
+    private static NeoItemDataResolver resolver = null;
 
     /**
-     * Inject the version-specific ItemDataResolver.
-     * Must be called during mod initialization before any serialization.
+     * Inject the version-specific NeoItemDataResolver.
      */
-    public static void setResolver(ItemDataResolver dataResolver) {
+    public static void setResolver(NeoItemDataResolver dataResolver) {
         resolver = dataResolver;
     }
 
     /**
-     * Get the current resolver.
-     */
-    public static ItemDataResolver getResolver() {
-        return resolver;
-    }
-
-    /**
      * Serialize a single ItemStack to a Map.
-     * Delegates to the injected resolver for version-specific handling.
      */
     public static Map<String, Object> serializeItem(ItemStack item) {
         if (item == null || item.isEmpty()) {
@@ -47,7 +34,7 @@ public class InventorySerializer {
             return resolver.serializeItem(item);
         }
 
-        // Fallback: basic serialization without resolver
+        // Fallback
         Map<String, Object> result = new HashMap<>();
         result.put("type", item.getItem().toString().toUpperCase());
         result.put("amount", item.getCount());
@@ -56,12 +43,6 @@ public class InventorySerializer {
 
     /**
      * Serialize entire player inventory to the 2D matrix format.
-     * 
-     * Structure:
-     * - hotbar: 9 slots (Slot 0-8)
-     * - inventory: 3x9 matrix (Slot 9-35)
-     * - armor: [helmet, chestplate, leggings, boots]
-     * - offhand: [item]
      */
     public static Map<String, Object> serializeInventory(ServerPlayer player) {
         if (player == null) return null;
@@ -69,14 +50,14 @@ public class InventorySerializer {
         Inventory inventory = player.getInventory();
         Map<String, Object> result = new HashMap<>();
 
-        // Hotbar (slots 0-8) - stable API across all versions
+        // Hotbar (slots 0-8)
         List<Map<String, Object>> hotbar = new ArrayList<>();
         for (int i = 0; i < 9; i++) {
             hotbar.add(serializeItem(inventory.getItem(i)));
         }
         result.put("hotbar", hotbar);
 
-        // Main inventory (3x9 matrix, slots 9-35) - stable API across all versions
+        // Main inventory (3x9 matrix, slots 9-35)
         List<List<Map<String, Object>>> mainInventory = new ArrayList<>();
         for (int row = 0; row < 3; row++) {
             List<Map<String, Object>> rowItems = new ArrayList<>();
@@ -89,21 +70,17 @@ public class InventorySerializer {
         result.put("inventory", mainInventory);
 
         // Armor (helmet, chestplate, leggings, boots)
-        // Uses version-specific resolver because API changed in 1.21.5+
+        // NeoForge uses index 3=head, 2=chest, 1=legs, 0=feet
         List<Map<String, Object>> armor = new ArrayList<>();
-        if (resolver != null) {
-            List<ItemStack> armorItems = resolver.getArmorItems(player, inventory);
-            for (ItemStack stack : armorItems) {
-                armor.add(serializeItem(stack));
-            }
-        }
+        armor.add(serializeItem(inventory.armor.get(3))); // Helmet
+        armor.add(serializeItem(inventory.armor.get(2))); // Chestplate
+        armor.add(serializeItem(inventory.armor.get(1))); // Leggings
+        armor.add(serializeItem(inventory.armor.get(0))); // Boots
         result.put("armor", armor);
 
-        // Offhand - uses version-specific resolver because API changed in 1.21.5+
+        // Offhand
         List<Map<String, Object>> offhand = new ArrayList<>();
-        if (resolver != null) {
-            offhand.add(serializeItem(resolver.getOffhandItem(player, inventory)));
-        }
+        offhand.add(serializeItem(inventory.offhand.get(0)));
         result.put("offhand", offhand);
 
         return result;
@@ -111,7 +88,6 @@ public class InventorySerializer {
 
     /**
      * Generate a hash of the inventory for change detection.
-     * Uses version-specific resolver for armor/offhand access.
      */
     public static String generateInventoryHash(ServerPlayer player) {
         if (player == null) return "";
@@ -119,18 +95,20 @@ public class InventorySerializer {
         StringBuilder sb = new StringBuilder();
         Inventory inventory = player.getInventory();
 
-        // Hash main inventory (slots 0-35) - stable API
-        for (int i = 0; i < 36; i++) {
-            ItemStack stack = inventory.getItem(i);
+        // Hash main inventory
+        for (int i = 0; i < inventory.items.size(); i++) {
+            ItemStack stack = inventory.items.get(i);
             appendItemHash(sb, stack);
         }
 
-        // Hash armor/offhand using version-specific resolver
-        if (resolver != null) {
-            for (ItemStack stack : resolver.getArmorItems(player, inventory)) {
-                appendItemHash(sb, stack);
-            }
-            appendItemHash(sb, resolver.getOffhandItem(player, inventory));
+        // Hash armor
+        for (ItemStack stack : inventory.armor) {
+            appendItemHash(sb, stack);
+        }
+
+        // Hash offhand
+        for (ItemStack stack : inventory.offhand) {
+            appendItemHash(sb, stack);
         }
 
         try {
@@ -157,5 +135,3 @@ public class InventorySerializer {
         }
     }
 }
-
-

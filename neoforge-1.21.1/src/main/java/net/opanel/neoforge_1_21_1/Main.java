@@ -1,6 +1,7 @@
 package net.opanel.neoforge_1_21_1;
 
 import com.mojang.logging.LogUtils;
+import net.minecraft.server.MinecraftServer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -20,6 +21,14 @@ import net.opanel.neoforge_1_21_1.terminal.LogListenerManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
 
+/**
+ * Main entry point for the OPanel NeoForge 1.21.1 mod.
+ * 
+ * THREAD SAFETY:
+ * - All ServerTickEvent.Post callbacks run on the main server thread
+ * - Server lifecycle events run on the main server thread
+ * - NeoInventorySyncTask.onTick() MUST be called from the main thread
+ */
 @Mod(value = Main.MODID, dist = Dist.DEDICATED_SERVER)
 public class Main {
     public static final String MODID = "opanel";
@@ -27,13 +36,16 @@ public class Main {
     public OPanel instance;
 
     private LogListenerManagerImpl logListenerAppender;
+    private NeoListener neoListener;
+    private NeoInventorySyncTask inventorySyncTask;
+    private MinecraftServer server;
 
     public Main(IEventBus modEventBus, ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
         NeoForge.EVENT_BUS.register(this);
-        NeoForge.EVENT_BUS.register(new NeoListener());
-
+        
         initLogListenerAppender();
+        initInventorySync();
     }
 
     @SubscribeEvent
@@ -51,6 +63,24 @@ public class Main {
         logger.addAppender(logListenerAppender);
     }
 
+    private void initInventorySync() {
+        // Inject version-specific ItemDataResolver
+        NeoInventorySerializer.setResolver(new Neo1211ItemDataResolver());
+        
+        // Create sync task with player factory
+        inventorySyncTask = new NeoInventorySyncTask(
+            NeoPlayer::new,
+            20 // Sync every 20 ticks (1 second)
+        );
+        
+        // Create listener and link sync task
+        neoListener = new NeoListener();
+        neoListener.setInventorySyncTask(inventorySyncTask);
+        
+        // Register listener with event bus
+        NeoForge.EVENT_BUS.register(neoListener);
+    }
+
     private void disposeLogListenerAppender() {
         final org.apache.logging.log4j.core.Logger logger = (org.apache.logging.log4j.core.Logger) LogManager.getRootLogger();
         logger.removeAppender(logListenerAppender);
@@ -61,10 +91,11 @@ public class Main {
     public void onServerStart(ServerStartedEvent event) {
         if(instance == null) throw new NullPointerException("OPanel is not initialized.");
 
-        instance.setServer(new NeoServer(event.getServer()));
+        this.server = event.getServer();
+        instance.setServer(new NeoServer(server));
 
         try {
-            instance.getWebServer().start(); // default port 3000
+            instance.getWebServer().start();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -85,10 +116,20 @@ public class Main {
         }
     }
 
+    /**
+     * Called every server tick on the MAIN THREAD (Post phase).
+     * Safe to access player inventories and emit events.
+     */
     @SubscribeEvent
     public void onServerTick(ServerTickEvent.Post event) {
         if(instance == null) throw new NullPointerException("OPanel is not initialized.");
 
         instance.onTick();
+        
+        // Run inventory sync task (main thread - safe for inventory access)
+        if (inventorySyncTask != null && server != null) {
+            inventorySyncTask.onTick(server);
+        }
     }
 }
+

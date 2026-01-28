@@ -8,14 +8,34 @@ import net.opanel.common.OPanelGameMode;
 import net.opanel.event.*;
 
 public class NeoListener {
+    private NeoInventorySyncTask inventorySyncTask;
+
+    public void setInventorySyncTask(NeoInventorySyncTask task) {
+        this.inventorySyncTask = task;
+    }
+
     @SubscribeEvent
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
-        EventManager.get().emit(EventType.PLAYER_JOIN, new OPanelPlayerJoinEvent(new NeoPlayer((ServerPlayer) event.getEntity())));
+        ServerPlayer player = (ServerPlayer) event.getEntity();
+        EventManager.get().emit(EventType.PLAYER_JOIN, new OPanelPlayerJoinEvent(new NeoPlayer(player)));
+        
+        // Sync inventory on join with delay (let inventory load)
+        if (inventorySyncTask != null && player.getServer() != null) {
+            // Schedule sync on next tick via server
+            player.getServer().execute(() -> {
+                inventorySyncTask.syncPlayer(player);
+            });
+        }
     }
 
     @SubscribeEvent
     public void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent event) {
-        EventManager.get().emit(EventType.PLAYER_LEAVE, new OPanelPlayerLeaveEvent(new NeoPlayer((ServerPlayer) event.getEntity())));
+        ServerPlayer player = (ServerPlayer) event.getEntity();
+        EventManager.get().emit(EventType.PLAYER_LEAVE, new OPanelPlayerLeaveEvent(new NeoPlayer(player)));
+        
+        if (inventorySyncTask != null) {
+            inventorySyncTask.removePlayer(player.getStringUUID());
+        }
     }
 
     @SubscribeEvent
@@ -32,3 +52,4 @@ public class NeoListener {
         EventManager.get().emit(EventType.PLAYER_GAMEMODE_CHANGE, new OPanelPlayerGameModeChangeEvent(new NeoPlayer((ServerPlayer) event.getEntity()), opanelGamemode));
     }
 }
+
