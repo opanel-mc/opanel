@@ -52,7 +52,7 @@ public class Forge12111ItemDataResolver implements ItemDataResolver {
         if (enchantments != null && !enchantments.isEmpty()) {
             Map<String, Integer> enchantMap = new HashMap<>();
             for (Holder<Enchantment> entry : enchantments.keySet()) {
-                entry.unwrapKey().ifPresent(key -> enchantMap.put(key.location().getPath(), enchantments.getLevel(entry.value())));
+                entry.unwrapKey().ifPresent(key -> enchantMap.put(key.location().getPath(), enchantments.getLevel(entry)));
             }
             if (!enchantMap.isEmpty()) result.put("enchantments", enchantMap);
         }
