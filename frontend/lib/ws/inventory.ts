@@ -7,8 +7,10 @@ export type InventoryMessageType = (
   | "update"
   | "player-join"
   | "player-leave"
+  | "offline-data"
   /* client packet */
   | "fetch"
+  | "fetch-offline"
 );
 
 export interface InventoryItem {
@@ -35,6 +37,9 @@ export interface PlayerInventory {
   uuid: string;
   name?: string;
   inventory?: InventoryData;
+  lastUpdated?: number;
+  isOffline?: boolean;
+  error?: string;
 }
 
 export class InventoryClient extends WebSocketClient<InventoryMessageType> {
@@ -45,7 +50,7 @@ export class InventoryClient extends WebSocketClient<InventoryMessageType> {
   override onOpen() {
     console.log("Inventory WebSocket connected.");
   }
-  
+
   override onClose() {
     console.log("Inventory WebSocket disconnected.");
   }

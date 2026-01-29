@@ -3,7 +3,7 @@ package net.opanel.forge_1_21_9;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.listener.SubscribeEvent;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.event.*;
 import net.opanel.forge_helper.InventorySerializer;

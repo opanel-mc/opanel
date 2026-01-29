@@ -2,6 +2,7 @@ package net.opanel.spigot_1_21;
 
 import de.tr7zw.changeme.nbtapi.NBT;
 import net.opanel.OPanel;
+import net.opanel.bukkit_helper.BukkitDatabaseManager;
 import net.opanel.bukkit_helper.InventorySerializer;
 import net.opanel.bukkit_helper.InventorySyncTask;
 import net.opanel.bukkit_helper.TaskRunner;
@@ -26,8 +27,10 @@ public class Main extends JavaPlugin implements Listener, TaskRunner {
 
     private BukkitTask serverTickListener;
     private BukkitTask inventorySyncTask;
+    private InventorySyncTask syncTask;
     private LogListenerManagerImpl logListenerAppender;
     private SpigotListener spigotListener;
+    private BukkitDatabaseManager databaseManager;
 
     @Override
     public void onEnable() {
@@ -44,6 +47,7 @@ public class Main extends JavaPlugin implements Listener, TaskRunner {
 
         initLogListenerAppender();
         initServerTickListener();
+        initDatabaseManager();
         initInventorySyncTask();
 
         Bukkit.getPluginManager().registerEvents(this, this);
@@ -76,6 +80,25 @@ public class Main extends JavaPlugin implements Listener, TaskRunner {
             log.error("Failed to cancel inventory sync task: " + e.getMessage());
         }
         
+        // Save all pending inventory data synchronously before shutdown
+        try {
+            if(syncTask != null) {
+                LOGGER.info("Saving all player inventories...");
+                syncTask.saveAllPendingSync();
+            }
+        } catch (Exception e) {
+            log.error("Failed to save pending inventories: " + e.getMessage());
+        }
+        
+        // Close database connection
+        try {
+            if(databaseManager != null) {
+                databaseManager.close();
+            }
+        } catch (Exception e) {
+            log.error("Failed to close database: " + e.getMessage());
+        }
+        
         try {
             if(instance != null) instance.stop();
         } catch (Exception e) {
@@ -105,13 +128,29 @@ public class Main extends JavaPlugin implements Listener, TaskRunner {
         serverTickListener = Bukkit.getScheduler().runTaskTimer(this, instance::onTick, 0L, 1L);
     }
 
+    private void initDatabaseManager() {
+        databaseManager = new BukkitDatabaseManager(this);
+        if (!databaseManager.init()) {
+            LOGGER.warning("Failed to initialize inventory database. Inventory persistence will be disabled.");
+            databaseManager = null;
+        } else {
+            // Set on OPanel instance for API access
+            instance.setDatabaseManager(databaseManager.getDatabaseManager());
+        }
+    }
+
     private void initInventorySyncTask() {
         InventorySerializer.setResolver(new Spigot121ItemDataResolver());
         
-        InventorySyncTask syncTask = new InventorySyncTask(
+        syncTask = new InventorySyncTask(
             this,
             player -> new SpigotPlayer(this, player)  // Player factory
         );
+        
+        // Set database manager for persistence
+        if (databaseManager != null) {
+            syncTask.setDatabaseManager(databaseManager);
+        }
         
         spigotListener = new SpigotListener(this);
         spigotListener.setInventorySyncTask(syncTask);

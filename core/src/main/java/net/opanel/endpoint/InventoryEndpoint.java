@@ -1,13 +1,17 @@
 package net.opanel.endpoint;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import io.javalin.Javalin;
 import io.javalin.websocket.WsConfig;
 import io.javalin.websocket.WsMessageContext;
 import net.opanel.OPanel;
+import net.opanel.common.DatabaseManager;
 import net.opanel.event.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -15,9 +19,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * Provides real-time inventory updates to connected clients.
  */
 public class InventoryEndpoint extends BaseEndpoint {
+    private static final Gson GSON = new Gson();
+    
     private static class InventoryPacket<D> extends Packet<D> {
         public static final String INIT = "init";
         public static final String FETCH = "fetch";
+        public static final String FETCH_OFFLINE = "fetch-offline";
+        public static final String OFFLINE_DATA = "offline-data";
         public static final String UPDATE = "update";
         public static final String PLAYER_JOIN = "player-join";
         public static final String PLAYER_LEAVE = "player-leave";
@@ -83,6 +91,53 @@ public class InventoryEndpoint extends BaseEndpoint {
                 msgCtx.send(new InventoryPacket<>(InventoryPacket.UPDATE, payload));
             }
         });
+
+        // Subscribe to offline fetch requests
+        subscribe(ctx.session, InventoryPacket.FETCH_OFFLINE, String.class, (msgCtx, playerUuid) -> {
+            if (playerUuid == null) return;
+            
+            DatabaseManager dbManager = plugin.getDatabaseManager();
+            if (dbManager == null) {
+                // No database configured
+                HashMap<String, Object> errorPayload = new HashMap<>();
+                errorPayload.put("uuid", playerUuid);
+                errorPayload.put("error", "Database not available");
+                msgCtx.send(new InventoryPacket<>(InventoryPacket.OFFLINE_DATA, errorPayload));
+                return;
+            }
+            
+            // Query database asynchronously
+            dbManager.getOfflineInventory(UUID.fromString(playerUuid)).thenAccept(playerData -> {
+                HashMap<String, Object> payload = new HashMap<>();
+                payload.put("uuid", playerUuid);
+                
+                if (playerData != null) {
+                    payload.put("name", playerData.getPlayerName());
+                    payload.put("lastUpdated", playerData.getLastUpdated());
+                    
+                    // Parse JSON string back to Map
+                    try {
+                        Map<String, Object> inventoryData = GSON.fromJson(
+                            playerData.getInventoryJson(),
+                            new TypeToken<Map<String, Object>>(){}.getType()
+                        );
+                        payload.put("inventory", inventoryData);
+                    } catch (Exception e) {
+                        payload.put("error", "Failed to parse inventory data");
+                    }
+                } else {
+                    payload.put("error", "Player not found");
+                }
+                
+                msgCtx.send(new InventoryPacket<>(InventoryPacket.OFFLINE_DATA, payload));
+            }).exceptionally(e -> {
+                HashMap<String, Object> errorPayload = new HashMap<>();
+                errorPayload.put("uuid", playerUuid);
+                errorPayload.put("error", "Database query failed: " + e.getMessage());
+                msgCtx.send(new InventoryPacket<>(InventoryPacket.OFFLINE_DATA, errorPayload));
+                return null;
+            });
+        });
     }
 
     /**
@@ -99,3 +154,4 @@ public class InventoryEndpoint extends BaseEndpoint {
         return inventoryCache.get(uuid);
     }
 }
+

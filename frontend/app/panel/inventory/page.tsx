@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Package } from "lucide-react";
+import { Package, Search, Clock } from "lucide-react";
 import { SubPage } from "../sub-page";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { InventoryClient, type InventoryData, type InventoryItem, type PlayerInventory } from "@/lib/ws/inventory";
@@ -78,6 +78,8 @@ function InventoryGrid({ data }: { data: InventoryData }) {
 export default function InventoryPreview() {
     const [inventories, setInventories] = useState<Record<string, PlayerInventory>>({});
     const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
+    const [offlineUuid, setOfflineUuid] = useState("");
+    const [offlineLoading, setOfflineLoading] = useState(false);
     const client = useWebSocket(InventoryClient);
 
     useEffect(() => {
@@ -98,7 +100,7 @@ export default function InventoryPreview() {
             console.log("Received inventory update:", data);
             setInventories((prev) => ({
                 ...prev,
-                [data.uuid]: { ...prev[data.uuid], ...data },
+                [data.uuid]: { ...prev[data.uuid], ...data, isOffline: false },
             }));
         });
 
@@ -123,9 +125,44 @@ export default function InventoryPreview() {
                 setSelectedPlayer(null);
             }
         });
+
+        // Offline data response
+        client.subscribe<PlayerInventory>("offline-data", (data) => {
+            console.log("Received offline inventory data:", data);
+            setOfflineLoading(false);
+
+            if (data.error) {
+                setInventories((prev) => ({
+                    ...prev,
+                    [data.uuid]: { uuid: data.uuid, error: data.error, isOffline: true },
+                }));
+            } else {
+                setInventories((prev) => ({
+                    ...prev,
+                    [data.uuid]: { ...data, isOffline: true },
+                }));
+            }
+            setSelectedPlayer(data.uuid);
+        });
     }, [client, selectedPlayer]);
 
+    const handleFetchOffline = () => {
+        if (!client || !offlineUuid.trim()) return;
+
+        // Validate UUID format
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (!uuidRegex.test(offlineUuid.trim())) {
+            alert("Please enter a valid UUID format (e.g., 12345678-1234-1234-1234-123456789abc)");
+            return;
+        }
+
+        setOfflineLoading(true);
+        client.send("fetch-offline", offlineUuid.trim());
+    };
+
     const playerList = Object.values(inventories);
+    const onlinePlayers = playerList.filter(p => !p.isOffline);
+    const offlinePlayers = playerList.filter(p => p.isOffline);
     const selectedInventory = selectedPlayer ? inventories[selectedPlayer] : null;
 
     return (
@@ -137,38 +174,103 @@ export default function InventoryPreview() {
         >
             <div className="flex gap-6 max-lg:flex-col">
                 {/* Player list */}
-                <div className="w-64 max-lg:w-full">
-                    <h3 className="font-medium mb-2">Online Players ({playerList.length})</h3>
-                    <div className="space-y-1 max-h-96 overflow-auto">
-                        {playerList.length === 0 ? (
-                            <p className="text-sm text-muted-foreground">No players online</p>
-                        ) : (
-                            playerList.map((player) => (
-                                <button
-                                    key={player.uuid}
-                                    onClick={() => {
-                                        setSelectedPlayer(player.uuid);
-                                        client?.send("fetch", player.uuid);
-                                    }}
-                                    className={`w-full text-left px-3 py-2 rounded text-sm transition-colors ${selectedPlayer === player.uuid
+                <div className="w-64 max-lg:w-full space-y-4">
+                    {/* Offline player search */}
+                    <div className="space-y-2">
+                        <h3 className="font-medium flex items-center gap-2">
+                            <Search className="w-4 h-4" />
+                            Search Offline Player
+                        </h3>
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                placeholder="Enter player UUID..."
+                                value={offlineUuid}
+                                onChange={(e) => setOfflineUuid(e.target.value)}
+                                className="flex-1 px-3 py-2 text-sm border rounded bg-background"
+                                onKeyDown={(e) => e.key === "Enter" && handleFetchOffline()}
+                            />
+                            <button
+                                onClick={handleFetchOffline}
+                                disabled={offlineLoading || !offlineUuid.trim()}
+                                className="px-3 py-2 text-sm bg-primary text-primary-foreground rounded disabled:opacity-50"
+                            >
+                                {offlineLoading ? "..." : "Fetch"}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Online players */}
+                    <div>
+                        <h3 className="font-medium mb-2">Online Players ({onlinePlayers.length})</h3>
+                        <div className="space-y-1 max-h-48 overflow-auto">
+                            {onlinePlayers.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">No players online</p>
+                            ) : (
+                                onlinePlayers.map((player) => (
+                                    <button
+                                        key={player.uuid}
+                                        onClick={() => {
+                                            setSelectedPlayer(player.uuid);
+                                            client?.send("fetch", player.uuid);
+                                        }}
+                                        className={`w-full text-left px-3 py-2 rounded text-sm transition-colors ${selectedPlayer === player.uuid
                                             ? "bg-primary text-primary-foreground"
                                             : "bg-muted hover:bg-muted/80"
-                                        }`}
-                                >
-                                    {player.name || player.uuid.slice(0, 8)}
-                                </button>
-                            ))
-                        )}
+                                            }`}
+                                    >
+                                        {player.name || player.uuid.slice(0, 8)}
+                                    </button>
+                                ))
+                            )}
+                        </div>
                     </div>
+
+                    {/* Offline players (fetched) */}
+                    {offlinePlayers.length > 0 && (
+                        <div>
+                            <h3 className="font-medium mb-2 flex items-center gap-2">
+                                <Clock className="w-4 h-4" />
+                                Offline Players
+                            </h3>
+                            <div className="space-y-1 max-h-48 overflow-auto">
+                                {offlinePlayers.map((player) => (
+                                    <button
+                                        key={player.uuid}
+                                        onClick={() => setSelectedPlayer(player.uuid)}
+                                        className={`w-full text-left px-3 py-2 rounded text-sm transition-colors ${selectedPlayer === player.uuid
+                                            ? "bg-orange-500 text-white"
+                                            : "bg-orange-100 dark:bg-orange-900/30 hover:bg-orange-200 dark:hover:bg-orange-900/50"
+                                            }`}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span>{player.name || player.uuid.slice(0, 8)}</span>
+                                            {player.error && <span className="text-xs text-red-500">Error</span>}
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Inventory display */}
                 <div className="flex-1">
                     {selectedInventory?.inventory ? (
                         <div>
-                            <h3 className="font-medium mb-2">
+                            <h3 className="font-medium mb-2 flex items-center gap-2">
                                 Inventory: {selectedInventory.name || selectedInventory.uuid}
+                                {selectedInventory.isOffline && (
+                                    <span className="text-xs px-2 py-0.5 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded">
+                                        Offline
+                                    </span>
+                                )}
                             </h3>
+                            {selectedInventory.lastUpdated && (
+                                <p className="text-sm text-muted-foreground mb-2">
+                                    Last updated: {new Date(selectedInventory.lastUpdated).toLocaleString()}
+                                </p>
+                            )}
                             <InventoryGrid data={selectedInventory.inventory} />
 
                             {/* Raw data for debugging */}
@@ -180,6 +282,10 @@ export default function InventoryPreview() {
                                     {JSON.stringify(selectedInventory.inventory, null, 2)}
                                 </pre>
                             </details>
+                        </div>
+                    ) : selectedInventory?.error ? (
+                        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900 rounded">
+                            <p className="text-red-600 dark:text-red-400">Error: {selectedInventory.error}</p>
                         </div>
                     ) : selectedPlayer ? (
                         <p className="text-muted-foreground">Loading inventory...</p>
@@ -196,3 +302,4 @@ export default function InventoryPreview() {
         </SubPage>
     );
 }
+

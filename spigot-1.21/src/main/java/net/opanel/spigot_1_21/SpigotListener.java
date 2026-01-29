@@ -43,8 +43,9 @@ public class SpigotListener implements Listener {
     public void onPlayerLeave(PlayerQuitEvent event) {
         EventManager.get().emit(EventType.PLAYER_LEAVE, new OPanelPlayerLeaveEvent(new SpigotPlayer(plugin, event.getPlayer())));
         
-        // Remove player from sync task tracking
+        // Save and remove player from sync task tracking
         if (inventorySyncTask != null) {
+            inventorySyncTask.savePlayerOnLeave(event.getPlayer());
             inventorySyncTask.removePlayer(event.getPlayer().getUniqueId().toString());
         }
     }

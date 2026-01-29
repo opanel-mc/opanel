@@ -1,6 +1,7 @@
 package net.opanel;
 
 import net.opanel.common.Constants;
+import net.opanel.common.DatabaseManager;
 import net.opanel.config.ConfigManager;
 import net.opanel.config.OPanelConfiguration;
 import net.opanel.terminal.LogListenerManager;
@@ -37,6 +38,7 @@ public class OPanel {
     private final WebServer webServer;
     private OPanelServer server;
     private LogListenerManager logListenerManager;
+    private DatabaseManager databaseManager;
 
     public OPanel(ConfigManager configManager, Loggable logger) {
         this.configManager = configManager;
@@ -139,6 +141,14 @@ public class OPanel {
 
     public LogListenerManager getLogListenerManager() {
         return logListenerManager;
+    }
+
+    public void setDatabaseManager(DatabaseManager manager) {
+        this.databaseManager = manager;
+    }
+
+    public DatabaseManager getDatabaseManager() {
+        return databaseManager;
     }
 
     public void stop() {
