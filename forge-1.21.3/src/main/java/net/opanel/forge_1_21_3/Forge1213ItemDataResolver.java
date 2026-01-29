@@ -63,7 +63,8 @@ public class Forge1213ItemDataResolver implements ItemDataResolver {
             Map<String, Integer> enchantMap = new HashMap<>();
             for (Holder<Enchantment> entry : enchantments.keySet()) {
                 entry.unwrapKey().ifPresent(key -> {
-                    enchantMap.put(key.location().getPath(), enchantments.getLevel(entry));
+                    // Use entry.value() to get Enchantment from Holder
+                    enchantMap.put(key.location().getPath(), enchantments.getLevel(entry.value()));
                 });
             }
             if (!enchantMap.isEmpty()) {
