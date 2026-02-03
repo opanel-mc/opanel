@@ -51,6 +51,11 @@ public abstract class BaseBukkitOfflinePlayer implements OPanelPlayer {
     }
 
     @Override
+    public BukkitOfflineInventory getInventory() {
+        return new BukkitOfflineInventory(playerDataPath);
+    }
+
+    @Override
     public boolean isOp() {
         return player.isOp();
     }

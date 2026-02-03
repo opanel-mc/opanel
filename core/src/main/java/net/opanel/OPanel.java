@@ -3,6 +3,7 @@ package net.opanel;
 import net.opanel.common.Constants;
 import net.opanel.config.ConfigManager;
 import net.opanel.config.OPanelConfiguration;
+import net.opanel.event.OPanelPlayerInventoryChangeEvent;
 import net.opanel.task.ScheduledTaskManager;
 import net.opanel.terminal.LogListenerManager;
 import net.opanel.common.OPanelServer;
@@ -14,10 +15,8 @@ import net.opanel.web.WebServer;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Properties;
 
 public class OPanel {
     public static final String VERSION;
@@ -136,6 +135,7 @@ public class OPanel {
 
     public void setServer(OPanelServer server) {
         this.server = server;
+        OPanelPlayerInventoryChangeEvent.registerPoller(this);
     }
 
     public OPanelServer getServer() {
@@ -154,6 +154,8 @@ public class OPanel {
         if(scheduledTaskManager != null) {
             scheduledTaskManager.shutdown();
         }
+
+        OPanelPlayerInventoryChangeEvent.shutdown();
 
         if(webServer != null) {
             try {

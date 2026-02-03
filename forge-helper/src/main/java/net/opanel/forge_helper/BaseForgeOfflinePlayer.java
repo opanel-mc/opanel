@@ -42,6 +42,11 @@ public abstract class BaseForgeOfflinePlayer implements OPanelPlayer {
     }
 
     @Override
+    public ForgeOfflineInventory getInventory() {
+        return new ForgeOfflineInventory(playerDataPath);
+    }
+
+    @Override
     public void kick(String reason) {
         throw new IllegalStateException("The player is offline.");
     }

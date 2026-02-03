@@ -38,6 +38,11 @@ public abstract class BaseFabricPlayer implements OPanelPlayer {
     }
 
     @Override
+    public FabricInventory getInventory() {
+        return new FabricInventory(player);
+    }
+
+    @Override
     public boolean isBanned() {
         return false;
     }

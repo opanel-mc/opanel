@@ -42,6 +42,11 @@ public abstract class BaseFabricOfflinePlayer implements OPanelPlayer {
     }
 
     @Override
+    public FabricOfflineInventory getInventory() {
+        return new FabricOfflineInventory(playerDataPath);
+    }
+
+    @Override
     public void kick(String reason) {
         throw new IllegalStateException("The player is offline.");
     }

@@ -6,6 +6,7 @@ public interface OPanelPlayer {
     String getName();
     String getUUID();
     boolean isOnline();
+    OPanelInventory getInventory();
     boolean isOp();
     boolean isBanned();
     OPanelGameMode getGameMode();

@@ -43,6 +43,11 @@ public class NeoPlayer implements OPanelPlayer {
     }
 
     @Override
+    public NeoInventory getInventory() {
+        return new NeoInventory(player);
+    }
+
+    @Override
     public boolean isOp() {
         if(player == null) return false;
 

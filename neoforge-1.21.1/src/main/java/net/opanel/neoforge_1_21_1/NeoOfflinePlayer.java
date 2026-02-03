@@ -73,6 +73,11 @@ public class NeoOfflinePlayer implements OPanelPlayer {
     }
 
     @Override
+    public NeoOfflineInventory getInventory() {
+        return new NeoOfflineInventory(playerDataPath);
+    }
+
+    @Override
     public boolean isOp() {
         return playerManager.isOp(profile);
     }
