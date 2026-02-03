@@ -62,7 +62,7 @@ public class WebServer {
 
         // Websocket
         app.ws("/socket/players", ws -> new PlayersEndpoint(app, ws, plugin));
-        app.ws("/socket/inventory", ws -> new InventoryEndpoint(app, ws, plugin));
+        app.ws("/socket/inventory/{uuid}", ws -> new InventoryEndpoint(app, ws, plugin));
         app.ws("/socket/terminal", ws -> new TerminalEndpoint(app, ws, plugin));
 
         // Controllers
@@ -79,7 +79,6 @@ public class WebServer {
         LogsController logsController = new LogsController(plugin);
         MonitorController monitorController = new MonitorController(plugin);
         PlayersController playersController = new PlayersController(plugin);
-        OfflineInventoryController offlineInventoryController = new OfflineInventoryController(plugin);
         SavesController savesController = new SavesController(plugin);
         PluginsController pluginsController = new PluginsController(plugin);
         SecurityController securityController = new SecurityController(plugin);
@@ -156,10 +155,6 @@ public class WebServer {
                 post("ban", playersController.banPlayer);
                 post("pardon", playersController.pardonPlayer);
                 post("gamemode", playersController.setGamemode);
-            });
-            path("offline-inventory", () -> {
-                get("/{playerName}", offlineInventoryController.getOfflineInventory);
-                post("/{playerName}", offlineInventoryController.updateOfflineInventory);
             });
             path("saves", () -> {
                 get("/", savesController.getSaves);

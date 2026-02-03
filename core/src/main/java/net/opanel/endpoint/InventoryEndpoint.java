@@ -10,109 +10,85 @@ import net.opanel.event.EventManager;
 import net.opanel.event.EventType;
 import net.opanel.event.OPanelPlayerInventoryChangeEvent;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class InventoryEndpoint extends BaseEndpoint {
     private static class InventoryPacket<D> extends Packet<D> {
         public static final String INIT = "init";
         public static final String FETCH = "fetch";
-        public static final String UPDATE = "update";
-        public static final String MOVE = "move";
+        public static final String UPDATE = "update"; // client <- server
 
         public InventoryPacket(String type, D data) {
             super(type, data);
         }
     }
 
-    private static class InventoryFetchPayload {
-        public String uuid;
-    }
-
-    private static class InventoryMovePayload {
-        public String uuid;
-        public List<OPanelInventory.OPanelItemStack> items;
-    }
+    // To avoid duplicated inventory listener from registering
+    private boolean hasInventoryListenerRegistered = false;
 
     public InventoryEndpoint(Javalin app, WsConfig ws, OPanel plugin) {
         super(app, ws, plugin);
-
-        EventManager.get().on(EventType.PLAYER_INVENTORY_CHANGE, (OPanelPlayerInventoryChangeEvent event) -> {
-            HashMap<String, Object> data = serializeInventory(event.getPlayer(), event.getInventory());
-            if(data != null) {
-                broadcast(new InventoryPacket<>(InventoryPacket.UPDATE, data));
-            }
-        });
     }
 
     @Override
     public void onConnect(WsMessageContext ctx) {
-        sendInventoryList(ctx);
+        final String uuid = ctx.pathParam("uuid");
+        if(uuid.isEmpty()) {
+            sendErrorMessage(ctx, "Missing uuid in path.");
+            ctx.closeSession(1008, "Missing uuid.");
+            return;
+        }
 
-        subscribe(ctx.session, InventoryPacket.FETCH, InventoryFetchPayload.class, (msgCtx, payload) -> {
-            if(payload == null || payload.uuid == null || payload.uuid.isEmpty()) {
-                sendInventoryList(msgCtx);
-                return;
-            }
+        OPanelPlayer player = server.getPlayer(uuid);
+        if(player == null) {
+            sendErrorMessage(ctx, "Player not found.");
+            ctx.closeSession(1008, "Player not found.");
+            return;
+        }
 
-            OPanelPlayer player = server.getPlayer(payload.uuid);
-            if(player == null) {
-                sendErrorMessage(msgCtx, "Player not found.");
-                return;
-            }
+        // Send initial inventory data
+        ctx.send(new InventoryPacket<>(InventoryPacket.INIT, serializeInventory(player.getInventory())));
 
-            OPanelInventory inventory = player.getInventory();
-            HashMap<String, Object> data = serializeInventory(player, inventory);
-            msgCtx.send(new InventoryPacket<>(InventoryPacket.INIT, data));
+        subscribe(ctx.session, InventoryPacket.FETCH, msgCtx -> {
+            msgCtx.send(new InventoryPacket<>(InventoryPacket.INIT, serializeInventory(player.getInventory())));
         });
 
-        subscribe(ctx.session, InventoryPacket.MOVE, InventoryMovePayload.class, (msgCtx, payload) -> {
-            if(payload == null || payload.uuid == null) {
-                sendErrorMessage(msgCtx, "Missing uuid.");
-                return;
-            }
-            if(payload.items == null || payload.items.isEmpty()) {
+        subscribe(ctx.session, InventoryPacket.UPDATE, OPanelInventory.OPanelItemStack.class, (msgCtx, item) -> {
+            if(item == null) {
                 sendErrorMessage(msgCtx, "Items are required.");
                 return;
             }
 
-            OPanelPlayer player = server.getPlayer(payload.uuid);
-            if(player == null) {
+            OPanelPlayer currentPlayer = server.getPlayer(uuid);
+            if(currentPlayer == null) {
                 sendErrorMessage(msgCtx, "Player not found.");
                 return;
             }
 
-            OPanelInventory inventory = player.getInventory();
+            OPanelInventory currentInventory = currentPlayer.getInventory();
+            currentInventory.setItem(item);
 
-            for(OPanelInventory.OPanelItemStack item : payload.items) {
-                inventory.setItem(item);
-            }
-
-            HashMap<String, Object> data = serializeInventory(player, inventory);
-            if(data != null) {
-                broadcast(new InventoryPacket<>(InventoryPacket.UPDATE, data));
+            HashMap<String, Object> updatedData = serializeInventory(currentInventory);
+            if(updatedData != null) {
+                broadcast(new InventoryPacket<>(InventoryPacket.UPDATE, updatedData));
             }
         });
+
+        if(!hasInventoryListenerRegistered) {
+            EventManager.get().on(EventType.PLAYER_INVENTORY_CHANGE, (OPanelPlayerInventoryChangeEvent event) -> {
+                HashMap<String, Object> data = serializeInventory(event.getInventory());
+                if(event.getPlayer().getUUID().equals(uuid) && data != null) {
+                    broadcast(new InventoryPacket<>(InventoryPacket.UPDATE, data));
+                }
+            });
+            hasInventoryListenerRegistered = true;
+        }
     }
 
-    private void sendInventoryList(WsMessageContext ctx) {
-        List<HashMap<String, Object>> inventories = server.getPlayers().stream()
-                .map(player -> serializeInventory(player, player.getInventory()))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toCollection(ArrayList::new));
-
-        ctx.send(new InventoryPacket<>(InventoryPacket.INIT, inventories));
-    }
-
-    private HashMap<String, Object> serializeInventory(OPanelPlayer player, OPanelInventory inventory) {
-        if(player == null || inventory == null) return null;
+    private HashMap<String, Object> serializeInventory(OPanelInventory inventory) {
+        if(inventory == null) return null;
         HashMap<String, Object> data = new HashMap<>();
-        data.put("name", player.getName());
-        data.put("uuid", player.getUUID());
-        data.put("isOnline", player.isOnline());
         data.put("size", inventory.getSize());
         data.put("hash", inventory.getHash());
         data.put("items", inventory.getItems());

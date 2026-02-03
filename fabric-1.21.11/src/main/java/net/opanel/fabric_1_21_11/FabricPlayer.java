@@ -16,6 +16,11 @@ public class FabricPlayer extends BaseFabricPlayer implements OPanelPlayer {
     }
 
     @Override
+    public FabricInventory getInventory() {
+        return new FabricInventory(player);
+    }
+
+    @Override
     public boolean isOp() {
         if(player == null) return false;
 

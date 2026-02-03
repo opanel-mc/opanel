@@ -1,8 +1,6 @@
 package net.opanel.spigot_1_16_1;
 
 import net.opanel.bukkit_helper.BaseBukkitPlayer;
-import net.opanel.bukkit_helper.TaskRunner;
-import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -17,6 +15,11 @@ public class SpigotPlayer extends BaseBukkitPlayer implements OPanelPlayer {
     @Override
     public void kick(String reason) {
         runner.runTask(() -> player.kickPlayer(reason));
+    }
+
+    @Override
+    public SpigotInventory getInventory() {
+        return new SpigotInventory(runner, player);
     }
 
     @Override

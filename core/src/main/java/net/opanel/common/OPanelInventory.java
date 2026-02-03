@@ -36,7 +36,7 @@ public interface OPanelInventory {
         public int slot;
         public String id;
         public int count;
-        public String nbt;
+        public String nbt; // todo
 
         public OPanelItemStack(int slot, String id, int count, String nbt) {
             this.slot = slot;

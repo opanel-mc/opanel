@@ -37,4 +37,9 @@ public class FoliaOfflinePlayer extends BaseBukkitOfflinePlayer implements OPane
         BanList<PlayerProfile> banList = server.getBanList(BanList.Type.PROFILE);
         runner.runTask(() -> banList.pardon(profile));
     }
+    
+    @Override
+    public FoliaOfflineInventory getInventory() {
+        return new FoliaOfflineInventory(playerDataPath);
+    }
 }

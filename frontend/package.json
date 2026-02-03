@@ -35,6 +35,7 @@
     "markdown-to-jsx": "^9.5.7",
     "md5": "^2.3.0",
     "minecraft-skin-viewer": "^0.0.12",
+    "minecraft-textures": "^1.21.11",
     "monaco-editor": "^0.53.0",
     "monaco-yaml": "^5.4.0",
     "next": "15.4.10",

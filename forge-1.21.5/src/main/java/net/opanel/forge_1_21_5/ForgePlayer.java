@@ -17,6 +17,11 @@ public class ForgePlayer extends BaseForgePlayer implements OPanelPlayer {
     }
 
     @Override
+    public ForgeInventory getInventory() {
+        return new ForgeInventory(player);
+    }
+
+    @Override
     public boolean isOp() {
         if(player == null) return false;
 

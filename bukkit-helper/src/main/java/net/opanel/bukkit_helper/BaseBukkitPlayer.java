@@ -36,11 +36,6 @@ public abstract class BaseBukkitPlayer implements OPanelPlayer {
     }
 
     @Override
-    public BukkitInventory getInventory() {
-        return new BukkitInventory(runner, player);
-    }
-
-    @Override
     public boolean isOp() {
         return player.isOp();
     }

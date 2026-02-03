@@ -17,6 +17,11 @@ public class SpigotPlayer extends BaseBukkitPlayer implements OPanelPlayer {
     }
 
     @Override
+    public SpigotInventory getInventory() {
+        return new SpigotInventory(runner, player);
+    }
+
+    @Override
     public void ban(String reason) {
         if(isBanned()) return;
         runner.runTask(() -> player.ban(reason, (Date) null, null, true));

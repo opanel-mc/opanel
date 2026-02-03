@@ -22,6 +22,11 @@ public class FabricPlayer extends BaseFabricPlayer implements OPanelPlayer {
 
         return playerManager.isOperator(profile);
     }
+    
+    @Override
+    public FabricInventory getInventory() {
+        return new FabricInventory(player);
+    }
 
     @Override
     public OPanelGameMode getGameMode() {

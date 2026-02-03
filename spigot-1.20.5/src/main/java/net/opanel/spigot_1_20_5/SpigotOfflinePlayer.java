@@ -35,4 +35,9 @@ public class SpigotOfflinePlayer extends BaseBukkitOfflinePlayer implements OPan
         BanList banList = server.getBanList(BanList.Type.NAME);
         runner.runTask(() -> banList.pardon(player.getName()));
     }
+
+    @Override
+    public SpigotOfflineInventory getInventory() {
+        return new SpigotOfflineInventory(playerDataPath);
+    }
 }

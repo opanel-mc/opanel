@@ -1,4 +1,4 @@
-import type { GameMode, ServerType } from "./types";
+import type { GameMode, ServerType, SetState } from "./types";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import locale from "locale-codes";
@@ -30,7 +30,7 @@ export function getRandomArrayItem<T>(arr: T[]): T {
   return arr[getRandom(0, arr.length - 1)];
 }
 
-export function getCurrentState<T>(setState: React.Dispatch<React.SetStateAction<T>>): Promise<T> {
+export function getCurrentState<T>(setState: SetState<T>): Promise<T> {
   return new Promise((resolve) => {
     setState((currentState) => {
       resolve(currentState);

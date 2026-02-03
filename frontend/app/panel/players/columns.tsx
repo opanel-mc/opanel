@@ -1,7 +1,8 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Player } from "@/lib/types";
 import { useEffect } from "react";
-import { Ban, BrushCleaning, Check, ShieldOff, Trash, UserMinus, UserPlus } from "lucide-react";
+import Link from "next/link";
+import { Backpack, Ban, BrushCleaning, Check, ShieldOff, Trash, UserMinus, UserPlus } from "lucide-react";
 import { base64ToString, gameModeToString, sleep } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
@@ -146,25 +147,33 @@ export const playerColumns: ColumnDef<Player>[] = [
               </Button>
             )
           )}
-          {isOnline && (
-            <Prompt
-              title={$("players.action.kick.prompt.title")}
-              description={$("players.action.kick.prompt.description")}
-              label={$("players.action.kick.prompt.label")}
-              placeholder={$("players.action.kick.prompt.placeholder")}
-              onAction={async (reason) => {
-                await kick(uuid, reason);
-                emitter.emit("refresh-data");
-              }}
-              asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                title={$("players.action.kick")}>
-                <BrushCleaning />
-              </Button>
-            </Prompt>
-          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            title="编辑背包"
+            asChild>
+            <Link href={`/panel/players/inventory?uuid=${uuid}`}>
+              <Backpack />
+            </Link>
+          </Button>
+          <Prompt
+            title={$("players.action.kick.prompt.title")}
+            description={$("players.action.kick.prompt.description")}
+            label={$("players.action.kick.prompt.label")}
+            placeholder={$("players.action.kick.prompt.placeholder")}
+            onAction={async (reason) => {
+              await kick(uuid, reason);
+              emitter.emit("refresh-data");
+            }}
+            asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              disabled={!isOnline}
+              title={$("players.action.kick")}>
+              <BrushCleaning />
+            </Button>
+          </Prompt>
           <Prompt
             title={$("players.action.ban.prompt.title")}
             description={$("players.action.ban.prompt.description")}

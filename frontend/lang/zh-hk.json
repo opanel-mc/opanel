@@ -292,6 +292,7 @@
   "players.action.set-gamemode.success": "已將該玩家嘅遊戲模式設置為{0}模式",
   "players.action.set-gamemode.error": "無法設定該玩家嘅遊戲模式",
   "players.action.set-gamemode.error.404": "搵唔到呢個玩家",
+  "players.inventory.ws.error": "無法連接到物品欄WebSocket",
 
   "gamerules.title": "遊戲規則",
   "gamerules.description": "設置伺服器當前世界的遊戲規則",

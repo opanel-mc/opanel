@@ -2,6 +2,7 @@ import type { Editor, OnMount } from "@monaco-editor/react";
 import type { ServerGamerules } from "./gamerules";
 
 export type ArrayItem<A> = A extends (infer T)[] ? T : never;
+export type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
 
 export type APIResponse<T> = {
   code: number
@@ -55,6 +56,23 @@ export interface Player {
 /** Bot player may not have a name */
 export interface UnnamedPlayer extends Player {
   name: never
+}
+
+export interface ItemStack {
+  /**
+   * - `slot !== -1`: Normal item stack
+   * - `slot === -1`: Item stack from item explorer
+   */
+  slot: number
+  id: string | null
+  count: number
+  nbt: null // todo
+}
+
+export interface PlayerInventory {
+  size: number
+  hash: string
+  items: ItemStack[]
 }
 
 export type Whitelist = {

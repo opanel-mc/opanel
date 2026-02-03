@@ -38,11 +38,6 @@ public abstract class BaseForgePlayer implements OPanelPlayer {
     }
 
     @Override
-    public ForgeInventory getInventory() {
-        return new ForgeInventory(player);
-    }
-
-    @Override
     public boolean isBanned() {
         return false;
     }

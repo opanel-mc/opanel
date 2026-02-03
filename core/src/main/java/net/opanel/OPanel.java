@@ -55,6 +55,9 @@ public class OPanel {
         // Initialize scheduled task manager
         scheduledTaskManager = new ScheduledTaskManager(this);
 
+        // Initialize inventory poller
+        OPanelPlayerInventoryChangeEvent.registerPoller(this);
+
         // Setup web server
         webServer = new WebServer(this);
     }
@@ -135,7 +138,6 @@ public class OPanel {
 
     public void setServer(OPanelServer server) {
         this.server = server;
-        OPanelPlayerInventoryChangeEvent.registerPoller(this);
     }
 
     public OPanelServer getServer() {

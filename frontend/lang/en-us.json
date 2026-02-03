@@ -292,6 +292,7 @@
   "players.action.set-gamemode.success": "The player's game mode has been set to {0} mode",
   "players.action.set-gamemode.error": "Unable to set the game mode for this player",
   "players.action.set-gamemode.error.404": "Player not found",
+  "players.inventory.ws.error": "Cannot connect to the WebSocket of inventory",
 
   "gamerules.title": "Game Rules",
   "gamerules.description": "Set the gamerules for the current world of the server",

@@ -1,7 +1,6 @@
 package net.opanel.spigot_1_21_9;
 
 import net.opanel.bukkit_helper.BaseBukkitOfflinePlayer;
-import net.opanel.bukkit_helper.TaskRunner;
 import net.opanel.common.OPanelPlayer;
 import org.bukkit.*;
 import org.bukkit.profile.PlayerProfile;
@@ -21,6 +20,11 @@ public class SpigotOfflinePlayer extends BaseBukkitOfflinePlayer implements OPan
     public void ban(String reason) {
         if(isBanned()) return;
         runner.runTask(() -> player.ban(reason, (Date) null, null));
+    }
+
+    @Override
+    public SpigotOfflineInventory getInventory() {
+        return new SpigotOfflineInventory(playerDataPath);
     }
 
     @Override

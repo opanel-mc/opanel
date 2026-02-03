@@ -7,11 +7,14 @@ import net.opanel.common.OPanelPlayer;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 
-import java.util.Date;
-
 public class FoliaPlayer extends BaseBukkitPlayer implements OPanelPlayer {
     public FoliaPlayer(Main plugin, Player player) {
         super(plugin, player);
+    }
+
+    @Override
+    public FoliaInventory getInventory() {
+        return new FoliaInventory(runner, player);
     }
 
     @Rewrite

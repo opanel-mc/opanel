@@ -1,9 +1,10 @@
+import type { SetState } from "@/lib/types";
 import React from "react";
 
 interface InputContextType {
   argValue: string
   prefix?: string
-  setSelected: React.Dispatch<React.SetStateAction<number | null>>
+  setSelected: SetState<number | null>
   complete: () => void
 }
 

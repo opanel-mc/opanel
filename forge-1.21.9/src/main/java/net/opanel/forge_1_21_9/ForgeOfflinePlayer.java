@@ -78,6 +78,11 @@ public class ForgeOfflinePlayer extends BaseForgeOfflinePlayer implements OPanel
     }
 
     @Override
+    public ForgeOfflineInventory getInventory() {
+        return new ForgeOfflineInventory(playerDataPath);
+    }
+
+    @Override
     public void ban(String reason) {
         if(isBanned()) return;
         UserBanList bannedList = playerManager.getBans();

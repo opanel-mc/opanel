@@ -15,6 +15,11 @@ public class ForgePlayer extends BaseForgePlayer implements OPanelPlayer {
     public ForgePlayer(ServerPlayer player) {
         super(player, player.getServer());
     }
+    
+    @Override
+    public ForgeInventory getInventory() {
+        return new ForgeInventory(player);
+    }
 
     @Override
     public boolean isOp() {

@@ -1,0 +1,49 @@
+"use client";
+
+import { useContext, useState } from "react";
+import { Search } from "lucide-react";
+import { InventoryContext } from "@/contexts/inventory-context";
+import { cn } from "@/lib/utils";
+import { InventoryItem } from "./inventory-item";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput
+} from "@/components/ui/input-group";
+
+export function ItemExplorer({ className }: { className?: string }) {
+  const ctx = useContext(InventoryContext);
+  const [searchValue, setSearchValue] = useState("");
+
+  if(!ctx) return <></>;
+
+  return (
+    <div className={cn("min-h-0 flex flex-col gap-2", className)}>
+      <div className="flex-1 border rounded-sm bg-background dark:bg-transparent flex flex-wrap content-start overflow-y-auto o-scrollbar">
+        {
+          ctx.textures
+            .filter(({ id, readable }) => (
+              id.includes(searchValue)
+              || readable.toLowerCase().includes(searchValue.toLowerCase())
+            ))
+            .map((item, i) => (
+              <InventoryItem
+                itemStack={{ id: item.id, count: 1, slot: -1, nbt: null }}
+                key={i}/>
+            ))
+        }
+      </div>
+      <InputGroup>
+        <InputGroupAddon>
+          <Search />
+        </InputGroupAddon>
+        <InputGroupInput
+          value={searchValue}
+          placeholder="搜索物品..."
+          autoFocus
+          autoComplete="off"
+          onChange={(e) => setSearchValue(e.target.value)}/>
+      </InputGroup>
+    </div>
+  );
+}

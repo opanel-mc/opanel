@@ -77,6 +77,11 @@ public class FabricOfflinePlayer extends BaseFabricOfflinePlayer implements OPan
     }
 
     @Override
+    public FabricOfflineInventory getInventory() {
+        return new FabricOfflineInventory(playerDataPath);
+    }
+
+    @Override
     public void ban(String reason) {
         if(isBanned()) return;
         BannedPlayerList bannedList = playerManager.getUserBanList();
