@@ -56,7 +56,7 @@ export function DatapacksDialog({
             {$("saves.datapacks.description", saveName)}
           </DialogDescription>
         </DialogHeader>
-        <div className="flex flex-col gap-4">
+        <div className="max-h-96 overflow-y-auto o-scrollbar flex flex-col gap-4">
           {
             [
               ...datapackList.filter(([datapack]) => datapack.startsWith("file/")), // custom datapacks
