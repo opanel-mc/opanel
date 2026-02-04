@@ -44,12 +44,12 @@ const info = [
   },
   {
     name: $("about.info.source"),
-    value: <a href="https://github.com/opanel-mc/opanel" target="_blank">opanel-mc/opanel</a>,
+    value: <a href="https://github.com/opanel-mc/opanel" target="_blank" rel="noopener noreferrer">opanel-mc/opanel</a>,
     icon: Github
   },
   {
     name: $("about.info.license"),
-    value: <a href="https://raw.githubusercontent.com/opanel-mc/opanel/refs/heads/main/LICENSE" target="_blank">MPL-2.0</a>,
+    value: <a href="https://raw.githubusercontent.com/opanel-mc/opanel/refs/heads/main/LICENSE" target="_blank" rel="noopener noreferrer">MPL-2.0</a>,
     icon: FileText
   }
 ];
@@ -94,7 +94,7 @@ export default function About() {
           size="icon"
           title={$("about.footer.donate")}
           asChild>
-          <Link href="https://nocp.space/donate" target="_blank">
+          <Link href="https://nocp.space/donate" target="_blank" rel="noopener noreferrer">
             <HandCoins />
           </Link>
         </Button>
@@ -103,7 +103,7 @@ export default function About() {
           size="icon"
           title={$("about.footer.github")}
           asChild>
-          <Link href="https://github.com/opanel-mc" target="_blank">
+          <Link href="https://github.com/opanel-mc" target="_blank" rel="noopener noreferrer">
             <Github />
           </Link>
         </Button>
@@ -112,7 +112,7 @@ export default function About() {
           size="icon"
           title={$("about.footer.website")}
           asChild>
-          <Link href="https://opanel.cn" target="_blank">
+          <Link href="https://opanel.cn" target="_blank" rel="noopener noreferrer">
             <Earth />
           </Link>
         </Button>
@@ -121,7 +121,7 @@ export default function About() {
           size="icon"
           title={$("about.footer.docs")}
           asChild>
-          <Link href="https://opanel.cn/docs/quick-start.html" target="_blank">
+          <Link href="https://opanel.cn/docs/quick-start.html" target="_blank" rel="noopener noreferrer">
             <BookText />
           </Link>
         </Button>

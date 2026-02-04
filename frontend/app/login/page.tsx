@@ -126,12 +126,12 @@ export default function Login() {
                             <br /><br />
                             <span>
                               <Text id="login.reset.content.line2"/>
-                              <Link href="https://opanel.cn/docs/quick-start.html#%E4%BD%BF%E7%94%A8" target="_blank">https://opanel.cn/docs/quick-start.html#使用</Link>
+                              <Link href="https://opanel.cn/docs/quick-start.html#%E4%BD%BF%E7%94%A8" target="_blank" rel="noopener noreferrer">https://opanel.cn/docs/quick-start.html#使用</Link>
                             </span>
                             <br />
                             <span>
                               <Text id="login.reset.content.line3"/>
-                              <Link href="https://opanel.cn/docs/configuration.html" target="_blank">https://opanel.cn/docs/configuration.html</Link>
+                              <Link href="https://opanel.cn/docs/configuration.html" target="_blank" rel="noopener noreferrer">https://opanel.cn/docs/configuration.html</Link>
                             </span>
                           </>
                         }

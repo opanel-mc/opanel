@@ -71,18 +71,21 @@ export function CreateCodeOfConductDialog({
                   <Link
                     href="https://simplelocalize.io/data/locales"
                     target="_blank"
+                    rel="noopener noreferrer"
                     key={0}>
                     https://simplelocalize.io/data/locales
                   </Link>,
                   <Link
                     href="https://iso.org/iso-639-language-code"
                     target="_blank"
+                    rel="noopener noreferrer"
                     key={1}>
                     ISO-639-1
                   </Link>,
                   <Link
                     href="https://iso.org/iso-3166-country-codes.html"
                     target="_blank"
+                    rel="noopener noreferrer"
                     key={2}>
                     ISO-3166
                   </Link>
