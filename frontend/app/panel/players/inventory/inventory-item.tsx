@@ -4,6 +4,8 @@ import { InventoryContext } from "@/contexts/inventory-context";
 import { cn } from "@/lib/utils";
 import { minecraftAE } from "@/lib/fonts";
 
+export const AIR = "minecraft:air";
+
 export function InventoryItem({
   itemStack,
   held = false,
@@ -38,13 +40,13 @@ export function InventoryItem({
       return;
     }
 
-    if(itemStack.id === currentlyHeldItem.id) {
-      addClickedWithHeldItem(itemStack);
+    if(isFromExplorer) { // just throw away the held item
+      setCurrentlyHeldItem(null);
       return;
     }
 
-    if(isFromExplorer) { // just throw away the held item
-      setCurrentlyHeldItem(null);
+    if(itemStack.id === currentlyHeldItem.id) {
+      addClickedWithHeldItem(itemStack, currentlyHeldItem.count);
       return;
     }
 
@@ -65,6 +67,23 @@ export function InventoryItem({
       halfClickedItem(itemStack);
       return;
     }
+
+    if(isFromExplorer) { // just throw away the held item
+      setCurrentlyHeldItem(null);
+      return;
+    }
+
+    if(itemStack.id === currentlyHeldItem.id) { // add one by one
+      addClickedWithHeldItem(itemStack, 1);
+      return;
+    }
+
+    if(itemStack.id === AIR) { // add one to empty slot
+      addClickedWithHeldItem({ ...itemStack, id: currentlyHeldItem.id }, 1);
+      return;
+    }
+
+    swapClickedWithHeldItem(itemStack);
   };
 
   if(!ctx) return <></>;
@@ -73,6 +92,7 @@ export function InventoryItem({
     <div
       data-slot="inventory-item"
       data-slot-id={itemStack.slot}
+      data-item-id={itemStack.id}
       className={cn(
         "relative h-[48px] max-md:h-[36px] aspect-square p-1 hover:bg-muted select-none",
         held && "pointer-events-none",
@@ -89,7 +109,11 @@ export function InventoryItem({
           alt={textureItem.id}/>
       )}
       {itemStack.count > 1 && (
-        <span className={cn("absolute -bottom-1 right-0 text-2xl max-md:text-lg text-white text-shadow-[3px_3px_0_#373737] select-none", minecraftAE.className)}>
+        <span className={cn(
+          "absolute -bottom-1 right-0 text-2xl max-md:text-lg text-white select-none",
+          "text-shadow-[-1px_-1px_0_#000,1px_-1px_0_#000,-1px_1px_0_#000,1px_1px_0_#000] dark:text-shadow-[3px_3px_0_#373737]",
+          minecraftAE.className
+        )}>
           {itemStack.count}
         </span>
       )}

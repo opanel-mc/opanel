@@ -7,7 +7,7 @@ interface InventoryContextType {
   currentlyHeldItem: ItemStack | null
   setCurrentlyHeldItem: SetState<ItemStack | null>
   swapClickedWithHeldItem: (clickedItem: ItemStack) => void
-  addClickedWithHeldItem: (clickedItem: ItemStack) => void
+  addClickedWithHeldItem: (clickedItem: ItemStack, count: number) => void
   removeClickedItem: (clickedItem: ItemStack) => void
   halfClickedItem: (clickedItem: ItemStack) => void
 }

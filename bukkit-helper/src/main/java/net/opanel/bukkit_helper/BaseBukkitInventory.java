@@ -45,7 +45,6 @@ public class BaseBukkitInventory implements OPanelInventory {
         runner.runTask(() -> {
             Inventory inventory = player.getInventory();
             inventory.clear();
-            if(items == null) return;
 
             for(OPanelItemStack item : items) {
                 inventory.setItem(item.slot, toItemStack(item));
@@ -55,7 +54,6 @@ public class BaseBukkitInventory implements OPanelInventory {
 
     @Override
     public void setItem(OPanelItemStack item) {
-        if(item == null) return;
         runner.runTask(() -> player.getInventory().setItem(item.slot, toItemStack(item)));
     }
 

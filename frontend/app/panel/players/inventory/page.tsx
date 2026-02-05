@@ -11,12 +11,10 @@ import { InventoryContent } from "./inventory-content";
 import { ItemExplorer } from "./item-explorer";
 import { VersionContext } from "@/contexts/api-context";
 import { getTextures } from "@/lib/texture";
-import { InventoryItem } from "./inventory-item";
+import { AIR, InventoryItem } from "./inventory-item";
 import { InventoryClient } from "@/lib/ws/inventory";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { emitter } from "@/lib/emitter";
-
-const AIR = "minecraft:air";
 
 export default function Inventory() {
   const searchParams = useSearchParams();
@@ -44,14 +42,25 @@ export default function Inventory() {
     positionHeldItemCountainer();
   }, []);
 
+  const minusHeldItemCount = (count: number) => {
+    if(!currentlyHeldItem) return;
+
+    const newCount = currentlyHeldItem.count - count;
+    if(newCount <= 0) {
+      setCurrentlyHeldItem(null);
+      return;
+    }
+    setCurrentlyHeldItem({ ...currentlyHeldItem, count: newCount });
+  };
+
   const swapClickedWithHeldItem = (clickedItem: ItemStack) => {
     setCurrentlyHeldItem(clickedItem.id === AIR ? null : clickedItem);
     client?.send("update", { ...currentlyHeldItem, slot: clickedItem.slot });
   };
 
-  const addClickedWithHeldItem = (clickedItem: ItemStack) => {
-    setCurrentlyHeldItem(null);
-    client?.send("update", { ...clickedItem, count: clickedItem.count + currentlyHeldItem!.count });
+  const addClickedWithHeldItem = (clickedItem: ItemStack, count: number) => {
+    minusHeldItemCount(count);
+    client?.send("update", { ...clickedItem, count: clickedItem.count + count });
   };
 
   const removeClickedItem = ({ slot }: ItemStack) => {

@@ -12,6 +12,7 @@ export function PasswordInput({
       <InputGroupInput
         type={visible ? "text" : "password"}
         autoComplete="off"
+        suppressHydrationWarning
         {...props}/>
       <InputGroupAddon align="inline-end">
         <InputGroupButton

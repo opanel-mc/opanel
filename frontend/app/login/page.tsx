@@ -110,7 +110,7 @@ export default function Login() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={(e) => e.preventDefault()}>
+            <form onSubmit={(e) => e.preventDefault()} suppressHydrationWarning>
               <FormField
                 control={form.control}
                 name="accessKey"

@@ -54,6 +54,13 @@ public class BaseBukkitOfflineInventory implements OPanelInventory {
             items.add(new OPanelItemStack(slot, id, count, null));
             nextSlot = slot + 1;
         }
+
+        if(nextSlot <= 35) {
+            for(int i = nextSlot; i < 36; i++) {
+                items.add(new OPanelItemStack(i, "minecraft:air", 0, null));
+            }
+        }
+
         return items;
     }
 
@@ -80,24 +87,45 @@ public class BaseBukkitOfflineInventory implements OPanelInventory {
 
     @Override
     public void setItem(OPanelItemStack item) {
-        if(item.isEmpty()) return;
-
         try {
             ReadWriteNBTCompoundList list = nbt.getCompoundList("Inventory");
             if(list == null) return;
 
-            for(int i = list.size() - 1; i >= 0; i--) {
-                ReadWriteNBT itemNbt = list.get(i);
-                if(itemNbt.getByte("Slot") == (byte) item.slot) {
-                    list.remove(i);
-                }
+            // Insert to the last
+            if(item.slot > list.get(list.size() - 1).getByte("Slot")) {
+                ReadWriteNBT newItemNbt = NBT.createNBTObject();
+                newItemNbt.setByte("Slot", (byte) item.slot);
+                newItemNbt.setString("id", item.id);
+                newItemNbt.setByte("count", (byte) item.count);
+                list.addCompound(newItemNbt);
+                return;
             }
 
-            ReadWriteNBT itemNbt = NBT.createNBTObject();
-            itemNbt.setByte("Slot", (byte) item.slot);
-            itemNbt.setString("id", item.id);
-            itemNbt.setByte("count", (byte) item.count);
-            list.addCompound(itemNbt);
+            for(int i = 0; i < list.size(); i++) {
+                ReadWriteNBT itemNbt = list.get(i);
+                int slot = itemNbt.getByte("Slot");
+
+                // Insert into an empty slot
+                if(slot > item.slot) {
+                    ReadWriteNBT newItemNbt = NBT.createNBTObject();
+                    newItemNbt.setByte("Slot", (byte) item.slot);
+                    newItemNbt.setString("id", item.id);
+                    newItemNbt.setByte("count", (byte) item.count);
+                    BukkitUtils.addCompoundToNBTList(list, newItemNbt, i);
+                    break;
+                }
+                // Remove the item
+                if(slot == item.slot && item.isEmpty()) {
+                    list.remove(i);
+                    break;
+                }
+                // Update the slot item
+                if(slot == item.slot) {
+                    itemNbt.setString("id", item.id);
+                    itemNbt.setByte("count", (byte) item.count);
+                    break;
+                }
+            }
             saveNbt();
         } catch (IOException e) {
             e.printStackTrace();

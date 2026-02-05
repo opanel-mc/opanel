@@ -15,7 +15,7 @@ export function InventoryContent({
     <div className={cn(
       "w-[calc(9*48px)] max-md:w-[calc(9*36px)]",
       "h-fit flex flex-col gap-2 [&_section]:border [&_section]:rounded-sm [&_section]:bg-background dark:[&_section]:bg-transparent [&_section]:grid [&_section]:grid-cols-9 [&_section]:overflow-hidden",
-      "[&_*]:data-[slot=inventory-item]:border-r [&_*]:data-[slot=inventory-item]:border-b [&_*]:data-[slot=inventory-item]:nth-[9n]:border-r-0",
+      "[&_*]:data-[slot=inventory-item]:border-muted [&_*]:data-[slot=inventory-item]:border-r [&_*]:data-[slot=inventory-item]:border-b [&_*]:data-[slot=inventory-item]:nth-[9n]:border-r-0",
       className
     )}>
       <section className="flex-3 grid-rows-3 [&_*]:data-[slot=inventory-item]:nth-[n+19]:border-b-0">
