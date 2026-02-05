@@ -82,3 +82,15 @@ export const $ = (id: TranslationKey, ...args: any[]) => {
     : localizeRich(id, ...args)
   );
 };
+
+export const $mc = (itemId: string) => {
+  if(!itemId.startsWith("minecraft:")) return itemId;
+
+  const itemKey = `item.minecraft.${itemId.replace("minecraft:", "")}` as TranslationKey;
+  const blockKey = `block.minecraft.${itemId.replace("minecraft:", "")}` as TranslationKey;
+
+  let text = localize(itemKey);
+  if(text === itemKey) text = localize(blockKey);
+  if(text === blockKey) text = itemId;
+  return text;
+}

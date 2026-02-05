@@ -9,6 +9,7 @@ build/
 /node_modules/
 /package.json
 /package-lock.json
+/frontend/assets/minecraft
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

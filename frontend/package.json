@@ -4,10 +4,12 @@
   "private": true,
   "description": "A Minecraft server management panel",
   "scripts": {
-    "dev": "next dev --turbopack -p 3001",
-    "build": "next build && node scripts/copy",
+    "dev": "npm run prepare && next dev --turbopack -p 3001",
+    "build": "npm run prepare && next build && npm run bundle",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "bundle": "node scripts/bundle",
+    "prepare": "node scripts/prepare force"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",

@@ -10,6 +10,7 @@ import {
   InputGroupAddon,
   InputGroupInput
 } from "@/components/ui/input-group";
+import { $ } from "@/lib/i18n";
 
 export function ItemExplorer({ className }: { className?: string }) {
   const ctx = useContext(InventoryContext);
@@ -39,7 +40,7 @@ export function ItemExplorer({ className }: { className?: string }) {
         </InputGroupAddon>
         <InputGroupInput
           value={searchValue}
-          placeholder="搜索物品..."
+          placeholder={$("players.inventory.explorer.search.placeholder")}
           autoFocus
           autoComplete="off"
           onChange={(e) => setSearchValue(e.target.value)}/>

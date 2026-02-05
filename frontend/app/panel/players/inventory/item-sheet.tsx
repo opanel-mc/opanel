@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { $ } from "@/lib/i18n"
 
+/** @todo */
 export function ItemSheet({
   itemStack,
   children,
@@ -30,9 +31,9 @@ export function ItemSheet({
       <SheetTrigger asChild={asChild}>{children}</SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>编辑物品 NBT</SheetTitle>
+          <SheetTitle>{$("players.inventory.nbt-editor.title")}</SheetTitle>
           <SheetDescription>
-            在此编辑物品的NBT标签数据。
+            {$("players.inventory.nbt-editor.description")}
           </SheetDescription>
         </SheetHeader>
         <div>

@@ -15,6 +15,7 @@ import { AIR, InventoryItem } from "./inventory-item";
 import { InventoryClient } from "@/lib/ws/inventory";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { emitter } from "@/lib/emitter";
+import { $ } from "@/lib/i18n";
 
 export default function Inventory() {
   const searchParams = useSearchParams();
@@ -118,10 +119,10 @@ export default function Inventory() {
 
   return (
     <SubPage
-      title="玩家"
-      subTitle="背包编辑"
-      description="查看和编辑玩家的背包内容"
-      category="服务器"
+      title={$("players.title")}
+      subTitle={$("players.inventory.title")}
+      description={$("players.inventory.description")}
+      category={$("sidebar.server")}
       icon={<Backpack />}
       pageClassName="min-xl:px-64!"
       className="min-h-0 h-full flex gap-4 max-lg:flex-col max-lg:items-center">

@@ -64,7 +64,7 @@ export interface ItemStack {
    * - `slot === -1`: Item stack from item explorer
    */
   slot: number
-  id: string | null
+  id: string
   count: number
   nbt: null // todo
 }

@@ -7,6 +7,7 @@ import { InventoryItem } from "./inventory-item";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { InventoryContext } from "@/contexts/inventory-context";
+import { $ } from "@/lib/i18n";
 
 export function InventoryContent({
   inventory,
@@ -21,11 +22,11 @@ export function InventoryContent({
   return (
     <div className="w-fit">
       <div className="flex justify-end items-center gap-2 mb-4">
-        <Label>NBT 编辑模式</Label>
+        <Label>{$("players.inventory.nbt-mode.label")}</Label>
         <Switch
           disabled={true}
           checked={nbtEditMode}
-          title="该功能尚未完成"
+          title={$("players.inventory.nbt-mode.tooltip")}
           onCheckedChange={setNbtEditMode}/>
       </div>
 

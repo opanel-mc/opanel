@@ -4,6 +4,7 @@ import { InventoryContext } from "@/contexts/inventory-context";
 import { cn } from "@/lib/utils";
 import { minecraftAE } from "@/lib/fonts";
 import { ItemSheet } from "./item-sheet";
+import { $mc } from "@/lib/i18n";
 
 export const AIR = "minecraft:air";
 
@@ -106,10 +107,10 @@ export function InventoryItem({
     if(e.button !== 1) return;
     if(held || !ctx || nbtEditMode) return;
 
-    // if(!isFromExplorer(itemStack)) {
-    //   setCurrentlyHeldItem({ ...itemStack, count: 64 });
-    //   return;
-    // }
+    if(!isFromExplorer(itemStack)) {
+      setCurrentlyHeldItem({ ...itemStack, count: 64 });
+      return;
+    }
   };
 
   if(!ctx) return <></>;
@@ -125,7 +126,7 @@ export function InventoryItem({
         (nbtEditMode && !isFromExplorer(itemStack)) && "cursor-pointer",
         className
       )}
-      title={textureItem ? textureItem.readable : ""}
+      title={$mc(itemStack.id)}
       onClick={() => handleLeftClick()}
       onContextMenu={(e) => handleRightClick(e)}
       onAuxClick={(e) => handleAuxClick(e)}
