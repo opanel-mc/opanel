@@ -85,10 +85,10 @@ public class FabricOfflinePlayer extends BaseFabricOfflinePlayer implements OPan
         playerManager.removeFromOperators(profile);
     }
     
-        @Override
-        public FabricOfflineInventory getInventory() {
-            return new FabricOfflineInventory(playerDataPath);
-        }
+    @Override
+    public FabricOfflineInventory getInventory() {
+        return new FabricOfflineInventory(playerDataPath);
+    }
 
     @Override
     public void ban(String reason) {

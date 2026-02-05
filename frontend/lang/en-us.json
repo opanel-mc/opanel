@@ -281,6 +281,7 @@
   "players.action.pardon.success": "The player has been unban",
   "players.action.pardon.error": "Unable to unban this player",
   "players.action.pardon.error.404": "Player not found",
+  "players.action.edit-inventory": "Edit Inventory",
   "players.action.remove": "Delete player data",
   "players.action.remove.success": "The player's game data has been deleted",
   "players.action.remove.error": "Unable to delete this player's game data",

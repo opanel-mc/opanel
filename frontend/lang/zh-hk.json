@@ -281,6 +281,7 @@
   "players.action.pardon.success": "已解封該玩家",
   "players.action.pardon.error": "無法解封該玩家",
   "players.action.pardon.error.404": "搵唔到呢個玩家",
+  "players.action.edit-inventory": "編輯背包",
   "players.action.remove": "刪除玩家資料",
   "players.action.remove.success": "已刪除該玩家嘅遊戲數據",
   "players.action.remove.error": "無法刪除該玩家嘅遊戲數據",

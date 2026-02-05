@@ -150,7 +150,7 @@ export const playerColumns: ColumnDef<Player>[] = [
           <Button
             variant="ghost"
             size="icon"
-            title="编辑背包"
+            title={$("players.action.edit-inventory")}
             asChild>
             <Link href={`/panel/players/inventory?uuid=${uuid}`}>
               <Backpack />
