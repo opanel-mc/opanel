@@ -49,10 +49,13 @@ jobs:
         df -h
 
     - uses: actions/checkout@v4
-    - name: Use JDK ${{ matrix.java-version }}
+    - name: Use JDK 21, 17, 14
       uses: actions/setup-java@v4
       with:
-        java-version: ${{ matrix.java-version }}
+        java-version: |
+          21
+          17
+          14
         distribution: "microsoft"
         cache: "gradle"
     - name: Change wrapper permissions
