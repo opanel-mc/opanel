@@ -63,12 +63,14 @@
     "@types/react-dom": "^19",
     "@types/semver": "^7.7.1",
     "@types/textarea-caret": "^3.0.4",
+    "@types/yauzl": "^2.10.3",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
     "eslint-plugin-import": "^2.32.0",
     "tailwind-scrollbar": "^4.0.2",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "yauzl": "^3.2.0"
   }
 }
