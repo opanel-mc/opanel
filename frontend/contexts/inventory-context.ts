@@ -6,6 +6,8 @@ interface InventoryContextType {
   textures: Item[]
   currentlyHeldItem: ItemStack | null
   setCurrentlyHeldItem: SetState<ItemStack | null>
+  nbtEditMode: boolean
+  setNbtEditMode: SetState<boolean>
   swapClickedWithHeldItem: (clickedItem: ItemStack) => void
   addClickedWithHeldItem: (clickedItem: ItemStack, count: number) => void
   removeClickedItem: (clickedItem: ItemStack) => void

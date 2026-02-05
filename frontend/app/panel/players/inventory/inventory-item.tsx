@@ -3,6 +3,7 @@ import { type MouseEvent, type RefObject, useContext, useMemo } from "react";
 import { InventoryContext } from "@/contexts/inventory-context";
 import { cn } from "@/lib/utils";
 import { minecraftAE } from "@/lib/fonts";
+import { ItemSheet } from "./item-sheet";
 
 export const AIR = "minecraft:air";
 
@@ -19,8 +20,10 @@ export function InventoryItem({
 }) {
   const ctx = useContext(InventoryContext);
   const {
+    textures,
     currentlyHeldItem,
     setCurrentlyHeldItem,
+    nbtEditMode,
     swapClickedWithHeldItem,
     addClickedWithHeldItem,
     removeClickedItem,
@@ -28,11 +31,11 @@ export function InventoryItem({
   } = ctx;
   const isFromExplorer = itemStack.slot === -1;
   const textureItem = useMemo(() => (
-    ctx.textures.find(({ id }) => id === itemStack.id)
-  ), [ctx.textures, itemStack.id]);
+    textures.find(({ id }) => id === itemStack.id)
+  ), [textures, itemStack.id]);
 
   const handleLeftClick = () => {
-    if(held || !ctx) return;
+    if(held || !ctx || nbtEditMode) return;
 
     if(!currentlyHeldItem) { // pick up the item
       setCurrentlyHeldItem(itemStack);
@@ -55,7 +58,7 @@ export function InventoryItem({
 
   const handleRightClick = (e: MouseEvent) => {
     e.preventDefault();
-    if(held || !ctx) return;
+    if(held || !ctx || nbtEditMode) return;
 
     if(!currentlyHeldItem && isFromExplorer) { // pick up 64 from explorer
       setCurrentlyHeldItem({ ...itemStack, count: 64 });
@@ -88,14 +91,15 @@ export function InventoryItem({
 
   if(!ctx) return <></>;
 
-  return (
+  const itemComponent = (
     <div
       data-slot="inventory-item"
       data-slot-id={itemStack.slot}
       data-item-id={itemStack.id}
       className={cn(
-        "relative h-[48px] max-md:h-[36px] aspect-square p-1 hover:bg-muted select-none",
+        "relative h-[48px] max-md:h-[36px] aspect-square p-1 hover:bg-muted select-none z-10",
         held && "pointer-events-none",
+        (nbtEditMode && !isFromExplorer) && "cursor-pointer",
         className
       )}
       title={textureItem ? textureItem.readable : ""}
@@ -118,5 +122,16 @@ export function InventoryItem({
         </span>
       )}
     </div>
+  );
+
+  if(isFromExplorer) return itemComponent;
+
+  return (
+    <ItemSheet
+      itemStack={itemStack}
+      disabled={!nbtEditMode}
+      asChild>
+      {itemComponent}
+    </ItemSheet>
   );
 }

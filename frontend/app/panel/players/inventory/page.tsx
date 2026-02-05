@@ -24,9 +24,17 @@ export default function Inventory() {
   const [textures, setTextures] = useState<Item[] | null>(null);
   const [inventory, setInventory] = useState<PlayerInventory | null>(null);
   const [currentlyHeldItem, setCurrentlyHeldItem] = useState<ItemStack | null>(null);
+  const [nbtEditMode, setNbtEditMode] = useState(false);
   const heldItemElemRef = useRef<HTMLDivElement | null>(null);
   const mousePositionRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const client = useWebSocket(InventoryClient, uuid ?? "");
+
+  // Get textures by mc version
+  useEffect(() => {
+    if(!versionCtx) return;
+
+    getTextures(versionCtx.version).then(setTextures);
+  }, [versionCtx]);
 
   const positionHeldItemCountainer = () => {
     if(!heldItemElemRef.current) return;
@@ -70,13 +78,6 @@ export default function Inventory() {
   const halfClickedItem = (clickedItem: ItemStack) => {
     client?.send("update", { ...clickedItem, count: Math.floor(clickedItem.count / 2) });
   };
-
-  // Get textures by mc version
-  useEffect(() => {
-    if(!versionCtx) return;
-
-    getTextures(versionCtx.version).then(setTextures);
-  }, [versionCtx]);
 
   useEffect(() => {
     if(!client) return;
@@ -128,6 +129,8 @@ export default function Inventory() {
         textures,
         currentlyHeldItem,
         setCurrentlyHeldItem,
+        nbtEditMode,
+        setNbtEditMode,
         swapClickedWithHeldItem,
         addClickedWithHeldItem,
         removeClickedItem,
