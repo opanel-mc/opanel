@@ -8,4 +8,9 @@ public class FoliaOfflineInventory extends BaseBukkitOfflineInventory {
     public FoliaOfflineInventory(Path playerDataPath) {
         super(playerDataPath);
     }
+
+    @Override
+    protected String keyOfCount() {
+        return "Count";
+    }
 }

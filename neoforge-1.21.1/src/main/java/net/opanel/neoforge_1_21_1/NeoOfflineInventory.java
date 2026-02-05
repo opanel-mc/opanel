@@ -14,54 +14,75 @@ import java.util.List;
 
 public class NeoOfflineInventory implements OPanelInventory {
     private final Path playerDataPath;
+    private CompoundTag nbt;
+    private ListTag nbtList;
 
     public NeoOfflineInventory(Path playerDataPath) {
         this.playerDataPath = playerDataPath;
+
+        try {
+            nbt = NbtIo.readCompressed(playerDataPath, NbtAccounter.unlimitedHeap());
+            nbtList = nbt.getList("Inventory", ListTag.TAG_COMPOUND);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected void saveNbt() throws IOException {
+        nbt.put("Inventory", nbtList);
+        NbtIo.writeCompressed(nbt, playerDataPath);
     }
 
     @Override
     public int getSize() {
-        return 41;
+        return nbtList.size();
     }
 
     @Override
     public List<OPanelItemStack> getItems() {
         List<OPanelItemStack> items = new ArrayList<>();
-        try {
-            CompoundTag nbt = NbtIo.readCompressed(playerDataPath, NbtAccounter.unlimitedHeap());
-            ListTag list = nbt.getList("Inventory", Tag.TAG_COMPOUND);
-            for(int i = 0; i < list.size(); i++) {
-                CompoundTag itemTag = list.getCompound(i);
-                int slot = itemTag.getByte("Slot");
-                String id = itemTag.getString("id");
-                int count = itemTag.getByte("Count");
-                items.add(new OPanelItemStack(slot, id, count, null));
+
+        int nextSlot = 0;
+        for(int i = 0; i < nbtList.size(); i++) {
+            CompoundTag itemNbt = nbtList.getCompound(i);
+            int slot = itemNbt.getByte("Slot");
+            if(slot > nextSlot) {
+                for(int j = nextSlot; j < slot; j++) {
+                    items.add(new OPanelItemStack(j, "minecraft:air", 0, null));
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+
+            String id = itemNbt.getString("id");
+            int count = itemNbt.getByte("count");
+            items.add(new OPanelItemStack(slot, id, count, null));
+            nextSlot = slot + 1;
         }
+
+        if(nextSlot <= 35) {
+            for(int i = nextSlot; i < 36; i++) {
+                items.add(new OPanelItemStack(i, "minecraft:air", 0, null));
+            }
+        }
+
         return items;
     }
 
     @Override
     public void setItems(List<OPanelItemStack> items) {
+        if(nbtList.isEmpty()) return;
+
         try {
-            CompoundTag nbt = NbtIo.readCompressed(playerDataPath, NbtAccounter.unlimitedHeap());
-            ListTag list = new ListTag();
+            nbtList.clear();
 
-            if(items != null) {
-                for(OPanelItemStack item : items) {
-                    if(item == null || item.isEmpty()) continue;
-                    CompoundTag itemTag = new CompoundTag();
-                    itemTag.putByte("Slot", (byte) item.slot);
-                    itemTag.putString("id", item.id);
-                    itemTag.putByte("Count", (byte) item.count);
-                    list.add(itemTag);
-                }
+            for(OPanelItemStack item : items) {
+                if(item == null || item.isEmpty()) continue;
+                CompoundTag itemNbt = new CompoundTag();
+                itemNbt.putByte("Slot", (byte) item.slot);
+                itemNbt.putString("id", item.id);
+                itemNbt.putByte("count", (byte) item.count);
+                nbtList.add(itemNbt);
             }
-
-            nbt.put("Inventory", list);
-            NbtIo.writeCompressed(nbt, playerDataPath);
+            saveNbt();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -69,28 +90,46 @@ public class NeoOfflineInventory implements OPanelInventory {
 
     @Override
     public void setItem(OPanelItemStack item) {
-        if(item == null) return;
         try {
-            CompoundTag nbt = NbtIo.readCompressed(playerDataPath, NbtAccounter.unlimitedHeap());
-            ListTag list = nbt.getList("Inventory", Tag.TAG_COMPOUND);
+            if(nbtList == null) return;
 
-            for(int i = list.size() - 1; i >= 0; i--) {
-                CompoundTag itemTag = list.getCompound(i);
-                if(itemTag.getByte("Slot") == (byte) item.slot) {
-                    list.remove(i);
+            // Insert to the last
+            if(item.slot > nbtList.getCompound(nbtList.size() - 1).getByte("Slot")) {
+                CompoundTag newItemNbt = new CompoundTag();
+                newItemNbt.putByte("Slot", (byte) item.slot);
+                newItemNbt.putString("id", item.id);
+                newItemNbt.putByte("count", (byte) item.count);
+                nbtList.add(newItemNbt);
+                saveNbt();
+                return;
+            }
+
+            for(int i = 0; i < nbtList.size(); i++) {
+                CompoundTag itemNbt = nbtList.getCompound(i);
+                int slot = itemNbt.getByte("Slot");
+
+                // Insert into an empty slot
+                if(slot > item.slot) {
+                    CompoundTag newItemNbt = new CompoundTag();
+                    newItemNbt.putByte("Slot", (byte) item.slot);
+                    newItemNbt.putString("id", item.id);
+                    newItemNbt.putByte("count", (byte) item.count);
+                    NeoUtils.addCompoundToNBTList(nbtList, newItemNbt, i);
+                    break;
+                }
+                // Remove the item
+                if(slot == item.slot && item.isEmpty()) {
+                    nbtList.remove(i);
+                    break;
+                }
+                // Update the slot item
+                if(slot == item.slot) {
+                    itemNbt.putString("id", item.id);
+                    itemNbt.putByte("count", (byte) item.count);
+                    break;
                 }
             }
-
-            if(!item.isEmpty()) {
-                CompoundTag itemTag = new CompoundTag();
-                itemTag.putByte("Slot", (byte) item.slot);
-                itemTag.putString("id", item.id);
-                itemTag.putByte("Count", (byte) item.count);
-                list.add(itemTag);
-            }
-
-            nbt.put("Inventory", list);
-            NbtIo.writeCompressed(nbt, playerDataPath);
+            saveNbt();
         } catch (IOException e) {
             e.printStackTrace();
         }

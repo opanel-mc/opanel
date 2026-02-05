@@ -9,7 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BaseBukkitInventory implements OPanelInventory {
+public abstract class BaseBukkitInventory implements OPanelInventory {
     protected final TaskRunner runner;
     protected final Player player;
 
@@ -26,7 +26,7 @@ public class BaseBukkitInventory implements OPanelInventory {
     @Override
     public List<OPanelItemStack> getItems() {
         Inventory inventory = player.getInventory();
-        int size = inventory.getSize();
+        int size = getSize();
         List<OPanelItemStack> items = new ArrayList<>(size);
 
         for(int i = 0; i < size; i++) {

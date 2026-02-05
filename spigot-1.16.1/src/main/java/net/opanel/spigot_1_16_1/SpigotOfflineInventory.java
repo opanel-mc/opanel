@@ -8,4 +8,9 @@ public class SpigotOfflineInventory extends BaseBukkitOfflineInventory {
     public SpigotOfflineInventory(Path playerDataPath) {
         super(playerDataPath);
     }
+
+    @Override
+    protected String keyOfCount() {
+        return "Count";
+    }
 }
