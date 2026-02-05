@@ -36,6 +36,7 @@ public class Main extends JavaPlugin implements Listener, TaskRunner {
         final LoggerImpl logger = new LoggerImpl(LOGGER);
 
         saveDefaultConfig();
+        System.setProperty("opanel.backup.config.dir", getDataFolder().toPath().toString());
         instance = new OPanel(new ConfigManagerImpl(getConfig(), this), logger);
 
         initLogListenerAppender();

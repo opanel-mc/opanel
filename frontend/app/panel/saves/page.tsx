@@ -1,12 +1,13 @@
 "use client";
 
-import type { Save, SavesResponse } from "@/lib/types";
+import type { Save, SavesResponse, BackupTriggerResponse } from "@/lib/types";
 import { useEffect, useState } from "react";
-import { Earth, Upload } from "lucide-react";
+import { Archive, Earth, Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { SubPage } from "../sub-page";
 import { SaveCard } from "./save-card";
-import { sendGetRequest, toastError, uploadFile } from "@/lib/api";
+import { BackupSheet } from "./backup-sheet";
+import { sendGetRequest, sendPostRequest, toastError, uploadFile } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import { emitter } from "@/lib/emitter";
@@ -32,6 +33,7 @@ export default function Saves() {
   const [uploadName, setUploadName] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [backupLoading, setBackupLoading] = useState(false);
 
   const fetchServerWorlds = async () => {
     try {
@@ -48,7 +50,7 @@ export default function Saves() {
   const handleUpload = async (file: File) => {
     setUploadVisible(false);
 
-    if(!file.name.endsWith(".zip")) {
+    if (!file.name.endsWith(".zip")) {
       toast.error($("saves.upload.error"), { description: $("saves.upload.error.description") });
       return;
     }
@@ -96,8 +98,8 @@ export default function Saves() {
             handleUpload(e.dataTransfer.files[0]);
           }}
           onDragOver={(e) => e.preventDefault()}
-          onDragLeave={() => setUploadVisible(false)}/>
-        <Upload size={60} stroke="var(--color-muted-foreground)"/>
+          onDragLeave={() => setUploadVisible(false)} />
+        <Upload size={60} stroke="var(--color-muted-foreground)" />
         <span className="text-muted-foreground">{$("saves.dnd.label")}</span>
       </div>
 
@@ -111,42 +113,72 @@ export default function Saves() {
             <div className="w-72 self-end max-md:w-full flex flex-col justify-end items-end gap-2">
               <Text
                 id="saves.progress.label"
-                args={[uploadName]}/>
-              <Progress value={uploadProgress * 100} className="h-1"/>
+                args={[uploadName]} />
+              <Progress value={uploadProgress * 100} className="h-1" />
             </div>
           )}
         </div>
         <div className="flex justify-between items-end">
           <h2 className="text-lg font-semibold">{$("saves.list.title")}</h2>
-          <AlertDialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
-            <AlertDialogTrigger asChild>
-              <Button className="cursor-pointer">
-                <Upload />
-                {$("saves.list.upload")}
+          <div className="flex gap-2">
+            <BackupSheet asChild>
+              <Button variant="outline" className="cursor-pointer">
+                <Archive />
+                {$("backup.list.title")}
               </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>{$("saves.list.upload.title")}</AlertDialogTitle>
-                <AlertDialogDescription>{$("saves.list.upload.description")}</AlertDialogDescription>
-              </AlertDialogHeader>
-              <Label>{$("saves.list.upload.input.label")}</Label>
-              <Input
-                type="file"
-                accept=".zip"
-                onChange={(e) => {
-                  const fileList = (e.target as HTMLInputElement).files;
-                  fileList && handleUpload(fileList[0]);
-                  setUploadDialogOpen(false);
-                }}/>
-              <AlertDialogFooter>
-                <AlertDialogCancel>{$("dialog.close")}</AlertDialogCancel>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+            </BackupSheet>
+            <Button
+              variant="outline"
+              className="cursor-pointer"
+              disabled={backupLoading}
+              onClick={async () => {
+                setBackupLoading(true);
+                try {
+                  await sendPostRequest<BackupTriggerResponse>("/api/backup/trigger");
+                  toast.success($("backup.trigger.success"));
+                } catch (e: any) {
+                  toastError(e, $("backup.trigger.error"), [
+                    [400, $("backup.trigger.error.not-configured")],
+                    [401, $("common.error.401")],
+                    [500, $("common.error.500")]
+                  ]);
+                } finally {
+                  setBackupLoading(false);
+                }
+              }}>
+              {backupLoading ? <Loader2 className="animate-spin" /> : <Archive />}
+              {$("backup.trigger")}
+            </Button>
+            <AlertDialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+              <AlertDialogTrigger asChild>
+                <Button className="cursor-pointer">
+                  <Upload />
+                  {$("saves.list.upload")}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{$("saves.list.upload.title")}</AlertDialogTitle>
+                  <AlertDialogDescription>{$("saves.list.upload.description")}</AlertDialogDescription>
+                </AlertDialogHeader>
+                <Label>{$("saves.list.upload.input.label")}</Label>
+                <Input
+                  type="file"
+                  accept=".zip"
+                  onChange={(e) => {
+                    const fileList = (e.target as HTMLInputElement).files;
+                    fileList && handleUpload(fileList[0]);
+                    setUploadDialogOpen(false);
+                  }} />
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{$("dialog.close")}</AlertDialogCancel>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
         <div className="pt-2 grid grid-cols-3 max-xl:grid-cols-2 max-lg:flex flex-col gap-4">
-          {saves.map((save, i) => <SaveCard save={save} key={i}/>)}
+          {saves.map((save, i) => <SaveCard save={save} key={i} />)}
         </div>
       </div>
     </SubPage>

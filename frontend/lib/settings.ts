@@ -13,7 +13,7 @@ import { version } from "./global";
 const storageKey = "opanel.settings";
 
 function getLocalStorage() {
-  if(typeof window !== "undefined" && window.localStorage) {
+  if (typeof window !== "undefined" && window.localStorage) {
     return window.localStorage;
   }
   throw new Error("localStorage is not defined.");
@@ -41,6 +41,7 @@ export type SettingsStorageType = {
   "system.preview-channel": boolean
   "system.access-key"?: never
   "system.check-update"?: never
+  "backup.config"?: never
   "state.players.tab": "player-list" | "banned-list"
   "state.plugins.tab": "enabled-list" | "disabled-list"
   "state.terminal.history": string[]
@@ -94,14 +95,14 @@ function getSettingsStorage(): SettingsStorageType {
   }
 
   const settingsStr = storage.getItem(storageKey);
-  if(!settingsStr) {
+  if (!settingsStr) {
     resetSettings();
     return defaultSettings;
   }
-  
+
   const settings = JSON.parse(settingsStr ?? "{}");
-  for(const key in defaultSettings) {
-    if(settings[key] === undefined) {
+  for (const key in defaultSettings) {
+    if (settings[key] === undefined) {
       settings[key] = defaultSettings[key as keyof SettingsStorageType];
     }
   }

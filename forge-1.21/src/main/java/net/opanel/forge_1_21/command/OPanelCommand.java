@@ -7,6 +7,7 @@ import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.opanel.OPanel;
+import net.opanel.backup.BackupManager;
 import net.opanel.common.Constants;
 import net.opanel.forge_1_21.Main;
 import net.opanel.web.WebServer;
@@ -28,53 +29,90 @@ public class OPanelCommand {
                         .then(
                                 literal("about")
                                         .executes(ctx -> {
-                                            ctx.getSource().sendSuccess(() -> Component.nullToEmpty(Constants.ABOUT_INFO), false);
+                                            ctx.getSource().sendSuccess(
+                                                    () -> Component.nullToEmpty(Constants.ABOUT_INFO), false);
                                             return 1;
-                                        })
-                        )
+                                        }))
                         .then(
                                 literal("status")
                                         .executes(ctx -> {
-                                            ctx.getSource().sendSuccess(() -> Component.nullToEmpty(instance.getStatus()), false);
+                                            ctx.getSource().sendSuccess(
+                                                    () -> Component.nullToEmpty(instance.getStatus()), false);
                                             return 1;
-                                        })
-                        )
+                                        }))
                         .then(
                                 literal("start")
                                         .executes(ctx -> {
                                             WebServer webServer = instance.getWebServer();
-                                            if(webServer.isRunning()) {
-                                                ctx.getSource().sendSuccess(() -> Component.nullToEmpty("Web panel is already started."), false);
+                                            if (webServer.isRunning()) {
+                                                ctx.getSource().sendSuccess(
+                                                        () -> Component.nullToEmpty("Web panel is already started."),
+                                                        false);
                                             } else {
                                                 try {
                                                     webServer.start();
-                                                    ctx.getSource().sendSuccess(() -> Component.nullToEmpty("Web panel is started successfully."), false);
+                                                    ctx.getSource().sendSuccess(
+                                                            () -> Component
+                                                                    .nullToEmpty("Web panel is started successfully."),
+                                                            false);
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                     return 0;
                                                 }
                                             }
                                             return 1;
-                                        })
-                        )
+                                        }))
                         .then(
                                 literal("stop")
                                         .executes(ctx -> {
                                             WebServer webServer = instance.getWebServer();
-                                            if(!webServer.isRunning()) {
-                                                ctx.getSource().sendSuccess(() -> Component.nullToEmpty("Web panel is already stopped."), false);
+                                            if (!webServer.isRunning()) {
+                                                ctx.getSource().sendSuccess(
+                                                        () -> Component.nullToEmpty("Web panel is already stopped."),
+                                                        false);
                                             } else {
                                                 try {
                                                     webServer.stop();
-                                                    ctx.getSource().sendSuccess(() -> Component.nullToEmpty("Web panel is stopped successfully."), false);
+                                                    ctx.getSource().sendSuccess(
+                                                            () -> Component
+                                                                    .nullToEmpty("Web panel is stopped successfully."),
+                                                            false);
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                     return 0;
                                                 }
                                             }
                                             return 1;
-                                        })
-                        )
-        );
+                                        }))
+                        .then(
+                                literal("backup")
+                                        .executes(ctx -> {
+                                            BackupManager backupManager = instance.getBackupManager();
+                                            if (backupManager == null || !backupManager.isConfigured()) {
+                                                ctx.getSource().sendSuccess(() -> Component.nullToEmpty(
+                                                        "§cBackup is not configured. Please configure backup settings first."),
+                                                        false);
+                                            } else {
+                                                ctx.getSource().sendSuccess(
+                                                        () -> Component.nullToEmpty("§aStarting backup..."), false);
+                                                CommandSourceStack source = ctx.getSource();
+                                                backupManager.performBackupAsync(() -> {
+                                                    instance.getServer().saveAll();
+                                                }).thenAccept(result -> {
+                                                    if (result.isSuccess()) {
+                                                        source.sendSuccess(
+                                                                () -> Component.nullToEmpty("§aBackup completed: "
+                                                                        + result.getBackupInfo().getFileName()),
+                                                                false);
+                                                    } else {
+                                                        source.sendSuccess(
+                                                                () -> Component.nullToEmpty(
+                                                                        "§cBackup failed: " + result.getMessage()),
+                                                                false);
+                                                    }
+                                                });
+                                            }
+                                            return 1;
+                                        })));
     }
 }

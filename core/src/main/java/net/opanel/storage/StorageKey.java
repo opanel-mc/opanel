@@ -1,7 +1,8 @@
 package net.opanel.storage;
 
 public enum StorageKey {
-    SCHEDULED_TASKS("scheduled-tasks");
+    SCHEDULED_TASKS("scheduled-tasks"),
+    BACKUP_CONFIG("backup-config");
 
     private final String id;
 

@@ -1,6 +1,5 @@
 {
   "$lang": "繁體中文（香港）",
-
   "common.error.400": "請求參數錯誤",
   "common.error.401": "未登入",
   "common.error.500": "伺服器內部錯誤",
@@ -12,7 +11,6 @@
   "common.difficulty.easy": "簡單",
   "common.difficulty.normal": "普通",
   "common.difficulty.hard": "困難",
-
   "about": "關於",
   "about.title": "關於",
   "about.description": "係一個開箱即用嘅 Minecraft 伺服器管理面板，支援 Bukkit、Fabric 同 Forge 等多個平台。",
@@ -26,7 +24,6 @@
   "about.footer.github": "Github 主頁",
   "about.footer.website": "OPanel 官方網站",
   "about.footer.docs": "OPanel 文檔",
-
   "login": "登入",
   "login.title": "Minecraft 伺服器管理面板",
   "login.form.title": "登入 OPanel",
@@ -45,11 +42,9 @@
   "login.reset.content.action2": "重新啟動伺服器",
   "login.reset.content.line2": "具體步驟請參考文件：",
   "login.reset.content.line3": "配置檔案路徑請參閱：",
-
   "not-found.description": "你訪問嘅路徑唔存在",
   "not-found.home": "面板主頁",
   "not-found.back": "返回上一頁",
-
   "sidebar.server": "伺服器",
   "sidebar.server.dashboard": "儀表板",
   "sidebar.server.saves": "存檔",
@@ -63,28 +58,22 @@
   "sidebar.config": "配置",
   "sidebar.config.tasks": "定時任務",
   "sidebar.config.bukkit-config": "Bukkit 配置",
-
   "nav.settings": "設定",
   "nav.docs": "文檔",
-  
   "functional-card.more": "更多",
-
   "dialog.cancel": "取消",
   "dialog.close": "關閉",
   "dialog.confirm": "確定",
   "dialog.save": "儲存",
   "dialog.create": "新建",
-
   "online-badge.online": "在線",
   "online-badge.offline": "離線",
-
   "table.empty": "暫無數據",
   "table.to-first": "跳去第一頁",
   "table.to-last": "跳去最後一頁",
   "table.previous": "上一頁",
   "table.next": "下一頁",
   "table.status": "第 {0} 頁 / 共 {1} 頁",
-
   "dashboard.title": "儀表板",
   "dashboard.error": "無法連接到伺服器",
   "dashboard.info.version": "版本:",
@@ -147,7 +136,6 @@
   "dashboard.properties.save.error": "無法儲存 server.properties",
   "dashboard.properties.hint1": "需要重啟伺服器先至改動生效。",
   "dashboard.properties.hint2": "伺服器配置屬性描述資料均來自{0}同{1}。",
-
   "saves.title": "存檔",
   "saves.description": "管理和上傳伺服器文件夾下的存檔文件",
   "saves.hint.line1": "將存檔壓縮包（zip格式）拖入頁面進行導入。如果存檔壓縮包內包含單一存檔資料夾，壓縮包名稱需與資料夾名稱一致，否則會拒絕導入。",
@@ -198,7 +186,6 @@
   "saves.datapacks.toggle.disable.error": "停用數據包 {0} 失敗",
   "saves.datapacks.toggle.error.403": "禁止操作 vanilla 數據包",
   "saves.datapacks.toggle.error.404": "搵唔到數據包 {0}",
-
   "players.title": "玩家",
   "players.description": "管理伺服器內的所有在線和離線玩家，設置白名單和黑名單",
   "players.hint": "點擊玩家名以進行更多操作。",
@@ -292,7 +279,6 @@
   "players.action.set-gamemode.success": "已將該玩家嘅遊戲模式設置為{0}模式",
   "players.action.set-gamemode.error": "無法設定該玩家嘅遊戲模式",
   "players.action.set-gamemode.error.404": "搵唔到呢個玩家",
-
   "gamerules.title": "遊戲規則",
   "gamerules.description": "設置伺服器當前世界的遊戲規則",
   "gamerules.fetch.error": "無法獲取伺服器遊戲規則資訊",
@@ -303,7 +289,6 @@
   "gamerules.hint1": "編輯遊戲規則後需要儲存先會生效。",
   "gamerules.hint2": "{0} 以儲存更改",
   "gamerules.hint3": "遊戲規則名稱同描述資訊都嚟自{0}",
-
   "plugins.title": "插件",
   "plugins.description": "使用插件 / 模組以擴展伺服器功能和玩法",
   "plugins.search.placeholder": "搜尋插件...",
@@ -344,7 +329,6 @@
   "plugins.action.delete.error": "無法刪除插件 {0}",
   "plugins.action.delete.error.403": "無法刪除已加載的插件",
   "plugins.action.delete.error.404": "搵唔到插件 {0}",
-
   "terminal.title": "後台",
   "terminal.ws.error": "無法連接到終端WebSocket",
   "terminal.input.empty": "請輸入指令以發送",
@@ -352,7 +336,6 @@
   "terminal.clear": "清空",
   "terminal.send": "發送",
   "terminal.history": "歷史紀錄",
-
   "logs.title": "日誌",
   "logs.description": "管理和查看伺服器的所有日誌文件",
   "logs.fetch.error": "無法獲取日誌列表",
@@ -377,7 +360,6 @@
   "logs.view.hint": "文件類型：{0}",
   "logs.view.decompressed": "已解壓",
   "logs.view.monaco.readonly": "日誌唔可以編輯",
-
   "coc.title": "行為準則",
   "coc.description": "管理和編輯伺服器的行為準則文件，以規範玩家在伺服器內的行為",
   "coc.error.503": "呢個服務器版本唔支援行為準則",
@@ -401,7 +383,6 @@
   "coc.create.input.label": "語言",
   "coc.create.input.placeholder": "請輸入語言代碼...（例如：zh_cn）",
   "coc.create.input.description": "語言代碼可參考 {0}\n遵循{1}與{2}國際標準。",
-
   "tasks.title": "定時任務",
   "tasks.description": "在設定的時間執行指定的指令，以實現自動化操作",
   "tasks.error.400": "Cron 表達式語法錯誤",
@@ -442,7 +423,6 @@
   "tasks.form.commands.description": "以換行分隔，按順序依次執行。",
   "tasks.form.commands.empty1": "指令不可為空",
   "tasks.form.commands.empty2": "至少需要一條指令",
-
   "bukkit-config.title": "Bukkit 設定",
   "bukkit-config.description": "編輯Bukkit的服務端配置文件",
   "bukkit-config.error.503": "呢個服務器唔係Bukkit系列服務器",
@@ -451,7 +431,6 @@
   "bukkit-config.editor.status-bar.saving": "正在儲存",
   "bukkit-config.editor.status-bar.saved": "已儲存",
   "bukkit-config.editor.status-bar.edited": "*已編輯",
-
   "settings.title": "設定",
   "settings.dashboard.title": "儀表板",
   "settings.dashboard.monitor-interval": "資源監控刷新間隔",
@@ -523,5 +502,57 @@
   "settings.update.status.latest": "當前已是最新版本",
   "settings.update.release-note.title": "{0} 更新日誌",
   "settings.update.preview-channel": "預覽版",
-  "settings.reset": "恢復預設"
+  "settings.reset": "恢復預設",
+  "backup.title": "備份管理",
+  "backup.config.title": "備份設定",
+  "backup.config.description": "配置伺服器存檔嘅備份方式。",
+  "backup.config.modify": "配置",
+  "backup.config.fetch.error": "無法獲取備份配置",
+  "backup.config.enabled": "啟用備份",
+  "backup.config.provider-type": "備份類型",
+  "backup.config.provider-type.local": "本地存儲",
+  "backup.config.provider-type.s3": "S3 對象存儲",
+  "backup.config.provider-type.webdav": "WebDAV",
+  "backup.config.max-backups": "最大保留份數",
+  "backup.config.max-backups.description": "設置為 0 表示唔限制",
+  "backup.config.local-path": "備份目錄",
+  "backup.config.local-path.placeholder": "請輸入本地備份目錄路徑...",
+  "backup.config.s3-endpoint": "S3 Endpoint",
+  "backup.config.s3-endpoint.placeholder": "例如: https://s3.amazonaws.com",
+  "backup.config.s3-access-key": "Access Key",
+  "backup.config.s3-secret-key": "Secret Key",
+  "backup.config.s3-bucket": "Bucket 名稱",
+  "backup.config.s3-region": "Region",
+  "backup.config.s3-prefix": "路徑前綴",
+  "backup.config.webdav-url": "WebDAV 地址",
+  "backup.config.webdav-url.placeholder": "例如: https://dav.example.com/backup/",
+  "backup.config.webdav-username": "用戶名",
+  "backup.config.webdav-password": "密碼",
+  "backup.config.save.success": "備份配置已儲存",
+  "backup.config.save.error": "儲存備份配置失敗",
+  "backup.trigger": "創建備份",
+  "backup.trigger.loading": "正在創建備份...",
+  "backup.trigger.success": "備份創建成功",
+  "backup.trigger.error": "備份創建失敗",
+  "backup.trigger.error.not-configured": "備份尚未配置",
+  "backup.list.title": "備份管理",
+  "backup.list.description": "管理伺服器存檔嘅備份文件。",
+  "backup.list.fetch.error": "無法獲取備份列表",
+  "backup.list.empty": "暫無備份",
+  "backup.list.delete": "刪除備份",
+  "backup.list.delete.success": "備份刪除成功",
+  "backup.list.delete.error": "備份刪除失敗",
+  "backup.list.delete.error.404": "搵唔到呢個備份",
+  "backup.list.delete.alert.title": "確定要刪除備份 \"{0}\" 嗎？",
+  "backup.list.delete.alert.description": "此操作不可逆，被刪除嘅備份將無法恢復。",
+  "backup.list.restore": "還原備份",
+  "backup.list.restore.coming-soon": "還原功能即將推出",
+  "backup.list.restore.alert.title": "確定要還原備份 \"{0}\" 嗎？",
+  "backup.list.restore.alert.description": "將以該備份建立一個新的存檔，不會覆蓋目前世界。",
+  "backup.list.restore.success": "備份已還原為 \"{0}\"",
+  "backup.list.restore.error": "無法還原備份",
+  "backup.list.restore.error.404": "找不到備份",
+  "backup.list.restore.error.not-configured": "備份未設定",
+  "backup.not-configured": "備份未配置",
+  "backup.not-configured.description": "請先喺設定頁面配置備份方式。"
 }

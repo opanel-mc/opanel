@@ -223,3 +223,59 @@ export type GithubReleaseResponse = {
   published_at: string
   body: string
 }[]
+
+/** Backup provider types */
+export enum BackupProviderType {
+  LOCAL = "LOCAL",
+  S3 = "S3",
+  WEBDAV = "WEBDAV"
+}
+
+/** Backup configuration */
+export interface BackupConfig {
+  enabled: boolean
+  providerType: BackupProviderType
+  maxBackups: number
+  // Local
+  localPath: string
+  // S3
+  s3Endpoint: string
+  s3AccessKey: string
+  s3SecretKey: string
+  s3Bucket: string
+  s3Region: string
+  s3Prefix: string
+  // WebDAV
+  webdavUrl: string
+  webdavUsername: string
+  webdavPassword: string
+}
+
+/** Backup info */
+export interface BackupInfo {
+  fileName: string
+  saveName: string
+  timestamp: number
+  fileSize: number
+}
+
+/** /api/backup/config */
+export interface BackupConfigResponse {
+  config: BackupConfig
+}
+
+/** /api/backup/list */
+export interface BackupListResponse {
+  backups: BackupInfo[]
+  configured: boolean
+}
+
+/** /api/backup/trigger */
+export interface BackupTriggerResponse {
+  backup: BackupInfo
+}
+
+/** /api/backup/restore/{fileName} */
+export interface BackupRestoreResponse {
+  saveName: string
+}

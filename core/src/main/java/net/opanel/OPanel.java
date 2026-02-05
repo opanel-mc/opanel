@@ -1,5 +1,6 @@
 package net.opanel;
 
+import net.opanel.backup.BackupManager;
 import net.opanel.common.Constants;
 import net.opanel.config.ConfigManager;
 import net.opanel.config.OPanelConfiguration;
@@ -28,7 +29,8 @@ public class OPanel {
 
     static {
         VERSION = Utils.readPropertyValueFromResources("opanel.properties", "version");
-        JAVALIN_VERSION = Utils.readPropertyValueFromResources("META-INF/maven/io.javalin/javalin/pom.properties", "version");
+        JAVALIN_VERSION = Utils.readPropertyValueFromResources("META-INF/maven/io.javalin/javalin/pom.properties",
+                "version");
     }
 
     private final ConfigManager configManager;
@@ -39,6 +41,7 @@ public class OPanel {
     private final WebServer webServer;
     private OPanelServer server;
     private LogListenerManager logListenerManager;
+    private BackupManager backupManager;
 
     public OPanel(ConfigManager configManager, Loggable logger) {
         this.configManager = configManager;
@@ -63,21 +66,22 @@ public class OPanel {
     private void init() throws IOException {
         // Create OPanel directory
         File opanelDir = OPANEL_DIR_PATH.toFile();
-        if(!opanelDir.exists() && !opanelDir.mkdir()) {
+        if (!opanelDir.exists() && !opanelDir.mkdir()) {
             throw new IOException("Cannot initialize opanel directory.");
         }
         // Create .tmp directory
         File tmpDir = TMP_DIR_PATH.toFile();
-        if(!tmpDir.exists() && !tmpDir.mkdir()) {
+        if (!tmpDir.exists() && !tmpDir.mkdir()) {
             throw new IOException("Cannot initialize opanel/.tmp directory.");
         }
-        if(tmpDir.list().length > 0) {
+        if (tmpDir.list().length > 0) {
             Utils.clearDirectoryRecursively(tmpDir.toPath());
         }
         // Remove access key txt file if exists
         File initialAccessKeyFile = INITIAL_ACCESS_KEY_PATH.toFile();
-        if(initialAccessKeyFile.exists() && !initialAccessKeyFile.delete()) {
-            throw new IOException("Cannot delete opanel/INITIAL_ACCESS_KEY.txt file, please delete it manually for your server security.");
+        if (initialAccessKeyFile.exists() && !initialAccessKeyFile.delete()) {
+            throw new IOException(
+                    "Cannot delete opanel/INITIAL_ACCESS_KEY.txt file, please delete it manually for your server security.");
         }
     }
 
@@ -95,7 +99,7 @@ public class OPanel {
 
     public void initializeAccessKey() { // This method will be called when the web server is ready
         OPanelConfiguration config = getConfig();
-        if(config.accessKey.isEmpty()) {
+        if (config.accessKey.isEmpty()) {
             // Generate access key and then store it into the config
             final String accessKey = Utils.generateRandomCharSequence(12, true);
             config.accessKey = Utils.md5(Utils.md5(accessKey));
@@ -105,7 +109,7 @@ public class OPanel {
             try {
                 Utils.writeTextFile(INITIAL_ACCESS_KEY_PATH, Constants.INITIAL_ACCESS_KEY_TEMPLATE + accessKey);
             } catch (IOException e) {
-                logger.error("Failed to write the initial access key into INITIAL_ACCESS_KEY.txt: "+ e.getMessage());
+                logger.error("Failed to write the initial access key into INITIAL_ACCESS_KEY.txt: " + e.getMessage());
                 throw new RuntimeException("Plaintext initial access key storage failed", e);
             }
 
@@ -115,7 +119,7 @@ public class OPanel {
             logger.warn("Remember to delete the file for your server security.");
             logger.warn("============================================================");
         }
-        if(config.salt.isEmpty()) {
+        if (config.salt.isEmpty()) {
             // Generate salt and then store it into the config
             config.salt = Utils.generateRandomCharSequence(6, true);
             setConfig(config);
@@ -136,6 +140,10 @@ public class OPanel {
 
     public void setServer(OPanelServer server) {
         this.server = server;
+        // Initialize backup manager after server is set (requires server instance)
+        if (this.backupManager == null) {
+            this.backupManager = new BackupManager(this);
+        }
     }
 
     public OPanelServer getServer() {
@@ -150,12 +158,20 @@ public class OPanel {
         return logListenerManager;
     }
 
+    public BackupManager getBackupManager() {
+        return backupManager;
+    }
+
     public void stop() {
-        if(scheduledTaskManager != null) {
+        if (scheduledTaskManager != null) {
             scheduledTaskManager.shutdown();
         }
 
-        if(webServer != null) {
+        if (backupManager != null) {
+            backupManager.shutdown();
+        }
+
+        if (webServer != null) {
             try {
                 webServer.stop();
             } catch (Exception e) {

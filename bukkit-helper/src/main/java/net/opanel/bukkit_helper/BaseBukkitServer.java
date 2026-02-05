@@ -18,7 +18,9 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public abstract class BaseBukkitServer implements OPanelServer {
@@ -65,10 +67,29 @@ public abstract class BaseBukkitServer implements OPanelServer {
     @Override
     public void saveAll() {
         runner.runTask(() -> {
-            for(World world : server.getWorlds()) {
-                world.save();
+            Map<World, Boolean> autoSaveStates = new HashMap<>();
+            for (World world : server.getWorlds()) {
+                boolean autoSave = world.isAutoSave();
+                autoSaveStates.put(world, autoSave);
+                if (autoSave) {
+                    world.setAutoSave(false);
+                }
             }
-            server.savePlayers();
+
+            try {
+                for (World world : server.getWorlds()) {
+                    world.save();
+                }
+                server.savePlayers();
+            } finally {
+                for (Map.Entry<World, Boolean> entry : autoSaveStates.entrySet()) {
+                    World world = entry.getKey();
+                    boolean shouldAutoSave = entry.getValue();
+                    if (world.isAutoSave() != shouldAutoSave) {
+                        world.setAutoSave(shouldAutoSave);
+                    }
+                }
+            }
         });
     }
 
@@ -255,4 +276,3 @@ public abstract class BaseBukkitServer implements OPanelServer {
         Files.delete(filePath);
     }
 }
-

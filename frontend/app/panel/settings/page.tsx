@@ -23,6 +23,7 @@ import { AvatarProvider, CapeProvider, SkinProvider } from "@/lib/types";
 import { type LanguageCode, languages } from "@/lang";
 import { $ } from "@/lib/i18n";
 import { sendDeleteRequest } from "@/lib/api";
+import { BackupConfigDialog } from "./backup-config-dialog";
 
 function SettingsItem<K extends keyof SettingsStorageType>({
   name,
@@ -58,7 +59,18 @@ export default function Settings() {
             id="dashboard.monitor-interval"
             name={$("settings.dashboard.monitor-interval")}
             description={$("settings.dashboard.monitor-interval.description")}
-            control={<SettingsNumberInput id="dashboard.monitor-interval" min={1}/>}/>
+            control={<SettingsNumberInput id="dashboard.monitor-interval" min={1} />} />
+        </Section>
+        <Section title={$("backup.config.title")}>
+          <SettingsItem
+            id="backup.config"
+            name={$("backup.config.title")}
+            description={$("backup.config.description")}
+            control={
+              <BackupConfigDialog asChild>
+                <Button className="cursor-pointer" size="sm">{$("backup.config.modify")}</Button>
+              </BackupConfigDialog>
+            } />
         </Section>
         <Section title={$("settings.players.title")}>
           <SettingsItem
@@ -80,7 +92,7 @@ export default function Settings() {
                   <SelectItem value={AvatarProvider.MCHEADS} title={AvatarProvider.MCHEADS}>MC Heads</SelectItem>
                 </SelectContent>
               </Select>
-            }/>
+            } />
           <SettingsItem
             id="players.skin-provider"
             name={$("settings.players.skin-provider")}
@@ -100,7 +112,7 @@ export default function Settings() {
                   <SelectItem value={SkinProvider.MCHEADS} title={SkinProvider.MCHEADS}>MC Heads</SelectItem>
                 </SelectContent>
               </Select>
-            }/>
+            } />
           <SettingsItem
             id="players.cape-provider"
             name={$("settings.players.cape-provider")}
@@ -118,27 +130,27 @@ export default function Settings() {
                   <SelectItem value={CapeProvider.CRAFATAR} title={CapeProvider.CRAFATAR}>Crafatar</SelectItem>
                 </SelectContent>
               </Select>
-            }/>
+            } />
         </Section>
         <Section title={$("settings.terminal.title")}>
           <SettingsItem
             id="terminal.autocomplete"
             name={$("settings.terminal.autocomplete")}
-            control={<SettingsSwitch id="terminal.autocomplete"/>}/>
+            control={<SettingsSwitch id="terminal.autocomplete" />} />
           <SettingsItem
             id="terminal.word-wrap"
             name={$("settings.terminal.word-wrap")}
-            control={<SettingsSwitch id="terminal.word-wrap"/>}/>
+            control={<SettingsSwitch id="terminal.word-wrap" />} />
           <SettingsItem
             id="terminal.font-size"
             name={$("settings.terminal.font-size")}
             description={$("settings.terminal.font-size.description")}
-            control={<SettingsNumberInput id="terminal.font-size" min={1} max={30}/>}/>
+            control={<SettingsNumberInput id="terminal.font-size" min={1} max={30} />} />
           <SettingsItem
             id="terminal.max-log-lines"
             name={$("settings.terminal.max-log-lines")}
             description={$("settings.terminal.max-log-lines.description")}
-            control={<SettingsNumberInput id="terminal.max-log-lines" min={100} max={20000}/>}/>
+            control={<SettingsNumberInput id="terminal.max-log-lines" min={100} max={20000} />} />
           <SettingsItem
             id="terminal.log-level"
             name={$("settings.terminal.log-level")}
@@ -156,42 +168,42 @@ export default function Settings() {
                   <SelectItem value="ERROR">ERROR</SelectItem>
                 </SelectContent>
               </Select>
-            }/>
+            } />
           <SettingsItem
             id="terminal.log-time"
             name={$("settings.terminal.log-time")}
-            control={<SettingsSwitch id="terminal.log-time"/>}/>
+            control={<SettingsSwitch id="terminal.log-time" />} />
           <SettingsItem
             id="terminal.thread-name"
             name={$("settings.terminal.thread-name")}
-            control={<SettingsSwitch id="terminal.thread-name"/>}/>
+            control={<SettingsSwitch id="terminal.thread-name" />} />
           <SettingsItem
             id="terminal.source-name"
             name={$("settings.terminal.source-name")}
-            control={<SettingsSwitch id="terminal.source-name"/>}/>
+            control={<SettingsSwitch id="terminal.source-name" />} />
           <SettingsItem
             id="terminal.rich-style"
             name={$("settings.terminal.rich-style")}
             description={$("settings.terminal.rich-style.description")}
-            control={<SettingsSwitch id="terminal.rich-style"/>}/>
+            control={<SettingsSwitch id="terminal.rich-style" />} />
         </Section>
         <Section title={$("settings.code-of-conduct.title")}>
           <SettingsItem
             id="code-of-conduct.auto-saving-interval"
             name={$("settings.code-of-conduct.auto-saving-interval")}
             description={$("settings.code-of-conduct.auto-saving-interval.description")}
-            control={<SettingsNumberInput id="code-of-conduct.auto-saving-interval" min={1000}/>}/>
+            control={<SettingsNumberInput id="code-of-conduct.auto-saving-interval" min={1000} />} />
         </Section>
         <Section title={$("settings.monaco.title")}>
           <SettingsItem
             id="monaco.word-wrap"
             name={$("settings.monaco.word-wrap")}
-            control={<SettingsSwitch id="monaco.word-wrap"/>}/>
+            control={<SettingsSwitch id="monaco.word-wrap" />} />
           <SettingsItem
             id="monaco.font-size"
             name={$("settings.monaco.font-size")}
             description={$("settings.monaco.font-size.description")}
-            control={<SettingsNumberInput id="monaco.font-size" min={1} max={30}/>}/>
+            control={<SettingsNumberInput id="monaco.font-size" min={1} max={30} />} />
         </Section>
         <Section title={$("settings.appearance.title")}>
           <SettingsItem
@@ -202,7 +214,7 @@ export default function Settings() {
               <LoginBannerDialog asChild>
                 <Button className="cursor-pointer" size="sm">{$("settings.appearance.login-banner.modify")}</Button>
               </LoginBannerDialog>
-            }/>
+            } />
         </Section>
         <Section title="OPanel">
           <SettingsItem
@@ -224,7 +236,7 @@ export default function Settings() {
                   ))}
                 </SelectContent>
               </Select>
-            }/>
+            } />
           <SettingsItem
             id="system.access-key"
             name={$("settings.system.access-key")}
@@ -232,7 +244,7 @@ export default function Settings() {
               <SecurityDialog asChild>
                 <Button className="cursor-pointer" size="sm">{$("settings.system.access-key.modify")}</Button>
               </SecurityDialog>
-            }/>
+            } />
           <SettingsItem
             id="system.check-update"
             name={$("settings.system.check-update")}
@@ -240,7 +252,7 @@ export default function Settings() {
               <UpdateDialog asChild>
                 <Button className="cursor-pointer" size="sm">{$("settings.system.check-update.check")}</Button>
               </UpdateDialog>
-            }/>
+            } />
         </Section>
         <div>
           <Button

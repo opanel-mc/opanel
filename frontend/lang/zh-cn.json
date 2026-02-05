@@ -1,6 +1,5 @@
 {
   "$lang": "简体中文",
-
   "common.error.400": "请求参数错误",
   "common.error.401": "未登录",
   "common.error.500": "服务器内部错误",
@@ -12,7 +11,6 @@
   "common.difficulty.easy": "简单",
   "common.difficulty.normal": "普通",
   "common.difficulty.hard": "困难",
-
   "about": "关于",
   "about.title": "关于",
   "about.description": "是一个开箱即用的 Minecraft 服务器管理面板，支持Bukkit、Fabric和Forge等多个平台。",
@@ -26,7 +24,6 @@
   "about.footer.github": "Github主页",
   "about.footer.website": "OPanel官网",
   "about.footer.docs": "OPanel文档",
-
   "login": "登录",
   "login.title": "Minecraft 服务器管理面板",
   "login.form.title": "登录到 OPanel",
@@ -45,11 +42,9 @@
   "login.reset.content.action2": "重启服务器",
   "login.reset.content.line2": "具体步骤请参见文档：",
   "login.reset.content.line3": "配置文件路径请参见：",
-
   "not-found.description": "你访问的路径不存在",
   "not-found.home": "面板首页",
   "not-found.back": "返回上一页",
-
   "sidebar.server": "服务器",
   "sidebar.server.dashboard": "仪表盘",
   "sidebar.server.saves": "存档",
@@ -63,28 +58,22 @@
   "sidebar.config": "配置",
   "sidebar.config.tasks": "定时任务",
   "sidebar.config.bukkit-config": "Bukkit 配置",
-
   "nav.settings": "设置",
   "nav.docs": "文档",
-  
   "functional-card.more": "更多",
-
   "dialog.cancel": "取消",
   "dialog.close": "关闭",
   "dialog.confirm": "确定",
   "dialog.save": "保存",
   "dialog.create": "新建",
-
   "online-badge.online": "在线",
   "online-badge.offline": "离线",
-
   "table.empty": "暂无数据",
   "table.to-first": "跳转至第一页",
   "table.to-last": "跳转至最后一页",
   "table.previous": "上一页",
   "table.next": "下一页",
   "table.status": "第 {0} 页 / 共 {1} 页",
-
   "dashboard.title": "仪表盘",
   "dashboard.error": "无法连接到服务器",
   "dashboard.info.version": "版本:",
@@ -147,7 +136,6 @@
   "dashboard.properties.save.error": "无法保存server.properties",
   "dashboard.properties.hint1": "需重启服务器以使改动生效。",
   "dashboard.properties.hint2": "服务器配置属性描述信息均来自{0}与{1}。",
-
   "saves.title": "存档",
   "saves.description": "管理和上传服务端文件夹下的存档文件",
   "saves.hint.line1": "将存档压缩包 (zip格式) 拖入页面以进行导入。若存档压缩包内包含单个存档文件夹，则压缩包名称需与文件夹名称一致，否则拒绝导入。",
@@ -198,7 +186,6 @@
   "saves.datapacks.toggle.disable.error": "禁用数据包 {0} 失败",
   "saves.datapacks.toggle.error.403": "禁止操作数据包 vanilla",
   "saves.datapacks.toggle.error.404": "找不到数据包 {0}",
-
   "players.title": "玩家",
   "players.description": "管理服务器内的所有在线和离线玩家，设置白名单和黑名单",
   "players.hint": "点击玩家名以进行更多操作。",
@@ -292,7 +279,6 @@
   "players.action.set-gamemode.success": "已将该玩家的游戏模式设置为{0}模式",
   "players.action.set-gamemode.error": "无法设置该玩家的游戏模式",
   "players.action.set-gamemode.error.404": "找不到该玩家",
-
   "gamerules.title": "游戏规则",
   "gamerules.description": "设置服务器当前世界的游戏规则",
   "gamerules.fetch.error": "无法获取服务器游戏规则信息",
@@ -303,7 +289,6 @@
   "gamerules.hint1": "编辑游戏规则后需保存以生效。",
   "gamerules.hint2": "{0} 以保存更改",
   "gamerules.hint3": "游戏规则名称与描述信息均来自{0}",
-
   "plugins.title": "插件",
   "plugins.description": "使用插件 / 模组以扩展服务器功能和玩法",
   "plugins.search.placeholder": "搜索插件...",
@@ -344,7 +329,6 @@
   "plugins.action.delete.error": "无法删除插件 {0}",
   "plugins.action.delete.error.403": "无法删除已加载的插件",
   "plugins.action.delete.error.404": "找不到插件 {0}",
-
   "terminal.title": "后台",
   "terminal.ws.error": "无法连接到终端WebSocket",
   "terminal.input.empty": "请输入指令以发送",
@@ -352,7 +336,6 @@
   "terminal.clear": "清空",
   "terminal.send": "发送",
   "terminal.history": "历史记录",
-
   "logs.title": "日志",
   "logs.description": "管理和查看服务器的所有日志文件",
   "logs.fetch.error": "无法获取日志列表",
@@ -377,7 +360,6 @@
   "logs.view.hint": "文件类型：{0}",
   "logs.view.decompressed": "已解压",
   "logs.view.monaco.readonly": "日志不可编辑",
-
   "coc.title": "行为准则",
   "coc.description": "管理和编辑服务器的行为准则文件，以规范玩家在服务器内的行为",
   "coc.error.503": "该服务端版本不支持行为准则",
@@ -401,7 +383,6 @@
   "coc.create.input.label": "语言",
   "coc.create.input.placeholder": "请输入语言代码...（如：zh_cn）",
   "coc.create.input.description": "语言代码可参考 {0}\n遵循{1}与{2}国际标准。",
-
   "tasks.title": "定时任务",
   "tasks.description": "在设定的时间执行指定的指令，以实现自动化操作",
   "tasks.error.400": "Cron 表达式语法错误",
@@ -442,7 +423,6 @@
   "tasks.form.commands.description": "以换行分隔，按顺序依次执行。",
   "tasks.form.commands.empty1": "指令不能为空",
   "tasks.form.commands.empty2": "至少需要一条指令",
-
   "bukkit-config.title": "Bukkit 配置",
   "bukkit-config.description": "编辑Bukkit的服务端配置文件",
   "bukkit-config.error.503": "该服务端不是Bukkit系服务端",
@@ -451,7 +431,6 @@
   "bukkit-config.editor.status-bar.saving": "正在保存",
   "bukkit-config.editor.status-bar.saved": "已保存",
   "bukkit-config.editor.status-bar.edited": "*已编辑",
-
   "settings.title": "设置",
   "settings.dashboard.title": "仪表盘",
   "settings.dashboard.monitor-interval": "资源监控刷新间隔",
@@ -523,5 +502,57 @@
   "settings.update.status.latest": "当前已是最新版本",
   "settings.update.release-note.title": "{0} 更新日志",
   "settings.update.preview-channel": "预览版",
-  "settings.reset": "恢复默认设置"
+  "settings.reset": "恢复默认设置",
+  "backup.title": "备份管理",
+  "backup.config.title": "备份设置",
+  "backup.config.description": "配置服务器存档的备份方式。",
+  "backup.config.modify": "配置",
+  "backup.config.fetch.error": "无法获取备份配置",
+  "backup.config.enabled": "启用备份",
+  "backup.config.provider-type": "备份类型",
+  "backup.config.provider-type.local": "本地存储",
+  "backup.config.provider-type.s3": "S3 对象存储",
+  "backup.config.provider-type.webdav": "WebDAV",
+  "backup.config.max-backups": "最大保留份数",
+  "backup.config.max-backups.description": "设置为 0 表示不限制",
+  "backup.config.local-path": "备份目录",
+  "backup.config.local-path.placeholder": "请输入本地备份目录路径...",
+  "backup.config.s3-endpoint": "S3 Endpoint",
+  "backup.config.s3-endpoint.placeholder": "例如: https://s3.amazonaws.com",
+  "backup.config.s3-access-key": "Access Key",
+  "backup.config.s3-secret-key": "Secret Key",
+  "backup.config.s3-bucket": "Bucket 名称",
+  "backup.config.s3-region": "Region",
+  "backup.config.s3-prefix": "路径前缀",
+  "backup.config.webdav-url": "WebDAV 地址",
+  "backup.config.webdav-url.placeholder": "例如: https://dav.example.com/backup/",
+  "backup.config.webdav-username": "用户名",
+  "backup.config.webdav-password": "密码",
+  "backup.config.save.success": "备份配置已保存",
+  "backup.config.save.error": "保存备份配置失败",
+  "backup.trigger": "创建备份",
+  "backup.trigger.loading": "正在创建备份...",
+  "backup.trigger.success": "备份创建成功",
+  "backup.trigger.error": "备份创建失败",
+  "backup.trigger.error.not-configured": "备份尚未配置",
+  "backup.list.title": "备份管理",
+  "backup.list.description": "管理服务器存档的备份文件。",
+  "backup.list.fetch.error": "无法获取备份列表",
+  "backup.list.empty": "暂无备份",
+  "backup.list.delete": "删除备份",
+  "backup.list.delete.success": "备份删除成功",
+  "backup.list.delete.error": "备份删除失败",
+  "backup.list.delete.error.404": "找不到该备份",
+  "backup.list.delete.alert.title": "确定要删除备份 \"{0}\" 吗？",
+  "backup.list.delete.alert.description": "此操作不可逆，被删除的备份将无法恢复。",
+  "backup.list.restore": "还原备份",
+  "backup.list.restore.coming-soon": "还原功能即将推出",
+  "backup.list.restore.alert.title": "确定要还原备份 \"{0}\" 吗？",
+  "backup.list.restore.alert.description": "将以该备份创建一个新的存档，不会覆盖当前世界。",
+  "backup.list.restore.success": "备份已还原为 \"{0}\"",
+  "backup.list.restore.error": "无法还原备份",
+  "backup.list.restore.error.404": "找不到备份",
+  "backup.list.restore.error.not-configured": "备份未配置",
+  "backup.not-configured": "备份未配置",
+  "backup.not-configured.description": "请先在设置页面配置备份方式。"
 }

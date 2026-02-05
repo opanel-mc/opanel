@@ -39,13 +39,32 @@ public class StorageFile<T> {
         );
     }
 
+    public StorageFile(Path filePath, Type dataType, T defaultValue) {
+        this(
+            filePath,
+            dataType,
+            new GsonBuilder()
+                .setPrettyPrinting()
+                .create(),
+            defaultValue
+        );
+    }
+
     private StorageFile(String fileName, Type dataType, Gson gson, T defaultValue) {
-        filePath = OPanel.OPANEL_DIR_PATH.resolve(fileName);
+        this(OPanel.OPANEL_DIR_PATH.resolve(fileName), dataType, gson, defaultValue);
+    }
+
+    private StorageFile(Path filePath, Type dataType, Gson gson, T defaultValue) {
+        this.filePath = filePath;
         this.dataType = dataType;
         this.gson = gson;
 
-        if(!Files.exists(filePath)) {
+        if (!Files.exists(filePath)) {
             try {
+                Path parent = filePath.getParent();
+                if (parent != null && !Files.exists(parent)) {
+                    Files.createDirectories(parent);
+                }
                 Files.writeString(filePath, gson.toJson(defaultValue), StandardOpenOption.CREATE);
             } catch (IOException e) {
                 e.printStackTrace();

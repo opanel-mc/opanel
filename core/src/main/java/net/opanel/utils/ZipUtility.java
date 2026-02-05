@@ -64,7 +64,7 @@ public class ZipUtility {
                 if(!entry.isDirectory()) {
                     /** @see https://baeldung.com/java-compress-and-uncompress#unzip */
                     File parentDir = new File(filePath.toString()).getParentFile();
-                    if(!parentDir.exists() && !parentDir.mkdir()) {
+                    if(!parentDir.exists() && !parentDir.mkdirs()) {
                         throw new IOException("Cannot create directory '"+ parentDir.getName() +"'.");
                     }
 
@@ -77,7 +77,7 @@ public class ZipUtility {
                     }
                 } else {
                     File dir = new File(filePath.toString());
-                    if(!dir.mkdir()) {
+                    if(!dir.exists() && !dir.mkdirs()) {
                         throw new IOException("Cannot create directory '"+ entry.getName() +"'.");
                     }
                 }

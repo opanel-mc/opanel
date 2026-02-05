@@ -7,6 +7,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.opanel.OPanel;
+import net.opanel.backup.BackupManager;
 import net.opanel.common.Constants;
 import net.opanel.web.WebServer;
 
@@ -19,7 +20,8 @@ public class OPanelCommand implements CommandRegistrationCallback {
         this.instance = instance;
     }
 
-    public void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, CommandManager.RegistrationEnvironment environment) {
+    public void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess,
+            CommandManager.RegistrationEnvironment environment) {
         dispatcher.register(
                 literal("opanel")
                         .requires(source -> source.hasPermissionLevel(2))
@@ -28,51 +30,76 @@ public class OPanelCommand implements CommandRegistrationCallback {
                                         .executes(ctx -> {
                                             ctx.getSource().sendFeedback(Text.of(Constants.ABOUT_INFO), false);
                                             return 1;
-                                        })
-                        )
+                                        }))
                         .then(
                                 literal("status")
                                         .executes(ctx -> {
                                             ctx.getSource().sendFeedback(Text.of(instance.getStatus()), false);
                                             return 1;
-                                        })
-                        )
+                                        }))
                         .then(
                                 literal("start")
                                         .executes(ctx -> {
                                             WebServer webServer = instance.getWebServer();
-                                            if(webServer.isRunning()) {
-                                                ctx.getSource().sendFeedback(Text.of("Web panel is already started."), false);
+                                            if (webServer.isRunning()) {
+                                                ctx.getSource().sendFeedback(Text.of("Web panel is already started."),
+                                                        false);
                                             } else {
                                                 try {
                                                     webServer.start();
-                                                    ctx.getSource().sendFeedback(Text.of("Web panel is started successfully."), false);
+                                                    ctx.getSource().sendFeedback(
+                                                            Text.of("Web panel is started successfully."), false);
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                     return 0;
                                                 }
                                             }
                                             return 1;
-                                        })
-                        )
+                                        }))
                         .then(
                                 literal("stop")
                                         .executes(ctx -> {
                                             WebServer webServer = instance.getWebServer();
-                                            if(!webServer.isRunning()) {
-                                                ctx.getSource().sendFeedback(Text.of("Web panel is already stopped."), false);
+                                            if (!webServer.isRunning()) {
+                                                ctx.getSource().sendFeedback(Text.of("Web panel is already stopped."),
+                                                        false);
                                             } else {
                                                 try {
                                                     webServer.stop();
-                                                    ctx.getSource().sendFeedback(Text.of("Web panel is stopped successfully."), false);
+                                                    ctx.getSource().sendFeedback(
+                                                            Text.of("Web panel is stopped successfully."), false);
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                     return 0;
                                                 }
                                             }
                                             return 1;
-                                        })
-                        )
-        );
+                                        }))
+                        .then(
+                                literal("backup")
+                                        .executes(ctx -> {
+                                            BackupManager backupManager = instance.getBackupManager();
+                                            if (backupManager == null || !backupManager.isConfigured()) {
+                                                ctx.getSource().sendFeedback(Text.of(
+                                                        "§cBackup is not configured. Please configure backup settings first."),
+                                                        false);
+                                            } else {
+                                                ctx.getSource().sendFeedback(Text.of("§aStarting backup..."), false);
+                                                ServerCommandSource source = ctx.getSource();
+                                                backupManager.performBackupAsync(() -> {
+                                                    instance.getServer().saveAll();
+                                                }).thenAccept(result -> {
+                                                    if (result.isSuccess()) {
+                                                        source.sendFeedback(Text.of("§aBackup completed: "
+                                                                + result.getBackupInfo().getFileName()), false);
+                                                    } else {
+                                                        source.sendFeedback(
+                                                                Text.of("§cBackup failed: " + result.getMessage()),
+                                                                false);
+                                                    }
+                                                });
+                                            }
+                                            return 1;
+                                        })));
     }
 }

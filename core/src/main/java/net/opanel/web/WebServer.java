@@ -55,7 +55,7 @@ public class WebServer {
             // Frontend
             config.staticFiles.add(staticFiles -> {
                 staticFiles.hostedPath = "/";
-                staticFiles.directory = "/"+ ROOT_PATH;
+                staticFiles.directory = "/" + ROOT_PATH;
             });
         });
 
@@ -83,6 +83,7 @@ public class WebServer {
         VersionController versionController = new VersionController(plugin);
         WhitelistController whitelistController = new WhitelistController(plugin);
         TasksController tasksController = new TasksController(plugin);
+        BackupController backupController = new BackupController(plugin);
 
         // API Routes
         app.before("/*", beforeController.beforeAll);
@@ -187,6 +188,14 @@ public class WebServer {
                 patch("/{id}", tasksController.toggleTask);
                 delete("/{id}", tasksController.deleteTask);
             });
+            path("backup", () -> {
+                get("config", backupController.getConfig);
+                post("config", backupController.setConfig);
+                post("trigger", backupController.triggerBackup);
+                get("list", backupController.listBackups);
+                delete("{fileName}", backupController.deleteBackup);
+                post("restore/{fileName}", backupController.restoreBackup);
+            });
         }));
 
         // Not found page
@@ -204,7 +213,7 @@ public class WebServer {
         });
 
         app.start(PORT);
-        plugin.logger.info("OPanel web server is ready on port "+ PORT);
+        plugin.logger.info("OPanel web server is ready on port " + PORT);
         plugin.initializeAccessKey();
 
         app.events(event -> {
@@ -213,7 +222,7 @@ public class WebServer {
     }
 
     public void stop() throws Exception {
-        if(isRunning()) {
+        if (isRunning()) {
             app.stop();
             app = null;
             plugin.logger.info("Web server is stopped.");
@@ -221,7 +230,8 @@ public class WebServer {
     }
 
     public boolean isRunning() {
-        if(app == null) return false;
+        if (app == null)
+            return false;
 
         JettyServer jettyServer = app.jettyServer();
         return jettyServer != null && jettyServer.started;

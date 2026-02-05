@@ -1,6 +1,5 @@
 {
   "$lang": "English",
-  
   "common.error.400": "Request parameter error",
   "common.error.401": "Not logged in",
   "common.error.500": "Internal server error",
@@ -12,7 +11,6 @@
   "common.difficulty.easy": "Easy",
   "common.difficulty.normal": "Normal",
   "common.difficulty.hard": "Hard",
-
   "about": "About",
   "about.title": "About",
   "about.description": "is a ready-to-use Minecraft server management panel that supports multiple platforms such as Bukkit, Fabric, and Forge.",
@@ -26,7 +24,6 @@
   "about.footer.github": "GitHub Homepage",
   "about.footer.website": "Official Website",
   "about.footer.docs": "Docs",
-
   "login": "Login",
   "login.title": "Minecraft Server Management Panel",
   "login.form.title": "Login to OPanel",
@@ -45,11 +42,9 @@
   "login.reset.content.action2": "Restart the server",
   "login.reset.content.line2": "For detailed steps, please refer to the docs: ",
   "login.reset.content.line3": "For configuration file path, please refer to: ",
-
   "not-found.description": "Page Not Found",
   "not-found.home": "Homepage",
   "not-found.back": "Go Back",
-
   "sidebar.server": "Server",
   "sidebar.server.dashboard": "Dashboard",
   "sidebar.server.saves": "Saves",
@@ -63,28 +58,22 @@
   "sidebar.config": "Configurations",
   "sidebar.config.tasks": "Scheduled Tasks",
   "sidebar.config.bukkit-config": "Bukkit Config",
-
   "nav.settings": "Settings",
   "nav.docs": "Docs",
-  
   "functional-card.more": "More",
-
   "dialog.cancel": "Cancel",
   "dialog.close": "Close",
   "dialog.confirm": "Confirm",
   "dialog.save": "Save",
   "dialog.create": "Create",
-
   "online-badge.online": "online",
   "online-badge.offline": "offline",
-
   "table.empty": "No results",
   "table.to-first": "Go to the first page",
   "table.to-last": "Go to the last page",
   "table.previous": "Previous",
   "table.next": "Next",
   "table.status": "Page {0} of {1}",
-
   "dashboard.title": "Dashboard",
   "dashboard.error": "Unable to connect to the server",
   "dashboard.info.version": "Version:",
@@ -147,7 +136,6 @@
   "dashboard.properties.save.error": "Cannot save server.properties",
   "dashboard.properties.hint1": "The server needs to be restarted for the changes to take effect.",
   "dashboard.properties.hint2": "The server configuration attribute descriptions all come from {0} and {1}.",
-
   "saves.title": "Saves",
   "saves.description": "Manage and upload save files in the server directory",
   "saves.hint.line1": "Drag the save archive (in zip format) onto the page to import. If the zip archive contains a single save folder, the name of the archive must match the folder name, otherwise the import will be rejected.",
@@ -198,7 +186,6 @@
   "saves.datapacks.toggle.disable.error": "Failed to disable datapack {0}",
   "saves.datapacks.toggle.error.403": "Forbidden to operate datapack vanilla",
   "saves.datapacks.toggle.error.404": "Datapack {0} not found",
-
   "players.title": "Players",
   "players.description": "Manage all online and offline players on the server, set whitelist and ban list",
   "players.hint": "Click on the player's name for more options.",
@@ -292,7 +279,6 @@
   "players.action.set-gamemode.success": "The player's game mode has been set to {0} mode",
   "players.action.set-gamemode.error": "Unable to set the game mode for this player",
   "players.action.set-gamemode.error.404": "Player not found",
-
   "gamerules.title": "Game Rules",
   "gamerules.description": "Set the gamerules for the current world of the server",
   "gamerules.fetch.error": "Unable to retrieve server game rule information",
@@ -303,7 +289,6 @@
   "gamerules.hint1": "Changes to the game rules need to be saved to take effect.",
   "gamerules.hint2": "{0} to save changes",
   "gamerules.hint3": "The name and description of the game rules are both from {0}",
-
   "plugins.title": "Plugins",
   "plugins.description": "Use plugins / mods to extend server functionality and gameplay",
   "plugins.search.placeholder": "Search plugins...",
@@ -344,7 +329,6 @@
   "plugins.action.delete.error": "Unable to delete plugin {0}",
   "plugins.action.delete.error.403": "Unable to delete loaded plugin",
   "plugins.action.delete.error.404": "Plugin not found {0}",
-
   "terminal.title": "Terminal",
   "terminal.ws.error": "Unable to connect to the WebSocket of terminal",
   "terminal.input.empty": "Please enter a command to send",
@@ -352,7 +336,6 @@
   "terminal.clear": "Clear",
   "terminal.send": "Send",
   "terminal.history": "History",
-
   "logs.title": "Logs",
   "logs.description": "Manage and view all log files of the server",
   "logs.fetch.error": "Unable to retrieve log list",
@@ -377,7 +360,6 @@
   "logs.view.hint": "File type: {0}",
   "logs.view.decompressed": "Decompressed",
   "logs.view.monaco.readonly": "Log cannot be edited",
-
   "coc.title": "Code of Conduct",
   "coc.description": "Manage and edit the server's code of conduct to regulate player behavior within the server",
   "coc.error.503": "This server version does not support the code of conduct.",
@@ -401,7 +383,6 @@
   "coc.create.input.label": "Language",
   "coc.create.input.placeholder": "Please enter the language code... (e.g., zh_cn)",
   "coc.create.input.description": "Language codes can refer to {0}\nFollow the {1} and {2} international standards.",
-
   "tasks.title": "Scheduled Tasks",
   "tasks.description": "Execute specified commands at scheduled times to automate operations",
   "tasks.error.400": "Illegal Cron expression",
@@ -442,7 +423,6 @@
   "tasks.form.commands.description": "Separate commands with new lines and they'll be executed in order.",
   "tasks.form.commands.empty1": "Commands cannot be empty",
   "tasks.form.commands.empty2": "At least one command is required",
-
   "bukkit-config.title": "Bukkit Configurations",
   "bukkit-config.description": "Edit the Bukkit configuration files",
   "bukkit-config.error.503": "This server is not a bukkit-series server.",
@@ -451,7 +431,6 @@
   "bukkit-config.editor.status-bar.saving": "Saving...",
   "bukkit-config.editor.status-bar.saved": "Saved",
   "bukkit-config.editor.status-bar.edited": "*Edited",
-
   "settings.title": "Settings",
   "settings.dashboard.title": "Dashboard",
   "settings.dashboard.monitor-interval": "Resource Monitoring Refresh Interval",
@@ -523,5 +502,57 @@
   "settings.update.status.latest": "Already the latest version",
   "settings.update.release-note.title": "{0} Release Notes",
   "settings.update.preview-channel": "Preview Channel",
-  "settings.reset": "Reset Settings"
+  "settings.reset": "Reset Settings",
+  "backup.title": "Backup Management",
+  "backup.config.title": "Backup Settings",
+  "backup.config.description": "Configure backup settings for server saves.",
+  "backup.config.modify": "Configure",
+  "backup.config.fetch.error": "Failed to get backup configuration",
+  "backup.config.enabled": "Enable Backup",
+  "backup.config.provider-type": "Backup Type",
+  "backup.config.provider-type.local": "Local Storage",
+  "backup.config.provider-type.s3": "S3 Object Storage",
+  "backup.config.provider-type.webdav": "WebDAV",
+  "backup.config.max-backups": "Maximum Backups",
+  "backup.config.max-backups.description": "Set to 0 for unlimited",
+  "backup.config.local-path": "Backup Directory",
+  "backup.config.local-path.placeholder": "Enter local backup directory path...",
+  "backup.config.s3-endpoint": "S3 Endpoint",
+  "backup.config.s3-endpoint.placeholder": "e.g., https://s3.amazonaws.com",
+  "backup.config.s3-access-key": "Access Key",
+  "backup.config.s3-secret-key": "Secret Key",
+  "backup.config.s3-bucket": "Bucket Name",
+  "backup.config.s3-region": "Region",
+  "backup.config.s3-prefix": "Path Prefix",
+  "backup.config.webdav-url": "WebDAV URL",
+  "backup.config.webdav-url.placeholder": "e.g., https://dav.example.com/backup/",
+  "backup.config.webdav-username": "Username",
+  "backup.config.webdav-password": "Password",
+  "backup.config.save.success": "Backup configuration saved",
+  "backup.config.save.error": "Failed to save backup configuration",
+  "backup.trigger": "Create Backup",
+  "backup.trigger.loading": "Creating backup...",
+  "backup.trigger.success": "Backup created successfully",
+  "backup.trigger.error": "Failed to create backup",
+  "backup.trigger.error.not-configured": "Backup is not configured",
+  "backup.list.title": "Backup Management",
+  "backup.list.description": "Manage server save backup files.",
+  "backup.list.fetch.error": "Failed to get backup list",
+  "backup.list.empty": "No backups",
+  "backup.list.delete": "Delete Backup",
+  "backup.list.delete.success": "Backup deleted successfully",
+  "backup.list.delete.error": "Failed to delete backup",
+  "backup.list.delete.error.404": "Backup not found",
+  "backup.list.delete.alert.title": "Are you sure to delete backup \"{0}\"?",
+  "backup.list.delete.alert.description": "This action cannot be undone. Deleted backups cannot be recovered.",
+  "backup.list.restore": "Restore Backup",
+  "backup.list.restore.coming-soon": "Restore feature coming soon",
+  "backup.list.restore.alert.title": "Restore backup \"{0}\"?",
+  "backup.list.restore.alert.description": "This will create a new save from the backup. It won't replace the current world.",
+  "backup.list.restore.success": "Backup restored as \"{0}\"",
+  "backup.list.restore.error": "Failed to restore backup",
+  "backup.list.restore.error.404": "Backup not found",
+  "backup.list.restore.error.not-configured": "Backup is not configured",
+  "backup.not-configured": "Backup not configured",
+  "backup.not-configured.description": "Please configure backup settings in the settings page first."
 }
