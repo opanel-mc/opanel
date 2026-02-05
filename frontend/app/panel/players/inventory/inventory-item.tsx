@@ -7,6 +7,10 @@ import { ItemSheet } from "./item-sheet";
 
 export const AIR = "minecraft:air";
 
+function isFromExplorer(itemStack: ItemStack) {
+  return itemStack.slot === -1;
+}
+
 export function InventoryItem({
   itemStack,
   held = false,
@@ -29,7 +33,6 @@ export function InventoryItem({
     removeClickedItem,
     halfClickedItem
   } = ctx;
-  const isFromExplorer = itemStack.slot === -1;
   const textureItem = useMemo(() => (
     textures.find(({ id }) => id === itemStack.id)
   ), [textures, itemStack.id]);
@@ -39,11 +42,20 @@ export function InventoryItem({
 
     if(!currentlyHeldItem) { // pick up the item
       setCurrentlyHeldItem(itemStack);
-      !isFromExplorer && removeClickedItem(itemStack);
+      !isFromExplorer(itemStack) && removeClickedItem(itemStack);
       return;
     }
 
-    if(isFromExplorer) { // just throw away the held item
+    if(
+      isFromExplorer(itemStack)
+      && isFromExplorer(currentlyHeldItem)
+      && itemStack.id === currentlyHeldItem.id
+    ) { // add one to held item from explorer
+      setCurrentlyHeldItem({ ...currentlyHeldItem, count: currentlyHeldItem.count + 1 });
+      return;
+    }
+
+    if(isFromExplorer(itemStack)) { // just throw away the held item
       setCurrentlyHeldItem(null);
       return;
     }
@@ -60,7 +72,7 @@ export function InventoryItem({
     e.preventDefault();
     if(held || !ctx || nbtEditMode) return;
 
-    if(!currentlyHeldItem && isFromExplorer) { // pick up 64 from explorer
+    if(!currentlyHeldItem && isFromExplorer(itemStack)) { // pick up 64 from explorer
       setCurrentlyHeldItem({ ...itemStack, count: 64 });
       return;
     }
@@ -71,7 +83,7 @@ export function InventoryItem({
       return;
     }
 
-    if(isFromExplorer) { // just throw away the held item
+    if(isFromExplorer(itemStack)) { // just throw away the held item
       setCurrentlyHeldItem(null);
       return;
     }
@@ -89,6 +101,17 @@ export function InventoryItem({
     swapClickedWithHeldItem(itemStack);
   };
 
+  const handleAuxClick = (e: MouseEvent) => {
+    e.preventDefault();
+    if(e.button !== 1) return;
+    if(held || !ctx || nbtEditMode) return;
+
+    // if(!isFromExplorer(itemStack)) {
+    //   setCurrentlyHeldItem({ ...itemStack, count: 64 });
+    //   return;
+    // }
+  };
+
   if(!ctx) return <></>;
 
   const itemComponent = (
@@ -99,12 +122,13 @@ export function InventoryItem({
       className={cn(
         "relative h-[48px] max-md:h-[36px] aspect-square p-1 hover:bg-muted select-none z-10",
         held && "pointer-events-none",
-        (nbtEditMode && !isFromExplorer) && "cursor-pointer",
+        (nbtEditMode && !isFromExplorer(itemStack)) && "cursor-pointer",
         className
       )}
       title={textureItem ? textureItem.readable : ""}
       onClick={() => handleLeftClick()}
       onContextMenu={(e) => handleRightClick(e)}
+      onAuxClick={(e) => handleAuxClick(e)}
       ref={ref}>
       {textureItem && (
         <img
@@ -124,7 +148,7 @@ export function InventoryItem({
     </div>
   );
 
-  if(isFromExplorer) return itemComponent;
+  if(isFromExplorer(itemStack)) return itemComponent;
 
   return (
     <ItemSheet
