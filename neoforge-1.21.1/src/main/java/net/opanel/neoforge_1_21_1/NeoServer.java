@@ -117,7 +117,8 @@ public class NeoServer implements OPanelServer {
     @Override
     public List<OPanelSave> getSaves() {
         List<OPanelSave> list = new ArrayList<>();
-        try(Stream<Path> stream = Files.list(Paths.get(""))) {
+        Path rootPath = getSavesRootPath();
+        try(Stream<Path> stream = Files.list(rootPath)) {
             stream.filter(path -> (
                             Files.exists(path.resolve("level.dat"))
                                     && !Files.isDirectory(path.resolve("level.dat"))
@@ -135,11 +136,22 @@ public class NeoServer implements OPanelServer {
 
     @Override
     public OPanelSave getSave(String saveName) {
-        final Path savePath = Paths.get("").resolve(saveName);
+        Path rootPath = getSavesRootPath();
+        final Path savePath = rootPath.resolve(saveName);
         if(!Files.exists(savePath) || !Files.exists(savePath.resolve("level.dat"))) {
             return null;
         }
         return new NeoSave(server, savePath.toAbsolutePath());
+    }
+
+    private Path getSavesRootPath() {
+        Path levelDataPath = server.getWorldPath(LevelResource.LEVEL_DATA_FILE);
+        Path worldRoot = levelDataPath.getParent();
+        if (worldRoot == null) {
+            return Paths.get("").toAbsolutePath();
+        }
+        Path parent = worldRoot.getParent();
+        return (parent != null ? parent : worldRoot).toAbsolutePath();
     }
 
     @Override
@@ -490,4 +502,3 @@ public class NeoServer implements OPanelServer {
         Files.delete(filePath);
     }
 }
-

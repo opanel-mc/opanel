@@ -157,8 +157,9 @@ public class BackupManager {
                 try {
                     // Handle Bukkit's dimension separation
                     if (plugin.getServer().getServerType().isBukkitSeries()) {
-                        Path netherDim = Paths.get("").resolve(saveName + "_nether/DIM-1");
-                        Path theEndDim = Paths.get("").resolve(saveName + "_the_end/DIM1");
+                        Path rootPath = savePath.getParent() == null ? Paths.get("") : savePath.getParent();
+                        Path netherDim = rootPath.resolve(saveName + "_nether/DIM-1");
+                        Path theEndDim = rootPath.resolve(saveName + "_the_end/DIM1");
                         if (Files.exists(netherDim)) {
                             copyDirectory(netherDim, savePath.resolve("DIM-1"));
                         }
@@ -279,12 +280,13 @@ public class BackupManager {
                 }
 
                 String restoreName = resolveRestoreName(fileName, sourcePath.getFileName().toString());
-                Path restorePath = Paths.get("").resolve(restoreName);
+                Path rootPath = resolveSavesRootPath();
+                Path restorePath = rootPath.resolve(restoreName);
 
                 Utils.copyDirectoryRecursively(sourcePath, restorePath);
 
                 if (plugin.getServer().getServerType().isBukkitSeries()) {
-                    splitBukkitDimensions(restorePath, restoreName);
+                    splitBukkitDimensions(restorePath, rootPath, restoreName);
                 }
 
                 plugin.logger.info("Backup restored: " + fileName + " -> " + restoreName);
@@ -394,12 +396,12 @@ public class BackupManager {
         return null;
     }
 
-    private void splitBukkitDimensions(Path savePath, String saveName) throws IOException {
+    private void splitBukkitDimensions(Path savePath, Path rootPath, String saveName) throws IOException {
         Path netherDim = savePath.resolve("DIM-1");
         Path endDim = savePath.resolve("DIM1");
 
         if (Files.exists(netherDim)) {
-            Path netherRoot = Paths.get("").resolve(saveName + "_nether");
+            Path netherRoot = rootPath.resolve(saveName + "_nether");
             Files.createDirectories(netherRoot);
             Path netherTarget = netherRoot.resolve("DIM-1");
             Utils.copyDirectoryRecursively(netherDim, netherTarget);
@@ -407,12 +409,27 @@ public class BackupManager {
         }
 
         if (Files.exists(endDim)) {
-            Path endRoot = Paths.get("").resolve(saveName + "_the_end");
+            Path endRoot = rootPath.resolve(saveName + "_the_end");
             Files.createDirectories(endRoot);
             Path endTarget = endRoot.resolve("DIM1");
             Utils.copyDirectoryRecursively(endDim, endTarget);
             Utils.deleteDirectoryRecursively(endDim);
         }
+    }
+
+    private Path resolveSavesRootPath() {
+        try {
+            List<OPanelSave> saves = plugin.getServer().getSaves();
+            if (!saves.isEmpty()) {
+                Path parent = saves.get(0).getPath().getParent();
+                if (parent != null) {
+                    return parent.toAbsolutePath();
+                }
+            }
+        } catch (Exception e) {
+            // Fallback to working directory
+        }
+        return Paths.get("").toAbsolutePath();
     }
 
     private void prepareForNewBackup() {

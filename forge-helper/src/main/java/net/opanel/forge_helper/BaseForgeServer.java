@@ -67,6 +67,16 @@ public abstract class BaseForgeServer implements OPanelServer {
         server.saveEverything(true, true, true);
     }
 
+    protected Path getSavesRootPath() {
+        Path levelDataPath = server.getWorldPath(LevelResource.LEVEL_DATA_FILE);
+        Path worldRoot = levelDataPath.getParent();
+        if (worldRoot == null) {
+            return Paths.get("").toAbsolutePath();
+        }
+        Path parent = worldRoot.getParent();
+        return (parent != null ? parent : worldRoot).toAbsolutePath();
+    }
+
     @Override
     public int getMaxPlayerCount() {
         return server.getMaxPlayers();
@@ -288,4 +298,3 @@ public abstract class BaseForgeServer implements OPanelServer {
         Files.delete(filePath);
     }
 }
-

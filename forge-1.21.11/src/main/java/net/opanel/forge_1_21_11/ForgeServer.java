@@ -71,7 +71,8 @@ public class ForgeServer extends BaseForgeServer implements OPanelServer, CodeOf
     @Override
     public List<OPanelSave> getSaves() {
         List<OPanelSave> list = new ArrayList<>();
-        try(Stream<Path> stream = Files.list(Paths.get(""))) {
+        Path rootPath = getSavesRootPath();
+        try(Stream<Path> stream = Files.list(rootPath)) {
             stream.filter(path -> (
                             Files.exists(path.resolve("level.dat"))
                                     && !Files.isDirectory(path.resolve("level.dat"))
@@ -89,7 +90,8 @@ public class ForgeServer extends BaseForgeServer implements OPanelServer, CodeOf
 
     @Override
     public OPanelSave getSave(String saveName) {
-        final Path savePath = Paths.get("").resolve(saveName);
+        Path rootPath = getSavesRootPath();
+        final Path savePath = rootPath.resolve(saveName);
         if(!Files.exists(savePath) || !Files.exists(savePath.resolve("level.dat"))) {
             return null;
         }

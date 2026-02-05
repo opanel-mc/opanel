@@ -73,8 +73,9 @@ public class SavesController extends BaseController {
              * so we need to put them together when processing the save files
              */
             if(server.getServerType().isBukkitSeries()) {
-                Path netherDim = Paths.get("").resolve(saveName +"_nether/DIM-1");
-                Path theEndDim = Paths.get("").resolve(saveName +"_the_end/DIM1");
+                Path rootPath = savePath.getParent() == null ? Paths.get("") : savePath.getParent();
+                Path netherDim = rootPath.resolve(saveName +"_nether/DIM-1");
+                Path theEndDim = rootPath.resolve(saveName +"_the_end/DIM1");
                 if(Files.exists(netherDim)) Utils.copyDirectoryRecursively(netherDim, savePath.resolve("DIM-1"));
                 if(Files.exists(theEndDim)) Utils.copyDirectoryRecursively(theEndDim, savePath.resolve("DIM1"));
             }
@@ -115,13 +116,14 @@ public class SavesController extends BaseController {
                 return;
             }
 
-            final String fileName = file.filename();
-            if(!fileName.endsWith(".zip")) {
+        final String fileName = file.filename();
+        if(!fileName.endsWith(".zip")) {
                 sendResponse(ctx, HttpStatus.BAD_REQUEST, "Save file should be a zip.");
                 return;
             }
 
-            final Path targetPath = Paths.get("").resolve(fileName.replaceAll(".zip", ""));
+        Path rootPath = resolveSavesRootPath();
+        final Path targetPath = rootPath.resolve(fileName.replaceAll(".zip", ""));
             if(Files.exists(targetPath)) {
                 sendResponse(ctx, HttpStatus.CONFLICT, "Save name conflict.");
                 return;
@@ -268,5 +270,18 @@ public class SavesController extends BaseController {
         String difficulty;
         boolean isDifficultyLocked;
         boolean isHardcore;
+    }
+
+    private Path resolveSavesRootPath() {
+        try {
+            List<OPanelSave> saves = server.getSaves();
+            if(!saves.isEmpty()) {
+                Path parent = saves.get(0).getPath().getParent();
+                if(parent != null) return parent.toAbsolutePath();
+            }
+        } catch (Exception e) {
+            // Fallback to working directory
+        }
+        return Paths.get("").toAbsolutePath();
     }
 }

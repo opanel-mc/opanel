@@ -61,7 +61,8 @@ public class FoliaServer extends BaseBukkitServer implements OPanelServer, Bukki
     @Override
     public List<OPanelSave> getSaves() {
         List<OPanelSave> list = new ArrayList<>();
-        try(Stream<Path> stream = Files.list(Paths.get(""))) {
+        Path rootPath = server.getWorldContainer().toPath();
+        try(Stream<Path> stream = Files.list(rootPath)) {
             stream.filter(path -> (
                             !path.toString().endsWith("_nether")
                             && !path.toString().endsWith("_the_end")
@@ -81,7 +82,8 @@ public class FoliaServer extends BaseBukkitServer implements OPanelServer, Bukki
 
     @Override
     public OPanelSave getSave(String saveName) {
-        final Path savePath = Paths.get("").resolve(saveName);
+        Path rootPath = server.getWorldContainer().toPath();
+        final Path savePath = rootPath.resolve(saveName);
         if(
                 !Files.exists(savePath)
                 || savePath.toString().endsWith("_nether")

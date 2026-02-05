@@ -68,6 +68,16 @@ public abstract class BaseFabricServer implements OPanelServer {
         server.saveAll(true, true, true);
     }
 
+    protected Path getSavesRootPath() {
+        Path levelDataPath = server.getSavePath(WorldSavePath.LEVEL_DAT);
+        Path worldRoot = levelDataPath.getParent();
+        if (worldRoot == null) {
+            return Paths.get("").toAbsolutePath();
+        }
+        Path parent = worldRoot.getParent();
+        return (parent != null ? parent : worldRoot).toAbsolutePath();
+    }
+
     @Override
     public int getMaxPlayerCount() {
         return server.getMaxPlayerCount();
@@ -287,4 +297,3 @@ public abstract class BaseFabricServer implements OPanelServer {
         Files.delete(filePath);
     }
 }
-
