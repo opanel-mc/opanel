@@ -56,7 +56,7 @@ jobs:
           21
           17
           14
-        distribution: "microsoft"
+        distribution: "temurin"
         cache: "gradle"
     - name: Change wrapper permissions
       run: chmod +x ./gradlew
