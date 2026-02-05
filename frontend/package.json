@@ -4,12 +4,12 @@
   "private": true,
   "description": "A Minecraft server management panel",
   "scripts": {
-    "dev": "npm run prepare && next dev --turbopack -p 3001",
-    "build": "npm run prepare && next build && npm run bundle",
+    "dev": "npm run prelaunch && next dev --turbopack -p 3001",
+    "build": "npm run prelaunch && next build && npm run bundle",
     "start": "next start",
     "lint": "next lint",
     "bundle": "node scripts/bundle",
-    "prepare": "node scripts/prepare force"
+    "prelaunch": "node scripts/prelaunch force"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
