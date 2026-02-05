@@ -16,15 +16,16 @@ export function InventoryContent({
   className?: string
 }) {
   const ctx = useContext(InventoryContext);
-  const { currentlyHeldItem, nbtEditMode, setNbtEditMode } = ctx;
+  const { nbtEditMode, setNbtEditMode } = ctx;
 
   return (
     <div className="w-fit">
       <div className="flex justify-end items-center gap-2 mb-4">
         <Label>NBT 编辑模式</Label>
         <Switch
-          disabled={!!currentlyHeldItem}
+          disabled={true}
           checked={nbtEditMode}
+          title="该功能尚未完成"
           onCheckedChange={setNbtEditMode}/>
       </div>
 
