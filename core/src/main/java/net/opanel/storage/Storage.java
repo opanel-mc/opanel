@@ -2,12 +2,8 @@ package net.opanel.storage;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import net.opanel.OPanel;
 import net.opanel.backup.BackupConfiguration;
 import net.opanel.task.ScheduledTask;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,23 +23,15 @@ public class Storage {
                 }.getType(),
                 new ArrayList<ScheduledTask>()));
         registeredStorageFiles.put(StorageKey.BACKUP_CONFIG, new StorageFile<>(
-                resolveBackupConfigPath(),
+                "backup_config.json",
                 BackupConfiguration.class,
                 BackupConfiguration.defaultConfig));
-    }
-
-    private Path resolveBackupConfigPath() {
-        String dir = System.getProperty("opanel.backup.config.dir");
-        if (dir != null && !dir.isBlank()) {
-            return Paths.get(dir).resolve("backup_config.json");
-        }
-        return OPanel.OPANEL_DIR_PATH.resolve("backup_config.json");
     }
 
     @SuppressWarnings("unchecked")
     public <T> T getStoredData(StorageKey key) {
         StorageFile<T> file = (StorageFile<T>) registeredStorageFiles.get(key);
-        if (file == null)
+        if(file == null)
             return null;
 
         try {
@@ -57,7 +45,7 @@ public class Storage {
     @SuppressWarnings("unchecked")
     public <T> void setStoredData(StorageKey key, T data) {
         StorageFile<T> file = (StorageFile<T>) registeredStorageFiles.get(key);
-        if (file == null)
+        if(file == null)
             return;
 
         try {
@@ -68,7 +56,7 @@ public class Storage {
     }
 
     public static Storage get() {
-        if (instance == null)
+        if(instance == null)
             instance = new Storage();
         return instance;
     }
