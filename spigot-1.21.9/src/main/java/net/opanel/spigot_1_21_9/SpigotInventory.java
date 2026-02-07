@@ -2,10 +2,17 @@ package net.opanel.spigot_1_21_9;
 
 import net.opanel.bukkit_helper.BaseBukkitInventory;
 import net.opanel.bukkit_helper.TaskRunner;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public class SpigotInventory extends BaseBukkitInventory {
     public SpigotInventory(TaskRunner runner, Player player) {
         super(runner, player);
+    }
+
+    @Override
+    protected String keyOfNBT() {
+        return "components";
     }
 }

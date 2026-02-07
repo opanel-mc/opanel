@@ -13,4 +13,9 @@ public class SpigotOfflineInventory extends BaseBukkitOfflineInventory {
     protected String keyOfCount() {
         return "count";
     }
+
+    @Override
+    protected String keyOfNBT() {
+        return "components";
+    }
 }

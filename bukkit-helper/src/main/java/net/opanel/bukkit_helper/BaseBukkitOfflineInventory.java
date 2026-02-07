@@ -1,15 +1,16 @@
 package net.opanel.bukkit_helper;
 
 import de.tr7zw.changeme.nbtapi.NBT;
-import de.tr7zw.changeme.nbtapi.handler.NBTHandlers;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBTCompoundList;
-import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBTList;
+import net.opanel.bukkit_helper.utils.BukkitUtils;
+import net.opanel.bukkit_helper.utils.NBTConverter;
 import net.opanel.common.OPanelInventory;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public abstract class BaseBukkitOfflineInventory implements OPanelInventory {
@@ -17,6 +18,7 @@ public abstract class BaseBukkitOfflineInventory implements OPanelInventory {
     protected ReadWriteNBT nbt;
 
     private final String KEY_OF_COUNT = keyOfCount();
+    private final String KEY_OF_NBT = keyOfNBT();
 
     public BaseBukkitOfflineInventory(Path playerDataPath) {
         this.playerDataPath = playerDataPath;
@@ -32,6 +34,7 @@ public abstract class BaseBukkitOfflineInventory implements OPanelInventory {
      * while in MC versions >= 1.20.5, that key is changed to "count".
      */
     protected abstract String keyOfCount();
+    protected abstract String keyOfNBT();
 
     protected void saveNbt() throws IOException {
         NBT.writeFile(playerDataPath.toFile(), nbt);
@@ -59,7 +62,13 @@ public abstract class BaseBukkitOfflineInventory implements OPanelInventory {
 
             String id = itemNbt.getString("id");
             int count = itemNbt.getByte(KEY_OF_COUNT);
-            items.add(new OPanelItemStack(slot, id, count, null));
+            ReadWriteNBT components = itemNbt.getCompound(KEY_OF_NBT);
+            items.add(new OPanelItemStack(
+                slot,
+                id,
+                count,
+                components == null ? null : NBTConverter.serializeNBT(components)
+            ));
             nextSlot = slot + 1;
         }
 

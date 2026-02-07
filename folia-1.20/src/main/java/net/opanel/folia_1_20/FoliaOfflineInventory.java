@@ -13,4 +13,9 @@ public class FoliaOfflineInventory extends BaseBukkitOfflineInventory {
     protected String keyOfCount() {
         return "Count";
     }
+
+    @Override
+    protected String keyOfNBT() {
+        return "tag";
+    }
 }

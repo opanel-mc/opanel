@@ -1,5 +1,8 @@
 package net.opanel.bukkit_helper;
 
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
+import net.opanel.bukkit_helper.utils.NBTConverter;
 import net.opanel.common.OPanelInventory;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -13,10 +16,14 @@ public abstract class BaseBukkitInventory implements OPanelInventory {
     protected final TaskRunner runner;
     protected final Player player;
 
+    private final String KEY_OF_NBT = keyOfNBT();
+
     public BaseBukkitInventory(TaskRunner runner, Player player) {
         this.runner = runner;
         this.player = player;
     }
+
+    protected abstract String keyOfNBT();
 
     @Override
     public int getSize() {
@@ -35,7 +42,14 @@ public abstract class BaseBukkitInventory implements OPanelInventory {
                 items.add(new OPanelItemStack(i, "minecraft:air", 0, null));
                 continue;
             }
-            items.add(new OPanelItemStack(i, stack.getType().getKey().toString(), stack.getAmount(), null));
+
+            ReadWriteNBT components = NBT.itemStackToNBT(stack).getCompound(KEY_OF_NBT);
+            items.add(new OPanelItemStack(
+                i,
+                stack.getType().getKey().toString(),
+                stack.getAmount(),
+                components == null ? null : NBTConverter.serializeNBT(components)
+            ));
         }
         return items;
     }

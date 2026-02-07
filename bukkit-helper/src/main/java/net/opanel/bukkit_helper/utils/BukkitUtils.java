@@ -1,4 +1,4 @@
-package net.opanel.bukkit_helper;
+package net.opanel.bukkit_helper.utils;
 
 import com.mojang.brigadier.CommandDispatcher;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;

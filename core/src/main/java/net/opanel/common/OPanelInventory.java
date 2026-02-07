@@ -3,6 +3,7 @@ package net.opanel.common;
 import net.opanel.utils.Utils;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 public interface OPanelInventory {
@@ -36,9 +37,9 @@ public interface OPanelInventory {
         public int slot;
         public String id;
         public int count;
-        public String nbt; // todo
+        public HashMap<String, Object> nbt;
 
-        public OPanelItemStack(int slot, String id, int count, String nbt) {
+        public OPanelItemStack(int slot, String id, int count, HashMap<String, Object> nbt) {
             this.slot = slot;
             this.id = id;
             this.count = count;

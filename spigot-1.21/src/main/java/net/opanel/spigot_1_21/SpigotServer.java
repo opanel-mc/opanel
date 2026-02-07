@@ -3,14 +3,12 @@ package net.opanel.spigot_1_21;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.CommandNode;
 import net.opanel.bukkit_helper.BaseBukkitServer;
-import net.opanel.bukkit_helper.BukkitUtils;
-import net.opanel.common.ServerType;
+import net.opanel.bukkit_helper.utils.BukkitUtils;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelSave;
 import net.opanel.common.OPanelServer;
 import net.opanel.common.OPanelWhitelist;
 import net.opanel.common.features.BukkitConfigFeature;
-import net.opanel.utils.Utils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 
