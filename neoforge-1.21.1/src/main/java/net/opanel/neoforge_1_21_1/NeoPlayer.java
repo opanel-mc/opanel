@@ -2,6 +2,7 @@ package net.opanel.neoforge_1_21_1;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.server.players.UserBanList;
@@ -16,12 +17,14 @@ import java.util.Date;
 
 public class NeoPlayer implements OPanelPlayer {
     private final ServerPlayer player;
+    private final MinecraftServer server;
     private final PlayerList playerManager;
     private final GameProfile profile;
 
     public NeoPlayer(ServerPlayer player) {
         this.player = player;
-        playerManager = player.getServer().getPlayerList();
+        server = player.getServer();
+        playerManager = server.getPlayerList();
         profile = player.getGameProfile();
     }
 
@@ -44,7 +47,7 @@ public class NeoPlayer implements OPanelPlayer {
 
     @Override
     public NeoInventory getInventory() {
-        return new NeoInventory(player);
+        return new NeoInventory(player, server);
     }
 
     @Override

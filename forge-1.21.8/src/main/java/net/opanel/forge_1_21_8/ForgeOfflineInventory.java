@@ -4,13 +4,15 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
+import net.opanel.forge_1_21_8.utils.NBTConverter;
 import net.opanel.forge_helper.BaseForgeOfflineInventory;
-import net.opanel.forge_helper.ForgeUtils;
+import net.opanel.forge_helper.utils.ForgeUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ForgeOfflineInventory extends BaseForgeOfflineInventory {
     private CompoundTag nbt;
@@ -54,7 +56,8 @@ public class ForgeOfflineInventory extends BaseForgeOfflineInventory {
 
             String id = itemNbt.getStringOr("id", "minecraft:air");
             int count = itemNbt.getByteOr("count", (byte) 0);
-            items.add(new OPanelItemStack(slot, id, count, null));
+            Optional<CompoundTag> nbt = itemNbt.getCompound("components");
+            items.add(new OPanelItemStack(slot, id, count, nbt.map(NBTConverter::serializeNBT).orElse(null)));
             nextSlot = slot + 1;
         }
 

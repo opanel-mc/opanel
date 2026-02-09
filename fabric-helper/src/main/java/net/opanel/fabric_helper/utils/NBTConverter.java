@@ -4,6 +4,18 @@ import net.minecraft.nbt.*;
 
 import java.util.*;
 
+/*
+ * This NBTConverter is commonly used by all Fabric versions
+ * For compatibility, we can't use the simplest way of writing it.
+ * Such as:
+ * - No `nbt.getType(String key)`, do `nbt.get(String key).getType()`
+ * - No `nbt.getInt(String key)`, do `((NbtInt) nbt.get(String key)).intValue()`
+ * - etc...
+ *
+ * The "No" writings only work in earlier versions,
+ * but does not work at all in later versions.
+ */
+
 public class NBTConverter {
     public static HashMap<String, Object> serializeNBT(NbtCompound nbt) {
         HashMap<String, Object> obj = new HashMap<>();

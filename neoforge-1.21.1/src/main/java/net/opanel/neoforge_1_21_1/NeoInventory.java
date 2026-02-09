@@ -1,21 +1,30 @@
 package net.opanel.neoforge_1_21_1;
 
+import com.mojang.serialization.DataResult;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.opanel.common.OPanelInventory;
+import net.opanel.neoforge_1_21_1.utils.NBTConverter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class NeoInventory implements OPanelInventory {
-    protected final ServerPlayer player;
+    private final ServerPlayer player;
+    private final MinecraftServer server;
 
-    public NeoInventory(ServerPlayer player) {
+    public NeoInventory(ServerPlayer player, MinecraftServer server) {
         this.player = player;
+        this.server = server;
     }
 
     @Override
@@ -37,7 +46,16 @@ public class NeoInventory implements OPanelInventory {
             }
 
             final String id = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
-            items.add(new OPanelItemStack(i, id, stack.getCount(), null));
+            RegistryAccess.Frozen registryAccess = server.registryAccess();
+            DataResult<Tag> encodeResult = ItemStack.CODEC.encodeStart(registryAccess.createSerializationContext(NbtOps.INSTANCE), stack);
+            CompoundTag nbt = (CompoundTag) encodeResult.result().orElse(new CompoundTag());
+            CompoundTag components = nbt.getCompound("components");
+            items.add(new OPanelItemStack(
+                    i,
+                    id,
+                    stack.getCount(),
+                    components.isEmpty() ? null : NBTConverter.serializeNBT(components)
+            ));
         }
         return items;
     }

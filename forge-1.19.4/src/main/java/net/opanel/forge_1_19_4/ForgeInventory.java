@@ -1,10 +1,17 @@
 package net.opanel.forge_1_19_4;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.opanel.forge_1_19_4.utils.NBTConverter;
 import net.opanel.forge_helper.BaseForgeInventory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ForgeInventory extends BaseForgeInventory {
     public ForgeInventory(ServerPlayer player) {
@@ -21,5 +28,30 @@ public class ForgeInventory extends BaseForgeInventory {
     @Override
     protected Item idToItem(String id) {
         return ForgeRegistries.ITEMS.getValue(ResourceLocation.tryParse(id));
+    }
+
+    @Override
+    public List<OPanelItemStack> getItems() {
+        Inventory inventory = player.getInventory();
+        int size = getSize();
+        List<OPanelItemStack> items = new ArrayList<>(size);
+
+        for(int i = 0; i < size; i++) {
+            ItemStack stack = inventory.getItem(i);
+            if(stack.isEmpty()) {
+                items.add(new OPanelItemStack(i, "minecraft:air", 0, null));
+                continue;
+            }
+
+            final String id = itemToId(stack.getItem());
+            CompoundTag nbt = stack.getTag();
+            items.add(new OPanelItemStack(
+                    i,
+                    id,
+                    stack.getCount(),
+                    nbt == null ? null : NBTConverter.serializeNBT(nbt)
+            ));
+        }
+        return items;
     }
 }

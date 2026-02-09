@@ -25,25 +25,6 @@ public abstract class BaseForgeInventory implements OPanelInventory {
     }
 
     @Override
-    public List<OPanelItemStack> getItems() {
-        Inventory inventory = player.getInventory();
-        int size = getSize();
-        List<OPanelItemStack> items = new ArrayList<>(size);
-
-        for(int i = 0; i < size; i++) {
-            ItemStack stack = inventory.getItem(i);
-            if(stack.isEmpty()) {
-                items.add(new OPanelItemStack(i, "minecraft:air", 0, null));
-                continue;
-            }
-
-            final String id = itemToId(stack.getItem());
-            items.add(new OPanelItemStack(i, id, stack.getCount(), null));
-        }
-        return items;
-    }
-
-    @Override
     public void setItems(List<OPanelItemStack> items) {
         Inventory inventory = player.getInventory();
         inventory.clearContent();

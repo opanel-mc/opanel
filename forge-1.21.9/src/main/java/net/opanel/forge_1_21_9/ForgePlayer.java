@@ -20,7 +20,7 @@ public class ForgePlayer extends BaseForgePlayer implements OPanelPlayer {
 
     @Override
     public ForgeInventory getInventory() {
-        return new ForgeInventory(player);
+        return new ForgeInventory(player, server);
     }
 
     @Override

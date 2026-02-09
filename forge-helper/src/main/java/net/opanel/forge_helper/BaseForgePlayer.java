@@ -11,11 +11,13 @@ import java.net.UnknownHostException;
 
 public abstract class BaseForgePlayer implements OPanelPlayer {
     protected final ServerPlayer player;
+    protected final MinecraftServer server;
     protected final PlayerList playerManager;
     protected final GameProfile profile;
 
     public BaseForgePlayer(ServerPlayer player, MinecraftServer server) {
         this.player = player;
+        this.server = server;
         playerManager = server.getPlayerList();
         profile = player.getGameProfile();
     }

@@ -3,8 +3,9 @@ package net.opanel.forge_1_20_1;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
+import net.opanel.forge_1_20_1.utils.NBTConverter;
 import net.opanel.forge_helper.BaseForgeOfflineInventory;
-import net.opanel.forge_helper.ForgeUtils;
+import net.opanel.forge_helper.utils.ForgeUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -53,7 +54,8 @@ public class ForgeOfflineInventory extends BaseForgeOfflineInventory {
 
             String id = itemNbt.getString("id");
             int count = itemNbt.getByte("Count");
-            items.add(new OPanelItemStack(slot, id, count, null));
+            CompoundTag nbt = itemNbt.getCompound("tag");
+            items.add(new OPanelItemStack(slot, id, count, nbt.isEmpty() ? null : NBTConverter.serializeNBT(nbt)));
             nextSlot = slot + 1;
         }
 

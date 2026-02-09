@@ -4,8 +4,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.Tag;
 import net.opanel.common.OPanelInventory;
+import net.opanel.neoforge_1_21_1.utils.NBTConverter;
+import net.opanel.neoforge_1_21_1.utils.NeoUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -54,7 +55,8 @@ public class NeoOfflineInventory implements OPanelInventory {
 
             String id = itemNbt.getString("id");
             int count = itemNbt.getByte("count");
-            items.add(new OPanelItemStack(slot, id, count, null));
+            CompoundTag nbt = itemNbt.getCompound("components");
+            items.add(new OPanelItemStack(slot, id, count, nbt.isEmpty() ? null : NBTConverter.serializeNBT(nbt)));
             nextSlot = slot + 1;
         }
 

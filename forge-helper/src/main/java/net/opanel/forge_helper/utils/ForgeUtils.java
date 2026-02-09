@@ -1,4 +1,4 @@
-package net.opanel.forge_helper;
+package net.opanel.forge_helper.utils;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
