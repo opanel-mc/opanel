@@ -1,5 +1,6 @@
 package net.opanel.common;
 
+import com.google.gson.Gson;
 import net.opanel.utils.Utils;
 
 import java.util.Comparator;
@@ -27,10 +28,18 @@ public interface OPanelInventory {
             sb.append(item.slot).append('|')
               .append(item.id == null ? "" : item.id).append('|')
               .append(item.count).append('|')
-              .append(item.nbt == null ? "" : item.nbt)
+              .append(item.nbt == null ? "" : new Gson().toJson(item.nbt))
               .append(';');
         }
         return Utils.md5(sb.toString());
+    }
+
+    default HashMap<String, Object> serialize() {
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("size", getSize());
+        data.put("hash", getHash());
+        data.put("items", getItems());
+        return data;
     }
 
     class OPanelItemStack {

@@ -12,13 +12,11 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 public abstract class BaseFabricOfflinePlayer implements OPanelPlayer {
-    protected final MinecraftServer server;
     protected final PlayerManager playerManager;
     protected final Path playerDataPath;
     protected final UUID uuid;
 
     public BaseFabricOfflinePlayer(MinecraftServer server, UUID uuid) {
-        this.server = server;
         playerManager = server.getPlayerManager();
         playerDataPath = server.getSavePath(WorldSavePath.PLAYERDATA).resolve(uuid +".dat");
         this.uuid = uuid;

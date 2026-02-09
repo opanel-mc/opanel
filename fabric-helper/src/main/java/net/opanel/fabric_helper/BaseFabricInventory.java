@@ -3,8 +3,10 @@ package net.opanel.fabric_helper;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.opanel.common.OPanelInventory;
+import net.opanel.fabric_helper.utils.NBTConverter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,25 +24,6 @@ public abstract class BaseFabricInventory implements OPanelInventory {
     @Override
     public int getSize() {
         return player.getInventory().size();
-    }
-
-    @Override
-    public List<OPanelItemStack> getItems() {
-        PlayerInventory inventory = player.getInventory();
-        int size = getSize();
-        List<OPanelItemStack> items = new ArrayList<>(size);
-
-        for(int i = 0; i < size; i++) {
-            ItemStack stack = inventory.getStack(i);
-            if(stack.isEmpty()) {
-                items.add(new OPanelItemStack(i, "minecraft:air", 0, null));
-                continue;
-            }
-
-            final String id = itemToId(stack.getItem());
-            items.add(new OPanelItemStack(i, id, stack.getCount(), null));
-        }
-        return items;
     }
 
     @Override

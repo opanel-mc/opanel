@@ -3,9 +3,7 @@ package net.opanel.fabric_1_21;
 import net.minecraft.nbt.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.MinecraftDedicatedServer;
-import net.minecraft.util.WorldSavePath;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.GameMode;
 import net.minecraft.world.level.LevelInfo;
 import net.minecraft.world.level.LevelProperties;
 import net.opanel.common.OPanelDifficulty;
@@ -13,19 +11,12 @@ import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelSave;
 import net.opanel.common.OPanelServer;
 import net.opanel.fabric_helper.BaseFabricSave;
-import net.opanel.fabric_helper.FabricUtils;
-import net.opanel.utils.Utils;
-import org.intellij.lang.annotations.RegExp;
+import net.opanel.fabric_helper.utils.FabricUtils;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.regex.Pattern;
 
 public class FabricSave extends BaseFabricSave implements OPanelSave {
     private NbtCompound nbt;

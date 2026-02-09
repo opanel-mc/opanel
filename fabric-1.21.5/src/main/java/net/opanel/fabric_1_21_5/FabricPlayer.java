@@ -25,7 +25,7 @@ public class FabricPlayer extends BaseFabricPlayer implements OPanelPlayer {
     
     @Override
     public FabricInventory getInventory() {
-        return new FabricInventory(player);
+        return new FabricInventory(player, server);
     }
 
     @Override

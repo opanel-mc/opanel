@@ -48,10 +48,10 @@ public class InventoryEndpoint extends BaseEndpoint {
         }
 
         // Send initial inventory data
-        ctx.send(new InventoryPacket<>(InventoryPacket.INIT, serializeInventory(player.getInventory())));
+        ctx.send(new InventoryPacket<>(InventoryPacket.INIT, player.getInventory().serialize()));
 
         subscribe(ctx.session, InventoryPacket.FETCH, msgCtx -> {
-            msgCtx.send(new InventoryPacket<>(InventoryPacket.INIT, serializeInventory(player.getInventory())));
+            msgCtx.send(new InventoryPacket<>(InventoryPacket.INIT, player.getInventory().serialize()));
         });
 
         subscribe(ctx.session, InventoryPacket.UPDATE, OPanelInventory.OPanelItemStack.class, (msgCtx, item) -> {
@@ -69,7 +69,7 @@ public class InventoryEndpoint extends BaseEndpoint {
             OPanelInventory currentInventory = currentPlayer.getInventory();
             currentInventory.setItem(item);
 
-            HashMap<String, Object> updatedData = serializeInventory(currentInventory);
+            HashMap<String, Object> updatedData = currentInventory.serialize();
             if(updatedData != null) {
                 broadcast(new InventoryPacket<>(InventoryPacket.UPDATE, updatedData));
             }
@@ -77,21 +77,12 @@ public class InventoryEndpoint extends BaseEndpoint {
 
         if(!hasInventoryListenerRegistered) {
             EventManager.get().on(EventType.PLAYER_INVENTORY_CHANGE, (OPanelPlayerInventoryChangeEvent event) -> {
-                HashMap<String, Object> data = serializeInventory(event.getInventory());
+                HashMap<String, Object> data = event.getInventory().serialize();
                 if(event.getPlayer().getUUID().equals(uuid) && data != null) {
                     broadcast(new InventoryPacket<>(InventoryPacket.UPDATE, data));
                 }
             });
             hasInventoryListenerRegistered = true;
         }
-    }
-
-    private HashMap<String, Object> serializeInventory(OPanelInventory inventory) {
-        if(inventory == null) return null;
-        HashMap<String, Object> data = new HashMap<>();
-        data.put("size", inventory.getSize());
-        data.put("hash", inventory.getHash());
-        data.put("items", inventory.getItems());
-        return data;
     }
 }

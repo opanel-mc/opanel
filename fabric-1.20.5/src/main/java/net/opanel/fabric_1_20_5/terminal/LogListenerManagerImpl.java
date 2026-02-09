@@ -1,0 +1,79 @@
+package net.opanel.fabric_1_20_5.terminal;
+
+import net.opanel.terminal.ConsoleLog;
+import net.opanel.terminal.LogListenerManager;
+import net.opanel.utils.Utils;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.Filter;
+import org.apache.logging.log4j.core.Layout;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Property;
+import org.apache.logging.log4j.core.config.plugins.*;
+import org.apache.logging.log4j.core.layout.PatternLayout;
+
+import java.io.Serializable;
+import java.util.*;
+import java.util.function.Consumer;
+
+@Plugin(name = "LogListenerAppender", category = "Core", elementType = "appender")
+public class LogListenerManagerImpl extends AbstractAppender implements LogListenerManager {
+    private final LinkedList<ConsoleLog> logs = new LinkedList<>();
+    private final Set<Consumer<ConsoleLog>> listeners = new HashSet<>();
+
+    protected LogListenerManagerImpl(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions, Property[] properties) {
+        super(name, filter, layout, ignoreExceptions, properties);
+    }
+
+    @Override
+    public void append(LogEvent e) {
+        if(e.getLevel() != Level.INFO && e.getLevel() != Level.WARN && e.getLevel() != Level.ERROR) return;
+
+        final long time = e.getTimeMillis();
+        final String level = e.getLevel().name();
+        final String thread = e.getThreadName();
+        final String source = e.getLoggerName();
+        final String line = e.getMessage().getFormattedMessage();
+        final ConsoleLog log = new ConsoleLog(time, level, thread, source, line);
+
+        final Throwable throwable = e.getThrown();
+        if(throwable != null) {
+            log.setThrownMessage(Utils.stringifyThrowable(throwable));
+        }
+
+        synchronized(logs) {
+            logs.add(log);
+            while(logs.size() > MAX_LOG_LINES) logs.remove(0);
+        }
+
+        listeners.forEach(listener -> {
+            listener.accept(log);
+        });
+    }
+
+    @PluginFactory
+    public static LogListenerManagerImpl createAppender(
+            @PluginAttribute("name") String name,
+            @PluginAttribute("ignoreExceptions") boolean ignoreExceptions
+    ) {
+        PatternLayout pattern = PatternLayout.createDefaultLayout();
+        return new LogListenerManagerImpl(name, null, pattern, ignoreExceptions, null);
+    }
+
+    @Override
+    public void addListener(Consumer<ConsoleLog> listener) {
+        listeners.add(listener);
+    }
+
+    @Override
+    public void clearListeners() {
+        listeners.clear();
+    }
+
+    @Override
+    public List<ConsoleLog> getRecentLogs() {
+        synchronized(logs) {
+            return new ArrayList<>(logs);
+        }
+    }
+}

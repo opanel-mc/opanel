@@ -11,11 +11,13 @@ import java.net.UnknownHostException;
 
 public abstract class BaseFabricPlayer implements OPanelPlayer {
     protected final ServerPlayerEntity player;
+    protected final MinecraftServer server;
     protected final PlayerManager playerManager;
     protected final GameProfile profile;
 
     public BaseFabricPlayer(ServerPlayerEntity player, MinecraftServer server) {
         this.player = player;
+        this.server = server;
         playerManager = server.getPlayerManager();
         profile = player.getGameProfile();
     }

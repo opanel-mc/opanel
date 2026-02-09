@@ -5,7 +5,8 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtList;
 import net.opanel.fabric_helper.BaseFabricOfflineInventory;
-import net.opanel.fabric_helper.FabricUtils;
+import net.opanel.fabric_helper.utils.FabricUtils;
+import net.opanel.fabric_helper.utils.NBTConverter;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -54,7 +55,8 @@ public class FabricOfflineInventory extends BaseFabricOfflineInventory {
 
             String id = itemNbt.getString("id");
             int count = itemNbt.getByte("Count");
-            items.add(new OPanelItemStack(slot, id, count, null));
+            NbtCompound nbt = itemNbt.getCompound("tag");
+            items.add(new OPanelItemStack(slot, id, count, nbt.isEmpty() ? null : NBTConverter.serializeNBT(nbt)));
             nextSlot = slot + 1;
         }
 

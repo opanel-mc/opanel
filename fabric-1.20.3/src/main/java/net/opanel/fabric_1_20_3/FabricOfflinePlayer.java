@@ -87,7 +87,7 @@ public class FabricOfflinePlayer extends BaseFabricOfflinePlayer implements OPan
 
     @Override
     public FabricOfflineInventory getInventory() {
-        return new FabricOfflineInventory(server, playerDataPath);
+        return new FabricOfflineInventory(playerDataPath);
     }
 
     @Override

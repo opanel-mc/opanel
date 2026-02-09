@@ -1,4 +1,4 @@
-package net.opanel.fabric_helper;
+package net.opanel.fabric_helper.utils;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
