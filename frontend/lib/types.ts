@@ -66,7 +66,7 @@ export interface ItemStack {
   slot: number
   id: string
   count: number
-  nbt: null // todo
+  nbt: any
 }
 
 export interface PlayerInventory {

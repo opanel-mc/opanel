@@ -1,12 +1,29 @@
 import type { ItemStack } from "@/lib/types";
-import { type MouseEvent, type RefObject, useContext, useMemo } from "react";
+import type { ItemNBTResolver } from "@/lib/nbt/resolver";
+import { type MouseEvent, type RefObject, useContext, useEffect, useMemo, useState } from "react";
 import { InventoryContext } from "@/contexts/inventory-context";
 import { cn } from "@/lib/utils";
 import { minecraftAE } from "@/lib/fonts";
 import { ItemSheet } from "./item-sheet";
 import { $mc } from "@/lib/i18n";
+import { VersionContext } from "@/contexts/api-context";
+import { createResolver } from "@/lib/nbt";
+
+import GlintTexture from "@/assets/images/enchanted-glint.png";
+import PotionOverlayTexture from "@/assets/images/potion-overlay.png";
+import "@/style/item-effect.css";
 
 export const AIR = "minecraft:air";
+
+const glintItems = [
+  "minecraft:enchanted_book",
+  "minecraft:experience_bottle",
+  "minecraft:enchanted_golden_apple",
+  "minecraft:end_crystal",
+  "minecraft:nether_star",
+  "minecraft:written_book",
+  "minecraft:debug_stick"
+];
 
 function isFromExplorer(itemStack: ItemStack) {
   return itemStack.slot === -1;
@@ -23,6 +40,7 @@ export function InventoryItem({
   className?: string
   ref?: RefObject<HTMLDivElement | null>
 }) {
+  const versionCtx = useContext(VersionContext);
   const ctx = useContext(InventoryContext);
   const {
     textures,
@@ -37,6 +55,7 @@ export function InventoryItem({
   const textureItem = useMemo(() => (
     textures.find(({ id }) => id === itemStack.id)
   ), [textures, itemStack.id]);
+  const [resolvedNBT, setResolvedNBT] = useState<ItemNBTResolver | null>(null);
 
   const handleLeftClick = () => {
     if(held || !ctx || nbtEditMode) return;
@@ -113,6 +132,12 @@ export function InventoryItem({
     }
   };
 
+  useEffect(() => {
+    if(!versionCtx) return;
+
+    setResolvedNBT(createResolver(versionCtx.version, itemStack.nbt));
+  }, [versionCtx, itemStack.nbt]);
+
   if(!ctx) return <></>;
 
   const itemComponent = (
@@ -121,7 +146,7 @@ export function InventoryItem({
       data-slot-id={itemStack.slot}
       data-item-id={itemStack.id}
       className={cn(
-        "relative h-[48px] max-md:h-[36px] aspect-square p-1 hover:bg-muted select-none z-10",
+        "relative h-[48px] max-md:h-[36px] aspect-square p-1 hover:bg-muted select-none image-pixelated z-10",
         held && "pointer-events-none",
         (nbtEditMode && !isFromExplorer(itemStack)) && "cursor-pointer",
         className
@@ -133,7 +158,7 @@ export function InventoryItem({
       ref={ref}>
       {textureItem && (
         <img
-          className="image-pixelated w-full"
+          className="w-full"
           src={textureItem.texture}
           alt={textureItem.id}/>
       )}
@@ -145,6 +170,25 @@ export function InventoryItem({
         )}>
           {itemStack.count}
         </span>
+      )}
+      {((resolvedNBT && resolvedNBT.shouldGlint()) || glintItems.includes(itemStack.id)) && (
+        <div
+          className="item-glint absolute inset-0 top-0 left-0 z-10"
+          style={{
+            backgroundImage: `url(${GlintTexture.src})`,
+            maskImage: `url(${textureItem ? textureItem.texture : ""})`,
+            WebkitMaskImage: `url(${textureItem ? textureItem.texture : ""})`
+          }}/>
+      )}
+      {(resolvedNBT && resolvedNBT.isPotion()) && (
+        <div
+          className="item-potion-overlay absolute inset-0 top-0 left-0 z-10"
+          style={{
+            backgroundImage: `url(${PotionOverlayTexture.src})`,
+            backgroundColor: `rgb(${resolvedNBT.getPotionColor()?.join(",")})`,
+            maskImage: `url(${PotionOverlayTexture.src})`,
+            WebkitMaskImage: `url(${PotionOverlayTexture.src})`
+          }}/>
       )}
     </div>
   );

@@ -1,0 +1,22 @@
+@reference "tailwindcss";
+@reference "./globals.css";
+
+.item-glint {
+  @apply bg-size-[200%_200%] mix-blend-color-dodge opacity-60 pointer-events-none;
+  @apply mask-center mask-size-[calc(100%-var(--spacing)*2)_calc(100%-var(--spacing)*2)] mask-no-repeat;
+  @apply animate-[glint_6s_linear_infinite];
+}
+
+@keyframes glint {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: -200% 200%;
+  }
+}
+
+.item-potion-overlay {
+  @apply bg-[50%_calc(50%-0.5px)] bg-size-[calc(100%-var(--spacing)*2)_calc(100%-var(--spacing)*2)] bg-blend-multiply pointer-events-none;
+  @apply mask-[50%_calc(50%-0.5px)] mask-size-[calc(100%-var(--spacing)*2)_calc(100%-var(--spacing)*2)] mask-no-repeat;
+}
