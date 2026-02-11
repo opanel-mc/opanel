@@ -7,7 +7,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.opanel.forge_1_20_2.utils.NBTConverter;
 import net.opanel.forge_helper.BaseForgeInventory;
 
 import java.util.ArrayList;
@@ -49,7 +48,7 @@ public class ForgeInventory extends BaseForgeInventory {
                     i,
                     id,
                     stack.getCount(),
-                    nbt == null ? null : NBTConverter.serializeNBT(nbt)
+                    nbt == null ? null : nbt.toString()
             ));
         }
         return items;

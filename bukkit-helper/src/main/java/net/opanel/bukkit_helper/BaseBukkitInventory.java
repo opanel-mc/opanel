@@ -2,7 +2,6 @@ package net.opanel.bukkit_helper;
 
 import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
-import net.opanel.bukkit_helper.utils.NBTConverter;
 import net.opanel.common.OPanelInventory;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -48,7 +47,7 @@ public abstract class BaseBukkitInventory implements OPanelInventory {
                 i,
                 stack.getType().getKey().toString(),
                 stack.getAmount(),
-                components == null ? null : NBTConverter.serializeNBT(components)
+                components == null ? null : components.toString()
             ));
         }
         return items;

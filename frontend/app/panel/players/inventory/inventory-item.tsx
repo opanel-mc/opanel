@@ -4,7 +4,7 @@ import { type MouseEvent, type RefObject, useContext, useEffect, useMemo, useSta
 import { InventoryContext } from "@/contexts/inventory-context";
 import { cn } from "@/lib/utils";
 import { minecraftAE } from "@/lib/fonts";
-import { ItemSheet } from "./item-sheet";
+import { ItemDialog } from "./item-dialog";
 import { $mc } from "@/lib/i18n";
 import { VersionContext } from "@/contexts/api-context";
 import { createResolver } from "@/lib/nbt";
@@ -135,8 +135,10 @@ export function InventoryItem({
   useEffect(() => {
     if(!versionCtx) return;
 
-    setResolvedNBT(createResolver(versionCtx.version, itemStack.nbt));
-  }, [versionCtx, itemStack.nbt]);
+    if(itemStack.snbt) {
+      setResolvedNBT(createResolver(versionCtx.version, itemStack.snbt));
+    }
+  }, [versionCtx, itemStack.snbt]);
 
   if(!ctx) return <></>;
 
@@ -196,11 +198,11 @@ export function InventoryItem({
   if(isFromExplorer(itemStack)) return itemComponent;
 
   return (
-    <ItemSheet
+    <ItemDialog
       itemStack={itemStack}
       disabled={!nbtEditMode}
       asChild>
       {itemComponent}
-    </ItemSheet>
+    </ItemDialog>
   );
 }

@@ -17,16 +17,15 @@ export function InventoryContent({
   className?: string
 }) {
   const ctx = useContext(InventoryContext);
-  const { nbtEditMode, setNbtEditMode } = ctx;
+  const { currentlyHeldItem, nbtEditMode, setNbtEditMode } = ctx;
 
   return (
     <div className="w-fit">
       <div className="flex justify-end items-center gap-2 mb-4">
         <Label>{$("players.inventory.nbt-mode.label")}</Label>
         <Switch
-          disabled={true}
+          disabled={currentlyHeldItem !== null}
           checked={nbtEditMode}
-          title={$("players.inventory.nbt-mode.tooltip")}
           onCheckedChange={setNbtEditMode}/>
       </div>
 

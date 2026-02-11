@@ -8,7 +8,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.opanel.fabric_helper.BaseFabricInventory;
-import net.opanel.fabric_helper.utils.NBTConverter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +46,7 @@ public class FabricInventory extends BaseFabricInventory {
                     i,
                     id,
                     stack.getCount(),
-                    nbt == null ? null : NBTConverter.serializeNBT(nbt)
+                    nbt == null ? null : nbt.toString()
             ));
         }
         return items;

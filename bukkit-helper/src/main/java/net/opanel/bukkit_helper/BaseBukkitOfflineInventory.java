@@ -4,13 +4,11 @@ import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBTCompoundList;
 import net.opanel.bukkit_helper.utils.BukkitUtils;
-import net.opanel.bukkit_helper.utils.NBTConverter;
 import net.opanel.common.OPanelInventory;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public abstract class BaseBukkitOfflineInventory implements OPanelInventory {
@@ -67,7 +65,7 @@ public abstract class BaseBukkitOfflineInventory implements OPanelInventory {
                 slot,
                 id,
                 count,
-                components == null ? null : NBTConverter.serializeNBT(components)
+                components == null ? null : components.toString()
             ));
             nextSlot = slot + 1;
         }

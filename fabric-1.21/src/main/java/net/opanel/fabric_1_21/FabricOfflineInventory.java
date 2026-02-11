@@ -3,7 +3,6 @@ package net.opanel.fabric_1_21;
 import net.minecraft.nbt.*;
 import net.opanel.fabric_helper.BaseFabricOfflineInventory;
 import net.opanel.fabric_helper.utils.FabricUtils;
-import net.opanel.fabric_helper.utils.NBTConverter;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -53,7 +52,7 @@ public class FabricOfflineInventory extends BaseFabricOfflineInventory {
             String id = itemNbt.getString("id");
             int count = itemNbt.getByte("count");
             NbtCompound nbt = itemNbt.getCompound("components");
-            items.add(new OPanelItemStack(slot, id, count, nbt.isEmpty() ? null : NBTConverter.serializeNBT(nbt)));
+            items.add(new OPanelItemStack(slot, id, count, nbt.isEmpty() ? null : nbt.toString()));
             nextSlot = slot + 1;
         }
 

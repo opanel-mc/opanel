@@ -2,8 +2,8 @@ import { ItemNBTResolver } from "./resolver";
 
 /** @todo */
 export class TagResolver extends ItemNBTResolver {
-  constructor(nbt?: any) {
-    super(nbt);
+  constructor(snbt: string) {
+    super(snbt);
   }
 
   override isEmpty() {

@@ -29,7 +29,7 @@ export function ItemExplorer({ className }: { className?: string }) {
             ))
             .map((item, i) => (
               <InventoryItem
-                itemStack={{ id: item.id, count: 1, slot: -1, nbt: null }}
+                itemStack={{ id: item.id, count: 1, slot: -1 }}
                 key={i}/>
             ))
         }

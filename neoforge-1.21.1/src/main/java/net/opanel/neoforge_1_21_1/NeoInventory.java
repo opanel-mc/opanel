@@ -13,7 +13,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.opanel.common.OPanelInventory;
-import net.opanel.neoforge_1_21_1.utils.NBTConverter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +53,7 @@ public class NeoInventory implements OPanelInventory {
                     i,
                     id,
                     stack.getCount(),
-                    components.isEmpty() ? null : NBTConverter.serializeNBT(components)
+                    components.isEmpty() ? null : components.toString()
             ));
         }
         return items;

@@ -28,7 +28,7 @@ public interface OPanelInventory {
             sb.append(item.slot).append('|')
               .append(item.id == null ? "" : item.id).append('|')
               .append(item.count).append('|')
-              .append(item.nbt == null ? "" : new Gson().toJson(item.nbt))
+              .append(item.snbt == null ? "" : item.snbt)
               .append(';');
         }
         return Utils.md5(sb.toString());
@@ -46,13 +46,13 @@ public interface OPanelInventory {
         public int slot;
         public String id;
         public int count;
-        public HashMap<String, Object> nbt;
+        public String snbt;
 
-        public OPanelItemStack(int slot, String id, int count, HashMap<String, Object> nbt) {
+        public OPanelItemStack(int slot, String id, int count, String snbt) {
             this.slot = slot;
             this.id = id;
             this.count = count;
-            this.nbt = nbt;
+            this.snbt = snbt;
         }
 
         public boolean isEmpty() {

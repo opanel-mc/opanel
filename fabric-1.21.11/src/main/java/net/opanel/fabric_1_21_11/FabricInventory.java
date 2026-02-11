@@ -1,22 +1,18 @@
 package net.opanel.fabric_1_21_11;
 
 import com.mojang.serialization.DataResult;
-import net.minecraft.component.ComponentMap;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
-import net.opanel.annotation.Rewrite;
 import net.opanel.fabric_helper.BaseFabricInventory;
-import net.opanel.fabric_helper.utils.NBTConverter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +58,7 @@ public class FabricInventory extends BaseFabricInventory {
                     i,
                     id,
                     stack.getCount(),
-                    components.isEmpty() ? null : NBTConverter.serializeNBT(components)
+                    components.isEmpty() ? null : components.toString()
             ));
         }
         return items;

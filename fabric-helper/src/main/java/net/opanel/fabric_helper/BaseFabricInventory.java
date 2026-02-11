@@ -3,12 +3,9 @@ package net.opanel.fabric_helper;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.opanel.common.OPanelInventory;
-import net.opanel.fabric_helper.utils.NBTConverter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public abstract class BaseFabricInventory implements OPanelInventory {
