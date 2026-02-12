@@ -104,8 +104,8 @@ public abstract class BaseBukkitOfflineInventory implements OPanelInventory {
             ReadWriteNBTCompoundList list = nbt.getCompoundList("Inventory");
             if(list == null) return;
 
-            // Insert to the last
-            if(item.slot > list.get(list.size() - 1).getByte("Slot")) {
+            // Insert into empty list or to the last
+            if(list.isEmpty() || item.slot > list.get(list.size() - 1).getByte("Slot")) {
                 list.addCompound(toNbt(item));
                 saveNbt();
                 return;

@@ -88,8 +88,8 @@ public class FabricOfflineInventory extends BaseFabricOfflineInventory {
         try {
             if(nbtList == null) return;
 
-            // Insert to the last
-            if(item.slot > nbtList.getCompound(nbtList.size() - 1).getByte("Slot")) {
+            // Insert into empty list or to the last
+            if(nbtList.isEmpty() || item.slot > nbtList.getCompound(nbtList.size() - 1).getByte("Slot")) {
                 nbtList.add(toNbt(item));
                 saveNbt();
                 return;
