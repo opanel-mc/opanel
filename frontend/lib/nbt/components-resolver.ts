@@ -1,20 +1,36 @@
-import type { NbtBool, NbtNumber, NbtObject, NbtString } from "snbt-js";
+import {
+  type NbtBool,
+  type NbtNumber,
+  NbtObject,
+  NbtString
+} from "snbt-js";
 import { potionColors } from "./potion-colors";
 import {
   type RgbColor,
   type Enchantments,
-  type PotionData,
   ItemNBTResolver,
+  glintItems,
 } from "./resolver";
+import { $, $mc } from "../i18n";
 
 export class ComponentsResolver extends ItemNBTResolver {
   private enchantments: Enchantments = new Map();
 
-  constructor(snbt: string) {
-    super(snbt);
+  constructor(id: string, snbt: string) {
+    super(id, snbt);
 
     // Enchantments
-    for(const [id, level] of Object.entries(this.nbt.get<NbtObject>("minecraft:enchantments")?.childs ?? {})) {
+    /** @see https://github.com/myworldzycpc/snbt-js/issues/2 */
+    // const enchantmentsNBT = (
+    //   this.nbt.get<NbtObject>(["minecraft:enchantments", "levels"]) ??
+    //   this.nbt.get<NbtObject>("minecraft:enchantments")
+    // );
+    const enchantmentsNBT = (
+      this.nbt.get<NbtObject>("minecraft:enchantments")?.get("levels")
+      ? this.nbt.get<NbtObject>(["minecraft:enchantments", "levels"])
+      : this.nbt.get<NbtObject>("minecraft:enchantments")
+    );
+    for(const [id, level] of Object.entries(enchantmentsNBT?.childs ?? {})) {
       this.enchantments.set(id, (level as NbtNumber).value);
     }
   }
@@ -25,6 +41,20 @@ export class ComponentsResolver extends ItemNBTResolver {
 
   override isEmpty() {
     return !this.nbt || Object.keys(this.nbt).length === 0;
+  }
+
+  override getName() {
+    const customName = this.nbt.get<NbtObject | NbtString>("minecraft:custom_name");
+    if(customName instanceof NbtString) {
+      return customName.value;
+    }
+    if(customName instanceof NbtObject) {
+      return customName.get<NbtString>("text")?.value ?? $mc(this.id);
+    }
+    if(this.getPotionId()) {
+      return $(`item.minecraft.potion.effect.${this.getPotionId()?.replace("minecraft:", "")}` as any);
+    }
+    return $mc(this.id);
   }
 
   override getEnchantments() {
@@ -38,7 +68,7 @@ export class ComponentsResolver extends ItemNBTResolver {
   override shouldGlint() {
     const glintOverride = Boolean(this.nbt.get<NbtBool>("minecraft:enchantment_glint_override")?.value);
     const isLodestone = this.hasComponent("minecraft:lodestone_tracker");
-    return this.hasEnchantments() || glintOverride || isLodestone;
+    return glintItems.includes(this.id) || this.hasEnchantments() || glintOverride || isLodestone;
   }
 
   override getDamage() {
@@ -53,13 +83,12 @@ export class ComponentsResolver extends ItemNBTResolver {
     return this.hasComponent("minecraft:potion_contents");
   }
 
-  override getPotionData(): PotionData | null {
+  override getPotionId(): string | null {
     if(!this.isPotion()) return null;
 
-    return {
-      id: (this.nbt.get<NbtObject>("minecraft:potion_contents")?.childs.potion as NbtString).value,
-      durationScale: this.nbt.get<NbtNumber>("minecraft:potion_duration_scale")?.value ?? 1
-    };
+    const potionNBT = this.nbt.get<NbtObject>("minecraft:potion_contents");
+    const potionId = potionNBT?.get<NbtString>("potion")?.value ?? "minecraft:empty";
+    return potionId.replace(/long_|strong_/g, "");
   }
 
   override getPotionColor(): RgbColor | null {
@@ -74,9 +103,7 @@ export class ComponentsResolver extends ItemNBTResolver {
       return [r, g, b];
     }
 
-    if(potionNBT?.potion) {
-      return potionColors[(potionNBT.potion as NbtString).value] ?? potionColors["minecraft:water"];
-    }
-    return potionColors["minecraft:water"];
+    const id = this.getPotionId();
+    return id ? potionColors[id] : potionColors["minecraft:water"];
   }
 }

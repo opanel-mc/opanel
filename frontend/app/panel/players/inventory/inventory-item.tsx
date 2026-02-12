@@ -15,16 +15,6 @@ import "@/style/item-effect.css";
 
 export const AIR = "minecraft:air";
 
-const glintItems = [
-  "minecraft:enchanted_book",
-  "minecraft:experience_bottle",
-  "minecraft:enchanted_golden_apple",
-  "minecraft:end_crystal",
-  "minecraft:nether_star",
-  "minecraft:written_book",
-  "minecraft:debug_stick"
-];
-
 function isFromExplorer(itemStack: ItemStack) {
   return itemStack.slot === -1;
 }
@@ -135,10 +125,12 @@ export function InventoryItem({
   useEffect(() => {
     if(!versionCtx) return;
 
-    if(itemStack.snbt) {
-      setResolvedNBT(createResolver(versionCtx.version, itemStack.snbt));
-    }
-  }, [versionCtx, itemStack.snbt]);
+    setResolvedNBT(
+      itemStack.snbt
+      ? createResolver(versionCtx.version, itemStack.id, itemStack.snbt)
+      : null
+    );
+  }, [versionCtx, itemStack]);
 
   if(!ctx) return <></>;
 
@@ -153,7 +145,7 @@ export function InventoryItem({
         (nbtEditMode && !isFromExplorer(itemStack)) && "cursor-pointer",
         className
       )}
-      title={$mc(itemStack.id)}
+      title={resolvedNBT?.getName() ?? $mc(itemStack.id)}
       onClick={() => handleLeftClick()}
       onContextMenu={(e) => handleRightClick(e)}
       onAuxClick={(e) => handleAuxClick(e)}
@@ -173,24 +165,28 @@ export function InventoryItem({
           {itemStack.count}
         </span>
       )}
-      {((resolvedNBT && resolvedNBT.shouldGlint()) || glintItems.includes(itemStack.id)) && (
-        <div
-          className="item-glint absolute inset-0 top-0 left-0 z-10"
-          style={{
-            backgroundImage: `url(${GlintTexture.src})`,
-            maskImage: `url(${textureItem ? textureItem.texture : ""})`,
-            WebkitMaskImage: `url(${textureItem ? textureItem.texture : ""})`
-          }}/>
-      )}
-      {(resolvedNBT && resolvedNBT.isPotion()) && (
-        <div
-          className="item-potion-overlay absolute inset-0 top-0 left-0 z-10"
-          style={{
-            backgroundImage: `url(${PotionOverlayTexture.src})`,
-            backgroundColor: `rgb(${resolvedNBT.getPotionColor()?.join(",")})`,
-            maskImage: `url(${PotionOverlayTexture.src})`,
-            WebkitMaskImage: `url(${PotionOverlayTexture.src})`
-          }}/>
+      {(textureItem && resolvedNBT) && (
+        <>
+          {resolvedNBT.shouldGlint() && (
+            <div
+              className="item-glint absolute inset-0 top-0 left-0 z-10"
+              style={{
+                backgroundImage: `url(${GlintTexture.src})`,
+                maskImage: `url(${textureItem ? textureItem.texture : ""})`,
+                WebkitMaskImage: `url(${textureItem ? textureItem.texture : ""})`
+              }}/>
+          )}
+          {resolvedNBT.isPotion() && (
+            <div
+              className="item-potion-overlay absolute inset-0 top-0 left-0 z-10"
+              style={{
+                backgroundImage: `url(${PotionOverlayTexture.src})`,
+                backgroundColor: `rgb(${resolvedNBT.getPotionColor()?.join(",")})`,
+                maskImage: `url(${PotionOverlayTexture.src})`,
+                WebkitMaskImage: `url(${PotionOverlayTexture.src})`
+              }}/>
+          )}
+        </>
       )}
     </div>
   );

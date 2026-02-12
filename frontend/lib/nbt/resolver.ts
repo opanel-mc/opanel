@@ -5,25 +5,31 @@ export type RgbColor = [number, number, number];
 
 export type Enchantments = Map<string, number>;
 
-export interface PotionData {
-  id: string
-  durationScale: number
-}
+export const glintItems = [
+  "minecraft:enchanted_book",
+  "minecraft:experience_bottle",
+  "minecraft:enchanted_golden_apple",
+  "minecraft:end_crystal",
+  "minecraft:nether_star",
+  "minecraft:written_book",
+  "minecraft:debug_stick"
+];
 
 export abstract class ItemNBTResolver {
   protected nbt: NbtObject;
 
-  constructor(snbt: string) {
+  constructor(protected id: string, snbt: string) {
     this.nbt = parseNbtString(snbt);
   }
   
   abstract isEmpty(): boolean;
+  abstract getName(): string;
   abstract getEnchantments(): Enchantments;
   abstract hasEnchantments(): boolean;
   abstract shouldGlint(): boolean;
   abstract getDamage(): number | null;
   abstract isUnbreakable(): boolean;
   abstract isPotion(): boolean;
-  abstract getPotionData(): PotionData | null;
+  abstract getPotionId(): string | null;
   abstract getPotionColor(): RgbColor | null;
 }
