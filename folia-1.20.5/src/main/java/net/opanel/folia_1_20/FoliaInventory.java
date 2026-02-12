@@ -10,6 +10,11 @@ public class FoliaInventory extends BaseBukkitInventory {
     }
 
     @Override
+    protected String keyOfCount() {
+        return "count";
+    }
+
+    @Override
     protected String keyOfNBT() {
         return "components";
     }
