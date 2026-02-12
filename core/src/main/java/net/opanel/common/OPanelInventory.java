@@ -10,8 +10,8 @@ import java.util.List;
 public interface OPanelInventory {
     int getSize();
     List<OPanelItemStack> getItems();
-    void setItems(List<OPanelItemStack> items);
-    void setItem(OPanelItemStack item);
+    void setItems(List<OPanelItemStack> items) throws Exception;
+    void setItem(OPanelItemStack item) throws Exception;
 
     default OPanelItemStack getItem(int slot) {
         for(OPanelItemStack item : getItems()) {

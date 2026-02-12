@@ -1,5 +1,7 @@
 package net.opanel.fabric_helper;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.nbt.NbtCompound;
 import net.opanel.common.OPanelInventory;
 
 import java.io.IOException;
@@ -13,4 +15,5 @@ public abstract class BaseFabricOfflineInventory implements OPanelInventory {
     }
 
     protected abstract void saveNbt() throws IOException;
+    protected abstract NbtCompound toNbt(OPanelItemStack item) throws CommandSyntaxException;
 }

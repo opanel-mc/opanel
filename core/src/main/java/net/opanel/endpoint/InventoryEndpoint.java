@@ -67,7 +67,11 @@ public class InventoryEndpoint extends BaseEndpoint {
             }
 
             OPanelInventory currentInventory = currentPlayer.getInventory();
-            currentInventory.setItem(item);
+            try {
+                currentInventory.setItem(item);
+            } catch (Exception e) {
+                //
+            }
 
             HashMap<String, Object> updatedData = currentInventory.serialize();
             if(updatedData != null) {

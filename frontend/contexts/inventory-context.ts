@@ -12,6 +12,7 @@ interface InventoryContextType {
   addClickedWithHeldItem: (clickedItem: ItemStack, count: number) => void
   removeClickedItem: (clickedItem: ItemStack) => void
   halfClickedItem: (clickedItem: ItemStack) => void
+  updateItemNBT: (item: ItemStack, snbt: string) => void
 }
 
 export const InventoryContext = React.createContext<InventoryContextType>(undefined!);

@@ -1,6 +1,9 @@
 package net.opanel.bukkit_helper;
 
 import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.NbtApiException;
+import de.tr7zw.changeme.nbtapi.handler.NBTHandlers;
+import de.tr7zw.changeme.nbtapi.iface.NBTHandler;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 import net.opanel.common.OPanelInventory;
 import org.bukkit.Material;
@@ -15,6 +18,7 @@ public abstract class BaseBukkitInventory implements OPanelInventory {
     protected final TaskRunner runner;
     protected final Player player;
 
+    private final String KEY_OF_COUNT = keyOfCount();
     private final String KEY_OF_NBT = keyOfNBT();
 
     public BaseBukkitInventory(TaskRunner runner, Player player) {
@@ -22,6 +26,7 @@ public abstract class BaseBukkitInventory implements OPanelInventory {
         this.player = player;
     }
 
+    protected abstract String keyOfCount();
     protected abstract String keyOfNBT();
 
     @Override
@@ -60,20 +65,38 @@ public abstract class BaseBukkitInventory implements OPanelInventory {
             inventory.clear();
 
             for(OPanelItemStack item : items) {
-                inventory.setItem(item.slot, toItemStack(item));
+                try {
+                    inventory.setItem(item.slot, toItemStack(item));
+                } catch (NbtApiException e) {
+                    //
+                }
             }
         });
     }
 
     @Override
-    public void setItem(OPanelItemStack item) {
-        runner.runTask(() -> player.getInventory().setItem(item.slot, toItemStack(item)));
+    public void setItem(OPanelItemStack item) throws NbtApiException {
+        runner.runTask(() -> {
+            try {
+                player.getInventory().setItem(item.slot, toItemStack(item));
+            } catch (NbtApiException e) {
+                //
+            }
+        });
     }
 
-    protected ItemStack toItemStack(OPanelItemStack item) {
+    protected ItemStack toItemStack(OPanelItemStack item) throws NbtApiException {
         if(item == null || item.isEmpty()) return null;
         Material material = Material.matchMaterial(item.id);
         if(material == null || material == Material.AIR) return null;
-        return new ItemStack(material, Math.max(1, item.count));
+
+        ReadWriteNBT itemNbt = NBT.createNBTObject();
+        itemNbt.setByte("Slot", (byte) item.slot);
+        itemNbt.setString("id", item.id);
+        itemNbt.setByte(KEY_OF_COUNT, (byte) Math.max(1, item.count));
+        if(item.snbt != null) {
+            itemNbt.set(KEY_OF_NBT, NBT.parseNBT(item.snbt), NBTHandlers.STORE_READWRITE_TAG);
+        }
+        return NBT.itemStackFromNBT(itemNbt);
     }
 }

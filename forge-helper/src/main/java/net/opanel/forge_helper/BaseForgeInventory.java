@@ -1,12 +1,12 @@
 package net.opanel.forge_helper;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.server.level.ServerPlayer;
 import net.opanel.common.OPanelInventory;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public abstract class BaseForgeInventory implements OPanelInventory {
@@ -25,7 +25,7 @@ public abstract class BaseForgeInventory implements OPanelInventory {
     }
 
     @Override
-    public void setItems(List<OPanelItemStack> items) {
+    public void setItems(List<OPanelItemStack> items) throws CommandSyntaxException {
         Inventory inventory = player.getInventory();
         inventory.clearContent();
 
@@ -35,12 +35,9 @@ public abstract class BaseForgeInventory implements OPanelInventory {
     }
 
     @Override
-    public void setItem(OPanelItemStack item) {
+    public void setItem(OPanelItemStack item) throws CommandSyntaxException {
         player.getInventory().setItem(item.slot, toItemStack(item));
     }
 
-    protected ItemStack toItemStack(OPanelItemStack item) {
-        if(item == null || item.isEmpty()) return ItemStack.EMPTY;
-        return new ItemStack(idToItem(item.id), Math.max(1, item.count));
-    }
+    protected abstract ItemStack toItemStack(OPanelItemStack item) throws CommandSyntaxException;
 }

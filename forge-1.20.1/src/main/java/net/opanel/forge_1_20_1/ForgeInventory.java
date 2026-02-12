@@ -1,6 +1,8 @@
 package net.opanel.forge_1_20_1;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
@@ -52,5 +54,19 @@ public class ForgeInventory extends BaseForgeInventory {
             ));
         }
         return items;
+    }
+
+    @Override
+    protected ItemStack toItemStack(OPanelItemStack item) throws CommandSyntaxException {
+        if(item == null || item.isEmpty()) return ItemStack.EMPTY;
+
+        CompoundTag itemNbt = new CompoundTag();
+        itemNbt.putByte("Slot", (byte) item.slot);
+        itemNbt.putString("id", item.id);
+        itemNbt.putByte("Count", (byte) Math.max(1, item.count));
+        if(item.snbt != null) {
+            itemNbt.put("tag", TagParser.parseTag(item.snbt));
+        }
+        return ItemStack.of(itemNbt);
     }
 }

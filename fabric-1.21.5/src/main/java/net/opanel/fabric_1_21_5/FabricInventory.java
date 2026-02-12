@@ -1,12 +1,15 @@
 package net.opanel.fabric_1_21_5;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;
@@ -18,12 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FabricInventory extends BaseFabricInventory {
-    private final MinecraftServer server;
+    private final DynamicOps<NbtElement> serializationContext;
 
     public FabricInventory(ServerPlayerEntity player, MinecraftServer server) {
         super(player);
 
-        this.server = server;
+        serializationContext = server.getRegistryManager().getOps(NbtOps.INSTANCE);
     }
 
     @Override
@@ -50,8 +53,7 @@ public class FabricInventory extends BaseFabricInventory {
             }
 
             final String id = itemToId(stack.getItem());
-            RegistryWrapper.WrapperLookup wrapperLookup = server.getRegistryManager();
-            DataResult<NbtElement> encodeResult = ItemStack.CODEC.encodeStart(wrapperLookup.getOps(NbtOps.INSTANCE), stack);
+            DataResult<NbtElement> encodeResult = ItemStack.CODEC.encodeStart(serializationContext, stack);
             NbtCompound nbt = (NbtCompound) encodeResult.result().orElse(new NbtCompound());
             NbtCompound components = nbt.getCompoundOrEmpty("components");
             items.add(new OPanelItemStack(
@@ -62,5 +64,20 @@ public class FabricInventory extends BaseFabricInventory {
             ));
         }
         return items;
+    }
+
+    @Override
+    protected ItemStack toItemStack(OPanelItemStack item) throws CommandSyntaxException {
+        if(item == null || item.isEmpty()) return ItemStack.EMPTY;
+
+        NbtCompound itemNbt = new NbtCompound();
+        itemNbt.putByte("Slot", (byte) item.slot);
+        itemNbt.putString("id", item.id);
+        itemNbt.putByte("count", (byte) Math.max(1, item.count));
+        if(item.snbt != null) {
+            itemNbt.put("components", StringNbtReader.readCompound(item.snbt));
+        }
+        DataResult<ItemStack> parseResult = ItemStack.CODEC.parse(serializationContext, itemNbt);
+        return parseResult.result().orElse(ItemStack.EMPTY);
     }
 }

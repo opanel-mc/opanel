@@ -1,5 +1,6 @@
 package net.opanel.fabric_helper;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -24,7 +25,7 @@ public abstract class BaseFabricInventory implements OPanelInventory {
     }
 
     @Override
-    public void setItems(List<OPanelItemStack> items) {
+    public void setItems(List<OPanelItemStack> items) throws CommandSyntaxException {
         PlayerInventory inventory = player.getInventory();
         inventory.clear();
 
@@ -34,12 +35,9 @@ public abstract class BaseFabricInventory implements OPanelInventory {
     }
 
     @Override
-    public void setItem(OPanelItemStack item) {
+    public void setItem(OPanelItemStack item) throws CommandSyntaxException {
         player.getInventory().setStack(item.slot, toItemStack(item));
     }
 
-    protected ItemStack toItemStack(OPanelItemStack item) {
-        if(item == null || item.isEmpty()) return ItemStack.EMPTY;
-        return new ItemStack(idToItem(item.id), Math.max(1, item.count));
-    }
+    protected abstract ItemStack toItemStack(OPanelItemStack item) throws CommandSyntaxException;
 }

@@ -1,11 +1,14 @@
 package net.opanel.forge_1_21_5;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.DynamicOps;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.TagParser;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,12 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ForgeInventory extends BaseForgeInventory {
-    private final MinecraftServer server;
+    private final DynamicOps<Tag> serializationContext;
 
     public ForgeInventory(ServerPlayer player, MinecraftServer server) {
         super(player);
 
-        this.server = server;
+        serializationContext = server.registryAccess().createSerializationContext(NbtOps.INSTANCE);
     }
 
     @Override
@@ -50,8 +53,7 @@ public class ForgeInventory extends BaseForgeInventory {
             }
 
             final String id = itemToId(stack.getItem());
-            RegistryAccess.Frozen registryAccess = server.registryAccess();
-            DataResult<Tag> encodeResult = ItemStack.CODEC.encodeStart(registryAccess.createSerializationContext(NbtOps.INSTANCE), stack);
+            DataResult<Tag> encodeResult = ItemStack.CODEC.encodeStart(serializationContext, stack);
             CompoundTag nbt = (CompoundTag) encodeResult.result().orElse(new CompoundTag());
             CompoundTag components = nbt.getCompoundOrEmpty("components");
             items.add(new OPanelItemStack(
@@ -62,5 +64,20 @@ public class ForgeInventory extends BaseForgeInventory {
             ));
         }
         return items;
+    }
+
+    @Override
+    protected ItemStack toItemStack(OPanelItemStack item) throws CommandSyntaxException {
+        if(item == null || item.isEmpty()) return ItemStack.EMPTY;
+
+        CompoundTag itemNbt = new CompoundTag();
+        itemNbt.putByte("Slot", (byte) item.slot);
+        itemNbt.putString("id", item.id);
+        itemNbt.putByte("count", (byte) Math.max(1, item.count));
+        if(item.snbt != null) {
+            itemNbt.put("components", TagParser.parseCompoundFully(item.snbt));
+        }
+        DataResult<ItemStack> parseResult = ItemStack.CODEC.parse(serializationContext, itemNbt);
+        return parseResult.result().orElse(ItemStack.EMPTY);
     }
 }

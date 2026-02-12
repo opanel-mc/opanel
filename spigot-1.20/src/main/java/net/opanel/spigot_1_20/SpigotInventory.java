@@ -10,6 +10,11 @@ public class SpigotInventory extends BaseBukkitInventory {
     }
 
     @Override
+    protected String keyOfCount() {
+        return "Count";
+    }
+
+    @Override
     protected String keyOfNBT() {
         return "tag";
     }
