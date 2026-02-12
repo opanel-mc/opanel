@@ -113,20 +113,25 @@ public abstract class BaseEndpoint implements Connectable {
         ctx.send(new Packet<>(Packet.ERROR, err));
     }
 
-    protected <D> void broadcast(Packet<D> packet) {
-        String message = new Gson().toJson(packet);
+    protected <D> void sendMessage(Session session, Packet<D> packet) {
+        if(!session.isOpen()) return;
 
+        String message = new Gson().toJson(packet);
+        try {
+            session.getRemote().sendString(message);
+        } catch(Exception e) {
+            // Use System.err to avoid recursive logging through LogListenerAppender
+            System.err.println("[OPanel] Failed to send message to session: " + e.getMessage());
+        }
+    }
+
+    protected <D> void broadcast(Packet<D> packet) {
         for(Session session : sessions) {
             if(!session.isOpen()) {
                 sessions.remove(session);
                 continue;
             }
-            try {
-                session.getRemote().sendString(message);
-            } catch(Exception e) {
-                // Use System.err to avoid recursive logging through LogListenerAppender
-                System.err.println("[OPanel] Failed to broadcast message to session: " + e.getMessage());
-            }
+            sendMessage(session, packet);
         }
     }
 

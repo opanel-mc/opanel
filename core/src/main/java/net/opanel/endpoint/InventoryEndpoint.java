@@ -9,9 +9,11 @@ import net.opanel.common.OPanelPlayer;
 import net.opanel.event.EventManager;
 import net.opanel.event.EventType;
 import net.opanel.event.OPanelPlayerInventoryChangeEvent;
+import org.eclipse.jetty.websocket.api.Session;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class InventoryEndpoint extends BaseEndpoint {
     private static class InventoryPacket<D> extends Packet<D> {
@@ -23,6 +25,8 @@ public class InventoryEndpoint extends BaseEndpoint {
             super(type, data);
         }
     }
+
+    private static final ConcurrentHashMap<String, Set<Session>> sessionsMap = new ConcurrentHashMap<>();
 
     // To avoid duplicated inventory listener from registering
     private boolean hasInventoryListenerRegistered = false;
@@ -46,6 +50,9 @@ public class InventoryEndpoint extends BaseEndpoint {
             ctx.closeSession(1008, "Player not found.");
             return;
         }
+
+        Set<Session> sessions = sessionsMap.computeIfAbsent(uuid, k -> new CopyOnWriteArraySet<>());
+        sessions.add(ctx.session);
 
         // Send initial inventory data
         ctx.send(new InventoryPacket<>(InventoryPacket.INIT, player.getInventory().serialize()));
@@ -81,9 +88,20 @@ public class InventoryEndpoint extends BaseEndpoint {
 
         if(!hasInventoryListenerRegistered) {
             EventManager.get().on(EventType.PLAYER_INVENTORY_CHANGE, (OPanelPlayerInventoryChangeEvent event) -> {
+                final String targetUuid = event.getPlayer().getUUID();
+                if(!sessionsMap.containsKey(targetUuid)) return;
+
                 HashMap<String, Object> data = event.getInventory().serialize();
-                if(event.getPlayer().getUUID().equals(uuid) && data != null) {
-                    broadcast(new InventoryPacket<>(InventoryPacket.UPDATE, data));
+//                if(event.getPlayer().getUUID().equals(uuid) && data != null) {
+//                    broadcast(new InventoryPacket<>(InventoryPacket.UPDATE, data));
+//                }
+                Set<Session> listenedSessions = sessionsMap.get(targetUuid);
+                for(Session session : listenedSessions) {
+                    if(!session.isOpen()) {
+                        listenedSessions.remove(session);
+                        continue;
+                    }
+                    sendMessage(session, new InventoryPacket<>(InventoryPacket.UPDATE, data));
                 }
             });
             hasInventoryListenerRegistered = true;
