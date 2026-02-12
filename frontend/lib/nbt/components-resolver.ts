@@ -20,15 +20,9 @@ export class ComponentsResolver extends ItemNBTResolver {
     super(id, snbt);
 
     // Enchantments
-    /** @see https://github.com/myworldzycpc/snbt-js/issues/2 */
-    // const enchantmentsNBT = (
-    //   this.nbt.get<NbtObject>(["minecraft:enchantments", "levels"]) ??
-    //   this.nbt.get<NbtObject>("minecraft:enchantments")
-    // );
     const enchantmentsNBT = (
-      this.nbt.get<NbtObject>("minecraft:enchantments")?.get("levels")
-      ? this.nbt.get<NbtObject>(["minecraft:enchantments", "levels"])
-      : this.nbt.get<NbtObject>("minecraft:enchantments")
+      this.nbt.get<NbtObject>(["minecraft:enchantments", "levels"]) ??
+      this.nbt.get<NbtObject>("minecraft:enchantments")
     );
     for(const [id, level] of Object.entries(enchantmentsNBT?.childs ?? {})) {
       this.enchantments.set(id, (level as NbtNumber).value);
@@ -74,7 +68,7 @@ export class ComponentsResolver extends ItemNBTResolver {
   }
 
   override shouldGlint() {
-    const glintOverride = Boolean(this.nbt.get<NbtBool>("minecraft:enchantment_glint_override")?.value);
+    const glintOverride = this.nbt.get<NbtBool>("minecraft:enchantment_glint_override")?.value ?? false;
     const isLodestone = this.hasComponent("minecraft:lodestone_tracker");
     return glintItems.includes(this.id) || this.hasEnchantments() || glintOverride || isLodestone;
   }
@@ -94,17 +88,16 @@ export class ComponentsResolver extends ItemNBTResolver {
   override getPotionId(): string | null {
     if(!this.isPotion()) return null;
 
-    const potionNBT = this.nbt.get<NbtObject>("minecraft:potion_contents");
-    const potionId = potionNBT?.get<NbtString>("potion")?.value ?? "minecraft:empty";
+    const potionId = this.nbt.get<NbtString>(["minecraft:potion_contents", "potion"])?.value ?? "minecraft:empty";
     return potionId.replace(/long_|strong_/g, "");
   }
 
   override getPotionColor(): RgbColor | null {
     if(!this.isPotion()) return null;
 
-    const potionNBT = this.nbt.get<NbtObject>("minecraft:potion_contents")?.childs;
-    if(potionNBT?.custom_color !== undefined) {
-      const hexStr = (potionNBT.custom_color as NbtNumber).value.toString(16).padStart(6, "0");
+    const customColor = this.nbt.get<NbtNumber>(["minecraft:potion_contents", "custom_color"]);
+    if(customColor !== undefined) {
+      const hexStr = customColor.value.toString(16).padStart(6, "0");
       const r = parseInt(hexStr.slice(0, 2), 16);
       const g = parseInt(hexStr.slice(2, 4), 16);
       const b = parseInt(hexStr.slice(4, 6), 16);

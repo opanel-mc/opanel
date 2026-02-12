@@ -73,7 +73,7 @@ export class TagResolver extends ItemNBTResolver {
   }
 
   override isUnbreakable() {
-    return Boolean(this.nbt.get<NbtBool>("Unbreakable")?.value) ?? false;
+    return this.nbt.get<NbtBool>("Unbreakable")?.value ?? false;
   }
 
   override isPotion(): boolean {
