@@ -24,6 +24,7 @@ export abstract class ItemNBTResolver {
   
   abstract isEmpty(): boolean;
   abstract getName(): string;
+  abstract hasCustomName(): boolean;
   abstract getEnchantments(): Enchantments;
   abstract hasEnchantments(): boolean;
   abstract shouldGlint(): boolean;

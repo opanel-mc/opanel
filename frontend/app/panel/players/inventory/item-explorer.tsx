@@ -4,13 +4,13 @@ import { useContext, useState } from "react";
 import { Search } from "lucide-react";
 import { InventoryContext } from "@/contexts/inventory-context";
 import { cn } from "@/lib/utils";
-import { InventoryItem } from "./inventory-item";
+import { AIR, InventoryItem } from "./inventory-item";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput
 } from "@/components/ui/input-group";
-import { $ } from "@/lib/i18n";
+import { $, $mc } from "@/lib/i18n";
 
 export function ItemExplorer({ className }: { className?: string }) {
   const ctx = useContext(InventoryContext);
@@ -24,8 +24,12 @@ export function ItemExplorer({ className }: { className?: string }) {
         {
           ctx.textures
             .filter(({ id, readable }) => (
-              id.includes(searchValue)
-              || readable.toLowerCase().includes(searchValue.toLowerCase())
+              id.toLowerCase() !== AIR
+              && (
+                id.includes(searchValue)
+                || readable.toLowerCase().includes(searchValue.toLowerCase())
+                || $mc(id).toLowerCase().includes(searchValue.toLowerCase())
+              )
             ))
             .map((item, i) => (
               <InventoryItem

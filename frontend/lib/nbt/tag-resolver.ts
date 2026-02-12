@@ -51,6 +51,10 @@ export class TagResolver extends ItemNBTResolver {
     return $mc(this.id);
   }
 
+  override hasCustomName(): boolean {
+    return this.hasTag("display") && this.nbt.get<NbtObject>("display")?.get("Name") !== undefined;
+  }
+
   override getEnchantments() {
     return this.enchantments;
   }

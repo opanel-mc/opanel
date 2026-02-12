@@ -297,10 +297,11 @@
   "players.inventory.description": "查看和编辑玩家的背包内容",
   "players.inventory.ws.error": "无法连接到物品栏WebSocket",
   "players.inventory.nbt-mode.label": "NBT 编辑模式",
-  "players.inventory.nbt-mode.tooltip": "该功能尚未完成",
   "players.inventory.explorer.search.placeholder": "搜索物品...",
   "players.inventory.nbt-editor.title": "编辑物品 NBT",
   "players.inventory.nbt-editor.description": "在此编辑物品的NBT标签数据。",
+  "players.inventory.nbt-editor.hint": "使用{0}进行数据标签编辑。",
+  "players.inventory.item-tag.components": "{0}个组件",
 
   "gamerules.title": "游戏规则",
   "gamerules.description": "设置服务器当前世界的游戏规则",

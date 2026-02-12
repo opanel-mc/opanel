@@ -1,5 +1,6 @@
 import type { ItemStack } from "@/lib/types";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useContext, useEffect, useState, type PropsWithChildren } from "react";
 import { useTheme } from "next-themes";
 import {
@@ -17,6 +18,7 @@ import { $ } from "@/lib/i18n";
 import { monacoSettingsOptions } from "@/lib/settings";
 import { prettyFormatNBT } from "@/lib/nbt/snbt-format";
 import { InventoryContext } from "@/contexts/inventory-context";
+import { Text } from "@/components/i18n-text";
 
 const MonacoEditor = dynamic(() => import("@/components/monaco-editor"), { ssr: false });
 
@@ -41,7 +43,7 @@ export function ItemDialog({
   };
 
   useEffect(() => {
-    setValue(itemStack.snbt ? prettyFormatNBT(itemStack.snbt) : "");
+    setValue(itemStack.snbt ? prettyFormatNBT(itemStack.snbt) : "{}");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dialogOpen]);
 
@@ -59,18 +61,32 @@ export function ItemDialog({
             {$("players.inventory.nbt-editor.description")}
           </DialogDescription>
         </DialogHeader>
-        <div className="border rounded-md flex h-[500px] overflow-hidden">
-          <MonacoEditor
-            language="python"
-            value={value}
-            theme={theme === "dark" ? "vs-dark" : "vs"}
-            options={{
-              minimap: { enabled: false },
-              automaticLayout: true,
-              tabSize: 2,
-              ...monacoSettingsOptions
-            }}
-            onChange={(newValue) => setValue(newValue ?? "")}/>
+        <div className="flex flex-col gap-2">
+          <div className="h-[500px] border rounded-md flex overflow-hidden">
+            <MonacoEditor
+              language="python"
+              value={value}
+              theme={theme === "dark" ? "vs-dark" : "vs"}
+              options={{
+                minimap: { enabled: false },
+                automaticLayout: true,
+                tabSize: 2,
+                ...monacoSettingsOptions
+              }}
+              onChange={(newValue) => setValue(newValue ?? "")}/>
+          </div>
+          <Text
+            id="players.inventory.nbt-editor.hint"
+            args={[
+              <Link
+                href="https://zh.minecraft.wiki/w/SNBT格式"
+                target="_blank"
+                rel="noopener noreferrer"
+                key={0}>
+                SNBT
+              </Link>
+            ]}
+            className="text-sm text-muted-foreground"/>
         </div>
         <DialogFooter>
           <DialogClose asChild>

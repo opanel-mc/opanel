@@ -1,8 +1,9 @@
+import Link from "next/link";
 import { useEffect, useRef, useState, type PropsWithChildren } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Ban, BrushCleaning, ShieldOff, UserMinus, UserPlus } from "lucide-react";
+import { Backpack, Ban, BrushCleaning, ShieldOff, UserMinus, UserPlus } from "lucide-react";
 import {
   Sheet,
   SheetClose,
@@ -203,6 +204,16 @@ export function PlayerSheet({
                       </Button>
                     )
                   )}
+                  <Button
+                    variant="outline"
+                    title={$("players.action.edit-inventory")}
+                    className={player.isWhitelisted === undefined ? "col-span-2" : "col-start-2"}
+                    asChild>
+                    <Link href={`/panel/players/inventory?uuid=${player.uuid}`}>
+                      <Backpack />
+                      {$("players.action.edit-inventory")}
+                    </Link>
+                  </Button>
                   <Prompt
                     title={$("players.action.kick.prompt.title")}
                     description={$("players.action.kick.prompt.description")}
@@ -215,7 +226,6 @@ export function PlayerSheet({
                     asChild>
                     <Button
                       variant="outline"
-                      className={player.isWhitelisted === undefined ? "col-start-1" : "col-start-2"}
                       disabled={!player.isOnline}>
                       <BrushCleaning />
                       {$("players.action.kick")}
@@ -234,9 +244,7 @@ export function PlayerSheet({
                           emitter.emit("refresh-data");
                         }}
                         asChild>
-                        <Button
-                          variant="destructive"
-                          className={player.isWhitelisted === undefined ? "col-start-2" : "col-span-2"}>
+                        <Button variant="destructive">
                           <Ban />
                           {$("players.action.ban")}
                         </Button>
@@ -245,7 +253,6 @@ export function PlayerSheet({
                     : (
                       <Button
                         variant="outline"
-                        className={player.isWhitelisted === undefined ? "col-start-2" : "col-span-2"}
                         onClick={async () => {
                           await pardon(player.uuid);
                           emitter.emit("refresh-data");

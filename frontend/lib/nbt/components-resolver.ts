@@ -39,6 +39,10 @@ export class ComponentsResolver extends ItemNBTResolver {
     return this.nbt.get(name) !== undefined;
   }
 
+  getComponentAmount(): number {
+    return Object.keys(this.nbt.childs).length;
+  }
+
   override isEmpty() {
     return !this.nbt || Object.keys(this.nbt).length === 0;
   }
@@ -55,6 +59,10 @@ export class ComponentsResolver extends ItemNBTResolver {
       return $(`item.minecraft.potion.effect.${this.getPotionId()?.replace("minecraft:", "")}` as any);
     }
     return $mc(this.id);
+  }
+
+  override hasCustomName(): boolean {
+    return this.hasComponent("minecraft:custom_name");
   }
 
   override getEnchantments() {

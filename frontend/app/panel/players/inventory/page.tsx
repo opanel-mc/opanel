@@ -148,7 +148,7 @@ export default function Inventory() {
           <InventoryItem
             itemStack={currentlyHeldItem}
             held
-            className="fixed bg-transparent!"
+            className="fixed top-0 left-0 bg-transparent!"
             ref={heldItemElemRef}/>
         )}
       </InventoryContext.Provider>

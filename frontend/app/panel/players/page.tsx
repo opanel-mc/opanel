@@ -144,7 +144,10 @@ export default function Players() {
               isWhitelistEnabled
               ? (
                 <WhitelistSheet
-                  onDisableWhitelist={() => setWhitelistEnabledState(false)}
+                  onDisableWhitelist={() => {
+                    setWhitelistEnabledState(false);
+                    emitter.emit("refresh-data");
+                  }}
                   asChild>
                   <Button variant="outline">
                     <UserPen />
@@ -163,6 +166,7 @@ export default function Players() {
                      * because the whitelist state fetched from the server has a delay.
                      */
                     setWhitelistEnabledState(true);
+                    emitter.emit("refresh-data");
                   }}>
                   <Contact />
                   {$("players.enable-whitelist")}

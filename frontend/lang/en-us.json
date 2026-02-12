@@ -297,10 +297,11 @@
   "players.inventory.description": "View and edit the contents of a player's inventory",
   "players.inventory.ws.error": "Cannot connect to the WebSocket of inventory",
   "players.inventory.nbt-mode.label": "NBT Mode",
-  "players.inventory.nbt-mode.tooltip": "This feature is working in progress",
   "players.inventory.explorer.search.placeholder": "Search items...",
   "players.inventory.nbt-editor.title": "Edit Item NBT",
   "players.inventory.nbt-editor.description": "Edit the NBT tag data of items here.",
+  "players.inventory.nbt-editor.hint": "Edit data tags with {0}.",
+  "players.inventory.item-tag.components": "{0} Components",
 
   "gamerules.title": "Game Rules",
   "gamerules.description": "Set the gamerules for the current world of the server",
