@@ -1,15 +1,16 @@
 "use client";
 
-import { hasCookie } from "cookies-next/client";
 import { useEffect } from "react";
+import { isAuth } from "@/lib/utils";
 
 export default function Panel() {
   useEffect(() => {
-    if(hasCookie("token")) {
-      window.location.href = "/panel/dashboard";
-    } else {
-      window.location.href = "/login";
-    }
+    window.location.href = "/panel/dashboard";
+    isAuth().then((res) => {
+      if(!res) {
+        window.location.href = "/login";
+      }
+    });
   }, []);
 
   return <></>;

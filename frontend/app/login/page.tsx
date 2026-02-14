@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Info, KeyRound } from "lucide-react";
 import md5 from "md5";
-import { hasCookie, setCookie } from "cookies-next/client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -29,7 +28,7 @@ import { sendGetRequest, sendPostRequest } from "@/lib/api";
 import { Brand } from "@/components/logo";
 import { PasswordInput } from "@/components/password-input";
 import { Alert } from "@/components/alert";
-import { generateRandomString } from "@/lib/utils";
+import { generateRandomString, isAuth } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
 import { copyrightInfo } from "@/lib/global";
 import { $ } from "@/lib/i18n";
@@ -66,8 +65,7 @@ export default function Login() {
       const { cram } = await sendGetRequest<{ cram: string }>(`/api/auth?id=${id}`, false);
       const challengeResult = md5(hashedKey + cram); // hashed 3
 
-      const res = await sendPostRequest<{ token: string }>("/api/auth", { id, result: challengeResult }, false);
-      setCookie("token", res.token);
+      await sendPostRequest("/api/auth", { id, result: challengeResult }, false);
       router.push("/panel/dashboard");
     } catch (e: any) {
       setLoading(false);
@@ -84,9 +82,11 @@ export default function Login() {
   };
 
   useEffect(() => {
-    if(hasCookie("token")) {
-      router.push("/panel/dashboard");
-    }
+    isAuth().then((res) => {
+      if(res) {
+        router.push("/panel/dashboard");
+      }
+    })
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

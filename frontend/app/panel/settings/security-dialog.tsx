@@ -2,7 +2,6 @@ import type { PropsWithChildren } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { setCookie } from "cookies-next/client";
 import md5 from "md5";
 import {
   Form,
@@ -47,11 +46,10 @@ export function SecurityDialog({
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const res = await sendPostRequest<{ token: string }>("/api/security", {
+      await sendPostRequest("/api/security", {
         currentKey: md5(values.currentKey), // hashed 1
         newKey: md5(values.newKey) // hashed 1
       });
-      setCookie("token", res.token);
       window.location.reload();
     } catch (e: any) {
       if(e.status === 403) {

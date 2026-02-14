@@ -9,6 +9,9 @@ import net.opanel.controller.BaseController;
 import net.opanel.web.JwtManager;
 
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
+
+import static net.opanel.utils.Utils.createCookie;
 
 public class SecurityController extends BaseController {
     public SecurityController(OPanel plugin) {
@@ -36,10 +39,11 @@ public class SecurityController extends BaseController {
         config.accessKey = Utils.md5(newKey);
         plugin.setConfig(config);
 
-        // Send new token
-        HashMap<String, Object> obj = new HashMap<>();
-        obj.put("token", JwtManager.generateToken(config.accessKey, config.salt));
-        sendResponse(ctx, obj);
+        String token = JwtManager.generateToken(config.accessKey, config.salt);
+
+        ctx.cookie(createCookie("token", token, (int) TimeUnit.DAYS.toSeconds(1)));
+
+        sendResponse(ctx, new HashMap<>());
     };
 
     private static class RequestBodyType {

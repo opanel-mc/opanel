@@ -9,6 +9,9 @@ import net.opanel.web.JwtManager;
 
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+
+import static net.opanel.utils.Utils.createCookie;
 
 public class AuthController extends BaseController {
     private final ConcurrentHashMap<String, String> cramMap = new ConcurrentHashMap<>();
@@ -73,10 +76,13 @@ public class AuthController extends BaseController {
         cramMap.remove(reqBody.id);
 
         if(challengeResult.equals(realResult)) {
-            HashMap<String, Object> obj = new HashMap<>();
-            obj.put("token", JwtManager.generateToken(storedRealKey, plugin.getConfig().salt));
             failedRecords.remove(remoteHost);
-            sendResponse(ctx, obj);
+
+            String token = JwtManager.generateToken(storedRealKey, plugin.getConfig().salt);
+
+            ctx.cookie(createCookie("token", token, (int) TimeUnit.DAYS.toSeconds(1)));
+
+            sendResponse(ctx, new HashMap<>());
         } else {
             final int current = failedRecords.getOrDefault(remoteHost, 0);
             failedRecords.put(remoteHost, current + 1);
@@ -88,6 +94,21 @@ public class AuthController extends BaseController {
             plugin.logger.warn("A failed login request from "+ remoteHost +" (Failed for "+ (current + 1) +" times)");
             sendResponse(ctx, HttpStatus.UNAUTHORIZED);
         }
+    };
+
+    public Handler checkAuth = ctx -> {
+        String token = ctx.cookie("token"); // jws
+        final String hashedRealKey = plugin.getConfig().accessKey; // hashed 2
+        if (token == null || !JwtManager.verifyToken(token, hashedRealKey, plugin.getConfig().salt)) {
+            sendResponse(ctx, HttpStatus.UNAUTHORIZED, "Token is missing.");
+            return;
+        }
+        sendResponse(ctx, HttpStatus.OK);
+    };
+
+    public Handler logout = ctx -> {
+        ctx.cookie(createCookie("token", "", -1));
+        sendResponse(ctx, HttpStatus.OK);
     };
 
     private static class RequestBodyType {

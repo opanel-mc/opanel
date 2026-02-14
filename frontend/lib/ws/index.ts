@@ -1,7 +1,7 @@
-import { getCookie, hasCookie } from "cookies-next/client";
 import { toast } from "sonner";
 import { wsUrl } from "../api";
 import { $ } from "../i18n";
+import {isAuth} from "@/lib/utils";
 
 type MessageType<M extends string> = M | "auth" | "connect" | "ping" | "pong" | "error";
 interface Packet<M extends string, D> {
@@ -17,7 +17,11 @@ export abstract class WebSocketClient<M extends string> {
   private heartbeatTimer: NodeJS.Timeout | null = null;
 
   constructor(route: string) {
-    if(!hasCookie("token")) window.location.href = "/login";
+    isAuth().then((res) => {
+      if(!res) {
+        window.location.href = "/login";
+      }
+    })
 
     const url = new URL(wsUrl);
     url.pathname = route;
@@ -31,7 +35,7 @@ export abstract class WebSocketClient<M extends string> {
     this.socket.addEventListener("open", () => {
       // Send authentication token
       // or the server will not accept any messages
-      this.send("auth", getCookie("token"));
+      this.send("auth", null);
     });
 
     this.subscribe("connect", () => {

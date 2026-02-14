@@ -1,6 +1,5 @@
 import type { APIResponse } from "./types";
 import axios, { type AxiosError } from "axios";
-import { deleteCookie } from "cookies-next/client";
 import { toast } from "sonner";
 
 export const apiUrl = (
@@ -22,7 +21,6 @@ export const wsUrl = (
  */
 export function toastError(e: AxiosError, message: string, descriptions: [number, string][]) {
   if(e.status === 401 && window.location.pathname !== "/login") {
-    deleteCookie("token");
     window.location.href = "/login";
     return;
   }

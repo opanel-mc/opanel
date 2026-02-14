@@ -1,11 +1,12 @@
 package net.opanel.utils;
 
+import io.javalin.http.Cookie;
+import io.javalin.http.SameSite;
 import net.opanel.OPanel;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -296,5 +297,18 @@ public class Utils {
             }
         }
         return false;
+    }
+
+    /**
+     * @param maxAge in seconds
+     */
+    public static Cookie createCookie(String name, String value, int maxAge) {
+        Cookie cookie = new Cookie(name, value);
+        cookie.setSameSite(SameSite.STRICT);
+        cookie.setMaxAge(maxAge);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false); // In order to support HTTP
+        cookie.setPath("/");
+        return cookie;
     }
 }

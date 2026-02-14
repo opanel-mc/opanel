@@ -38,7 +38,8 @@ public abstract class BaseEndpoint implements Connectable {
         ws.onConnect(ctx -> {
             Session session = ctx.session;
 
-            subscribe(session, Packet.AUTH, String.class, (msgCtx, token) -> {
+            subscribe(session, Packet.AUTH, String.class, (msgCtx, s) -> {
+                String token = ctx.cookie("token");
                 final String hashedRealKey = plugin.getConfig().accessKey; // hashed 2
                 if(token != null && JwtManager.verifyToken(token, hashedRealKey, plugin.getConfig().salt)) {
                     // Register session

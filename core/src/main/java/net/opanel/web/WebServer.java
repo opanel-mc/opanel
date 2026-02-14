@@ -106,6 +106,8 @@ public class WebServer {
             path("auth", () -> {
                 get("/", authController.getCram);
                 post("/", authController.validateCram);
+                post("/check", authController.checkAuth);
+                post("/logout", authController.logout);
             });
             path("banned-ips", () -> {
                 get("/", bannedIpsController.getBannedIps);

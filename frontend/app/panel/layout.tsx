@@ -3,7 +3,6 @@
 import type { APIResponse, VersionResponse } from "@/lib/types";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { hasCookie } from "cookies-next/client";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
   SidebarInset,
@@ -12,6 +11,7 @@ import {
 import { VersionContext } from "@/contexts/api-context";
 import { sendGetRequest } from "@/lib/api";
 import { useKeydown } from "@/hooks/use-keydown";
+import { isAuth } from "@/lib/utils";
 
 export default function PanelLayout({
   children,
@@ -37,10 +37,11 @@ export default function PanelLayout({
   useEffect(() => {
     setMounted(true);
 
-    if(!hasCookie("token")) {
-      push("/login");
-      return;
-    }
+    isAuth().then((res) => {
+      if(!res) {
+        push("/login");
+      }
+    })
 
     fetchVersionInfo();
   }, [push]);

@@ -5,6 +5,8 @@ import io.javalin.http.servlet.JavalinServletContext;
 import net.opanel.OPanel;
 import net.opanel.web.JwtManager;
 
+import static net.opanel.utils.Utils.createCookie;
+
 public class BeforeController extends BaseController {
     private static final String DEFAULT_RSC_FILE = "index.txt";
 
@@ -17,7 +19,7 @@ public class BeforeController extends BaseController {
     };
 
     public Handler authCookie = ctx -> {
-        if(ctx.path().equals("/api/auth") || ctx.path().equals("/api/icon") || ctx.method() == HandlerType.OPTIONS) return;
+        if(ctx.path().startsWith("/api/auth") || ctx.path().equals("/api/icon") || ctx.method() == HandlerType.OPTIONS) return;
 
         String token = ctx.cookie("token"); // jws
         if(token == null) {
@@ -28,6 +30,7 @@ public class BeforeController extends BaseController {
 
         final String hashedRealKey = plugin.getConfig().accessKey; // hashed 2
         if(!JwtManager.verifyToken(token, hashedRealKey, plugin.getConfig().salt)) {
+            ctx.cookie(createCookie("token", "", 0));
             sendResponse(ctx, HttpStatus.UNAUTHORIZED, "Token is invalid.");
             clearContextTasks(ctx);
         }
