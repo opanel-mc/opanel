@@ -66,8 +66,11 @@ export default function Login() {
       const { cram } = await sendGetRequest<{ cram: string }>(`/api/auth?id=${id}`, false);
       const challengeResult = md5(hashedKey + cram); // hashed 3
 
-      await sendPostRequest("/api/auth", { id, result: challengeResult }, false);
-      push("/panel/dashboard");
+      const res = await sendPostRequest("/api/auth", { id, result: challengeResult }, true);
+
+      if (res.code === 200) {
+        push("/panel/dashboard");
+      }
     } catch (e: any) {
       setLoading(false);
       switch(e.status) {
@@ -82,7 +85,7 @@ export default function Login() {
     }
   };
 
-  useCheckAuth();
+  useCheckAuth(() => push("/panel/dashboard"));
 
   useKeydown("Enter", {}, () => handleLogin());
 

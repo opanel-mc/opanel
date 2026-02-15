@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { useRouter } from "next/navigation";
 import { BookText, Info, LogOut, Settings, SquareArrowOutUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
@@ -10,11 +9,12 @@ import { $ } from "@/lib/i18n";
 import { logout } from "@/lib/api";
 
 export function Navbar({ className, ...props }: React.ComponentProps<"nav">) {
-  const { push } = useRouter();
 
   const handleLogout = async () => {
-    await logout();
-    push("/login");
+    const res = await logout();
+    if (res) {
+      window.location.href = "/login";
+    }
   };
 
   return (
