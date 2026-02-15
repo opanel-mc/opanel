@@ -1,7 +1,6 @@
 import { toast } from "sonner";
-import { wsUrl } from "../api";
+import { checkAuth, wsUrl } from "../api";
 import { $ } from "../i18n";
-import {isAuth} from "@/lib/utils";
 
 type MessageType<M extends string> = M | "auth" | "connect" | "ping" | "pong" | "error";
 interface Packet<M extends string, D> {
@@ -17,11 +16,11 @@ export abstract class WebSocketClient<M extends string> {
   private heartbeatTimer: NodeJS.Timeout | null = null;
 
   constructor(route: string) {
-    isAuth().then((res) => {
+    checkAuth().then((res) => {
       if(!res) {
         window.location.href = "/login";
       }
-    })
+    });
 
     const url = new URL(wsUrl);
     url.pathname = route;

@@ -11,8 +11,6 @@ import net.opanel.web.JwtManager;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
-import static net.opanel.utils.Utils.createCookie;
-
 public class SecurityController extends BaseController {
     public SecurityController(OPanel plugin) {
         super(plugin);
@@ -40,9 +38,7 @@ public class SecurityController extends BaseController {
         plugin.setConfig(config);
 
         String token = JwtManager.generateToken(config.accessKey, config.salt);
-
-        ctx.cookie(createCookie("token", token, (int) TimeUnit.DAYS.toSeconds(1)));
-
+        ctx.cookie(JwtManager.createCookie("token", token, (int) TimeUnit.DAYS.toSeconds(1)));
         sendResponse(ctx, new HashMap<>());
     };
 

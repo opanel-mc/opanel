@@ -1,5 +1,7 @@
 package net.opanel.web;
 
+import io.javalin.http.Cookie;
+import io.javalin.http.SameSite;
 import io.jsonwebtoken.*;
 import net.opanel.utils.Utils;
 
@@ -50,5 +52,15 @@ public class JwtManager {
             return false;
         }
         return true;
+    }
+
+    public static Cookie createCookie(String name, String value, int maxAge) {
+        Cookie cookie = new Cookie(name, value);
+        cookie.setSameSite(SameSite.LAX);
+        cookie.setMaxAge(maxAge);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false); // In order to support HTTP
+        cookie.setPath("/");
+        return cookie;
     }
 }

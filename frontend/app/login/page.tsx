@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Info, KeyRound } from "lucide-react";
@@ -28,19 +28,20 @@ import { sendGetRequest, sendPostRequest } from "@/lib/api";
 import { Brand } from "@/components/logo";
 import { PasswordInput } from "@/components/password-input";
 import { Alert } from "@/components/alert";
-import { generateRandomString, isAuth } from "@/lib/utils";
+import { generateRandomString } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
 import { copyrightInfo } from "@/lib/global";
 import { $ } from "@/lib/i18n";
 import { Text } from "@/components/i18n-text";
 import { useKeydown } from "@/hooks/use-keydown";
+import { useCheckAuth } from "@/hooks/use-check-auth";
 
 const formSchema = z.object({
   accessKey: z.string().nonempty($("login.form.input.empty")),
 });
 
 export default function Login() {
-  const router = useRouter();
+  const { push } = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -66,7 +67,7 @@ export default function Login() {
       const challengeResult = md5(hashedKey + cram); // hashed 3
 
       await sendPostRequest("/api/auth", { id, result: challengeResult }, false);
-      router.push("/panel/dashboard");
+      push("/panel/dashboard");
     } catch (e: any) {
       setLoading(false);
       switch(e.status) {
@@ -81,14 +82,7 @@ export default function Login() {
     }
   };
 
-  useEffect(() => {
-    isAuth().then((res) => {
-      if(res) {
-        router.push("/panel/dashboard");
-      }
-    })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  useCheckAuth();
 
   useKeydown("Enter", {}, () => handleLogin());
 

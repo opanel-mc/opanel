@@ -1,17 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
-import { isAuth } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { useCheckAuth } from "@/hooks/use-check-auth";
 
 export default function Panel() {
-  useEffect(() => {
-    window.location.href = "/panel/dashboard";
-    isAuth().then((res) => {
-      if(!res) {
-        window.location.href = "/login";
-      }
-    });
-  }, []);
+  const { push } = useRouter();
+
+  useCheckAuth(() => push("/panel/dashboard"));
 
   return <></>;
 }

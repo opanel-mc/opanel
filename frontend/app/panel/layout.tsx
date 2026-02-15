@@ -2,7 +2,6 @@
 
 import type { APIResponse, VersionResponse } from "@/lib/types";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
   SidebarInset,
@@ -11,7 +10,7 @@ import {
 import { VersionContext } from "@/contexts/api-context";
 import { sendGetRequest } from "@/lib/api";
 import { useKeydown } from "@/hooks/use-keydown";
-import { isAuth } from "@/lib/utils";
+import { useCheckAuth } from "@/hooks/use-check-auth";
 
 export default function PanelLayout({
   children,
@@ -20,7 +19,6 @@ export default function PanelLayout({
 }>) {
   const [mounted, setMounted] = useState(false);
   const [versionInfo, setVersionInfo] = useState<APIResponse<VersionResponse>>();
-  const { push } = useRouter();
 
   const fetchVersionInfo = async () => {
     try {
@@ -36,15 +34,9 @@ export default function PanelLayout({
 
   useEffect(() => {
     setMounted(true);
+  }, []);
 
-    isAuth().then((res) => {
-      if(!res) {
-        push("/login");
-      }
-    })
-
-    fetchVersionInfo();
-  }, [push]);
+  useCheckAuth(() => fetchVersionInfo());
 
   useKeydown("a", { ctrl: true }, (e) => e.preventDefault());
   useKeydown("p", { ctrl: true }, (e) => e.preventDefault());

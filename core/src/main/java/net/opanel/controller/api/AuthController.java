@@ -11,8 +11,6 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import static net.opanel.utils.Utils.createCookie;
-
 public class AuthController extends BaseController {
     private final ConcurrentHashMap<String, String> cramMap = new ConcurrentHashMap<>();
 
@@ -79,10 +77,8 @@ public class AuthController extends BaseController {
             failedRecords.remove(remoteHost);
 
             String token = JwtManager.generateToken(storedRealKey, plugin.getConfig().salt);
-
-            ctx.cookie(createCookie("token", token, (int) TimeUnit.DAYS.toSeconds(1)));
-
-            sendResponse(ctx, new HashMap<>());
+            ctx.cookie(JwtManager.createCookie("token", token, (int) TimeUnit.DAYS.toSeconds(1)));
+            sendResponse(ctx, HttpStatus.OK);
         } else {
             final int current = failedRecords.getOrDefault(remoteHost, 0);
             failedRecords.put(remoteHost, current + 1);
@@ -99,15 +95,20 @@ public class AuthController extends BaseController {
     public Handler checkAuth = ctx -> {
         String token = ctx.cookie("token"); // jws
         final String hashedRealKey = plugin.getConfig().accessKey; // hashed 2
-        if (token == null || !JwtManager.verifyToken(token, hashedRealKey, plugin.getConfig().salt)) {
+        if(token == null) {
             sendResponse(ctx, HttpStatus.UNAUTHORIZED, "Token is missing.");
+            return;
+        }
+        if(!JwtManager.verifyToken(token, hashedRealKey, plugin.getConfig().salt)) {
+            ctx.cookie(JwtManager.createCookie("token", "", 0));
+            sendResponse(ctx, HttpStatus.UNAUTHORIZED, "Token is invalid.");
             return;
         }
         sendResponse(ctx, HttpStatus.OK);
     };
 
     public Handler logout = ctx -> {
-        ctx.cookie(createCookie("token", "", -1));
+        ctx.cookie(JwtManager.createCookie("token", "", 0));
         sendResponse(ctx, HttpStatus.OK);
     };
 

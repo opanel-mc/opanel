@@ -103,3 +103,21 @@ export async function uploadFile(route: string, file: File, onProgress?: (progre
     onUploadProgress: (e) => onProgress && onProgress(e.progress ?? 0)
   })).data as APIResponse<never>;
 }
+
+export async function checkAuth(): Promise<boolean> {
+  try {
+    await sendPostRequest("/api/auth/check");
+    return true;
+  } catch (e: any) {
+    return false;
+  }
+}
+
+export async function logout(): Promise<boolean> {
+  try {
+    await sendPostRequest("/api/auth/logout");
+    return true;
+  } catch (e: any) {
+    return false;
+  }
+}

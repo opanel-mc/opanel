@@ -3,7 +3,6 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import locale from "locale-codes";
 import { $ } from "./i18n";
-import { sendPostRequest } from "@/lib/api";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -159,22 +158,4 @@ export function isBukkit(serverType: ServerType): boolean {
 
 export function isPreviewVersion(version: string): boolean {
   return version.includes("pre") || version.includes("rc");
-}
-
-export async function isAuth(): Promise<boolean> {
-  try {
-    await sendPostRequest("/api/auth/check");
-    return true;
-  } catch (e: any) {
-    return false;
-  }
-}
-
-export async function logout(): Promise<boolean> {
-  try {
-    await sendPostRequest("/api/auth/logout");
-    return true;
-  } catch (e: any) {
-    return false;
-  }
 }

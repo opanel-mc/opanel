@@ -298,17 +298,4 @@ public class Utils {
         }
         return false;
     }
-
-    /**
-     * @param maxAge in seconds
-     */
-    public static Cookie createCookie(String name, String value, int maxAge) {
-        Cookie cookie = new Cookie(name, value);
-        cookie.setSameSite(SameSite.STRICT);
-        cookie.setMaxAge(maxAge);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(false); // In order to support HTTP
-        cookie.setPath("/");
-        return cookie;
-    }
 }
