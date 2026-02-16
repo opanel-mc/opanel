@@ -9,12 +9,9 @@ import { $ } from "@/lib/i18n";
 import { logout } from "@/lib/api";
 
 export function Navbar({ className, ...props }: React.ComponentProps<"nav">) {
-
   const handleLogout = async () => {
-    const res = await logout();
-    if (res) {
-      window.location.href = "/login";
-    }
+    await logout();
+    window.location.href = "/login";
   };
 
   return (

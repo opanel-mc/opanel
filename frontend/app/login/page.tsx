@@ -66,11 +66,8 @@ export default function Login() {
       const { cram } = await sendGetRequest<{ cram: string }>(`/api/auth?id=${id}`, false);
       const challengeResult = md5(hashedKey + cram); // hashed 3
 
-      const res = await sendPostRequest("/api/auth", { id, result: challengeResult }, true);
-
-      if (res.code === 200) {
-        push("/panel/dashboard");
-      }
+      await sendPostRequest("/api/auth", { id, result: challengeResult });
+      push("/panel/dashboard");
     } catch (e: any) {
       setLoading(false);
       switch(e.status) {
