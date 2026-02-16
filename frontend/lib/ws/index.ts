@@ -18,6 +18,10 @@ export abstract class WebSocketClient<M extends string> {
   constructor(route: string) {
     checkAuth().then((res) => {
       if(!res) {
+        if(this.socket !== null) {
+          this.socket.close();
+          this.socket = null;
+        }
         window.location.href = "/login";
       }
     });
