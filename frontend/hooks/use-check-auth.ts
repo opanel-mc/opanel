@@ -13,6 +13,5 @@ export function useCheckAuth(cb?: () => void) {
       }
       cb && cb();
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [push, cb]);
 }

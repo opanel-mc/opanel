@@ -68,8 +68,6 @@
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
     "eslint-plugin-import": "^2.32.0",
-    "express": "^5.2.1",
-    "http-proxy-middleware": "^3.0.5",
     "tailwind-scrollbar": "^4.0.2",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.4",
