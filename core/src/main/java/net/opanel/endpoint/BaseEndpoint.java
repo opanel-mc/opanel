@@ -38,18 +38,16 @@ public abstract class BaseEndpoint implements Connectable {
         ws.onConnect(ctx -> {
             Session session = ctx.session;
 
-            subscribe(session, Packet.AUTH, String.class, (msgCtx, s) -> {
-                String token = ctx.cookie("token");
-                final String hashedRealKey = plugin.getConfig().accessKey; // hashed 2
-                if(token != null && JwtManager.verifyToken(token, hashedRealKey, plugin.getConfig().salt)) {
-                    // Register session
-                    sessions.add(session);
-                    msgCtx.send(new Packet<>(Packet.CONNECT));
-                    onConnect(msgCtx);
-                } else {
-                    msgCtx.closeSession(1008, "Unauthorized.");
-                }
-            });
+            String token = ctx.cookie("token");
+            final String hashedRealKey = plugin.getConfig().accessKey; // hashed 2
+            if(token == null || !JwtManager.verifyToken(token, hashedRealKey, plugin.getConfig().salt)) {
+                ctx.closeSession(1008, "Unauthorized.");
+                return;
+            }
+            // Register session
+            sessions.add(session);
+            ctx.send(new Packet<>(Packet.CONNECT));
+            onConnect(ctx);
 
             subscribe(session, Packet.PING, msgCtx -> {
                 msgCtx.send(new Packet<>(Packet.PONG));
@@ -87,7 +85,7 @@ public abstract class BaseEndpoint implements Connectable {
         Set<Consumer<WsMessageContext>> listeners = sessionListeners.computeIfAbsent(session, k -> new CopyOnWriteArraySet<>());
         listeners.add(ctx -> {
             if(ctx.session != session) return;
-            if(!sessions.contains(session) && !type.equals(Packet.AUTH)) {
+            if(!sessions.contains(session)) {
                 ctx.closeSession(1008, "Unauthorized.");
                 return;
             }
@@ -102,7 +100,7 @@ public abstract class BaseEndpoint implements Connectable {
     }
 
     @Override
-    public void onConnect(WsMessageContext ctx) { }
+    public void onConnect(WsContext ctx) { }
 
     @Override
     public void onClose(WsCloseContext ctx) { }
@@ -110,7 +108,7 @@ public abstract class BaseEndpoint implements Connectable {
     @Override
     public void onError(WsErrorContext ctx) { }
 
-    protected void sendErrorMessage(WsMessageContext ctx, String err) {
+    protected void sendErrorMessage(WsContext ctx, String err) {
         ctx.send(new Packet<>(Packet.ERROR, err));
     }
 

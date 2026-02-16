@@ -2,7 +2,7 @@ package net.opanel.endpoint;
 
 import io.javalin.Javalin;
 import io.javalin.websocket.WsConfig;
-import io.javalin.websocket.WsMessageContext;
+import io.javalin.websocket.WsContext;
 import net.opanel.OPanel;
 import net.opanel.common.OPanelInventory;
 import net.opanel.common.OPanelPlayer;
@@ -36,7 +36,7 @@ public class InventoryEndpoint extends BaseEndpoint {
     }
 
     @Override
-    public void onConnect(WsMessageContext ctx) {
+    public void onConnect(WsContext ctx) {
         final String uuid = ctx.pathParam("uuid");
         if(uuid.isEmpty()) {
             sendErrorMessage(ctx, "Missing uuid in path.");
@@ -92,9 +92,6 @@ public class InventoryEndpoint extends BaseEndpoint {
                 if(!sessionsMap.containsKey(targetUuid)) return;
 
                 HashMap<String, Object> data = event.getInventory().serialize();
-//                if(event.getPlayer().getUUID().equals(uuid) && data != null) {
-//                    broadcast(new InventoryPacket<>(InventoryPacket.UPDATE, data));
-//                }
                 Set<Session> listenedSessions = sessionsMap.get(targetUuid);
                 for(Session session : listenedSessions) {
                     if(!session.isOpen()) {

@@ -2,7 +2,7 @@ package net.opanel.endpoint;
 
 import io.javalin.Javalin;
 import io.javalin.websocket.WsConfig;
-import io.javalin.websocket.WsMessageContext;
+import io.javalin.websocket.WsContext;
 import net.opanel.OPanel;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.event.*;
@@ -70,13 +70,13 @@ public class PlayersEndpoint extends BaseEndpoint {
     }
 
     @Override
-    public void onConnect(WsMessageContext ctx) {
+    public void onConnect(WsContext ctx) {
         sendPlayerList(ctx);
 
         subscribe(ctx.session, PlayersPacket.FETCH, this::sendPlayerList);
     }
 
-    private void sendPlayerList(WsMessageContext ctx) {
+    private void sendPlayerList(WsContext ctx) {
         try {
             List<String> whitelistedNames = server.getWhitelist().getNames();
             List<HashMap<String, Object>> players = server.getPlayers().stream()

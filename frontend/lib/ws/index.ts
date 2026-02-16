@@ -2,7 +2,7 @@ import { toast } from "sonner";
 import { checkAuth, wsUrl } from "../api";
 import { $ } from "../i18n";
 
-type MessageType<M extends string> = M | "auth" | "connect" | "ping" | "pong" | "error";
+type MessageType<M extends string> = M | "connect" | "ping" | "pong" | "error";
 interface Packet<M extends string, D> {
   type: MessageType<M>
   data: D
@@ -30,12 +30,6 @@ export abstract class WebSocketClient<M extends string> {
 
   private init() {
     if(!this.socket) return;
-
-    this.socket.addEventListener("open", () => {
-      // Send authentication token
-      // or the server will not accept any messages
-      this.send("auth", null);
-    });
 
     this.subscribe("connect", () => {
       this.onOpen();

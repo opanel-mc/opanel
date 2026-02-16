@@ -43,7 +43,7 @@ public class TerminalEndpoint extends BaseEndpoint {
     }
 
     @Override
-    public void onConnect(WsMessageContext ctx) {
+    public void onConnect(WsContext ctx) {
         Session session = ctx.session;
 
         ctx.send(new TerminalPacket<>(TerminalPacket.INIT, logListenerManager.getRecentLogs()));

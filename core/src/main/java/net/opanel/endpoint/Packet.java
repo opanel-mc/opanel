@@ -1,7 +1,6 @@
 package net.opanel.endpoint;
 
 public class Packet<D> {
-    public static final String AUTH = "auth";
     public static final String CONNECT = "connect";
     public static final String PING = "ping";
     public static final String PONG = "pong";
