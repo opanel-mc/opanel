@@ -37,6 +37,10 @@ OPanel 的功能包括：
 
 ![preview-players](./images/preview-players.png)
 
+![preview-inventory](./images/preview-inventory.png)
+
+![preview-inventory-nbt](./images/preview-inventory-nbt.png)
+
 ![preview-terminal](./images/preview-terminal.png)
 
 ![preview-tasks](./images/preview-tasks.png)

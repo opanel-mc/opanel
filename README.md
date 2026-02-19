@@ -37,6 +37,10 @@ The features of OPanel include:
 
 ![preview-players](./images/preview-players.png)
 
+![preview-inventory](./images/preview-inventory.png)
+
+![preview-inventory-nbt](./images/preview-inventory-nbt.png)
+
 ![preview-terminal](./images/preview-terminal.png)
 
 ![preview-tasks](./images/preview-tasks.png)
