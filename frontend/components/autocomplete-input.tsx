@@ -85,8 +85,9 @@ export function AutocompleteInput({
 
     if(cSelected === null) return 0;
     
-    const argIndex = getCurrentArgumentIndex(pureValue, (inputRef.current.selectionStart ?? 0) - (hasPrefix ? 1 : 0));
-    const toComplete = advised[cSelected].replace(getInputtedArgumentStr(pureValue, (inputRef.current.selectionStart ?? 0) - (hasPrefix ? 1 : 0)), "");
+    const cursorPos = Math.max(0, Math.min((inputRef.current.selectionStart ?? 0) - (hasPrefix ? 1 : 0), pureValue.length));
+    const argIndex = getCurrentArgumentIndex(pureValue, cursorPos);
+    const toComplete = advised[cSelected].replace(getInputtedArgumentStr(pureValue, cursorPos), "");
     const pureValueSplitted = pureValue.split(" ");
     pureValueSplitted[argIndex - 1] += toComplete;
 
@@ -180,8 +181,8 @@ export function AutocompleteInput({
     const inputtedCommand = hasPrefix ? value.substring(prefix.length) : value;
 
     // Update advised item list
-    const cursorPos = input.selectionStart;
-    const inputtedArgStr = getInputtedArgumentStr(inputtedCommand, (cursorPos ?? 0) - (hasPrefix ? 1 : 0));
+    const cursorPos = Math.max(0, Math.min((input.selectionStart ?? 0) - (hasPrefix ? 1 : 0), inputtedCommand.length));
+    const inputtedArgStr = getInputtedArgumentStr(inputtedCommand, cursorPos);
     const advised = itemList.filter((item) => item.startsWith(inputtedArgStr));
     setAdvisedList(advised);
     
@@ -209,7 +210,7 @@ export function AutocompleteInput({
 
   return (
     <InputContext.Provider value={{
-      argValue: getInputtedArgumentStr(value, inputRef.current?.selectionStart ?? 0),
+      argValue: getInputtedArgumentStr(value, Math.min(inputRef.current?.selectionStart ?? 0, value.length)),
       prefix,
       setSelected,
       complete
