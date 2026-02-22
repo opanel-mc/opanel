@@ -1,7 +1,7 @@
 "use client";
 
 import type { Plugin, PluginsResponse } from "@/lib/types";
-import { useContext, useEffect, useState } from "react";
+import { type DragEvent, useContext, useEffect, useRef, useState } from "react";
 import { Blocks, PackageCheck, PackageX, RotateCw, Search, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { SubPage } from "../sub-page";
@@ -45,6 +45,14 @@ export default function Plugins() {
   const [uploadName, setUploadName] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const dragDepthRef = useRef(0);
+
+  const hasDraggedFiles = (event: DragEvent<HTMLElement>) => Array.from(event.dataTransfer.types).includes("Files");
+
+  const resetDragState = () => {
+    dragDepthRef.current = 0;
+    setUploadVisible(false);
+  };
 
   const fetchPluginList = async () => {
     if(!versionCtx) return;
@@ -105,21 +113,35 @@ export default function Plugins() {
       category={$("sidebar.management")}
       icon={<Blocks />}
       className="relative h-full"
-      onDragEnter={() => setUploadVisible(true)}>
+      onDragEnter={(e) => {
+        if(!hasDraggedFiles(e)) return;
+        e.preventDefault();
+        dragDepthRef.current += 1;
+        setUploadVisible(true);
+      }}
+      onDragOver={(e) => {
+        if(!hasDraggedFiles(e)) return;
+        e.preventDefault();
+      }}
+      onDragLeave={(e) => {
+        if(!hasDraggedFiles(e)) return;
+        e.preventDefault();
+        dragDepthRef.current = Math.max(dragDepthRef.current - 1, 0);
+        if(dragDepthRef.current === 0) {
+          setUploadVisible(false);
+        }
+      }}
+      onDrop={(e) => {
+        if(!hasDraggedFiles(e)) return;
+        e.preventDefault();
+        resetDragState();
+        if(e.dataTransfer.files.length === 0) return;
+        handleUpload(e.dataTransfer.files[0]);
+      }}>
       {/* Drag and Drop Area */}
-      <div className={cn("absolute top-0 left-0 right-0 bottom-0 flex flex-col justify-center items-center gap-4", uploadVisible ? "" : "hidden")}>
+      <div className={cn("absolute top-0 left-0 right-0 bottom-0 z-50 flex flex-col justify-center items-center gap-4 pointer-events-none", uploadVisible ? "" : "hidden")}>
         <div
-          className="absolute w-full h-full border-4 rounded-sm border-dashed"
-          onDrop={(e) => {
-            e.preventDefault();
-            if(e.dataTransfer.files.length === 0) {
-              setUploadVisible(false);
-              return;
-            }
-            handleUpload(e.dataTransfer.files[0]);
-          }}
-          onDragOver={(e) => e.preventDefault()}
-          onDragLeave={() => setUploadVisible(false)}/>
+          className="absolute w-full h-full border-4 rounded-sm border-dashed"/>
         <Upload size={60} stroke="var(--color-muted-foreground)"/>
         <span className="text-muted-foreground">{$("plugins.dnd.label")}</span>
       </div>
