@@ -225,6 +225,7 @@ export function AutocompleteInput({
             if(onInput) onInput(e);
           }}
           data-current-selected={selected ?? 0}
+          data-testid="autocomplete-input"
           ref={inputRef}/>
         <InputGroupButton
           className={cn(
@@ -243,6 +244,7 @@ export function AutocompleteInput({
           positionReady ? "visible" : "invisible"
         )}
         style={{ top, left }}
+        data-testid="autocomplete-list"
         ref={listContainerRef}>
         {advisedList.map((item, i) => (
           <AutocompleteItem

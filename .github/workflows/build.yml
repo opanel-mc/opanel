@@ -35,6 +35,9 @@ jobs:
 
     - name: Run unit tests
       run: npm run test
+    
+    - name: Test building frontend
+      run: npm run build
 
   jar:
 
