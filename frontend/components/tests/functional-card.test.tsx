@@ -1,12 +1,14 @@
 import type { ExoticComponent, PropsWithChildren } from "react";
-import { render } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { cleanup, render } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { Circle } from "lucide-react";
 import { FunctionalCard } from "../functional-card";
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
 
 describe("test functional card", () => {
+  afterEach(() => cleanup());
+
   it("should be correctly rendered", () => {
     const elem = render(
       <FunctionalCard

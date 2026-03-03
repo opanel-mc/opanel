@@ -8,6 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   resolve: {
     alias: {
+      "@/style/item-effect.css": path.resolve(__dirname, "test/style-stub.ts"),
       "@": path.resolve(__dirname, "."),
     }
   },

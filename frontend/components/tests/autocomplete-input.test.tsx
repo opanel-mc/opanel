@@ -1,10 +1,12 @@
 import { createRef } from "react";
-import { render } from "@testing-library/react";
+import { cleanup, render } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { AutocompleteInput } from "../autocomplete-input";
 
 describe("test autocomplete input", () => {
+  afterEach(() => cleanup());
+
   it("autocomplete list should appear when there are item(s) in the advised list and vice versa", async () => {
     const user = userEvent.setup();
     const ref = createRef<HTMLInputElement>();
