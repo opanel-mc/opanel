@@ -7,6 +7,10 @@ import { ThemeToggle } from "./theme-toggle";
 import { SidebarTrigger } from "./ui/sidebar";
 import { $ } from "@/lib/i18n";
 import { logout } from "@/lib/api";
+import { Badge } from "./ui/badge";
+import { googleSansCode } from "@/lib/fonts";
+import { version } from "@/lib/global";
+import { UpdateDialog } from "@/app/panel/settings/update-dialog";
 
 export function Navbar({ className, ...props }: React.ComponentProps<"nav">) {
   const handleLogout = async () => {
@@ -19,6 +23,13 @@ export function Navbar({ className, ...props }: React.ComponentProps<"nav">) {
       className={cn("min-h-12 bg-background border-b border-b-sidebar-border flex items-center justify-end *:cursor-pointer", className)}
       {...props}>
       <SidebarTrigger className="mr-auto hidden max-md:flex cursor-pointer"/>
+      <UpdateDialog asChild>
+        <Badge
+          variant="outline"
+          className={cn("mr-2", googleSansCode.className)}>
+          {`v${version}`}
+        </Badge>
+      </UpdateDialog>
       <div className="space-x-2 mr-2 max-sm:mr-0 max-sm:space-x-0">
         <Button
           variant="ghost"
