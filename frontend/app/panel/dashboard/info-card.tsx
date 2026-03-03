@@ -167,7 +167,10 @@ export function InfoCard({
           </div>
         </div>
         <div className="min-xl:p-4 flex flex-col justify-between">
-          <Badge className="self-end max-lg:hidden cursor-default" variant="outline">
+          <Badge
+            variant="outline"
+            title={warningState ? $("dashboard.info.status.warning.title") : ""}
+            className="self-end max-lg:hidden cursor-help">
             <div className={cn("w-2 h-2 rounded-full", ctx ? (warningState ? "bg-yellow-600" : "bg-green-600") : "bg-red-700")}/>
             {
               ctx
