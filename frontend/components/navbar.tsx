@@ -26,7 +26,7 @@ export function Navbar({ className, ...props }: React.ComponentProps<"nav">) {
       <UpdateDialog asChild>
         <Badge
           variant="outline"
-          className={cn("mr-2", googleSansCode.className)}>
+          className={cn("max-xs:hidden mr-2", googleSansCode.className)}>
           {`v${version}`}
         </Badge>
       </UpdateDialog>

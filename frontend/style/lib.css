@@ -27,3 +27,9 @@
     @slot;
   }
 }
+
+@custom-variant max-xs {
+  @media (max-width: 20rem) {
+    @slot;
+  }
+}
