@@ -33,7 +33,8 @@ export function FunctionalCard({
             <Button
               variant="ghost"
               size="sm"
-              className="text-muted-foreground cursor-pointer">
+              className="text-muted-foreground cursor-pointer"
+              data-testid="functional-card-more-dialog-button">
               {$("functional-card.more")}
               <ChevronRight />
             </Button>
@@ -45,14 +46,14 @@ export function FunctionalCard({
             size="sm"
             className="text-muted-foreground cursor-pointer"
             asChild>
-            <Link href={moreLink}>
+            <Link href={moreLink} data-testid="functional-card-more-link">
               {$("functional-card.more")}
               <ChevronRight />
             </Link>
           </Button>
         )}
       </div>
-      <div className={cn(innerClassName, "overflow-auto")}>
+      <div className={cn(innerClassName, "overflow-auto")} data-testid="functional-card-content">
         {children}
       </div>
     </Card>
