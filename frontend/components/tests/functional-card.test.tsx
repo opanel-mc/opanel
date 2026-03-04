@@ -20,8 +20,6 @@ describe("test functional card", () => {
 
     expect(elem.getByText("Test Card")).toBeInTheDocument();
     expect(elem.getByTestId("functional-card-content")).toHaveTextContent("Hello World");
-
-    elem.unmount();
   });
 
   it("should render the link when moreLink is provided", () => {
@@ -36,8 +34,6 @@ describe("test functional card", () => {
     );
 
     expect(elem.getByTestId("functional-card-more-link")).toHaveAttribute("href", link);
-
-    elem.unmount();
   });
 
   it("should render the dialog when moreDialog is provided", async () => {
@@ -66,7 +62,5 @@ describe("test functional card", () => {
 
     await user.click(elem.getByTestId("functional-card-more-dialog-button"));
     expect(elem.getByText("Hello Dialog")).toBeInTheDocument();
-
-    elem.unmount();
   });
 });

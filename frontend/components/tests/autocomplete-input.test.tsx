@@ -28,8 +28,6 @@ describe("test autocomplete input", () => {
 
     await user.clear(inputElem);
     expect(listElem).toHaveClass("hidden");
-
-    elem.unmount();
   });
 
   it("autocomplete list should be invisible if the input is disabled", async () => {
@@ -49,8 +47,6 @@ describe("test autocomplete input", () => {
 
     await user.type(inputElem, "t");
     expect(listElem).toHaveClass("hidden");
-
-    elem.unmount();
   });
 
   it("advised item(s) should be updated according to the input value when the input value changes", async () => {
@@ -77,8 +73,6 @@ describe("test autocomplete input", () => {
     expect(listElem).not.toHaveTextContent("testa1");
     expect(listElem).not.toHaveTextContent("testa2");
     expect(listElem).toHaveTextContent("testb3");
-
-    elem.unmount();
   });
 
   it("autocomplete list should show up when the user types the prefix", async () => {
@@ -101,8 +95,6 @@ describe("test autocomplete input", () => {
     await user.clear(inputElem);
     await user.type(inputElem, "$");
     expect(listElem).toHaveClass("hidden");
-
-    elem.unmount();
   });
 
   it("should work fine if the user added prefix", async () => {
@@ -124,8 +116,6 @@ describe("test autocomplete input", () => {
     expect(listElem).toHaveTextContent("testa1");
     expect(listElem).toHaveTextContent("testa2");
     expect(listElem).not.toHaveTextContent("testb3");
-
-    elem.unmount();
   });
 
   it("should trigger onInput callback when the input value changes", async () => {
@@ -145,8 +135,6 @@ describe("test autocomplete input", () => {
 
     await user.type(inputElem, "t");
     expect(onInput).toHaveBeenCalled();
-
-    elem.unmount();
   });
 
   it("should trigger onKeydown callback when the user presses a key and it is NOT to do a complete with Enter key", async () => {
@@ -172,8 +160,6 @@ describe("test autocomplete input", () => {
 
     await user.type(inputElem, "{Enter}");
     expect(onKeyDown).toHaveBeenCalledTimes(2);
-
-    elem.unmount();
   });
 
   it("should do autocomplete when user presses Enter or Tab key while the advised list has something to be completed", async () => {
@@ -199,8 +185,6 @@ describe("test autocomplete input", () => {
     await user.type(inputElem, "t");
     await user.type(inputElem, "{Tab}");
     expect(inputElem.value).toBe("test1");
-
-    elem.unmount();
   });
 
   it("should be able to switch advised item with ArrowUp and ArrowDown keys", async () => {
@@ -226,7 +210,5 @@ describe("test autocomplete input", () => {
     await user.type(inputElem, "{ArrowUp}");
     await user.type(inputElem, "{Enter}");
     expect(inputElem.value).toBe("test3");
-
-    elem.unmount();
   });
 });

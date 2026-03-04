@@ -1,17 +1,41 @@
 import type { ReactNode } from "react";
 import type { ItemStack } from "@/lib/types";
-import { fireEvent, render } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { VersionContext } from "@/contexts/api-context";
 import { InventoryContext } from "@/contexts/inventory-context";
 import { createMockVersionContext } from "@/test/contexts-helper";
 import { createItem, createMockInventoryContextValue } from "@/test/inventory-helper";
 import { AIR, InventoryItem } from "./inventory-item";
 
-vi.mock("@/style/item-effect.css", () => ({}));
-
 vi.mock("./item-dialog", () => ({
   ItemDialog: ({ children }: { children: ReactNode }) => <>{children}</>
+}));
+
+const { MockComponentsResolver, mockResolverRef } = vi.hoisted(() => {
+  class HoistedMockComponentsResolver {
+    constructor(private readonly componentAmount: number) {}
+
+    getComponentAmount() {
+      return this.componentAmount;
+    }
+  }
+
+  return {
+    MockComponentsResolver: HoistedMockComponentsResolver,
+    mockResolverRef: {
+      current: null as any
+    }
+  };
+});
+
+vi.mock("@/lib/nbt", () => ({
+  createResolver: vi.fn(() => mockResolverRef.current)
+}));
+
+vi.mock("@/lib/nbt/components-resolver", () => ({
+  ComponentsResolver: MockComponentsResolver,
+  itemModelToTextureId: vi.fn((model: string | null) => model)
 }));
 
 function renderInventoryItem(itemStack: ItemStack, options?: {
@@ -39,6 +63,29 @@ function fireMiddleClick(elem: HTMLElement) {
 }
 
 describe("test inventory item", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  beforeEach(() => {
+    mockResolverRef.current = {
+      getItemModel: () => null,
+      shouldGlint: () => false,
+      isPotion: () => false,
+      isTippedArrow: () => false,
+      isDyedLeatherArmor: () => false,
+      getPotionColor: () => null,
+      getDyedColor: () => null,
+      hasCustomName: () => false,
+      hasEnchantments: () => false,
+      getName: () => "Stone",
+      getEnchantments: () => new Map(),
+      getLore: () => [],
+      isUnbreakable: () => false,
+      getMapId: () => null
+    };
+  });
+
   it("should pick up and remove clicked item when left-clicking a normal slot with empty hand", () => {
     const item = createItem({ slot: 10, id: "minecraft:stone", count: 8 });
     const { itemElem, ctx } = renderInventoryItem(item);
@@ -265,5 +312,126 @@ describe("test inventory item", () => {
     expect(ctx.swapClickedWithHeldItem).not.toHaveBeenCalled();
     expect(ctx.addClickedWithHeldItem).not.toHaveBeenCalled();
     expect(ctx.halfClickedItem).not.toHaveBeenCalled();
+  });
+
+  it("should render glint overlay when resolver says it should glint", async () => {
+    mockResolverRef.current = {
+      ...mockResolverRef.current,
+      shouldGlint: () => true
+    };
+    const item = createItem({ slot: 4, id: "minecraft:stone", count: 1, snbt: "{foo:1b}" });
+    const { container } = renderInventoryItem(item);
+
+    await waitFor(() => {
+      expect(container.querySelector(".item-glint")).toBeInTheDocument();
+    });
+  });
+
+  it("should render potion overlay when resolver marks item as potion", async () => {
+    mockResolverRef.current = {
+      ...mockResolverRef.current,
+      isPotion: () => true,
+      getPotionColor: () => [12, 34, 56]
+    };
+    const item = createItem({ slot: 4, id: "minecraft:potion", count: 1, snbt: "{foo:1b}" });
+    const { container } = renderInventoryItem(item, {
+      ctxOverrides: {
+        textures: [
+          { id: "minecraft:potion", readable: "Potion", texture: "/potion.png" }
+        ] as any
+      }
+    });
+
+    await waitFor(() => {
+      const overlays = container.querySelectorAll(".color-overlay");
+      expect(overlays.length).toBe(1);
+      expect(overlays[0]).toHaveStyle("background-color: rgb(12,34,56)");
+    });
+  });
+
+  it("should render tipped arrow overlay when resolver marks item as tipped arrow", async () => {
+    mockResolverRef.current = {
+      ...mockResolverRef.current,
+      isTippedArrow: () => true,
+      getPotionColor: () => [1, 2, 3]
+    };
+    const item = createItem({ slot: 4, id: "minecraft:tipped_arrow", count: 1, snbt: "{foo:1b}" });
+    const { container } = renderInventoryItem(item, {
+      ctxOverrides: {
+        textures: [
+          { id: "minecraft:tipped_arrow", readable: "Tipped Arrow", texture: "/tipped-arrow.png" }
+        ] as any
+      }
+    });
+
+    await waitFor(() => {
+      const overlays = container.querySelectorAll(".color-overlay");
+      expect(overlays.length).toBe(1);
+      expect(overlays[0]).toHaveStyle("background-color: rgb(1,2,3)");
+    });
+  });
+
+  it("should render leather armor overlay when resolver has dyed armor color", async () => {
+    mockResolverRef.current = {
+      ...mockResolverRef.current,
+      isDyedLeatherArmor: () => true,
+      getDyedColor: () => [45, 67, 89]
+    };
+    const item = createItem({ slot: 4, id: "minecraft:leather_helmet", count: 1, snbt: "{foo:1b}" });
+    const { container } = renderInventoryItem(item, {
+      ctxOverrides: {
+        textures: [
+          { id: "minecraft:leather_helmet", readable: "Leather Helmet", texture: "/leather-helmet.png" }
+        ] as any
+      }
+    });
+
+    await waitFor(() => {
+      const overlays = container.querySelectorAll(".color-overlay");
+      expect(overlays.length).toBe(1);
+      expect(overlays[0]).toHaveStyle("background-color: rgb(45,67,89)");
+    });
+  });
+
+  it("should render hover tag details from nbt resolver comprehensively", async () => {
+    mockResolverRef.current = Object.assign(new MockComponentsResolver(7), {
+      getItemModel: () => null,
+      shouldGlint: () => true,
+      isPotion: () => false,
+      isTippedArrow: () => false,
+      isDyedLeatherArmor: () => false,
+      getPotionColor: () => null,
+      getDyedColor: () => null,
+      hasCustomName: () => true,
+      hasEnchantments: () => true,
+      getName: () => "My Custom Item",
+      getEnchantments: () => new Map([["minecraft:sharpness", 5], ["minecraft:unbreaking", 3]]),
+      getLore: () => ["First lore line", "Second lore line"],
+      isUnbreakable: () => true,
+      getMapId: () => 123
+    });
+    const item = createItem({ slot: 4, id: "minecraft:diamond_sword", count: 1, snbt: "{foo:1b}" });
+    const { itemElem, container } = renderInventoryItem(item);
+
+    fireEvent.mouseEnter(itemElem, { clientX: 10, clientY: 20 });
+
+    await waitFor(() => {
+      expect(screen.getByText("My Custom Item")).toBeInTheDocument();
+    });
+
+    expect(container.querySelector(".italic")).toBeInTheDocument();
+    expect(container.querySelector(".cc-b")).toBeInTheDocument();
+    expect(screen.getByText("First lore line")).toBeInTheDocument();
+    expect(screen.getByText("Second lore line")).toBeInTheDocument();
+    expect(screen.getByText("[item.unbreakable]")).toBeInTheDocument();
+    expect(screen.getByText("[filled_map.id]")).toBeInTheDocument();
+    expect(screen.getByText("minecraft:diamond_sword")).toBeInTheDocument();
+    expect(screen.getByText("[players.inventory.item-tag.components](7)")).toBeInTheDocument();
+
+    fireEvent.mouseLeave(itemElem);
+    await waitFor(() => {
+      const hoveredTag = container.querySelector(".fixed");
+      expect(hoveredTag).not.toHaveClass("flex");
+    });
   });
 });

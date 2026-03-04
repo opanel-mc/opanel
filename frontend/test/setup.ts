@@ -9,15 +9,12 @@ vi.mock("next/font/local", () => ({
   })
 }));
 
-vi.mock("@/lib/i18n", async () => {
-  const actual = await vi.importActual("@/lib/i18n");
-  return {
-    ...actual,
-    $: (id: string, ...args: unknown[]) => `[${id}]${args.length > 0 ? `(${args.join(",")})` : ""}`,
-    localize: (id: string) => `[${id}]`,
-    localizeRich: (id: string, ...args: unknown[]) => `[${id}]${args.length > 0 ? `(${args.join(",")})` : ""}`,
-  };
-});
+vi.mock("@/lib/i18n", () => ({
+  $: (id: string, ...args: unknown[]) => `[${id}]${args.length > 0 ? `(${args.join(",")})` : ""}`,
+  $mc: (id: string) => `[${id}]`,
+  localize: (id: string) => `[${id}]`,
+  localizeRich: (id: string, ...args: unknown[]) => `[${id}]${args.length > 0 ? `(${args.join(",")})` : ""}`,
+}));
 
 vi.mock("sonner", () => ({
   toast: {
