@@ -126,12 +126,13 @@ public class PluginsController extends BaseController {
             return;
         }
 
-        for(OPanelPlugin plugin : server.getPlugins()) {
-            if(fileName.equals(plugin.getFileName()) && plugin.isLoaded()) {
-                sendResponse(ctx, HttpStatus.FORBIDDEN, "Cannot disable a loaded plugin.");
-                return;
-            }
-        }
+//        for(OPanelPlugin plugin : server.getPlugins()) {
+//            if(fileName.equals(plugin.getFileName()) && plugin.isLoaded()) {
+//
+//                sendResponse(ctx, HttpStatus.FORBIDDEN, "Cannot disable a loaded plugin.");
+//                return;
+//            }
+//        }
 
         try {
             server.togglePlugin(fileName, enabled.equals("1"));

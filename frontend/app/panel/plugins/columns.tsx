@@ -79,7 +79,7 @@ export const enabledPluginColumns: ColumnDef<Plugin>[] = [
       const fileName = base64ToString(rawFileName);
       return (
         <div className="flex justify-end [&>*]:h-4 [&>*]:cursor-pointer [&>*]:hover:!bg-transparent">
-          {!loaded && (
+          {loaded && (
             <Button
               variant="ghost"
               size="icon"

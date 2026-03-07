@@ -6,19 +6,25 @@ import net.opanel.common.OPanelServer;
 import net.opanel.common.ServerType;
 import net.opanel.utils.Utils;
 import org.bukkit.*;
+import org.bukkit.command.Command;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.help.HelpTopic;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.*;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.net.URLClassLoader;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public abstract class BaseBukkitServer implements OPanelServer {
@@ -212,30 +218,47 @@ public abstract class BaseBukkitServer implements OPanelServer {
     public void togglePlugin(String fileName, boolean enabled) throws IOException {
         Path pluginsPath = getPluginsPath();
         Path originalPath = pluginsPath.resolve(fileName);
-        if(!Files.exists(originalPath)) {
+        if (!Files.exists(originalPath)) {
             throw new NoSuchFileException("Plugin file not found: " + fileName);
         }
 
-        final boolean isActuallyDisabled = fileName.endsWith(OPanelPlugin.DISABLED_SUFFIX);
+        runner.runTask(() -> {
+            try {
+                final boolean isActuallyDisabled = fileName.endsWith(OPanelPlugin.DISABLED_SUFFIX);
 
-        if(isActuallyDisabled && enabled) {
-            // Rename from .jar.disabled to .jar
-            Path newPath = pluginsPath.resolve(fileName.replaceAll("\\"+ OPanelPlugin.DISABLED_SUFFIX +"$", ""));
-            Files.move(originalPath, newPath);
-        } else if(!isActuallyDisabled && !enabled) {
-            for(Plugin p : server.getPluginManager().getPlugins()) {
-                String itemName = URLDecoder.decode(p.getClass().getProtectionDomain().getCodeSource().getLocation().getPath(), StandardCharsets.UTF_8);
-                // Extract just the filename
-                itemName = itemName.substring(itemName.lastIndexOf('/') + 1);
-                if(fileName.equals(itemName)) {
-                    throw new IllegalStateException("Cannot disable a loaded plugin.");
+                if (isActuallyDisabled && enabled) {
+                    String newFileName = fileName.substring(0, fileName.length() - OPanelPlugin.DISABLED_SUFFIX.length());
+                    Path newPath = pluginsPath.resolve(newFileName);
+
+                    Files.move(originalPath, newPath);
+
+                    performLoad(newPath);
                 }
-            }
 
-            // Rename from .jar to .jar.disabled
-            Path newPath = pluginsPath.resolve(fileName + OPanelPlugin.DISABLED_SUFFIX);
-            Files.move(originalPath, newPath);
-        }
+                else if (!isActuallyDisabled && !enabled) {
+                    Plugin target = null;
+                    for (Plugin p : server.getPluginManager().getPlugins()) {
+                        String itemName = URLDecoder.decode(p.getClass().getProtectionDomain().getCodeSource().getLocation().getPath(), StandardCharsets.UTF_8);
+                        itemName = itemName.substring(itemName.lastIndexOf('/') + 1);
+                        if (fileName.equals(itemName)) {
+                            target = p;
+                            break;
+                        }
+                    }
+
+                    if (target != null) {
+                        performFullUnload(target);
+                    }
+
+                    Path newPath = pluginsPath.resolve(fileName + OPanelPlugin.DISABLED_SUFFIX);
+                    Files.move(originalPath, newPath);
+
+                    syncCommands();
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("Toggle plugin failed due to I/O: " + fileName + ". " + e.getMessage());
+            }
+        });
     }
 
     @Override
@@ -253,6 +276,91 @@ public abstract class BaseBukkitServer implements OPanelServer {
         }
         
         Files.delete(filePath);
+    }
+
+    private void performFullUnload(Plugin target) {
+        String name = target.getName();
+        PluginManager pm = server.getPluginManager();
+
+        // disable the plugin
+        if (target.isEnabled()) {
+            pm.disablePlugin(target);
+        }
+
+        try {
+            // remove the plugin
+            Field pluginsField = pm.getClass().getDeclaredField("plugins");
+            pluginsField.setAccessible(true);
+            List<Plugin> plugins = (List<Plugin>) pluginsField.get(pm);
+
+            Field lookupNamesField = pm.getClass().getDeclaredField("lookupNames");
+            lookupNamesField.setAccessible(true);
+            Map<String, Plugin> lookupNames = (Map<String, Plugin>) lookupNamesField.get(pm);
+
+            synchronized (pm) {
+                plugins.remove(target);
+                lookupNames.remove(name.toLowerCase());
+            }
+
+            // clean the map
+            Field commandMapField = pm.getClass().getDeclaredField("commandMap");
+            commandMapField.setAccessible(true);
+            SimpleCommandMap commandMap = (SimpleCommandMap) commandMapField.get(pm);
+
+            Field knownCommandsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
+            knownCommandsField.setAccessible(true);
+            Map<String, Command> knownCommands = (Map<String, Command>) knownCommandsField.get(commandMap);
+
+            synchronized (commandMap) {
+                Iterator<Map.Entry<String, Command>> it = knownCommands.entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry<String, Command> entry = it.next();
+                    if (entry.getValue() instanceof PluginCommand) {
+                        PluginCommand pc = (PluginCommand) entry.getValue();
+                        if (pc.getPlugin().equals(target)) {
+                            pc.unregister(commandMap);
+                            it.remove();
+                        }
+                    }
+                }
+            }
+
+            // release the plugin file
+            ClassLoader cl = target.getClass().getClassLoader();
+            if (cl instanceof URLClassLoader) {
+                ((URLClassLoader) cl).close();
+            }
+
+            System.gc();
+
+        } catch (Exception e) {
+            throw new RuntimeException("An error occurred when disabling the plugin " + name + ": " + e.getMessage());
+        }
+    }
+
+    private void performLoad(Path pluginPath) {
+        try {
+            Plugin target = server.getPluginManager().loadPlugin(pluginPath.toFile());
+
+            if (target != null) {
+                server.getPluginManager().enablePlugin(target);
+
+                syncCommands();
+            }
+        } catch (InvalidPluginException | InvalidDescriptionException | UnknownDependencyException e) {
+            server.getLogger().severe("Failed to load the plugin " + pluginPath.getFileName() + ": " + e.getMessage());
+        }
+    }
+
+    private void syncCommands() {
+        // Minecraft 1.13+
+        try {
+            java.lang.reflect.Method syncMethod = server.getClass().getDeclaredMethod("syncCommands");
+            syncMethod.setAccessible(true);
+            syncMethod.invoke(server);
+        } catch (Exception ignored) {
+            //
+        }
     }
 }
 
