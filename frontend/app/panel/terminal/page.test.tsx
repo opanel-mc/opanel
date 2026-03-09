@@ -143,7 +143,7 @@ describe("test terminal page", () => {
     expect(screen.getByRole("button", { name: "say three" })).toBeInTheDocument();
   });
 
-  it("should execute command from history list by double click", async () => {
+  it("should focus input and fill command from history on click, then execute on double click", async () => {
     settingsRef.current = createTerminalSettingsState({
       history: ["say from history"],
       shortcuts: [{ name: "Set Day", command: "time set day" }]
@@ -151,10 +151,14 @@ describe("test terminal page", () => {
     render(<Terminal />);
 
     const historyButton = screen.getByRole("button", { name: "say from history" });
+    const input = screen.getByTestId("terminal-input") as HTMLInputElement;
+    input.blur();
+
     fireEvent.click(historyButton);
 
-    const input = screen.getByTestId("terminal-input") as HTMLInputElement;
     expect(input.value).toBe("say from history");
+    expect(input).toHaveFocus();
+    expect(wsRef.current?.client.send).not.toHaveBeenCalledWith("command", "say from history");
 
     fireEvent.doubleClick(historyButton);
     await waitFor(() => {
@@ -172,11 +176,22 @@ describe("test terminal page", () => {
     expect(wsRef.current?.client.send).not.toHaveBeenCalledWith("command", expect.any(String));
   });
 
-  it("should create and execute command shortcuts", async () => {
+  it("should create shortcut and execute it only on double click", async () => {
     render(<Terminal />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Set Day" }));
-    expect(wsRef.current?.client.send).toHaveBeenCalledWith("command", "time set day");
+    const input = screen.getByTestId("terminal-input") as HTMLInputElement;
+    const setDayButton = screen.getByRole("button", { name: "Set Day" });
+    input.blur();
+    fireEvent.click(setDayButton);
+
+    expect(input.value).toBe("time set day");
+    expect(input).toHaveFocus();
+    expect(wsRef.current?.client.send).not.toHaveBeenCalledWith("command", "time set day");
+
+    fireEvent.doubleClick(setDayButton);
+    await waitFor(() => {
+      expect(wsRef.current?.client.send).toHaveBeenCalledWith("command", "time set day");
+    });
 
     fireEvent.click(screen.getByRole("button", { name: "create-shortcut" }));
     expect(screen.getByRole("button", { name: "Hello Shortcut" })).toBeInTheDocument();
@@ -188,8 +203,19 @@ describe("test terminal page", () => {
       ])
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Hello Shortcut" }));
-    expect(wsRef.current?.client.send).toHaveBeenCalledWith("command", "say hello");
+    const helloShortcutButton = screen.getByRole("button", { name: "Hello Shortcut" });
+    input.blur();
+    fireEvent.click(helloShortcutButton);
+
+    expect(input.value).toBe("say hello");
+    expect(input).toHaveFocus();
+    expect(wsRef.current?.client.send).not.toHaveBeenCalledWith("command", "say hello");
+
+    fireEvent.doubleClick(helloShortcutButton);
+    await waitFor(() => {
+      expect(wsRef.current?.client.send).toHaveBeenCalledWith("command", "say hello");
+    });
+
     expect(changeSettingsSpy).toHaveBeenCalledWith(
       "state.terminal.history",
       expect.arrayContaining(["say hello"])

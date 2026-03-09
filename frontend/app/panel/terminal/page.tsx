@@ -108,13 +108,6 @@ export default function Terminal() {
     setFullscreen(!!document.fullscreenElement);
   };
 
-  const handleShortcutAction = (shortcut: CommandShortcut) => {
-    if(!client) return;
-
-    client.send("command", shortcut.command);
-    setHistoryList((current) => [...current, shortcut.command]);
-  };
-
   const handleRemoveShortcut = (index: number) => {
     const original = getSettings("terminal.shortcuts");
     if(index < 0 || index >= original.length) return;
@@ -163,7 +156,12 @@ export default function Terminal() {
                 variant="outline"
                 size="xs"
                 disabled={editingShortcuts}
-                onClick={() => handleShortcutAction(shortcut)}>
+                onClick={() => {
+                  if(!inputRef.current) return;
+                  inputRef.current.value = shortcut.command;
+                  inputRef.current.focus();
+                }}
+                onDoubleClick={() => handleSend()}>
                 {shortcut.name}
               </Button>
               {editingShortcuts && (
@@ -258,7 +256,9 @@ export default function Terminal() {
               size="sm"
               className={cn("block px-2 py-0 rounded-xs text-left text-nowrap text-ellipsis overflow-hidden cursor-pointer", googleSansCode.className)}
               onClick={() => {
-                if(inputRef.current) inputRef.current.value = command;
+                if(!inputRef.current) return;
+                inputRef.current.value = command;
+                inputRef.current.focus();
               }}
               onDoubleClick={() => handleSend()}
               key={i}>
