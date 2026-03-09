@@ -230,6 +230,7 @@ export default function Plugins() {
                 )),
               ]}
               pagination
+              paginationQueryKey="page"
               fallbackMessage={$("plugins.empty")}/>
           </TabsContent>
           <TabsContent value="disabled-list">

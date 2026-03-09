@@ -87,6 +87,7 @@ export default function Logs() {
           })()
         }
         pagination
+        paginationQueryKey="page"
         fallbackMessage={$("logs.empty")}
         className="overflow-y-auto"/>
     </SubPage>

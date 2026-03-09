@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   type ColumnDef,
   flexRender,
@@ -26,19 +27,25 @@ export function DataTable<D, V>({
   columns,
   data,
   pagination = false,
+  paginationQueryKey,
   fallbackMessage = $("table.empty"),
   className
 }: {
   columns: ColumnDef<D, V>[]
   data: D[]
   pagination?: boolean
+  paginationQueryKey?: string
   fallbackMessage?: string
   className?: string
 }) {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
   const [paginationState, setPaginationState] = useState({ pageIndex: 0, pageSize: 10 });
   const table = useReactTable({
     columns,
     data,
+    autoResetPageIndex: !(pagination && paginationQueryKey),
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: pagination ? getPaginationRowModel() : undefined,
     onPaginationChange: setPaginationState,
@@ -46,6 +53,43 @@ export function DataTable<D, V>({
       pagination: paginationState
     }
   });
+
+  const updateQueryPage = (pageIndex: number) => {
+    if(!pagination || !paginationQueryKey) return;
+
+    const nextPage = String(pageIndex + 1);
+    if(searchParams.get(paginationQueryKey) === nextPage) return;
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set(paginationQueryKey, nextPage);
+    const queryString = params.toString();
+
+    replace(queryString ? `${pathname}?${queryString}` : pathname, { scroll: false });
+  };
+
+  const setPageWithQuery = (pageIndex: number) => {
+    if(pageIndex === table.getState().pagination.pageIndex) return;
+
+    table.setPageIndex(pageIndex);
+    updateQueryPage(pageIndex);
+  };
+
+  useEffect(() => {
+    if(!pagination || !paginationQueryKey) return;
+
+    const rawPage = searchParams.get(paginationQueryKey);
+    const maxPageIndex = Math.max(Math.ceil(data.length / paginationState.pageSize) - 1, 0);
+    const page = Number(rawPage);
+    const targetPageIndex =
+      rawPage && Number.isInteger(page) && page >= 1 && page - 1 <= maxPageIndex
+      ? page - 1
+      : 0;
+
+    setPaginationState((prev) => {
+      if(prev.pageIndex === targetPageIndex) return prev;
+      return { ...prev, pageIndex: targetPageIndex };
+    });
+  }, [data.length, pagination, paginationQueryKey, paginationState.pageSize, searchParams]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -103,21 +147,21 @@ export function DataTable<D, V>({
               variant="outline"
               size="icon"
               title={$("table.to-first")}
-              onClick={() => table.firstPage()}
+              onClick={() => setPageWithQuery(0)}
               disabled={!table.getCanPreviousPage()}>
               <ChevronsLeft />
             </Button>
             <ButtonGroup>
               <Button
                 variant="outline"
-                onClick={() => table.previousPage()}
+                onClick={() => setPageWithQuery(Math.max(table.getState().pagination.pageIndex - 1, 0))}
                 disabled={!table.getCanPreviousPage()}>
                 <ChevronLeft />
                 {$("table.previous")}
               </Button>
               <Button
                 variant="outline"
-                onClick={() => table.nextPage()}
+                onClick={() => setPageWithQuery(Math.min(table.getState().pagination.pageIndex + 1, Math.max(table.getPageCount() - 1, 0)))}
                 disabled={!table.getCanNextPage()}>
                 {$("table.next")}
                 <ChevronRight />
@@ -127,7 +171,7 @@ export function DataTable<D, V>({
               variant="outline"
               size="icon"
               title={$("table.to-last")}
-              onClick={() => table.lastPage()}
+              onClick={() => setPageWithQuery(Math.max(table.getPageCount() - 1, 0))}
               disabled={!table.getCanNextPage()}>
               <ChevronsRight />
             </Button>
