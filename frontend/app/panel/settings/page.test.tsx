@@ -35,6 +35,7 @@ vi.mock("../sub-page", () => ({
 }));
 
 vi.mock("@/lib/api", () => ({
+  apiUrl: "",
   sendDeleteRequest: vi.fn()
 }));
 
