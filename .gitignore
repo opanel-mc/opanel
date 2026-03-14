@@ -40,3 +40,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+.sisyphus/plans/inventory-adaptation-only.md
+.sisyphus/plans/inventory-layout-ender-fix.md
+.sisyphus/plans/remove-nbt-tag-editor.md

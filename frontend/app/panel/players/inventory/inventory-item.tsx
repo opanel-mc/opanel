@@ -51,11 +51,13 @@ function getLeatherOverlay(id: string): string | null {
 export function InventoryItem({
   itemStack,
   held = false,
+  readonly = false,
   className,
   ref
 }: {
   itemStack: ItemStack
   held?: boolean
+  readonly?: boolean
   className?: string
   ref?: RefObject<HTMLDivElement | null>
 }) {
@@ -87,7 +89,7 @@ export function InventoryItem({
   const hoveredItemTagRef = useRef<HTMLDivElement | null>(null);
 
   const handleLeftClick = () => {
-    if(held || !ctx || nbtEditMode) return;
+    if(held || readonly || !ctx || nbtEditMode) return;
 
     if(!currentlyHeldItem) { // pick up the item
       setCurrentlyHeldItem(itemStack);
@@ -120,7 +122,7 @@ export function InventoryItem({
 
   const handleRightClick = (e: MouseEvent) => {
     e.preventDefault();
-    if(held || !ctx || nbtEditMode) return;
+    if(held || readonly || !ctx || nbtEditMode) return;
 
     if(!currentlyHeldItem && isFromExplorer(itemStack)) { // pick up 64 from explorer
       setCurrentlyHeldItem({ ...itemStack, count: 64 });
@@ -154,7 +156,7 @@ export function InventoryItem({
   const handleAuxClick = (e: MouseEvent) => {
     e.preventDefault();
     if(e.button !== 1) return;
-    if(held || !ctx || nbtEditMode) return;
+    if(held || readonly || !ctx || nbtEditMode) return;
 
     if(!isFromExplorer(itemStack)) {
       setCurrentlyHeldItem({ ...itemStack, count: 64 });
@@ -208,6 +210,7 @@ export function InventoryItem({
       className={cn(
         "relative h-[48px] max-md:h-[36px] aspect-square p-1 hover:bg-muted select-none image-pixelated",
         held && "pointer-events-none",
+        readonly && "pointer-events-none",
         (nbtEditMode && !isFromExplorer(itemStack)) && "cursor-pointer",
         className
       )}
@@ -349,7 +352,7 @@ export function InventoryItem({
   return (
     <ItemDialog
       itemStack={itemStack}
-      disabled={!nbtEditMode}
+      disabled={!nbtEditMode || readonly}
       asChild>
       {itemComponent}
     </ItemDialog>

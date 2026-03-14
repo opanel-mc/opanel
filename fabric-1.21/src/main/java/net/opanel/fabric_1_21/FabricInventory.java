@@ -67,6 +67,54 @@ public class FabricInventory extends BaseFabricInventory {
     }
 
     @Override
+    public int getEnderSize() {
+        return player.getEnderChestInventory().size();
+    }
+
+    @Override
+    public List<OPanelItemStack> getEnderItems() {
+        var inventory = player.getEnderChestInventory();
+        int size = getEnderSize();
+        List<OPanelItemStack> items = new ArrayList<>(size);
+
+        for(int i = 0; i < size; i++) {
+            ItemStack stack = inventory.getStack(i);
+            if(stack.isEmpty()) {
+                items.add(new OPanelItemStack(i, "minecraft:air", 0, null, "ender"));
+                continue;
+            }
+
+            final String id = itemToId(stack.getItem());
+            DataResult<NbtElement> encodeResult = ItemStack.CODEC.encodeStart(serializationContext, stack);
+            NbtCompound nbt = (NbtCompound) encodeResult.result().orElse(new NbtCompound());
+            NbtCompound components = nbt.getCompound("components");
+            items.add(new OPanelItemStack(
+                    i,
+                    id,
+                    stack.getCount(),
+                    components.isEmpty() ? null : components.toString(),
+                    "ender"
+            ));
+        }
+        return items;
+    }
+
+    @Override
+    public void setEnderItem(OPanelItemStack item) throws CommandSyntaxException {
+        player.getEnderChestInventory().setStack(item.slot, toItemStack(item));
+    }
+
+    @Override
+    public boolean canReadEnderChest() {
+        return true;
+    }
+
+    @Override
+    public boolean canWriteEnderChest() {
+        return true;
+    }
+
+    @Override
     protected ItemStack toItemStack(OPanelItemStack item) throws CommandSyntaxException {
         if(item == null || item.isEmpty()) return ItemStack.EMPTY;
 

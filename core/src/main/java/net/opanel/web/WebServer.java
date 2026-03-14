@@ -54,16 +54,19 @@ public class WebServer {
                 cors.add(it -> {
                     it.path = "/api/*";
                     it.allowHost("http://localhost:3001"); // for dev
+                    it.allowHost("http://127.0.0.1:3001"); // for dev
                     it.allowCredentials = true;
                 });
                 cors.add(it -> {
                     it.path = "/assets/*";
                     it.allowHost("http://localhost:3001"); // for dev
+                    it.allowHost("http://127.0.0.1:3001"); // for dev
                     it.allowCredentials = true;
                 });
                 cors.add(it -> {
                     it.path = "/file/*";
                     it.allowHost("http://localhost:3001"); // for dev
+                    it.allowHost("http://127.0.0.1:3001"); // for dev
                     it.allowCredentials = true;
                 });
             });
@@ -107,6 +110,8 @@ public class WebServer {
         TasksController tasksController = new TasksController(plugin);
         McpController mcpController = new McpController(plugin);
         OpenAPIController openAPIController = new OpenAPIController(plugin);
+        BackupProvidersController backupProvidersController = new BackupProvidersController(plugin);
+        SaveBackupsController saveBackupsController = new SaveBackupsController(plugin);
 
         // API Routes
         app.before("/*", beforeController.beforeAll);
@@ -189,7 +194,19 @@ public class WebServer {
                 post("{saveName}", savesController.editSave);
                 patch("{saveName}", savesController.toggleSaveDatapack);
                 delete("{saveName}", savesController.deleteSave);
+                get("{saveName}/backups", saveBackupsController.getBackups);
+                post("{saveName}/backups", saveBackupsController.createBackup);
+                get("{saveName}/backups/{backupId}", saveBackupsController.getBackup);
+                post("{saveName}/backups/{backupId}/restore", saveBackupsController.restoreBackup);
+                delete("{saveName}/backups/{backupId}", saveBackupsController.deleteBackup);
             });
+            path("backup", () -> path("providers", () -> {
+                get("/", backupProvidersController.getProviders);
+                post("/", backupProvidersController.createProvider);
+                post("/{id}", backupProvidersController.editProvider);
+                delete("/{id}", backupProvidersController.deleteProvider);
+                post("/{id}/test", backupProvidersController.testProvider);
+            }));
             path("plugins", () -> {
                 get("/", pluginsController.getPlugins);
                 get("/icon/{fileName}", pluginsController.getPluginIcon);

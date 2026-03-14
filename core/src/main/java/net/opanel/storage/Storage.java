@@ -2,6 +2,8 @@ package net.opanel.storage;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import net.opanel.backup.BackupProviderList;
+import net.opanel.backup.BackupRecordList;
 import net.opanel.config.McpConfiguration;
 import net.opanel.config.OpenAPIConfiguration;
 import net.opanel.task.ScheduledTask;
@@ -32,6 +34,16 @@ public class Storage {
             "open-api.json",
             OpenAPIConfiguration.class,
             new OpenAPIConfiguration(false)
+        ));
+        registeredStorageFiles.put(StorageKey.CLOUD_BACKUP_PROVIDERS, new StorageFile<>(
+            "cloud-backup-providers.json",
+            BackupProviderList.class,
+            new BackupProviderList()
+        ));
+        registeredStorageFiles.put(StorageKey.CLOUD_BACKUP_RECORDS, new StorageFile<>(
+            "cloud-backup-records.json",
+            BackupRecordList.class,
+            new BackupRecordList()
         ));
     }
 

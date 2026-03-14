@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { toast } from "sonner";
 import { VersionContext } from "@/contexts/api-context";
@@ -32,11 +32,56 @@ vi.mock("../../sub-page", () => ({
   SubPage: ({ children }: { children: ReactNode }) => <div data-testid="sub-page">{children}</div>
 }));
 
-vi.mock("./inventory-content", () => ({
-  InventoryContent: ({ inventory }: { inventory: { hash: string } }) => (
-    <div data-testid="inventory-content">{inventory.hash}</div>
-  )
-}));
+vi.mock("./inventory-content", async () => {
+  const React = await vi.importActual("react") as {
+    useContext: (context: unknown) => {
+      addClickedWithHeldItem: (clickedItem: {
+        slot: number
+        id: string
+        count: number
+        snbt: string
+        container: "main" | "ender"
+      }, count: number) => void
+    }
+  };
+  const { InventoryContext } = await vi.importActual("@/contexts/inventory-context") as {
+    InventoryContext: unknown
+  };
+
+  return {
+    InventoryContent: ({ inventory }: { inventory: { hash: string } }) => {
+      const ctx = React.useContext(InventoryContext);
+
+      return (
+        <div data-testid="inventory-content">
+          <span>{inventory.hash}</span>
+          <button
+            data-testid="send-main-update"
+            onClick={() => ctx.addClickedWithHeldItem({
+              slot: 40,
+              id: "minecraft:shield",
+              count: 1,
+              snbt: "{main:1b}",
+              container: "main"
+            }, 1)}>
+            send-main-update
+          </button>
+          <button
+            data-testid="send-ender-update"
+            onClick={() => ctx.addClickedWithHeldItem({
+              slot: 3,
+              id: "minecraft:ender_pearl",
+              count: 2,
+              snbt: "{ender:1b}",
+              container: "ender"
+            }, 1)}>
+            send-ender-update
+          </button>
+        </div>
+      );
+    }
+  };
+});
 
 vi.mock("./item-explorer", () => ({
   ItemExplorer: () => <div data-testid="item-explorer"/>
@@ -165,6 +210,50 @@ describe("test inventory page", () => {
 
     expect(toast.error).toHaveBeenCalledWith("[players.inventory.ws.error.404]");
     expect(mockPush).toHaveBeenCalledWith("/panel/players");
+  });
+
+  it("should send main container updates for offhand slot interactions", async () => {
+    renderPage();
+
+    await waitFor(() => {
+      expect(mockClient?.client.subscribe).toHaveBeenCalled();
+    });
+
+    act(() => {
+      mockClient?.emit("init", createInventory({ hash: "init-hash" }));
+    });
+
+    fireEvent.click(await screen.findByTestId("send-main-update"));
+
+    expect(mockClient?.client.send).toHaveBeenCalledWith("update", {
+      slot: 40,
+      id: "minecraft:shield",
+      count: 2,
+      snbt: "{main:1b}",
+      container: "main"
+    });
+  });
+
+  it("should send ender container updates for ender chest interactions", async () => {
+    renderPage();
+
+    await waitFor(() => {
+      expect(mockClient?.client.subscribe).toHaveBeenCalled();
+    });
+
+    act(() => {
+      mockClient?.emit("init", createInventory({ hash: "init-hash" }));
+    });
+
+    fireEvent.click(await screen.findByTestId("send-ender-update"));
+
+    expect(mockClient?.client.send).toHaveBeenCalledWith("update", {
+      slot: 3,
+      id: "minecraft:ender_pearl",
+      count: 3,
+      snbt: "{ender:1b}",
+      container: "ender"
+    });
   });
 
   it("should send fetch on refresh-data and clean listener on unmount", async () => {

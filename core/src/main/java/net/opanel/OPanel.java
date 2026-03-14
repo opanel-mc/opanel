@@ -3,6 +3,7 @@ package net.opanel;
 import net.opanel.common.Constants;
 import net.opanel.config.ConfigManager;
 import net.opanel.config.OPanelConfiguration;
+import net.opanel.backup.BackupService;
 import net.opanel.event.OPanelPlayerInventoryChangeEvent;
 import net.opanel.task.ScheduledTaskManager;
 import net.opanel.terminal.LogListenerManager;
@@ -153,6 +154,11 @@ public class OPanel {
     }
 
     public void stop() {
+        BackupService backupService = BackupService.getIfPresent();
+        if(backupService != null) {
+            backupService.shutdown();
+        }
+
         if(scheduledTaskManager != null) {
             scheduledTaskManager.shutdown();
         }

@@ -9,7 +9,9 @@ import { createItem, createMockInventoryContextValue } from "@/test/inventory-he
 import { AIR, InventoryItem } from "./inventory-item";
 
 vi.mock("./item-dialog", () => ({
-  ItemDialog: ({ children }: { children: ReactNode }) => <>{children}</>
+  ItemDialog: ({ children, disabled }: { children: ReactNode, disabled?: boolean }) => (
+    <div data-testid="item-dialog" data-disabled={disabled ? "true" : "false"}>{children}</div>
+  )
 }));
 
 const { MockComponentsResolver, mockResolverRef } = vi.hoisted(() => {
@@ -40,6 +42,7 @@ vi.mock("@/lib/nbt/components-resolver", () => ({
 
 function renderInventoryItem(itemStack: ItemStack, options?: {
   held?: boolean,
+  readonly?: boolean,
   ctxOverrides?: Partial<ReturnType<typeof createMockInventoryContextValue>>
 }) {
   const ctx = createMockInventoryContextValue(options?.ctxOverrides);
@@ -48,7 +51,8 @@ function renderInventoryItem(itemStack: ItemStack, options?: {
       <InventoryContext.Provider value={ctx}>
         <InventoryItem
           itemStack={itemStack}
-          held={options?.held}/>
+          held={options?.held}
+          readonly={options?.readonly}/>
       </InventoryContext.Provider>
     </VersionContext.Provider>
   );
@@ -312,6 +316,48 @@ describe("test inventory item", () => {
     expect(ctx.swapClickedWithHeldItem).not.toHaveBeenCalled();
     expect(ctx.addClickedWithHeldItem).not.toHaveBeenCalled();
     expect(ctx.halfClickedItem).not.toHaveBeenCalled();
+  });
+
+  it("should do nothing when item is readonly", () => {
+    const item = createItem({ slot: 3, id: "minecraft:ender_pearl", count: 8, container: "ender" });
+    const setCurrentlyHeldItem = vi.fn();
+    const { itemElem, ctx } = renderInventoryItem(item, {
+      readonly: true,
+      ctxOverrides: {
+        setCurrentlyHeldItem
+      }
+    });
+
+    fireEvent.click(itemElem);
+    fireEvent.contextMenu(itemElem);
+    fireMiddleClick(itemElem);
+
+    expect(setCurrentlyHeldItem).not.toHaveBeenCalled();
+    expect(ctx.removeClickedItem).not.toHaveBeenCalled();
+    expect(ctx.swapClickedWithHeldItem).not.toHaveBeenCalled();
+    expect(ctx.addClickedWithHeldItem).not.toHaveBeenCalled();
+    expect(ctx.halfClickedItem).not.toHaveBeenCalled();
+  });
+
+  it("should keep item dialog disabled outside editable mode", () => {
+    const item = createItem({ slot: 4, id: "minecraft:stone", count: 8, snbt: "{foo:1b}" });
+
+    renderInventoryItem(item);
+
+    expect(screen.getByTestId("item-dialog")).toHaveAttribute("data-disabled", "true");
+  });
+
+  it("should keep item dialog disabled for readonly ender items", () => {
+    const item = createItem({ slot: 3, id: "minecraft:ender_pearl", count: 8, snbt: "{foo:1b}", container: "ender" });
+
+    renderInventoryItem(item, {
+      readonly: true,
+      ctxOverrides: {
+        nbtEditMode: true
+      }
+    });
+
+    expect(screen.getByTestId("item-dialog")).toHaveAttribute("data-disabled", "true");
   });
 
   it("should render glint overlay when resolver says it should glint", async () => {

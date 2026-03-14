@@ -145,8 +145,8 @@ export function SaveCard({
               variant="ghost"
               size="icon"
               title={$("saves.list.item.datapacks")}>
-              <Package />
-            </Button>
+                <Package />
+              </Button>
           </DatapacksDialog>
           <Alert
             title={$("saves.list.item.delete.alert.title", name)}

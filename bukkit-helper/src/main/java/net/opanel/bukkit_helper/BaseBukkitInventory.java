@@ -35,6 +35,11 @@ public abstract class BaseBukkitInventory implements OPanelInventory {
     }
 
     @Override
+    public int getEnderSize() {
+        return player.getEnderChest().getSize();
+    }
+
+    @Override
     public List<OPanelItemStack> getItems() {
         Inventory inventory = player.getInventory();
         int size = getSize();
@@ -53,6 +58,31 @@ public abstract class BaseBukkitInventory implements OPanelInventory {
                 stack.getType().getKey().toString(),
                 stack.getAmount(),
                 components == null ? null : components.toString()
+            ));
+        }
+        return items;
+    }
+
+    @Override
+    public List<OPanelItemStack> getEnderItems() {
+        Inventory inventory = player.getEnderChest();
+        int size = getEnderSize();
+        List<OPanelItemStack> items = new ArrayList<>(size);
+
+        for(int i = 0; i < size; i++) {
+            ItemStack stack = inventory.getItem(i);
+            if(stack == null || stack.getType() == Material.AIR) {
+                items.add(new OPanelItemStack(i, "minecraft:air", 0, null, "ender"));
+                continue;
+            }
+
+            ReadWriteNBT components = NBT.itemStackToNBT(stack).getCompound(KEY_OF_NBT);
+            items.add(new OPanelItemStack(
+                    i,
+                    stack.getType().getKey().toString(),
+                    stack.getAmount(),
+                    components == null ? null : components.toString(),
+                    "ender"
             ));
         }
         return items;
@@ -83,6 +113,27 @@ public abstract class BaseBukkitInventory implements OPanelInventory {
                 //
             }
         });
+    }
+
+    @Override
+    public void setEnderItem(OPanelItemStack item) throws NbtApiException {
+        runner.runTask(() -> {
+            try {
+                player.getEnderChest().setItem(item.slot, toItemStack(item));
+            } catch (NbtApiException e) {
+                //
+            }
+        });
+    }
+
+    @Override
+    public boolean canReadEnderChest() {
+        return true;
+    }
+
+    @Override
+    public boolean canWriteEnderChest() {
+        return true;
     }
 
     protected ItemStack toItemStack(OPanelItemStack item) throws NbtApiException {

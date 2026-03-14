@@ -2,7 +2,7 @@
 
 import type { Save, SavesResponse } from "@/lib/types";
 import { useEffect, useState } from "react";
-import { Earth, Upload } from "lucide-react";
+import { Archive, Earth, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { SubPage } from "../sub-page";
 import { SaveCard } from "./save-card";
@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { $ } from "@/lib/i18n";
 import { Text } from "@/components/i18n-text";
+import { SaveBackupsDialog } from "./save-backups-dialog";
 
 export default function Saves() {
   const [saves, setSaves] = useState<Save[]>([]);
@@ -32,6 +33,7 @@ export default function Saves() {
   const [uploadName, setUploadName] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const defaultBackupSaveName = saves.find(save => save.isCurrent)?.name || saves[0]?.name || "";
 
   const fetchServerWorlds = async () => {
     try {
@@ -118,32 +120,43 @@ export default function Saves() {
         </div>
         <div className="flex justify-between items-end">
           <h2 className="text-lg font-semibold">{$("saves.list.title")}</h2>
-          <AlertDialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
-            <AlertDialogTrigger asChild>
-              <Button className="cursor-pointer">
-                <Upload />
-                {$("saves.list.upload")}
+          <div className="flex items-center gap-2">
+            <SaveBackupsDialog
+              saveNames={saves.map(save => save.name)}
+              defaultSaveName={defaultBackupSaveName}
+              asChild>
+              <Button variant="outline" className="cursor-pointer" disabled={saves.length === 0}>
+                <Archive />
+                {$("saves.list.item.backups")}
               </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>{$("saves.list.upload.title")}</AlertDialogTitle>
-                <AlertDialogDescription>{$("saves.list.upload.description")}</AlertDialogDescription>
-              </AlertDialogHeader>
-              <Label>{$("saves.list.upload.input.label")}</Label>
-              <Input
-                type="file"
-                accept=".zip"
-                onChange={(e) => {
-                  const fileList = (e.target as HTMLInputElement).files;
-                  fileList && handleUpload(fileList[0]);
-                  setUploadDialogOpen(false);
-                }}/>
-              <AlertDialogFooter>
-                <AlertDialogCancel>{$("dialog.close")}</AlertDialogCancel>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+            </SaveBackupsDialog>
+            <AlertDialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+              <AlertDialogTrigger asChild>
+                <Button className="cursor-pointer">
+                  <Upload />
+                  {$("saves.list.upload")}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{$("saves.list.upload.title")}</AlertDialogTitle>
+                  <AlertDialogDescription>{$("saves.list.upload.description")}</AlertDialogDescription>
+                </AlertDialogHeader>
+                <Label>{$("saves.list.upload.input.label")}</Label>
+                <Input
+                  type="file"
+                  accept=".zip"
+                  onChange={(e) => {
+                    const fileList = (e.target as HTMLInputElement).files;
+                    fileList && handleUpload(fileList[0]);
+                    setUploadDialogOpen(false);
+                  }}/>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{$("dialog.close")}</AlertDialogCancel>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
         <div className="pt-2 grid grid-cols-3 max-xl:grid-cols-2 max-lg:flex flex-col gap-4">
           {saves.map((save, i) => <SaveCard save={save} key={i}/>)}

@@ -36,6 +36,26 @@ public class InventoryEndpoint extends BaseEndpoint {
         super(app, ws, plugin);
     }
 
+    private HashMap<String, Object> serializeInventory(OPanelPlayer player, OPanelInventory inventory) {
+        HashMap<String, Object> data = inventory.serialize();
+
+        boolean canReadEnderChest = inventory.canReadEnderChest();
+        boolean canWriteEnderChest = inventory.canWriteEnderChest();
+
+        if(!canReadEnderChest) {
+            data.put("enderSize", 0);
+            data.put("enderHash", null);
+            data.put("enderItems", Collections.emptyList());
+        }
+
+        HashMap<String, Object> capabilities = new HashMap<>();
+        capabilities.put("readEnderChest", canReadEnderChest);
+        capabilities.put("writeEnderChest", canWriteEnderChest);
+        data.put("capabilities", capabilities);
+
+        return data;
+    }
+
     @Override
     public void onConnect(WsContext ctx) {
         final String uuid = ctx.pathParam("uuid");
@@ -56,10 +76,15 @@ public class InventoryEndpoint extends BaseEndpoint {
         sessions.add(ctx.session);
 
         // Send initial inventory data
-        ctx.send(new InventoryPacket<>(InventoryPacket.INIT, player.getInventory().serialize()));
+        ctx.send(new InventoryPacket<>(InventoryPacket.INIT, serializeInventory(player, player.getInventory())));
 
         subscribe(ctx.session, InventoryPacket.FETCH, msgCtx -> {
-            msgCtx.send(new InventoryPacket<>(InventoryPacket.INIT, player.getInventory().serialize()));
+            OPanelPlayer currentPlayer = server.getPlayer(uuid);
+            if(currentPlayer == null) {
+                sendErrorMessage(msgCtx, HttpStatus.NOT_FOUND);
+                return;
+            }
+            msgCtx.send(new InventoryPacket<>(InventoryPacket.INIT, serializeInventory(currentPlayer, currentPlayer.getInventory())));
         });
 
         subscribe(ctx.session, InventoryPacket.UPDATE, OPanelInventory.OPanelItemStack.class, (msgCtx, item) -> {
@@ -75,15 +100,44 @@ public class InventoryEndpoint extends BaseEndpoint {
             }
 
             OPanelInventory currentInventory = currentPlayer.getInventory();
+            String container = item.container == null ? "main" : item.container;
+            if(!container.equals("main") && !container.equals("ender")) {
+                sendErrorMessage(msgCtx, HttpStatus.BAD_REQUEST);
+                return;
+            }
+            OPanelInventory.OPanelItemStack targetItem = new OPanelInventory.OPanelItemStack(item.slot, item.id, item.count, item.snbt, container);
+
             try {
-                currentInventory.setItem(item);
+                if(container.equals("ender")) {
+                    if(!currentInventory.canWriteEnderChest()) {
+                        sendErrorMessage(msgCtx, HttpStatus.FORBIDDEN);
+                        return;
+                    }
+                    if(item.slot < 0 || item.slot >= currentInventory.getEnderSize()) {
+                        sendErrorMessage(msgCtx, HttpStatus.BAD_REQUEST);
+                        return;
+                    }
+                    currentInventory.setEnderItem(targetItem);
+                } else {
+                    currentInventory.setItem(targetItem);
+                }
             } catch (Exception e) {
-                //
+                sendErrorMessage(msgCtx, HttpStatus.BAD_REQUEST);
+                return;
             }
 
-            HashMap<String, Object> updatedData = currentInventory.serialize();
+            HashMap<String, Object> updatedData = serializeInventory(currentPlayer, currentInventory);
             if(updatedData != null) {
-                broadcast(new InventoryPacket<>(InventoryPacket.UPDATE, updatedData));
+                Set<Session> listenedSessions = sessionsMap.get(uuid);
+                if(listenedSessions != null) {
+                    for(Session session : listenedSessions) {
+                        if(!session.isOpen()) {
+                            listenedSessions.remove(session);
+                            continue;
+                        }
+                        sendMessage(session, new InventoryPacket<>(InventoryPacket.UPDATE, updatedData));
+                    }
+                }
             }
         });
 
@@ -92,7 +146,7 @@ public class InventoryEndpoint extends BaseEndpoint {
                 final String targetUuid = event.getPlayer().getUUID();
                 if(!sessionsMap.containsKey(targetUuid)) return;
 
-                HashMap<String, Object> data = event.getInventory().serialize();
+                HashMap<String, Object> data = serializeInventory(event.getPlayer(), event.getInventory());
                 Set<Session> listenedSessions = sessionsMap.get(targetUuid);
                 for(Session session : listenedSessions) {
                     if(!session.isOpen()) {

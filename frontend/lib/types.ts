@@ -64,6 +64,7 @@ export interface ItemStack {
    * - `slot === -1`: Item stack from item explorer
    */
   slot: number
+  container?: "main" | "ender"
   id: string
   count: number
   snbt?: string
@@ -73,6 +74,13 @@ export interface PlayerInventory {
   size: number
   hash: string
   items: ItemStack[]
+  enderSize?: number
+  enderHash?: string | null
+  enderItems?: ItemStack[]
+  capabilities?: {
+    readEnderChest: boolean
+    writeEnderChest: boolean
+  }
 }
 
 export type Whitelist = {
@@ -99,6 +107,48 @@ export interface ScheduledTask {
   cron: string
   commands: string[]
   enabled: boolean
+}
+
+export type BackupProviderType = "S3" | "WEBDAV";
+export type BackupStatus = "RUNNING" | "SUCCESS" | "FAILED";
+
+export interface BackupProviderS3Config {
+  endpoint: string
+  region: string
+  bucket: string
+  accessKey: string
+  secretKey: string
+  prefix: string
+  forcePathStyle: boolean
+}
+
+export interface BackupProviderWebDavConfig {
+  baseUrl: string
+  username: string
+  password: string
+  rootPath: string
+}
+
+export interface BackupProviderConfig {
+  id: string
+  name: string
+  type: BackupProviderType
+  s3: BackupProviderS3Config
+  webdav: BackupProviderWebDavConfig
+}
+
+export interface BackupRecord {
+  id: string
+  saveName: string
+  providerId: string
+  providerName: string
+  remoteKey: string
+  createdAt: number
+  updatedAt: number
+  sizeBytes: number
+  sha256: string
+  status: BackupStatus
+  error: string
 }
 
 export type EditorRefType = Parameters<OnMount>[0];
@@ -235,6 +285,23 @@ export interface TasksResponse {
 /** `/api/tasks/{id}` */
 export interface CreateTaskResponse {
   taskId: string
+}
+
+export interface BackupProvidersResponse {
+  providers: BackupProviderConfig[]
+}
+
+export interface SaveBackupsResponse {
+  backups: BackupRecord[]
+}
+
+export interface SaveBackupResponse {
+  backup: BackupRecord
+}
+
+export interface CreateSaveBackupResponse {
+  backupId: string
+  status: BackupStatus
 }
 
 /** `https://api.github.com/repos/opanel-mc/opanel/releases` */

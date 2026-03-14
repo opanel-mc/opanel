@@ -65,24 +65,36 @@ export default function Inventory() {
 
   const swapClickedWithHeldItem = (clickedItem: ItemStack) => {
     setCurrentlyHeldItem(clickedItem.id === AIR ? null : clickedItem);
-    client?.send("update", { ...currentlyHeldItem, slot: clickedItem.slot });
+    client?.send("update", {
+      ...currentlyHeldItem,
+      slot: clickedItem.slot,
+      container: clickedItem.container ?? "main"
+    });
   };
 
   const addClickedWithHeldItem = (clickedItem: ItemStack, count: number) => {
     minusHeldItemCount(count);
-    client?.send("update", { ...clickedItem, count: clickedItem.count + count });
+    client?.send("update", {
+      ...clickedItem,
+      count: clickedItem.count + count,
+      container: clickedItem.container ?? "main"
+    });
   };
 
-  const removeClickedItem = ({ slot }: ItemStack) => {
-    client?.send("update", { id: AIR, count: 0, slot, snbt: null });
+  const removeClickedItem = ({ slot, container }: ItemStack) => {
+    client?.send("update", { id: AIR, count: 0, slot, snbt: null, container: container ?? "main" });
   };
 
   const halfClickedItem = (clickedItem: ItemStack) => {
-    client?.send("update", { ...clickedItem, count: Math.floor(clickedItem.count / 2) });
+    client?.send("update", {
+      ...clickedItem,
+      count: Math.floor(clickedItem.count / 2),
+      container: clickedItem.container ?? "main"
+    });
   };
 
   const updateItemNBT = (item: ItemStack, snbt: string) => {
-    client?.send("update", { ...item, snbt });
+    client?.send("update", { ...item, snbt, container: item.container ?? "main" });
   };
 
   useEffect(() => {
@@ -100,6 +112,9 @@ export default function Inventory() {
       switch(err) {
         case 400:
           toast.error($("players.inventory.ws.error.400"));
+          break;
+        case 403:
+          toast.error($("players.inventory.ws.error.403"));
           break;
         case 404:
           toast.error($("players.inventory.ws.error.404"));

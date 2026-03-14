@@ -5,7 +5,8 @@ const nextConfig: NextConfig = {
   output: "export",
   trailingSlash: true,
   skipTrailingSlashRedirect: true,
-  reactStrictMode: false
+  reactStrictMode: false,
+  allowedDevOrigins: ["127.0.0.1"]
 };
 
 export default nextConfig;

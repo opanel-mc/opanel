@@ -2,15 +2,20 @@ import type { APIResponse } from "./types";
 import axios, { type AxiosError } from "axios";
 import { toast } from "sonner";
 
+function getDevHost() {
+  if(typeof window === "undefined") return "localhost";
+  return window.location.hostname || "localhost";
+}
+
 export const apiUrl = (
   (process.env.NODE_ENV === "development")
-  ? `http://localhost:3000` // dev
+  ? `http://${getDevHost()}:3000` // dev
   : "" // prod
 );
 
 export const wsUrl = (
   (process.env.NODE_ENV === "development" || !globalThis["window"])
-  ? `ws://localhost:3000` // dev
+  ? `ws://${getDevHost()}:3000` // dev
   : `${window.location.protocol === "http:" ? "ws" : "wss"}://${window.location.host}` // prod
 );
 
