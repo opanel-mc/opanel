@@ -8,10 +8,16 @@ pluginManagement {
             name = 'Neoforge'
             url = 'https://maven.neoforged.net/releases'
         }
+        maven {
+            name = "ipn-mod"
+            url = "https://maven.ipn-mod.org/releases/"
+        }
         mavenCentral()
         gradlePluginPortal()
     }
 }
+
+
 
 plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '0.9.0'

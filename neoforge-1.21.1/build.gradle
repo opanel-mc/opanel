@@ -3,6 +3,7 @@ plugins {
     id 'idea'
     id 'com.gradleup.shadow' version '8.3.8'
     id 'net.neoforged.gradle.userdev' version '7.0.192'
+    id "org.ipnmod.neosync"
 }
 
 configurations {
