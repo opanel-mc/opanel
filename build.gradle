@@ -1,9 +1,6 @@
 plugins {
-    /**
-     * This plugin is workaround for https://github.com/neoforged/NeoGradle/issues/282
-     * It needs to be added to all neoforge projects too.
-     */
-    id 'org.ipnmod.neosync' version '1.1.0'
+    /* This plugin is workaround for https://github.com/neoforged/NeoGradle/issues/282 */
+    id 'org.ipnmod.neosync' version '1.2.0'
     id 'fabric-loom' version '1.13-SNAPSHOT' apply false
     id 'java'
 }
