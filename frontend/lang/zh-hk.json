@@ -467,7 +467,7 @@
   "tasks.form.cron.simple.hours": "時",
   "tasks.form.cron.simple.days": "日",
   "tasks.form.cron.simple.months": "月",
-  "tasks.form.cron.simple.weekdays": "每禮拜",
+  "tasks.form.cron.simple.weekdays": "禮拜",
   "tasks.form.cron.simple.weekdays.every": "每禮拜",
   "tasks.form.cron.simple.weekdays.mon": "禮拜一",
   "tasks.form.cron.simple.weekdays.tue": "禮拜二",
