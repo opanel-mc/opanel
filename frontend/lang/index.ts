@@ -12,7 +12,6 @@ export const languages: Record<string, Translations> = {
   "zh-cn": { ...zhCN, ...minecraftZhCN },
   "zh-tw": { ...zhTW, ...minecraftZhTW },
   "zh-hk": { ...zhHK, ...minecraftZhHK },
-  //@ts-expect-error The missing keys in minecraftEnUS won't be used
   "en-us": { ...enUS, ...minecraftEnUS },
 };
 
