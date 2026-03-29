@@ -66,16 +66,32 @@ export default function Dashboard() {
       title={$("dashboard.title")}
       category={$("sidebar.server")}
       icon={<Gauge />}
-      className="flex-1 min-h-0 max-xl-h:min-h-[600px] grid grid-rows-5 grid-cols-3 max-xl:grid-rows-subgrid max-xl:grid-cols-2 max-lg:flex flex-col gap-2 [&>*]:p-4">
+      className="flex-1 min-h-0 h-full max-xl-h:min-h-[600px] flex max-xl:flex-col gap-2">
       <InfoContext.Provider value={info}>
         <MonitorContext.Provider value={monitorData}>
-          <InfoCard className="row-start-1 col-span-2"/>
-          <TimeCard className="row-start-5"/>
-          <PlayersCard className="row-span-3 row-start-2"/>
-          <MonitorCard className="row-span-3 row-start-2"/>
-          <TPSCard className="row-start-5"/>
-          <SystemCard className="row-span-2 max-xl:row-start-9 max-xl:col-span-2"/>
-          <TerminalCard className="row-start-3 row-span-3 max-xl:row-start-6 max-xl:col-span-2"/>
+          {/* Left side */}
+          <div className="flex-2 flex flex-col gap-2">
+            {/* Upper */}
+            <InfoCard className="row-start-1 col-span-2"/>
+
+            {/* Center */}
+            <div className="flex-1 flex max-lg:flex-col gap-2 *:flex-1">
+              <PlayersCard className="row-span-3"/>
+              <MonitorCard className="row-span-3"/>
+            </div>
+
+            {/* Lower */}
+            <div className="min-lg:h-36 flex max-lg:flex-col gap-2 *:flex-1">
+              <TimeCard />
+              <TPSCard />
+            </div>
+          </div>
+
+          {/* Right side */}
+          <div className="flex-1 min-w-0 flex flex-col gap-2">
+            <SystemCard className=""/>
+            <TerminalCard className="flex-1"/>
+          </div>
         </MonitorContext.Provider>
       </InfoContext.Provider>
     </SubPage>

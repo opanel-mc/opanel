@@ -148,7 +148,7 @@ export function InfoCard({
   const warningState = monitorCtx[monitorCtx.length - 1].cpu >= 80 || monitorCtx[monitorCtx.length - 1].tps <= 16;
 
   return (
-    <Card className={cn(className, "flex flex-col rounded-sm shadow-none min-xl:p-0! min-xl:overflow-hidden max-lg:gap-3")}>
+    <Card className={cn(className, "p-0 max-lg:p-4 flex flex-col rounded-sm shadow-none min-lg:min-h-36 min-lg:max-h-36 min-xl:overflow-hidden max-lg:gap-3")}>
       <div className="min-lg:flex-1 flex max-md:flex-col gap-6 max-lg:border-b max-lg:pb-3">
         <div className="aspect-square max-md:aspect-auto relative group/favicon">
           <img
@@ -166,7 +166,7 @@ export function InfoCard({
           </FaviconDialog>
         </div>
         
-        <div className="min-xl:p-4 min-xl:pl-0 flex-1 flex flex-col gap-2">
+        <div className="p-4 pl-0 flex-1 flex flex-col gap-2">
           <div className="flex max-lg:flex-col gap-4 max-lg:gap-1 [&>*]:space-x-2 [&>*]:whitespace-nowrap">
             <div>
               <span className="font-semibold text-nowrap">{$("dashboard.info.version")}</span>
@@ -189,7 +189,7 @@ export function InfoCard({
             {ctx && <MinecraftText maxLines={2} maxCharPerLine={45}>{"§7"+ base64ToString(ctx.motd)}</MinecraftText>}
           </div>
         </div>
-        <div className="min-xl:p-4 flex flex-col justify-between">
+        <div className="p-4 flex flex-col justify-between">
           <Badge
             variant="outline"
             title={warningState ? $("dashboard.info.status.warning.title") : ""}
