@@ -66,6 +66,7 @@ export default function Dashboard() {
       title={$("dashboard.title")}
       category={$("sidebar.server")}
       icon={<Gauge />}
+      pageClassName="min-2xl:px-[5%]"
       className="flex-1 min-h-0 h-full max-xl-h:min-h-[600px] flex max-xl:flex-col gap-2">
       <InfoContext.Provider value={info}>
         <MonitorContext.Provider value={monitorData}>
