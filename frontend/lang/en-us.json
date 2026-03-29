@@ -15,6 +15,7 @@
   "common.copy.success": "Copied",
   "common.copy.error": "Copy failed",
   "common.controls.restart": "Restarting the server...",
+  "common.controls.restart.error": "Failed to restart the server",
   "common.controls.stop": "Stopping the server...",
 
   "restart-alert.title": "Restart required to apply changes",
@@ -572,6 +573,7 @@
   "settings.server.launch-command.fetch.error": "Failed to get launch command",
   "settings.server.launch-command.save.success": "Launch command saved",
   "settings.server.launch-command.save.error": "Failed to save launch command",
+  "settings.server.launch-command.required": "Please set the launch command before restarting the server",
   "settings.system.language": "Language",
   "settings.system.mcp": "MCP Server",
   "settings.system.mcp.description": "Configure the MCP server so LLMs can get access to OPanel",

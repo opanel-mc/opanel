@@ -35,7 +35,7 @@ public class Storage {
         ));
         registeredStorageFiles.put(StorageKey.LAUNCH_COMMAND, new StorageFile<>(
             "launch-command.txt",
-            "java -jar server.jar nogui"
+            ""
         ));
     }
 

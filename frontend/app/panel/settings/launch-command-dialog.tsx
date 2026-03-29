@@ -21,12 +21,15 @@ const MonacoEditor = dynamic(() => import("@/components/monaco-editor"), { ssr: 
 
 export function LaunchCommandDialog({
   children,
-  asChild
+  asChild,
+  open,
+  onOpenChange
 }: PropsWithChildren & {
   asChild?: boolean
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }) {
   const { theme } = useTheme();
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [launchCommand, setLaunchCommand] = useState("");
 
   const fetchLaunchCommand = async () => {
@@ -45,7 +48,7 @@ export function LaunchCommandDialog({
     try {
       await sendPostRequest("/api/control/launch-command", launchCommand);
       toast.success($("settings.server.launch-command.save.success"));
-      setDialogOpen(false);
+      onOpenChange(false);
     } catch (e: any) {
       toastError(e, $("settings.server.launch-command.save.error"), [
         [400, $("common.error.400")],
@@ -56,13 +59,13 @@ export function LaunchCommandDialog({
   };
 
   useEffect(() => {
-    if(!dialogOpen) return;
+    if(!open) return;
 
     fetchLaunchCommand();
-  }, [dialogOpen]);
+  }, [open]);
 
   return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild={asChild}>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>

@@ -15,6 +15,7 @@
   "common.copy.success": "コピー成功",
   "common.copy.error": "コピーに失敗しました",
   "common.controls.restart": "サーバーを再起動しています...",
+  "common.controls.restart.error": "サーバーの再起動に失敗しました",
   "common.controls.stop": "サーバーを停止しています...",
 
   "restart-alert.title": "変更を有効にするにはサーバーを再起動する必要があります",
@@ -572,6 +573,7 @@
   "settings.server.launch-command.fetch.error": "起動コマンドの取得に失敗しました",
   "settings.server.launch-command.save.success": "起動コマンドの保存に成功しました",
   "settings.server.launch-command.save.error": "起動コマンドの保存に失敗しました",
+  "settings.server.launch-command.required": "サーバーを再起動する前に起動コマンドを設定してください",
   "settings.system.language": "言語",
   "settings.system.mcp": "MCPサーバー",
   "settings.system.mcp.description": "MCPサーバーを配置して、大規模モデルによるOPanelの操作を実現する",

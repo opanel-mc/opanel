@@ -4,6 +4,8 @@ import type { ConsoleLogLevel } from "@/lib/ws/terminal";
 import type { PropsWithChildren } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Settings as SettingsIcon } from "lucide-react";
 import { changeSettings, getSettings, resetSettings, type SettingsStorageType } from "@/lib/settings";
 import { SubPage } from "../sub-page";
@@ -66,12 +68,26 @@ export default function Settings() {
   const currentTab = (SETTINGS_TAB_VALUES as readonly string[]).includes(tabFromUrl ?? "")
     ? (tabFromUrl as (typeof SETTINGS_TAB_VALUES)[number])
     : "dashboard";
+  const [openLaunchCommand, setOpenLaunchCommand] = useState(false);
 
   const setTab = (value: string) => {
     const next = new URLSearchParams(searchParams.toString());
     next.set("tab", value);
     replace(`${pathname}?${next.toString()}`);
   };
+
+  useEffect(() => {
+    if(searchParams.has("openLaunchCommand")) {
+      setOpenLaunchCommand(true);
+      setTab("server");
+      toast.warning($("settings.server.launch-command.required"));
+      
+      const next = new URLSearchParams(searchParams.toString());
+      next.delete("openLaunchCommand");
+      replace(`${pathname}?${next.toString()}`);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <SubPage
@@ -258,7 +274,10 @@ export default function Settings() {
               name={$("settings.server.launch-command")}
               description={$("settings.server.launch-command.description")}
               control={
-                <LaunchCommandDialog asChild>
+                <LaunchCommandDialog
+                  asChild
+                  open={openLaunchCommand}
+                  onOpenChange={setOpenLaunchCommand}>
                   <Button className="cursor-pointer" size="sm">{$("settings.server.launch-command.modify")}</Button>
                 </LaunchCommandDialog>
               }/>

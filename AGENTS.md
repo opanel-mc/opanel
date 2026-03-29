@@ -66,7 +66,8 @@ OPanel
 │  └─ style/                               # 全局样式与主题样式
 │
 ├─ bukkit-helper/                          # Bukkit/Spigot/Paper/Folia 公共实现
-├─ fabric-helper/                          # Fabric 公共实现
+├─ fabric-helper/                          # Fabric 公共实现（1.21.11及以下）
+├─ fabric-helper-unmapped/                 # Fabric 公共实现（26.1及以上）
 ├─ forge-helper/                           # Forge 公共实现
 ├─ spigot-<mc_version>/                    # Bukkit 版本实现（注意：由于Bukkit模块依赖的是spigot的包，所以模块名称写spigot）
 ├─ folia-<mc_version>/                     # Folia 版本实现

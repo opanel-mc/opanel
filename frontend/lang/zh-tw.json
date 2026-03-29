@@ -15,6 +15,7 @@
   "common.copy.success": "拷貝成功",
   "common.copy.error": "拷貝失敗",
   "common.controls.restart": "正在重啓伺服器...",
+  "common.controls.restart.error": "重新啟動伺服器失敗",
   "common.controls.stop": "正在停止伺服器…",
 
   "restart-alert.title": "需要重啓伺服器先至改動生效",
@@ -572,6 +573,7 @@
   "settings.server.launch-command.fetch.error": "取得啟動命令失敗",
   "settings.server.launch-command.save.success": "啟動命令儲存成功",
   "settings.server.launch-command.save.error": "儲存啟動命令失敗",
+  "settings.server.launch-command.required": "請先設定啟動命令後再嘗試重新啟動伺服器",
   "settings.system.language": "語言",
   "settings.system.mcp": "MCP伺服器",
   "settings.system.mcp.description": "配置MCP伺服器，以便大語言模型操作OPanel",

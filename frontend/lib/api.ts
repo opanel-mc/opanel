@@ -135,9 +135,17 @@ export async function logout(): Promise<boolean> {
   }
 }
 
-export function restartServer() {
-  sendPostRequest("/api/control/restart");
-  toast.loading($("common.controls.restart"));
+export async function restartServer() {
+  try {
+    await sendPostRequest("/api/control/restart");
+    toast.loading($("common.controls.restart"));
+  } catch (e: any) {
+    if(e.status === 406) {
+      window.location.href = "/panel/settings?tab=server&openLaunchCommand";
+      return;
+    }
+    toast.error($("common.controls.restart.error"));
+  }
 }
 
 export function stopServer() {
