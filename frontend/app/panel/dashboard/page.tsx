@@ -76,7 +76,7 @@ export default function Dashboard() {
             <InfoCard className="row-start-1 col-span-2"/>
 
             {/* Center */}
-            <div className="flex-1 flex max-lg:flex-col gap-2 *:flex-1">
+            <div className="flex-1 min-h-0 flex max-lg:flex-col gap-2 *:flex-1">
               <PlayersCard className="row-span-3"/>
               <MonitorCard className="row-span-3"/>
             </div>
