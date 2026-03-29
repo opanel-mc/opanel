@@ -185,7 +185,7 @@ export function InfoCard({
               <span className={cn("text-emerald-500", googleSansCode.className)}>{ctx ? ctx.port : ""}</span>
             </div>
           </div>
-          <div className="h-fit text-sm">
+          <div className="h-fit text-sm *:leading-6">
             {ctx && <MinecraftText maxLines={2} maxCharPerLine={45}>{"§7"+ base64ToString(ctx.motd)}</MinecraftText>}
           </div>
         </div>
