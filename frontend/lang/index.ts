@@ -1,17 +1,20 @@
 import zhCN from "@/lang/zh-cn.json";
 import zhTW from "@/lang/zh-tw.json";
 import zhHK from "@/lang/zh-hk.json";
+import jaJP from "@/lang/ja-jp.json";
 import enUS from "@/lang/en-us.json";
 
 import minecraftZhCN from "@/assets/minecraft/zh_cn.json";
 import minecraftZhTW from "@/assets/minecraft/zh_tw.json";
 import minecraftZhHK from "@/assets/minecraft/zh_hk.json";
+import minecraftJaJP from "@/assets/minecraft/ja_jp.json";
 import minecraftEnUS from "@/assets/minecraft/en_us.json";
 
 export const languages: Record<string, Translations> = {
   "zh-cn": { ...zhCN, ...minecraftZhCN },
   "zh-tw": { ...zhTW, ...minecraftZhTW },
   "zh-hk": { ...zhHK, ...minecraftZhHK },
+  "ja-jp": { ...jaJP, ...minecraftJaJP },
   "en-us": { ...enUS, ...minecraftEnUS },
 };
 

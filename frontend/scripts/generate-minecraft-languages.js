@@ -11,6 +11,7 @@ const languagesToFetch = [
   "zh_cn",
   "zh_hk",
   "zh_tw",
+  "ja_jp",
 ];
 
 const argv = process.argv.slice(2);
