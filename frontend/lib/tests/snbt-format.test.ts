@@ -14,9 +14,9 @@ describe("prettyFormatNBT", () => {
   });
 
   it("should not add spaces to colons inside quoted keys", () => {
-    const snbt = "{'minecraft: lore':['line1','line2']}";
+    const snbt = "{'minecraft:lore':['line1','line2']}";
     expect(prettyFormatNBT(snbt)).toBe(`{
-  'minecraft: lore': [
+  'minecraft:lore': [
     'line1',
     'line2'
   ]
