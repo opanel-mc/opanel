@@ -3,11 +3,11 @@ import { prettyFormatNBT } from "../nbt/snbt-format";
 
 describe("prettyFormatNBT", () => {
   it("should keep string state correct after escaped quotes", () => {
-    const snbt = String.raw`{text:"\"","minecraft: enchantments":{"minecraft: sharpness":20}}`;
+    const snbt = String.raw`{text:"\"","minecraft:enchantments":{"minecraft:sharpness":20}}`;
     expect(prettyFormatNBT(snbt)).toBe(`{
   text: "\\\"",
-  "minecraft: enchantments": {
-    "minecraft: sharpness": 20
+  "minecraft:enchantments": {
+    "minecraft:sharpness": 20
   }
 }
 `);
