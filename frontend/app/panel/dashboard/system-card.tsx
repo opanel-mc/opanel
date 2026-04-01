@@ -122,7 +122,7 @@ export function SystemCard({
       <SystemInfoItem
         icon={Server}
         name="OS">
-        {ctx?.system.os ?? "-"}
+        Microsoft Windows XP
       </SystemInfoItem>
       <SystemInfoItem
         icon={Computer}
@@ -156,13 +156,13 @@ export function SystemCard({
         icon={Cpu}
         name={$("dashboard.system.item.core")}
         className="col-span-1! *:text-foreground">
-        {ctx?.system.cpuCore ?? "-"}
+        ∞
       </SystemInfoItem>
       <SystemInfoItem
         icon={MemoryStick}
         name={$("dashboard.system.item.memory")}
         className="ml-10 col-start-2 col-span-1! *:text-foreground">
-        {formatDataSize(ctx?.system.memory ?? 0)}
+        2.00 GB
       </SystemInfoItem>
     </FunctionalCard>
   );

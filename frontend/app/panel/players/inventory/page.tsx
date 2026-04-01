@@ -17,6 +17,7 @@ import { InventoryClient } from "@/lib/ws/inventory";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { emitter } from "@/lib/emitter";
 import { $ } from "@/lib/i18n";
+import { fakePlayers } from "../page";
 
 export default function Inventory() {
   const searchParams = useSearchParams();
@@ -86,6 +87,11 @@ export default function Inventory() {
   };
 
   useEffect(() => {
+    if(fakePlayers.map(({ uuid }) => uuid).includes(uuid!)) {
+      toast.info("April Fools!");
+      push("/panel/players");
+      return;
+    }
     if(!client) return;
 
     client.subscribe("init", (data: PlayerInventory) => {

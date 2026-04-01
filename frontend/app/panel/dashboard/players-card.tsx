@@ -21,6 +21,7 @@ import { googleSansCode } from "@/lib/fonts";
 import { $ } from "@/lib/i18n";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { PlayersClient } from "@/lib/ws/players";
+import { fakePlayers } from "../players/page";
 
 export function PlayersCard({
   className,
@@ -50,7 +51,7 @@ export function PlayersCard({
   return (
     <FunctionalCard
       icon={Users}
-      title={`${$("dashboard.players.title")} (${onlinePlayers.length} / ${ctx?.maxPlayerCount ?? 0})`}
+      title={`${$("dashboard.players.title")} (${fakePlayers.length + onlinePlayers.length} / ${ctx?.maxPlayerCount ?? 0})`}
       moreLink="/panel/players"
       className={cn(className, "max-xl:max-h-96")}
       innerClassName="mr-1 mb-2 px-4 o-scrollbar">
@@ -63,7 +64,7 @@ export function PlayersCard({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {onlinePlayers.map(({ name, uuid, gamemode, ping }, i) => (
+          {[...fakePlayers, ...onlinePlayers].map(({ name, uuid, gamemode, ping }, i) => (
             <TableRow key={i}>
               <TableCell className="font-semibold">
                 <Tooltip>

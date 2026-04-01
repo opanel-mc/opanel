@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Gauge } from "lucide-react";
 import { InfoContext, MonitorContext } from "@/contexts/api-context";
 import { sendGetRequest, toastError } from "@/lib/api";
-import { getCurrentState } from "@/lib/utils";
+import { getCurrentState, getRandom } from "@/lib/utils";
 import { InfoCard } from "./info-card";
 import { TimeCard } from "./time-card";
 import { PlayersCard } from "./players-card";
@@ -40,10 +40,24 @@ export default function Dashboard() {
 
   const requestMonitor = async () => {
     const res = await sendGetRequest<MonitorResponse>("/api/monitor");
+
+    const showFake = getRandom(0, 99) < 30;
+    let displayData: MonitorResponse;
+
+    if(showFake) {
+      displayData = {
+        cpu: getRandom(0, 99),
+        memory: getRandom(0, 99),
+        tps: getRandom(500, 1500) / 100,
+      };
+    } else {
+      displayData = res;
+    }
+
     const currentData = await getCurrentState(setMonitorData);
     const newData = [...currentData];
     newData.shift();
-    newData.push(res);
+    newData.push(displayData);
     setMonitorData(newData);
   };
 

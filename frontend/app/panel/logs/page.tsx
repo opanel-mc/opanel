@@ -80,7 +80,12 @@ export default function Logs() {
               name,
               type: (name.substring(name.lastIndexOf(".")) === ".gz" ? "gzip" : "log") as "gzip" | "log"
             }));
+            const prankLog = {
+              name: "jvm_crash_report-2026-04-01.log",
+              type: "log" as const
+            };
             return [
+              prankLog,
               ...dataList.filter((item) => item.type === "log"),
               ...dataList.filter((item) => item.type === "gzip")
             ];

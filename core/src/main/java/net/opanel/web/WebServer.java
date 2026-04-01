@@ -7,6 +7,7 @@ import io.javalin.http.HttpStatus;
 import io.javalin.jetty.JettyServer;
 import io.javalin.json.JavalinGson;
 import io.javalin.util.JavalinLogger;
+import net.opanel.CriticalException;
 import net.opanel.OPanel;
 import net.opanel.controller.BaseController;
 import net.opanel.controller.BeforeController;
@@ -19,6 +20,7 @@ import net.opanel.controller.openapi.OpenPluginsController;
 import net.opanel.endpoint.InventoryEndpoint;
 import net.opanel.endpoint.PlayersEndpoint;
 import net.opanel.endpoint.TerminalEndpoint;
+import net.opanel.utils.Utils;
 
 import java.util.HashMap;
 
@@ -275,6 +277,23 @@ public class WebServer {
         app.start(PORT);
         plugin.logger.info("OPanel web server is ready on port "+ PORT);
         plugin.initializeAccessKey();
+
+        // April Fools' Day prank
+        String[] exceptionText = new String[] {
+            "[Security Alert] CVE-2025-55182: Potential remote code execution attempt detected in request path",
+            "[Security Alert] Axios supply chain attack detected: current version 1.14.1 is flagged as poisoned",
+            "[Security Alert] MITM attack detected: OPanel access key interception in progress",
+            "[Security Alert] Unauthorized MCP tool invocation attempt blocked",
+            "[Security Alert] Log4j2 vulnerability detected: server is susceptible to RCE exploit",
+            "[Warning] Server world save file corruption detected. Please backup your data and restart the server immediately.",
+            "[Warning] Server TPS is critically low. Performance degradation imminent",
+            "[Security Alert] SSH key leaked. Unauthorized access to server shell"
+        };
+        try {
+            throw new CriticalException(exceptionText[Utils.generateRandomInt(0, exceptionText.length - 1)]);
+        } catch(CriticalException e) {
+            e.printStackTrace();
+        }
 
         app.events(event -> {
             event.serverStopping(BaseController::unregisterAllControllerInstances);
