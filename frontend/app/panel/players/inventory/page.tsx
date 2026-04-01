@@ -17,7 +17,7 @@ import { InventoryClient } from "@/lib/ws/inventory";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { emitter } from "@/lib/emitter";
 import { $ } from "@/lib/i18n";
-import { fakePlayers } from "../page";
+import { fakePlayers } from "../fake-players";
 
 export default function Inventory() {
   const searchParams = useSearchParams();

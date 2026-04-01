@@ -21,7 +21,7 @@ import { googleSansCode } from "@/lib/fonts";
 import { $ } from "@/lib/i18n";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { PlayersClient } from "@/lib/ws/players";
-import { fakePlayers } from "../players/page";
+import { fakePlayers } from "../players/fake-players";
 
 export function PlayersCard({
   className,
