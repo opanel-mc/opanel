@@ -96,7 +96,7 @@ public abstract class BaseController {
         instances.clear();
     }
 
-    public static String getClientIp(Context ctx) {
+    public String getClientIp(Context ctx) {
         String ip = getIpFromHeader(ctx, "X-Forwarded-For");
         if(ip != null) return ip;
 
@@ -109,7 +109,6 @@ public abstract class BaseController {
     private static String getIpFromHeader(Context ctx, String headerName) {
         String ip = ctx.header(headerName);
         if(ip != null && !ip.isEmpty()) {
-            // 处理 X-Forwarded-For 的多个 IP
             if("X-Forwarded-For".equalsIgnoreCase(headerName)) {
                 int commaIndex = ip.indexOf(',');
                 if (commaIndex != -1) {

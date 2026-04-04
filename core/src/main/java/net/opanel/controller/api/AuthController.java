@@ -1,9 +1,8 @@
 package net.opanel.controller.api;
 
-import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
-import jakarta.servlet.http.HttpServletRequest;
+
 import net.opanel.OPanel;
 import net.opanel.utils.Utils;
 import net.opanel.controller.BaseController;
@@ -12,8 +11,6 @@ import net.opanel.web.JwtManager;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-
-import static net.opanel.utils.Utils.getClientIp;
 
 public class AuthController extends BaseController {
     private final ConcurrentHashMap<String, String> cramMap = new ConcurrentHashMap<>();
