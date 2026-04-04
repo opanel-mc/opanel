@@ -30,23 +30,23 @@ public class AuthController extends BaseController {
             return;
         }
 
-        final String remoteHost = ctx.host();
-        if(remoteHost == null) {
-            sendResponse(ctx, HttpStatus.FORBIDDEN, "Host is missing in request header.");
+        final String reqIp = getClientIp(ctx);
+        if(reqIp.isBlank()) {
+            sendResponse(ctx, HttpStatus.FORBIDDEN, "Cannot determine client IP address.");
             return;
         }
-        if(System.currentTimeMillis() < temporaryBannedRecords.getOrDefault(remoteHost, 0L)) {
+        if(System.currentTimeMillis() < temporaryBannedRecords.getOrDefault(reqIp, 0L)) {
             sendResponse(ctx, HttpStatus.FORBIDDEN, "The Ip is banned temporarily.");
             return;
         }
-        if(failedRecords.getOrDefault(remoteHost, 0) >= maxTries) {
-            temporaryBannedRecords.put(remoteHost, System.currentTimeMillis() + bannedPeriod);
-            failedRecords.put(remoteHost, 0);
+        if(failedRecords.getOrDefault(reqIp, 0) >= maxTries) {
+            temporaryBannedRecords.put(reqIp, System.currentTimeMillis() + bannedPeriod);
+            failedRecords.put(reqIp, 0);
             sendResponse(ctx, HttpStatus.FORBIDDEN, "The Ip is banned temporarily.");
             return;
         }
-        if(temporaryBannedRecords.containsKey(remoteHost) && System.currentTimeMillis() >= temporaryBannedRecords.get(remoteHost)) {
-            temporaryBannedRecords.remove(remoteHost);
+        if(temporaryBannedRecords.containsKey(reqIp) && System.currentTimeMillis() >= temporaryBannedRecords.get(reqIp)) {
+            temporaryBannedRecords.remove(reqIp);
         }
 
         String cramRandomHex = Utils.generateRandomHex(16);
@@ -67,27 +67,27 @@ public class AuthController extends BaseController {
             return;
         }
 
-        final String remoteHost = ctx.host();
+        final String reqIp = getClientIp(ctx);
         final String challengeResult = reqBody.result; // hashed 3
         final String storedRealKey = plugin.getConfig().accessKey; // hashed 2
         final String realResult = Utils.md5(storedRealKey + cramMap.get(reqBody.id)); // hashed 3
         cramMap.remove(reqBody.id);
 
         if(challengeResult.equals(realResult)) {
-            failedRecords.remove(remoteHost);
+            failedRecords.remove(reqIp);
 
             String token = JwtManager.generateToken(storedRealKey, plugin.getConfig().salt);
             ctx.cookie(JwtManager.createCookie("token", token, (int) TimeUnit.DAYS.toSeconds(1), plugin.getConfig().cookieSecure));
             sendResponse(ctx, HttpStatus.OK);
         } else {
-            final int current = failedRecords.getOrDefault(remoteHost, 0);
-            failedRecords.put(remoteHost, current + 1);
+            final int current = failedRecords.getOrDefault(reqIp, 0);
+            failedRecords.put(reqIp, current + 1);
             if(current + 1 >= maxTries) {
-                temporaryBannedRecords.put(remoteHost, System.currentTimeMillis() + bannedPeriod);
-                failedRecords.put(remoteHost, 0);
+                temporaryBannedRecords.put(reqIp, System.currentTimeMillis() + bannedPeriod);
+                failedRecords.put(reqIp, 0);
             }
 
-            plugin.logger.warn("A failed login request from "+ remoteHost +" (Failed for "+ (current + 1) +" times)");
+            plugin.logger.warn("A failed login request from "+ reqIp +" (Failed for "+ (current + 1) +" times)");
             sendResponse(ctx, HttpStatus.UNAUTHORIZED);
         }
     };

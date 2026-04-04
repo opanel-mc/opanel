@@ -95,4 +95,32 @@ public abstract class BaseController {
     public static void unregisterAllControllerInstances() {
         instances.clear();
     }
+
+    public static String getClientIp(Context ctx) {
+        String ip = getIpFromHeader(ctx, "X-Forwarded-For");
+        if (ip != null) return ip;
+
+        ip = getIpFromHeader(ctx, "X-Real-IP");
+        if (ip != null) return ip;
+
+        return ctx.ip();
+    }
+
+    private static String getIpFromHeader(Context ctx, String headerName) {
+        String ip = ctx.header(headerName);
+        if (ip != null && !ip.isEmpty()) {
+            // 处理 X-Forwarded-For 的多个 IP
+            if ("X-Forwarded-For".equalsIgnoreCase(headerName)) {
+                int commaIndex = ip.indexOf(',');
+                if (commaIndex != -1) {
+                    ip = ip.substring(0, commaIndex);
+                }
+            }
+            ip = ip.trim();
+            if (!"unknown".equalsIgnoreCase(ip) && !"null".equalsIgnoreCase(ip) && !"-".equals(ip)) {
+                return ip;
+            }
+        }
+        return null;
+    }
 }
