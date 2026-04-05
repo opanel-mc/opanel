@@ -1,11 +1,14 @@
 package net.opanel.config;
 
+import java.util.List;
+
 public class OPanelConfiguration {
     public static final OPanelConfiguration defaultConfig = new OPanelConfiguration(
 //            "14e1b600b1fd579f47433b88e8d85291", // 123456 (hashed 2)
             "", // to be generated on the initial launch
             "", // to be generated on the initial launch
             3000,
+            false,
             false
     );
 
@@ -13,16 +16,19 @@ public class OPanelConfiguration {
     public String salt;
     public int webServerPort;
     public boolean cookieSecure;
+    public boolean proxyHeaders;
 
     public OPanelConfiguration(
             String accessKey,
             String salt,
             int webServerPort,
-            boolean cookieSecure
-    ) {
+            boolean cookieSecure,
+            boolean proxyHeaders
+                              ) {
         this.accessKey = accessKey;
         this.salt = salt;
         this.webServerPort = webServerPort;
         this.cookieSecure = cookieSecure;
+        this.proxyHeaders = proxyHeaders;
     }
 }

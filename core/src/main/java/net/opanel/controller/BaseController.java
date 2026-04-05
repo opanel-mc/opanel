@@ -97,12 +97,14 @@ public abstract class BaseController {
     }
 
     public String getClientIp(Context ctx) {
-        String ip = getIpFromHeader(ctx, "X-Forwarded-For");
-        if(ip != null) return ip;
+        boolean enable = plugin.getConfig().proxyHeaders;
+        if(enable) {
+            String ip = getIpFromHeader(ctx, "X-Forwarded-For");
+            if(ip != null) return ip;
 
-        ip = getIpFromHeader(ctx, "X-Real-IP");
-        if(ip != null) return ip;
-
+            ip = getIpFromHeader(ctx, "X-Real-IP");
+            if(ip != null) return ip;
+        }
         return ctx.ip();
     }
 
