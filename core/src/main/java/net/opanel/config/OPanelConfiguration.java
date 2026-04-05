@@ -1,7 +1,5 @@
 package net.opanel.config;
 
-import java.util.List;
-
 public class OPanelConfiguration {
     public static final OPanelConfiguration defaultConfig = new OPanelConfiguration(
 //            "14e1b600b1fd579f47433b88e8d85291", // 123456 (hashed 2)

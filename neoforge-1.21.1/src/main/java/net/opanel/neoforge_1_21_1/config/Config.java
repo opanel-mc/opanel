@@ -3,8 +3,6 @@ package net.opanel.neoforge_1_21_1.config;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import net.opanel.config.OPanelConfiguration;
 
-import java.util.List;
-
 public class Config {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 

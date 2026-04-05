@@ -112,12 +112,19 @@ public abstract class BaseController {
         String ip = ctx.header(headerName);
         if(ip != null && !ip.isEmpty()) {
             if("X-Forwarded-For".equalsIgnoreCase(headerName)) {
-                int commaIndex = ip.indexOf(',');
-                if (commaIndex != -1) {
-                    ip = ip.substring(0, commaIndex);
+                String[] ips = ip.split(",");
+                for(String part : ips) {
+                    String trimmed = part.trim();
+                    if(!trimmed.isEmpty() && !"unknown".equalsIgnoreCase(trimmed) && !"null".equalsIgnoreCase(trimmed) && !"-".equals(trimmed)) {
+                        return trimmed;
+                    }
                 }
+                return null;
             }
             ip = ip.trim();
+            if(ip.isEmpty()) {
+                return null;
+            }
             if(!"unknown".equalsIgnoreCase(ip) && !"null".equalsIgnoreCase(ip) && !"-".equals(ip)) {
                 return ip;
             }
