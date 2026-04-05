@@ -1,8 +1,5 @@
 package net.opanel.utils;
 
-import io.javalin.http.Context;
-import io.javalin.http.Cookie;
-import io.javalin.http.SameSite;
 import net.opanel.OPanel;
 
 import javax.imageio.ImageIO;
