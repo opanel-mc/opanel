@@ -67,7 +67,7 @@ export default function Dashboard() {
       category={$("sidebar.server")}
       icon={<Gauge />}
       pageClassName="min-2xl:px-[5%]"
-      className="flex-1 min-h-0 h-full max-xl-h:min-h-[600px] flex max-xl:flex-col gap-2">
+      className="flex-1 min-h-0 min-xl:h-full max-xl-h:min-h-[600px] flex max-xl:flex-col gap-2">
       <InfoContext.Provider value={info}>
         <MonitorContext.Provider value={monitorData}>
           {/* Left side */}
@@ -89,7 +89,7 @@ export default function Dashboard() {
           </div>
 
           {/* Right side */}
-          <div className="flex-1 min-w-0 min-h-0 flex flex-col gap-2 overflow-hidden">
+          <div className="flex-1 min-w-0 min-h-0 flex flex-col gap-2 min-xl:overflow-hidden">
             <SystemCard className=""/>
             <TerminalCard className="flex-1 min-h-0"/>
           </div>
