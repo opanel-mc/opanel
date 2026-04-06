@@ -67,4 +67,10 @@ describe("test dashboard page", () => {
     expect(rightColumn).toHaveClass("min-xl:overflow-hidden");
     expect(rightColumn).not.toHaveClass("overflow-hidden");
   });
+
+  it("should keep terminal card minimum height on small screens", () => {
+    render(<Dashboard />);
+
+    expect(screen.getByTestId("terminal-card")).toHaveClass("max-xl:min-h-96");
+  });
 });
