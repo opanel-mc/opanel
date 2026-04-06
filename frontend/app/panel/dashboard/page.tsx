@@ -90,8 +90,8 @@ export default function Dashboard() {
 
           {/* Right side */}
           <div className="flex-1 min-w-0 min-h-0 flex flex-col gap-2 min-xl:overflow-hidden">
-            <SystemCard className=""/>
-            <TerminalCard className="flex-1 min-h-0 max-xl:min-h-96"/>
+            <SystemCard />
+            <TerminalCard className="flex-1 min-h-0 max-xl:min-h-128"/>
           </div>
         </MonitorContext.Provider>
       </InfoContext.Provider>

@@ -23,7 +23,7 @@ export function TerminalCard({
       title={$("dashboard.terminal.title")}
       moreLink="/panel/terminal"
       className={className}
-      innerClassName="p-2 pt-0 h-full max-xl:h-96 flex flex-col gap-2 overflow-hidden">
+      innerClassName="p-2 pt-0 h-full max-xl:flex-1 flex flex-col gap-2 overflow-hidden">
       <TerminalViewer client={client} simple className="flex-1"/>
       <Input
         className="w-full rounded-sm cursor-pointer"
