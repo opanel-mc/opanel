@@ -55,8 +55,9 @@ describe("test dashboard page", () => {
     render(<Dashboard />);
 
     expect(screen.getByTestId("dashboard-sub-page")).toBeInTheDocument();
-    expect(subPagePropsRef.className).toContain("min-xl:h-full");
-    expect(subPagePropsRef.className).not.toContain(" h-full");
+    const classList = subPagePropsRef.className.split(" ").filter(Boolean);
+    expect(classList).toContain("min-xl:h-full");
+    expect(classList).not.toContain("h-full");
   });
 
   it("should only hide right-side overflow on xl and larger screens", () => {
