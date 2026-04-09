@@ -9,6 +9,7 @@ import { sendDeleteRequest, sendGetRequest, toastError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/alert";
 import { columns } from "./columns";
+import { sortLogs } from "./log-utils";
 import { SubPage } from "../sub-page";
 import { emitter } from "@/lib/emitter";
 import { $ } from "@/lib/i18n";
@@ -74,18 +75,7 @@ export default function Logs() {
       </div>
       <DataTable
         columns={columns}
-        data={
-          (() => {
-            const dataList = logs.map((name) => ({
-              name,
-              type: (name.substring(name.lastIndexOf(".")) === ".gz" ? "gzip" : "log") as "gzip" | "log"
-            }));
-            return [
-              ...dataList.filter((item) => item.type === "log"),
-              ...dataList.filter((item) => item.type === "gzip")
-            ];
-          })()
-        }
+        data={sortLogs(logs)}
         pagination
         paginationQueryKey="page"
         fallbackMessage={$("logs.empty")}
