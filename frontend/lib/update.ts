@@ -56,7 +56,7 @@ export async function doAutoUpdateCheck() {
       const { hasNewUpdate } = await checkUpdate();
       setUpdateCheckInfo({ lastChecked: now, hasNewUpdate });
     } catch (e) {
-      setUpdateCheckInfo({ lastChecked: now, ...currentInfo });
+      setUpdateCheckInfo({ lastChecked: now, hasNewUpdate: currentInfo.hasNewUpdate });
     }
   }
 }
