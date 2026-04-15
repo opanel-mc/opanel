@@ -19,7 +19,7 @@ dependencies {
     implementation "com.cozooo.dlc_manager:dlc-fileops-helper:1.0.1"
     compileOnly "net.fabricmc:fabric-loader:${common_fabric_loader_version}"
     compileOnly "net.fabricmc.fabric-api:fabric-api:${common_fabric_api_version}+${common_minecraft_version}"
-    compileOnly "space.nocp:configx:2.0.3"
+    compileOnly "space.nocp:configx:2.0.5"
     compileOnly(project(":core"))
 }
 
