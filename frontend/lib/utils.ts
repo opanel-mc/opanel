@@ -181,3 +181,10 @@ export async function copyToClipboard(text: string) {
     toast.error($("common.copy.error"));
   }
 }
+
+export function getLocalStorage() {
+  if(typeof window !== "undefined" && window.localStorage) {
+    return window.localStorage;
+  }
+  throw new Error("localStorage is not defined.");
+}

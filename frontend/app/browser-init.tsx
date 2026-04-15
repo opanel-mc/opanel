@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { getSettings } from "@/lib/settings";
 import { notoSansSC, notoSansTC, notoSansJP } from "@/lib/fonts";
+import { doAutoUpdateCheck } from "@/lib/update";
 
 export function BrowserInit() {
   useEffect(() => {
@@ -14,6 +15,8 @@ export function BrowserInit() {
       document.body.classList.remove(notoSansSC.className);
       document.body.classList.add(notoSansJP.className);
     }
+
+    doAutoUpdateCheck();
   }, []);
 
   return <></>;

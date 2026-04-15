@@ -7,17 +7,10 @@ import {
   SkinProvider,
   type EditorOptionsType
 } from "./types";
-import { isPreviewVersion } from "./utils";
+import { getLocalStorage, isPreviewVersion } from "./utils";
 import { version } from "./global";
 
 const storageKey = "opanel.settings";
-
-function getLocalStorage() {
-  if(typeof window !== "undefined" && window.localStorage) {
-    return window.localStorage;
-  }
-  throw new Error("localStorage is not defined.");
-}
 
 export type SettingsStorageType = {
   "dashboard.monitor-interval": number

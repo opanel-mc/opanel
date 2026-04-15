@@ -35,6 +35,7 @@ import { $ } from "@/lib/i18n";
 import { Text } from "@/components/i18n-text";
 import { useKeydown } from "@/hooks/use-keydown";
 import { useCheckAuth } from "@/hooks/use-check-auth";
+import { resetUpdateCheckInfo } from "@/lib/update";
 
 const formSchema = z.object({
   accessKey: z.string().nonempty($("login.form.input.empty")),
@@ -67,6 +68,7 @@ export default function Login() {
       const challengeResult = md5(hashedKey + cram); // hashed 3
 
       await sendPostRequest("/api/auth", { id, result: challengeResult });
+      resetUpdateCheckInfo();
       push("/panel/dashboard");
     } catch (e: any) {
       setLoading(false);

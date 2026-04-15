@@ -2,8 +2,64 @@ import type { ArrayItem, GithubReleaseResponse } from "./types";
 import axios from "axios";
 import { compare } from "semver";
 import { getSettings } from "./settings";
-import { isPreviewVersion } from "./utils";
+import { getLocalStorage, isPreviewVersion } from "./utils";
 import { version } from "./global";
+
+const storageKey = "opanel.update";
+const checkInterval = 12 * 60 * 60 * 1000; // 12 hours
+
+interface UpdateCheckInfo {
+  lastChecked?: number
+  hasNewUpdate: boolean
+}
+
+const defaultUpdateCheckInfo: UpdateCheckInfo = {
+  hasNewUpdate: false
+};
+
+export function getUpdateCheckInfo(): UpdateCheckInfo {
+  let storage: Storage;
+  try {
+    storage = getLocalStorage();
+  } catch {
+    return defaultUpdateCheckInfo;
+  }
+
+  const infoStr = storage.getItem(storageKey);
+  if(!infoStr) {
+    resetUpdateCheckInfo();
+    return defaultUpdateCheckInfo;
+  }
+
+  const info: UpdateCheckInfo = JSON.parse(infoStr);
+  if(info.hasNewUpdate === undefined) {
+    info.hasNewUpdate = false;
+  }
+  storage.setItem(storageKey, JSON.stringify(info));
+  return info;
+}
+
+export function resetUpdateCheckInfo() {
+  setUpdateCheckInfo(defaultUpdateCheckInfo);
+}
+
+function setUpdateCheckInfo(info: UpdateCheckInfo) {
+  getLocalStorage().setItem(storageKey, JSON.stringify(info));
+}
+
+export async function doAutoUpdateCheck() {
+  const currentInfo = getUpdateCheckInfo();
+  const now = Date.now();
+
+  if(!currentInfo.lastChecked || now - currentInfo.lastChecked > checkInterval) {
+    try {
+      const { hasNewUpdate } = await checkUpdate();
+      setUpdateCheckInfo({ lastChecked: now, hasNewUpdate });
+    } catch (e) {
+      setUpdateCheckInfo({ lastChecked: now, ...currentInfo });
+    }
+  }
+}
 
 export async function checkUpdate(): Promise<{
   hasNewUpdate: boolean

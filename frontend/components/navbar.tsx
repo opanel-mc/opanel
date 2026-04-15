@@ -11,6 +11,7 @@ import { Badge } from "./ui/badge";
 import { googleSansCode } from "@/lib/fonts";
 import { version } from "@/lib/global";
 import { UpdateDialog } from "@/app/panel/settings/update-dialog";
+import { getUpdateCheckInfo } from "@/lib/update";
 
 export function Navbar({ className, ...props }: React.ComponentProps<"nav">) {
   const handleLogout = async () => {
@@ -27,6 +28,9 @@ export function Navbar({ className, ...props }: React.ComponentProps<"nav">) {
         <Badge
           variant="outline"
           className={cn("max-xs:hidden mr-2", googleSansCode.className)}>
+          {getUpdateCheckInfo().hasNewUpdate && (
+            <div className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-500"/>
+          )}
           {`v${version}`}
         </Badge>
       </UpdateDialog>
