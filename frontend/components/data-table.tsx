@@ -41,7 +41,7 @@ export function DataTable<D, V>({
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
-  const [paginationState, setPaginationState] = useState({ pageIndex: 0, pageSize: 10 });
+  const [paginationState, setPaginationState] = useState({ pageIndex: 0, pageSize: 20 });
   const table = useReactTable({
     columns,
     data,
