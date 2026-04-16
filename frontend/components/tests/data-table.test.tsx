@@ -51,7 +51,7 @@ describe("test data table", () => {
     elem.rerender(
       <DataTable
         columns={columns}
-        data={createRows(35)}
+        data={createRows(65)}
         pagination
         paginationQueryKey="page"/>
     );
@@ -66,7 +66,7 @@ describe("test data table", () => {
     const elem = render(
       <DataTable
         columns={columns}
-        data={createRows(15)}
+        data={createRows(25)}
         pagination
         paginationQueryKey="page"/>
     );
@@ -81,7 +81,7 @@ describe("test data table", () => {
     const elem = render(
       <DataTable
         columns={columns}
-        data={createRows(25)}
+        data={createRows(45)}
         pagination
         paginationQueryKey="page"/>
     );
