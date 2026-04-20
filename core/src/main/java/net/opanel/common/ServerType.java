@@ -6,7 +6,7 @@ public enum ServerType {
     PAPER("Paper"),
     FABRIC("Fabric"),
     FORGE("Forge"),
-    NEOFORGE("Neoforge"),
+    NEOFORGE("NeoForge"),
     FOLIA("Folia"),
     LEAVES("Leaves");
 

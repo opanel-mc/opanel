@@ -30,7 +30,7 @@ body:
         - Folia
         - Fabric
         - Forge
-        - Neoforge
+        - NeoForge
     validations:
       required: true
   - type: input
