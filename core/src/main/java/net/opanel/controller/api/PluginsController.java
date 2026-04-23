@@ -66,7 +66,7 @@ public class PluginsController extends BaseController {
     public Handler getPluginIcon = ctx -> {
         final String fileName = ctx.pathParam("fileName");
         if(!isValidPluginFileName(fileName)) {
-            sendResponse(ctx, HttpStatus.FORBIDDEN, "Illegal file name.");
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal file name.");
             return;
         }
 
@@ -101,7 +101,7 @@ public class PluginsController extends BaseController {
 
             final String fileName = file.filename();
             if(!Utils.isSafeFileName(fileName)) {
-                sendResponse(ctx, HttpStatus.FORBIDDEN, "Illegal file name.");
+                sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal file name.");
                 return;
             }
             if(!fileName.endsWith(".jar")) {
@@ -134,7 +134,7 @@ public class PluginsController extends BaseController {
         final String fileName = ctx.pathParam("fileName");
         final String enabled = ctx.queryParam("enabled");
         if(!isValidPluginFileName(fileName)) {
-            sendResponse(ctx, HttpStatus.FORBIDDEN, "Illegal file name.");
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal file name.");
             return;
         }
 
@@ -162,7 +162,7 @@ public class PluginsController extends BaseController {
     public Handler deletePlugin = ctx -> {
         final String fileName = ctx.pathParam("fileName");
         if(!isValidPluginFileName(fileName)) {
-            sendResponse(ctx, HttpStatus.FORBIDDEN, "Illegal file name.");
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal file name.");
             return;
         }
 
@@ -185,7 +185,7 @@ public class PluginsController extends BaseController {
     public Handler downloadPlugin = ctx -> {
         final String fileName = ctx.pathParam("fileName");
         if(!isValidPluginFileName(fileName)) {
-            sendResponse(ctx, HttpStatus.FORBIDDEN, "Illegal file name.");
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal file name.");
             return;
         }
 
