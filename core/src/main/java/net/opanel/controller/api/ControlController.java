@@ -257,6 +257,7 @@ public class ControlController extends BaseController {
             final String content = ctx.body();
             if(content.isEmpty()) {
                 sendResponse(ctx, HttpStatus.BAD_REQUEST, "Config content is missing.");
+                return;
             }
 
             if(worldName == null) {
