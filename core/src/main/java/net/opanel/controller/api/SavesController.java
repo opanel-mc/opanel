@@ -65,7 +65,7 @@ public class SavesController extends BaseController {
     public Handler downloadSave = ctx -> {
         final String saveName = ctx.pathParam("saveName");
         if(!isValidSaveName(saveName)) {
-            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal save name.");
+            sendResponse(ctx, HttpStatus.FORBIDDEN, "Illegal save name.");
             return;
         }
 
@@ -207,7 +207,7 @@ public class SavesController extends BaseController {
     public Handler editSave = ctx -> {
         final String saveName = ctx.pathParam("saveName");
         if(!isValidSaveName(saveName)) {
-            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal save name.");
+            sendResponse(ctx, HttpStatus.FORBIDDEN, "Illegal save name.");
             return;
         }
 
@@ -241,7 +241,7 @@ public class SavesController extends BaseController {
     public Handler toggleSaveDatapack = ctx -> {
         final String saveName = ctx.pathParam("saveName");
         if(!isValidSaveName(saveName)) {
-            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal save name.");
+            sendResponse(ctx, HttpStatus.FORBIDDEN, "Illegal save name.");
             return;
         }
 
@@ -274,7 +274,7 @@ public class SavesController extends BaseController {
     public Handler deleteSave = ctx -> {
         final String saveName = ctx.pathParam("saveName");
         if(!isValidSaveName(saveName)) {
-            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal save name.");
+            sendResponse(ctx, HttpStatus.FORBIDDEN, "Illegal save name.");
             return;
         }
 
