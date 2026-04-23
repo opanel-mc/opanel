@@ -50,7 +50,7 @@ public class TerminalEndpoint extends BaseEndpoint {
 
         subscribe(session, TerminalPacket.COMMAND, String.class, (msgCtx, command) -> {
             if(command.startsWith("/")) {
-                command = command.replace("/", "");
+                command = command.substring(1);
             }
             plugin.getServer().sendServerCommand(command);
         });
