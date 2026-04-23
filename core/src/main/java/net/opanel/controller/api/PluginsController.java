@@ -11,7 +11,6 @@ import net.opanel.utils.Utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -101,7 +100,7 @@ public class PluginsController extends BaseController {
             }
 
             final String fileName = file.filename();
-            if(!isValidPluginFileName(fileName) || fileName.endsWith(".jar"+ OPanelPlugin.DISABLED_SUFFIX)) {
+            if(!Utils.isSafeFileName(fileName) || !fileName.endsWith(".jar")) {
                 sendResponse(ctx, HttpStatus.BAD_REQUEST, "Plugin file should be a .jar file.");
                 return;
             }
@@ -204,22 +203,7 @@ public class PluginsController extends BaseController {
     };
 
     private boolean isValidPluginFileName(String fileName) {
-        return isSafeFileName(fileName)
+        return Utils.isSafeFileName(fileName)
                 && (fileName.endsWith(".jar") || fileName.endsWith(".jar"+ OPanelPlugin.DISABLED_SUFFIX));
-    }
-
-    private boolean isSafeFileName(String fileName) {
-        if(fileName == null || fileName.isEmpty() || fileName.contains("..") || fileName.contains("/") || fileName.contains("\\")) {
-            return false;
-        }
-
-        try {
-            Path normalized = Path.of(fileName).normalize();
-            return !normalized.isAbsolute()
-                    && normalized.getNameCount() == 1
-                    && normalized.getFileName().toString().equals(fileName);
-        } catch (InvalidPathException e) {
-            return false;
-        }
     }
 }

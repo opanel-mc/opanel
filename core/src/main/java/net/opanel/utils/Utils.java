@@ -288,6 +288,21 @@ public class Utils {
         return lastDotIndex <= 0 ? "" : fileName.substring(lastDotIndex + 1);
     }
 
+    public static boolean isSafeFileName(String fileName) {
+        if(fileName == null || fileName.isEmpty() || fileName.contains("..") || fileName.contains("/") || fileName.contains("\\")) {
+            return false;
+        }
+
+        try {
+            Path normalized = Path.of(fileName).normalize();
+            return !normalized.isAbsolute()
+                    && normalized.getNameCount() == 1
+                    && normalized.getFileName().toString().equals(fileName);
+        } catch (InvalidPathException e) {
+            return false;
+        }
+    }
+
     public static <T> boolean arrayHas(T[] arr, T obj) {
         for(T item : arr) {
             if(item.equals(obj)) {

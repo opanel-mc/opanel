@@ -13,7 +13,6 @@ import net.opanel.controller.BaseController;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -307,17 +306,6 @@ public class SavesController extends BaseController {
     }
 
     private boolean isValidSaveName(String saveName) {
-        if(saveName == null || saveName.isEmpty() || saveName.contains("..") || saveName.contains("/") || saveName.contains("\\")) {
-            return false;
-        }
-
-        try {
-            Path normalized = Path.of(saveName).normalize();
-            return !normalized.isAbsolute()
-                    && normalized.getNameCount() == 1
-                    && normalized.getFileName().toString().equals(saveName);
-        } catch (InvalidPathException e) {
-            return false;
-        }
+        return Utils.isSafeFileName(saveName);
     }
 }
