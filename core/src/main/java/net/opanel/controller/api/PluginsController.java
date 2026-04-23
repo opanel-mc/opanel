@@ -11,6 +11,7 @@ import net.opanel.utils.Utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -65,7 +66,7 @@ public class PluginsController extends BaseController {
 
     public Handler getPluginIcon = ctx -> {
         final String fileName = ctx.pathParam("fileName");
-        if(!fileName.endsWith(".jar") && !fileName.endsWith(".jar"+ OPanelPlugin.DISABLED_SUFFIX)) {
+        if(!isValidPluginFileName(fileName)) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal file name.");
             return;
         }
@@ -100,7 +101,7 @@ public class PluginsController extends BaseController {
             }
 
             final String fileName = file.filename();
-            if(!fileName.endsWith(".jar")) {
+            if(!isValidPluginFileName(fileName) || fileName.endsWith(".jar"+ OPanelPlugin.DISABLED_SUFFIX)) {
                 sendResponse(ctx, HttpStatus.BAD_REQUEST, "Plugin file should be a .jar file.");
                 return;
             }
@@ -129,7 +130,7 @@ public class PluginsController extends BaseController {
     public Handler togglePlugin = ctx -> {
         final String fileName = ctx.pathParam("fileName");
         final String enabled = ctx.queryParam("enabled");
-        if(!fileName.endsWith(".jar") && !fileName.endsWith(".jar"+ OPanelPlugin.DISABLED_SUFFIX)) {
+        if(!isValidPluginFileName(fileName)) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal file name.");
             return;
         }
@@ -157,7 +158,7 @@ public class PluginsController extends BaseController {
 
     public Handler deletePlugin = ctx -> {
         final String fileName = ctx.pathParam("fileName");
-        if(!fileName.endsWith(".jar") && !fileName.endsWith(".jar"+ OPanelPlugin.DISABLED_SUFFIX)) {
+        if(!isValidPluginFileName(fileName)) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal file name.");
             return;
         }
@@ -180,7 +181,7 @@ public class PluginsController extends BaseController {
 
     public Handler downloadPlugin = ctx -> {
         final String fileName = ctx.pathParam("fileName");
-        if(!fileName.endsWith(".jar") && !fileName.endsWith(".jar"+ OPanelPlugin.DISABLED_SUFFIX)) {
+        if(!isValidPluginFileName(fileName)) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal file name.");
             return;
         }
@@ -201,4 +202,24 @@ public class PluginsController extends BaseController {
         final String downloadId = downloadController.registerPath(filePath);
         ctx.redirect("/file/"+ downloadId +"/"+ fileName.replaceAll("\\"+ OPanelPlugin.DISABLED_SUFFIX +"$", ""));
     };
+
+    private boolean isValidPluginFileName(String fileName) {
+        return isSafeFileName(fileName)
+                && (fileName.endsWith(".jar") || fileName.endsWith(".jar"+ OPanelPlugin.DISABLED_SUFFIX));
+    }
+
+    private boolean isSafeFileName(String fileName) {
+        if(fileName == null || fileName.isEmpty() || fileName.contains("..") || fileName.contains("/") || fileName.contains("\\")) {
+            return false;
+        }
+
+        try {
+            Path normalized = Path.of(fileName).normalize();
+            return !normalized.isAbsolute()
+                    && normalized.getNameCount() == 1
+                    && normalized.getFileName().toString().equals(fileName);
+        } catch (InvalidPathException e) {
+            return false;
+        }
+    }
 }
