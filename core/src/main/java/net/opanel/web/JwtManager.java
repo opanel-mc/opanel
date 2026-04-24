@@ -39,13 +39,14 @@ public class JwtManager {
                     .verifyWith(signKey)
                     .build()
                     .parseSignedClaims(token);
-            if(!jws.getHeader().getKeyId().equals("accessKey")) return false;
 
             Claims payload = jws.getPayload();
-            if(!payload.getIssuer().equals(issuer)) return false;
+            if(payload == null || payload.getIssuer() == null || payload.getExpiration() == null || payload.get("access") == null) return false;
+            if(!"accessKey".equals(jws.getHeader().getKeyId())) return false;
+            if(!issuer.equals(payload.getIssuer())) return false;
             if(current.after(payload.getExpiration())) return false;
-            if(!payload.get("access").equals(access)) return false;
-        } catch (JwtException e) {
+            if(!access.equals(payload.get("access"))) return false;
+        } catch (JwtException | IllegalArgumentException e) {
             return false;
         } catch (Exception e) {
             e.printStackTrace();
