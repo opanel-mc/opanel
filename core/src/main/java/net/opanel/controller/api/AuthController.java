@@ -1,5 +1,6 @@
 package net.opanel.controller.api;
 
+import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 
@@ -31,24 +32,8 @@ public class AuthController extends BaseController {
             return;
         }
 
-        final String reqIp = getClientIp(ctx);
-        if(reqIp.isBlank()) {
-            sendResponse(ctx, HttpStatus.FORBIDDEN, "Cannot determine client IP address.");
-            return;
-        }
-        if(System.currentTimeMillis() < temporaryBannedRecords.getOrDefault(reqIp, 0L)) {
-            sendResponse(ctx, HttpStatus.FORBIDDEN, "The Ip is banned temporarily.");
-            return;
-        }
-        if(failedRecords.getOrDefault(reqIp, 0) >= maxTries) {
-            temporaryBannedRecords.put(reqIp, System.currentTimeMillis() + bannedPeriod);
-            failedRecords.put(reqIp, 0);
-            sendResponse(ctx, HttpStatus.FORBIDDEN, "The Ip is banned temporarily.");
-            return;
-        }
-        if(temporaryBannedRecords.containsKey(reqIp) && System.currentTimeMillis() >= temporaryBannedRecords.get(reqIp)) {
-            temporaryBannedRecords.remove(reqIp);
-        }
+        final String reqIp = getIpAndCheck(ctx);
+        if (reqIp == null) return;
 
         String cramRandomHex = Utils.generateRandomHex(16);
         while(cramMap.containsValue(cramRandomHex)) {
@@ -68,24 +53,24 @@ public class AuthController extends BaseController {
             return;
         }
 
-        final String reqIp = getClientIp(ctx);
+        final String reqIp = getIpAndCheck(ctx);
+        if (reqIp == null) return;
+
         final String challengeResult = reqBody.result; // hashed 3
         final String storedRealKey = plugin.getConfig().accessKey; // hashed 2
         final String realResult = Utils.md5(storedRealKey + cramMap.get(reqBody.id)); // hashed 3
         cramMap.remove(reqBody.id);
 
         if(challengeResult.equals(realResult)) {
-            failedRecords.remove(reqIp);
+            removeFailedRecord(reqIp);
 
             String token = JwtManager.generateToken(storedRealKey, plugin.getConfig().salt);
             ctx.cookie(JwtManager.createCookie("token", token, (int) TimeUnit.DAYS.toSeconds(1), plugin.getConfig().cookieSecure));
             sendResponse(ctx, HttpStatus.OK);
         } else {
-            final int current = failedRecords.getOrDefault(reqIp, 0);
-            failedRecords.put(reqIp, current + 1);
-            if(current + 1 >= maxTries) {
-                temporaryBannedRecords.put(reqIp, System.currentTimeMillis() + bannedPeriod);
-                failedRecords.put(reqIp, 0);
+            final int current = incrementFailedCount(reqIp);
+            if(current >= maxTries) {
+                setTemporaryBan(reqIp);
             }
 
             plugin.logger.warn("A failed login request from "+ reqIp +" (Failed for "+ (current + 1) +" times)");
@@ -116,5 +101,86 @@ public class AuthController extends BaseController {
     private static class RequestBodyType {
         String id;
         String result; // Challenge result
+    }
+
+    private String getIpAndCheck(Context ctx) {
+        final String reqIp = getClientIp(ctx);
+        if(reqIp == null || reqIp.isBlank()) {
+            sendResponse(ctx, HttpStatus.FORBIDDEN, "Cannot determine client IP address.");
+            return null;
+        }
+        if(checkTemporaryBan(reqIp)) {
+            sendResponse(ctx, HttpStatus.FORBIDDEN, "The Ip is banned temporarily.");
+            return null;
+        }
+        if(checkFailedAndBanIfExceeded(reqIp)) {
+            sendResponse(ctx, HttpStatus.FORBIDDEN, "The Ip is banned temporarily.");
+            return null;
+        }
+        return reqIp;
+    }
+
+    /**
+     * 原子性地增加失败次数
+     * @return 增加后的失败次数
+     */
+    private int incrementFailedCount(String ip) {
+        return failedRecords.merge(ip, 1, Integer::sum);
+    }
+
+    /**
+     * 原子性地获取失败次数，如果不存在则返回 0
+     */
+    private int getFailedCount(String ip) {
+        return failedRecords.getOrDefault(ip, 0);
+    }
+
+    /**
+     * 原子性地移除失败记录
+     */
+    private void removeFailedRecord(String ip) {
+        failedRecords.remove(ip);
+    }
+
+    /**
+     * 原子性地检查
+     * @return 是否被封禁
+     */
+    private boolean checkTemporaryBan(String ip) {
+        long currentTime = System.currentTimeMillis();
+        Long banUntil = temporaryBannedRecords.get(ip);
+
+        if (banUntil == null) {
+            return false;
+        }
+
+        if(currentTime < banUntil) {
+            return true;
+        }
+
+        temporaryBannedRecords.remove(ip, banUntil);
+        return false;
+    }
+
+    /**
+     * 原子性地设置临时封禁并重置失败次数
+     */
+    private void setTemporaryBan(String ip) {
+        temporaryBannedRecords.put(ip, System.currentTimeMillis() + bannedPeriod);
+        failedRecords.put(ip, 0);
+    }
+
+    /**
+     * 原子性地检查失败次数并在达到阈值时封禁
+     * @return 是否被封禁
+     */
+    private boolean checkFailedAndBanIfExceeded(String ip) {
+        int currentCount = getFailedCount(ip);
+        if(currentCount >= maxTries) {
+            setTemporaryBan(ip);
+            removeFailedRecord(ip);
+            return true;
+        }
+        return false;
     }
 }
