@@ -73,7 +73,7 @@ public class AuthController extends BaseController {
                 setTemporaryBan(reqIp);
             }
 
-            plugin.logger.warn("A failed login request from "+ reqIp +" (Failed for "+ (current + 1) +" times)");
+            plugin.logger.warn("A failed login request from "+ reqIp +" (Failed for "+ current +" times)");
             sendResponse(ctx, HttpStatus.UNAUTHORIZED);
         }
     };
