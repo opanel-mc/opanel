@@ -33,7 +33,7 @@ public class AuthController extends BaseController {
         }
 
         final String reqIp = getIpAndCheck(ctx);
-        if (reqIp == null) return;
+        if(reqIp == null) return;
 
         String cramRandomHex = Utils.generateRandomHex(16);
         while(cramMap.containsValue(cramRandomHex)) {
@@ -54,7 +54,7 @@ public class AuthController extends BaseController {
         }
 
         final String reqIp = getIpAndCheck(ctx);
-        if (reqIp == null) return;
+        if(reqIp == null) return;
 
         final String challengeResult = reqBody.result; // hashed 3
         final String storedRealKey = plugin.getConfig().accessKey; // hashed 2
@@ -120,37 +120,23 @@ public class AuthController extends BaseController {
         return reqIp;
     }
 
-    /**
-     * 原子性地增加失败次数
-     * @return 增加后的失败次数
-     */
     private int incrementFailedCount(String ip) {
         return failedRecords.merge(ip, 1, Integer::sum);
     }
 
-    /**
-     * 原子性地获取失败次数，如果不存在则返回 0
-     */
     private int getFailedCount(String ip) {
         return failedRecords.getOrDefault(ip, 0);
     }
 
-    /**
-     * 原子性地移除失败记录
-     */
     private void removeFailedRecord(String ip) {
         failedRecords.remove(ip);
     }
 
-    /**
-     * 原子性地检查
-     * @return 是否被封禁
-     */
     private boolean checkTemporaryBan(String ip) {
         long currentTime = System.currentTimeMillis();
         Long banUntil = temporaryBannedRecords.get(ip);
 
-        if (banUntil == null) {
+        if(banUntil == null) {
             return false;
         }
 
@@ -162,18 +148,11 @@ public class AuthController extends BaseController {
         return false;
     }
 
-    /**
-     * 原子性地设置临时封禁并重置失败次数
-     */
     private void setTemporaryBan(String ip) {
         temporaryBannedRecords.put(ip, System.currentTimeMillis() + bannedPeriod);
         failedRecords.put(ip, 0);
     }
 
-    /**
-     * 原子性地检查失败次数并在达到阈值时封禁
-     * @return 是否被封禁
-     */
     private boolean checkFailedAndBanIfExceeded(String ip) {
         int currentCount = getFailedCount(ip);
         if(currentCount >= maxTries) {
