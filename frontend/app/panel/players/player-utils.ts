@@ -32,7 +32,7 @@ export async function depriveOp(uuid: string, doToast = true) {
 
 export async function kick(uuid: string, reason?: string, doToast = true) {
   try {
-    await sendPostRequest(`/api/players/kick?uuid=${uuid}&r=${reason ? stringToBase64(reason) : ""}`);
+    await sendPostRequest(`/api/players/kick?uuid=${uuid}&r=${reason ? encodeURIComponent(stringToBase64(reason)) : ""}`);
     doToast && toast.success($("players.action.kick.success"));
   } catch (e: any) {
     toastError(e, $("players.action.kick.error"), [
@@ -46,7 +46,7 @@ export async function kick(uuid: string, reason?: string, doToast = true) {
 
 export async function ban(uuid: string, reason?: string, doToast = true) {
   try {
-    await sendPostRequest(`/api/players/ban?uuid=${uuid}&r=${reason ? stringToBase64(reason) : ""}`);
+    await sendPostRequest(`/api/players/ban?uuid=${uuid}&r=${reason ? encodeURIComponent(stringToBase64(reason)) : ""}`);
     doToast && toast.success($("players.action.ban.success"));
   } catch (e: any) {
     toastError(e, $("players.action.ban.error"), [
