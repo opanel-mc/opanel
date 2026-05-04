@@ -139,6 +139,15 @@ export class TagResolver extends ItemNBTResolver {
     return mapId !== undefined ? mapId : null;
   }
 
+  override getBeeAmount(): number | null {
+    const beeAmount = this.nbt.get<NbtList>(["BlockEntityTag", "Bees"])?.childs.length;
+    return beeAmount !== undefined ? beeAmount : null;
+  }
+
+  override getHoneyLevel(): number | null {
+    return null;
+  }
+
   override getDyedColor(): RgbColor | null {
     const dyedColor = this.nbt.get<NbtNumber>(["display", "color"]);
     if(dyedColor === undefined) return null;

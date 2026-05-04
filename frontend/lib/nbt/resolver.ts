@@ -37,6 +37,8 @@ export abstract class ItemNBTResolver {
   abstract getPotionColor(): RgbColor | null;
   abstract getItemModel(): string | null;
   abstract getMapId(): number | null;
+  abstract getBeeAmount(): number | null;
+  abstract getHoneyLevel(): number | null;
 
   isDyedLeatherArmor(): boolean {
     return !!this.getDyedColor() && [

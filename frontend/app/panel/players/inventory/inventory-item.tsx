@@ -328,7 +328,19 @@ export function InventoryItem({
           {/* Map ID */}
           {(resolvedNBT && resolvedNBT.getMapId() !== null) && (
             <span className="cc-7">
-              {$("filled_map.id" as any).replace("%s", resolvedNBT.getMapId()?.toString() ?? "")}
+              {$("filled_map.id").replace("%s", resolvedNBT.getMapId()?.toString() ?? "")}
+            </span>
+          )}
+          {/* Bee Amount */}
+          {(resolvedNBT && resolvedNBT.getBeeAmount() !== null) && (
+            <span className="cc-7">
+              {$("container.beehive.bees").replace("%s", resolvedNBT.getBeeAmount()?.toString() ?? "0").replace("%s", "3")}
+            </span>
+          )}
+          {/* Honey Level */}
+          {(resolvedNBT && resolvedNBT.getHoneyLevel() !== null) && (
+            <span className="cc-7">
+              {$("container.beehive.honey").replace("%s", resolvedNBT.getHoneyLevel()?.toString() ?? "0").replace("%s", "5")}
             </span>
           )}
           {/* Item ID */}

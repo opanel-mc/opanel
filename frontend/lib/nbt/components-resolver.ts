@@ -1,5 +1,6 @@
 import {
   type NbtBool,
+  type NbtValue,
   NbtList,
   NbtNumber,
   NbtObject,
@@ -35,10 +36,19 @@ export function itemModelToTextureId(model: string | null): string | null {
 }
 
 export class ComponentsResolver extends ItemNBTResolver {
+  private blockState: Map<string, NbtValue> = new Map();
   private enchantments: Enchantments = new Map();
 
   constructor(id: string, snbt: string) {
     super(id, snbt);
+
+    // Block State
+    const blockStateNBT = this.nbt.get<NbtObject>("minecraft:block_state");
+    if(blockStateNBT) {
+      for(const [key, value] of Object.entries(blockStateNBT.childs)) {
+        this.blockState.set(key, value);
+      }
+    }
 
     // Enchantments
     const enchantmentsNBT = (
@@ -52,6 +62,11 @@ export class ComponentsResolver extends ItemNBTResolver {
 
   private hasComponent(name: string): boolean {
     return this.nbt.get(name) !== undefined;
+  }
+
+  private getBlockState<T extends NbtValue>(state: string): T | null {
+    const value = this.blockState.get(state);
+    return value as T | null;
   }
 
   getComponentAmount(): number {
@@ -158,6 +173,15 @@ export class ComponentsResolver extends ItemNBTResolver {
   override getMapId(): number | null {
     const mapId = this.nbt.get<NbtNumber>("minecraft:map_id")?.value;
     return mapId !== undefined ? mapId : null;
+  }
+
+  override getBeeAmount(): number | null {
+    const beeAmount = this.nbt.get<NbtList>("minecraft:bees")?.childs.length;
+    return beeAmount !== undefined ? beeAmount : null;
+  }
+
+  override getHoneyLevel(): number | null {
+    return this.getBlockState<NbtNumber>("honey_level")?.value ?? null;
   }
 
   override getDyedColor(): RgbColor | null {
