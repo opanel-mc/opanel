@@ -53,9 +53,9 @@ export function PluginDialog({
         </DialogHeader>
         <div className="flex flex-col gap-2">
           <div className="pb-2 border-b flex justify-between items-end">
-            <div className="pb-1 text-sm leading-5.5">
+            <div className="pb-1 text-sm leading-5.5 min-w-0">
               <span className="text-muted-foreground">{$("plugins.detailed-info.author")}</span>
-              <span className="space-x-2 wrap-anywhere *:whitespace-nowrap">
+              <span className="space-x-2 wrap-anywhere">
                 {
                   plugin.authors.length > 0
                   ? plugin.authors.map((author, i) => (
