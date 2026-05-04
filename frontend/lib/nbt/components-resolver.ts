@@ -66,7 +66,8 @@ export class ComponentsResolver extends ItemNBTResolver {
 
   private getBlockState<T extends NbtValue>(state: string): T | null {
     const value = this.blockState.get(state);
-    return value as T | null;
+    if(value === undefined) return null;
+    return value as T;
   }
 
   getComponentAmount(): number {
