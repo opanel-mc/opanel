@@ -82,7 +82,9 @@ describe("test inventory item", () => {
       getEnchantments: () => new Map(),
       getLore: () => [],
       isUnbreakable: () => false,
-      getMapId: () => null
+      getMapId: () => null,
+      getBeeAmount: () => null,
+      getHoneyLevel: () => null
     };
   });
 
@@ -408,7 +410,9 @@ describe("test inventory item", () => {
       getEnchantments: () => new Map([["minecraft:sharpness", 5], ["minecraft:unbreaking", 3]]),
       getLore: () => ["First lore line", "Second lore line"],
       isUnbreakable: () => true,
-      getMapId: () => 123
+      getMapId: () => 123,
+      getBeeAmount: () => null,
+      getHoneyLevel: () => null
     });
     const item = createItem({ slot: 4, id: "minecraft:diamond_sword", count: 1, snbt: "{foo:1b}" });
     const { itemElem, container } = renderInventoryItem(item);
