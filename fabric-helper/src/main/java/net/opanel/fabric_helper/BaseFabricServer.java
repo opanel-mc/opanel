@@ -67,7 +67,7 @@ public abstract class BaseFabricServer implements OPanelServer {
 
     @Override
     public void saveAll() {
-        server.saveAll(true, true, true);
+        server.execute(() -> server.saveAll(true, true, true));
     }
 
     @Override

@@ -67,7 +67,7 @@ public abstract class BaseFabricServer implements OPanelServer {
 
     @Override
     public void saveAll() {
-        server.saveEverything(true, true, true);
+        server.execute(() -> server.saveEverything(true, true, true));
     }
 
     @Override
@@ -96,7 +96,7 @@ public abstract class BaseFabricServer implements OPanelServer {
     public void sendServerCommand(String command) {
         Commands manager = server.getCommands();
         CommandSourceStack source = server.createCommandSourceStack();
-        manager.performPrefixedCommand(source, command);
+        server.execute(() -> manager.performPrefixedCommand(source, command));
     }
 
     @Override
