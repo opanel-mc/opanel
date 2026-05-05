@@ -67,7 +67,7 @@ public abstract class BaseFabricServer implements OPanelServer {
 
     @Override
     public void saveAll() {
-        server.execute(() -> server.saveAll(true, true, true));
+        runTask(() -> server.saveAll(true, true, true));
     }
 
     @Override
@@ -298,6 +298,23 @@ public abstract class BaseFabricServer implements OPanelServer {
         } catch (Exception e) {
             FileOpsHelperApi.scheduleDelete(List.of(filePath.toString()));
             throw new ActLaterException();
+        }
+    }
+
+    protected void runTask(Runnable task) {
+        Object lock = new Object();
+        synchronized(lock) {
+            server.execute(() -> {
+                task.run();
+                synchronized(lock) {
+                    lock.notify();
+                }
+            });
+            try {
+                lock.wait();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 }

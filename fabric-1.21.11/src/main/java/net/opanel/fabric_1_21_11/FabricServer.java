@@ -180,7 +180,7 @@ public class FabricServer extends BaseFabricServer implements OPanelServer, Code
     public void sendServerCommand(String command) {
         CommandManager manager = server.getCommandManager();
         ServerCommandSource source = server.getCommandSource();
-        server.execute(() -> manager.parseAndExecute(source, command));
+        runTask(() -> manager.parseAndExecute(source, command));
     }
 
     @Override
