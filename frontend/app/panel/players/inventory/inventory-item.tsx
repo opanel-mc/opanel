@@ -286,7 +286,7 @@ export function InventoryItem({
       {(itemStack.id !== AIR && !held) && (
         <div
           className={cn(
-            "fixed hidden whitespace-nowrap flex-col *:leading-5.5 z-20 cc-root",
+            "fixed hidden whitespace-nowrap flex-col *:leading-5.5 z-20 cc-root text-white",
             "bg-[rgba(0,0,0,.95)] outline-2 -outline-offset-4 outline-[rgb(41,5,96)] rounded-sm py-1 px-2",
             hovered && "flex",
             minecraftAE.className
