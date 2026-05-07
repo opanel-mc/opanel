@@ -5,9 +5,7 @@ import net.opanel.OPanel;
 
 import java.io.*;
 import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;

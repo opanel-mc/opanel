@@ -46,7 +46,7 @@ public class TerminalEndpoint extends BaseEndpoint {
         }
 
         if(OPanel.isMCDRBridgeActive()) {
-            mcdrConnector = new MCDRConnector(plugin, 25576);
+            mcdrConnector = new MCDRConnector(plugin, plugin.getConfig().mcdrSocketPort);
             mcdrConnector.connect();
             if(hasMCDRLogListenerRegistered.compareAndSet(false, true)) {
                 mcdrConnector.addListener(log -> {

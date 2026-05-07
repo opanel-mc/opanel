@@ -1,5 +1,6 @@
 accessKey: ""
 salt: ""
 webServerPort: 3000
+mcdrSocketPort: 25576
 cookieSecure: false
 proxyHeaders: false
