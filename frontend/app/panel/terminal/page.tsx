@@ -33,6 +33,12 @@ import { Toggle } from "@/components/ui/toggle";
 import { CreateShortcutDialog } from "./create-shortcut-dialog";
 import { VersionContext } from "@/contexts/api-context";
 
+const MCDR_COMMAND_PREFIX = "!!";
+const MCDR_AUTOCOMPLETE_LIST = [
+  "MCDR",
+  "help"
+];
+
 export default function Terminal() {
   const versionCtx = useContext(VersionContext);
   const client = useWebSocket(TerminalClient);
@@ -46,6 +52,7 @@ export default function Terminal() {
   const [fullscreen, setFullscreen] = useState(false);
   const [shortcuts, setShortcuts] = useState<CommandShortcut[]>(getSettings("terminal.shortcuts"));
   const [editingShortcuts, setEditingShortcuts] = useState(false);
+  const [isTypingMCDRCommand, setTypingMCDRCommand] = useState(false);
 
   const handleSend = useCallback(() => {
     if(!inputRef.current || !client) return;
@@ -97,6 +104,24 @@ export default function Terminal() {
   const handleInput = useCallback(async () => {
     if(!inputRef.current || !client) return;
     const elem = inputRef.current;
+
+    if(versionCtx?.mcdr) {
+      const hasMCDRPrefix = elem.value.startsWith(MCDR_COMMAND_PREFIX);
+      // not typing MCDR command -> start typing MCDR command
+      if(hasMCDRPrefix) {
+        setAutocompleteList(MCDR_AUTOCOMPLETE_LIST);
+        setTypingMCDRCommand(true);
+        return;
+      }
+      // typing MCDR command -> not typing MCDR command
+      // reset the states if the previous state is typing MCDR command
+      if(isTypingMCDRCommand) {
+        setAutocompleteList([]);
+        setTypingMCDRCommand(false);
+        argIndexRef.current = 0;
+      }
+    }
+
     const hasPrefix = elem.value.startsWith("/");
     const command = hasPrefix ? elem.value.substring(1) : elem.value;
 
@@ -108,7 +133,7 @@ export default function Terminal() {
       });
       argIndexRef.current = realArgIndex;
     }
-  }, [client]);
+  }, [client, versionCtx, isTypingMCDRCommand]);
 
   const handleFullscreen = () => {
     if(!terminalContainerRef.current) return;
@@ -175,6 +200,7 @@ export default function Terminal() {
           {versionCtx?.mcdr && (
             <Button
               size="xs"
+              disabled={editingShortcuts}
               className={cn("cursor-pointer", googleSansCode.className)}
               onClick={() => {
                 if(!inputRef.current) return;
@@ -248,7 +274,7 @@ export default function Terminal() {
             autoFocus
             itemList={autocompleteList}
             enabled={getSettings("terminal.autocomplete")}
-            prefix="/"
+            prefix={versionCtx?.mcdr && isTypingMCDRCommand ? MCDR_COMMAND_PREFIX : "/"}
             maxLength={256}
             onKeyDown={(e) => handleKeydown(e)}
             onInput={() => handleInput()}

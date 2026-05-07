@@ -193,8 +193,8 @@ export function InfoCard({
           <div className="flex justify-end gap-2">
             {versionCtx?.mcdr && (
               <Badge
-                variant="secondary"
-                className="text-[#c8723f] cursor-default">
+                variant="outline"
+                className="cursor-default">
                 <Box stroke="var(--color-foreground)"/>
                 MCDR
               </Badge>
