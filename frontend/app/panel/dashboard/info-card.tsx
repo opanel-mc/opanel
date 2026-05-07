@@ -1,7 +1,7 @@
 "use client";
 
 import { useContext, useRef, useState } from "react";
-import { Pencil, PenLine, Power, RefreshCw, RotateCw, Settings, UserPen } from "lucide-react";
+import { Box, Pencil, PenLine, Power, RefreshCw, RotateCw, Settings, UserPen } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { base64ToString, cn } from "@/lib/utils";
@@ -190,21 +190,31 @@ export function InfoCard({
           </div>
         </div>
         <div className="p-4 max-lg:p-1 flex flex-col justify-between">
-          <Badge
-            variant="outline"
-            title={warningState ? $("dashboard.info.status.warning.title") : ""}
-            className="self-end cursor-help">
-            <div className={cn("w-2 h-2 rounded-full", ctx ? (warningState ? "bg-yellow-600" : "bg-green-600") : "bg-red-700")}/>
-            {
-              ctx
-              ? (
-                warningState
-                ? $("dashboard.info.status.warning")
-                : $("dashboard.info.status.running")
-              )
-              : $("dashboard.info.status.stopped")
-            }
-          </Badge>
+          <div className="flex justify-end gap-2">
+            {versionCtx?.mcdr && (
+              <Badge
+                variant="secondary"
+                className="text-[#c8723f] cursor-default">
+                <Box stroke="var(--color-foreground)"/>
+                MCDR
+              </Badge>
+            )}
+            <Badge
+              variant="outline"
+              title={warningState ? $("dashboard.info.status.warning.title") : ""}
+              className="cursor-help">
+              <div className={cn("w-2 h-2 rounded-full", ctx ? (warningState ? "bg-yellow-600" : "bg-green-600") : "bg-red-700")}/>
+              {
+                ctx
+                ? (
+                  warningState
+                  ? $("dashboard.info.status.warning")
+                  : $("dashboard.info.status.running")
+                )
+                : $("dashboard.info.status.stopped")
+              }
+            </Badge>
+          </div>
           <ControlButtonGroup className="self-end max-lg:hidden"/>
         </div>
       </div>
