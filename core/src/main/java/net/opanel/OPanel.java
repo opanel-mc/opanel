@@ -24,6 +24,7 @@ public class OPanel {
     public static final Path OPANEL_DIR_PATH = Paths.get("").resolve("opanel");
     public static final Path TMP_DIR_PATH = OPANEL_DIR_PATH.resolve(".tmp");
     public static final Path INITIAL_ACCESS_KEY_PATH = OPANEL_DIR_PATH.resolve("INITIAL_ACCESS_KEY.txt");
+    public static final Path MCDR_BRIDGE_FLAG_PATH = OPANEL_DIR_PATH.resolve(".mcdr_bridge_active");
 
     static {
         VERSION = Utils.readPropertyValueFromResources("opanel.properties", "version");
@@ -176,5 +177,9 @@ public class OPanel {
         sb.append("§r§7Port: §f").append(getConfig().webServerPort).append("\n");
         sb.append("§r§7Javalin Version: §f").append(JAVALIN_VERSION);
         return sb.toString();
+    }
+
+    public static boolean isMCDRBridgeActive() {
+        return MCDR_BRIDGE_FLAG_PATH.toFile().exists();
     }
 }

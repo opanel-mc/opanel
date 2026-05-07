@@ -10,7 +10,7 @@ import {
   type TerminalClient,
   defaultLogLevel,
   getLogLevelId,
-  type ConsoleLogLevel
+  type ConsoleLogLevel,
 } from "@/lib/ws/terminal";
 import { parseTextToANSI, secSign } from "@/lib/formatting-codes/text";
 
@@ -37,6 +37,7 @@ const Log = memo(({
   source,
   line,
   thrownMessage,
+  mcdr,
   uuid,
   simple,
   visible
@@ -75,10 +76,13 @@ const Log = memo(({
       {getSettings("terminal.log-time") && (
         <span className="text-blue-500 dark:text-blue-400">{`[${format(new Date(time), "HH:mm:ss")}]`}</span>
       )}
+      {mcdr && (
+        <span className="text-[#c8723f]">[MCDR]</span>
+      )}
       {(!simple && getSettings("terminal.thread-name")) && (
         <span className={threadLevelStyle}>{`[${thread}/${level}]`}</span>
       )}
-      {(!simple && getSettings("terminal.source-name") && sourceName) && (
+      {(!mcdr && !simple && getSettings("terminal.source-name") && sourceName) && (
         <span className="text-emerald-600 dark:text-emerald-500 max-md:hidden">{`(${sourceName})`}</span>
       )}
       {
@@ -204,6 +208,13 @@ export function TerminalViewer({
     });
 
     client.subscribe("log", (data: ConsoleLog) => {
+      data.line = purifyUnsafeText(data.line);
+      data.uuid = uuidv7();
+      logsBufferRef.current.push(data);
+      scheduleFlushLogsBuffer();
+    });
+
+    client.subscribe("mcdr-log", (data: ConsoleLog) => {
       data.line = purifyUnsafeText(data.line);
       data.uuid = uuidv7();
       logsBufferRef.current.push(data);

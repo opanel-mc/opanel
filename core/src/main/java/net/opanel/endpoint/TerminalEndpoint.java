@@ -4,6 +4,7 @@ import io.javalin.Javalin;
 import io.javalin.websocket.*;
 import net.opanel.OPanel;
 import net.opanel.terminal.LogListenerManager;
+import net.opanel.terminal.MCDRConnector;
 import org.eclipse.jetty.websocket.api.Session;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -12,6 +13,7 @@ public class TerminalEndpoint extends BaseEndpoint {
     private static class TerminalPacket<D> extends Packet<D> {
         public static final String INIT = "init";
         public static final String LOG = "log";
+        public static final String MCDRLOG = "mcdr-log";
         public static final String AUTOCOMPLETE = "autocomplete";
         public static final String COMMAND = "command";
 
@@ -26,10 +28,12 @@ public class TerminalEndpoint extends BaseEndpoint {
     }
 
     private final LogListenerManager logListenerManager;
+    private MCDRConnector mcdrConnector;
 
     // To avoid duplicated log listener from registering,
     // which can lead to plenty duplicated logs in the frontend terminal
     private static final AtomicBoolean hasLogListenerRegistered = new AtomicBoolean(false);
+    private static final AtomicBoolean hasMCDRLogListenerRegistered = new AtomicBoolean(false);
 
     public TerminalEndpoint(Javalin app, WsConfig ws, OPanel plugin) {
         super(app, ws, plugin);
@@ -40,6 +44,16 @@ public class TerminalEndpoint extends BaseEndpoint {
                 broadcast(new TerminalPacket<>(TerminalPacket.LOG, log));
             });
         }
+
+        if(OPanel.isMCDRBridgeActive()) {
+            mcdrConnector = new MCDRConnector(plugin, 25576);
+            mcdrConnector.connect();
+            if(hasMCDRLogListenerRegistered.compareAndSet(false, true)) {
+                mcdrConnector.addListener(log -> {
+                    broadcast(new TerminalPacket<>(TerminalPacket.MCDRLOG, log));
+                });
+            }
+        }
     }
 
     @Override
@@ -49,6 +63,10 @@ public class TerminalEndpoint extends BaseEndpoint {
         ctx.send(new TerminalPacket<>(TerminalPacket.INIT, logListenerManager.getRecentLogs()));
 
         subscribe(session, TerminalPacket.COMMAND, String.class, (msgCtx, command) -> {
+            if(OPanel.isMCDRBridgeActive() && command.startsWith("!!") && mcdrConnector != null) {
+                mcdrConnector.send(command);
+                return;
+            }
             if(command.startsWith("/")) {
                 command = command.substring(1);
             }
@@ -67,6 +85,9 @@ public class TerminalEndpoint extends BaseEndpoint {
     @Override
     public void onShutdown() {
         logListenerManager.clearListeners();
+        if(mcdrConnector != null) {
+            mcdrConnector.clearListeners();
+        }
         hasLogListenerRegistered.set(false);
     }
 }

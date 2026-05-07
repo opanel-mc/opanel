@@ -7,6 +7,7 @@ public class ConsoleLog {
     public String source;
     public String line;
     public String thrownMessage;
+    public boolean mcdr = false;
 
     public ConsoleLog(long time, String level, String thread, String source, String line) {
         this.time = time;
@@ -18,5 +19,9 @@ public class ConsoleLog {
 
     public void setThrownMessage(String thrownMessage) {
         this.thrownMessage = thrownMessage;
+    }
+
+    public void setMCDR(boolean mcdr) {
+        this.mcdr = mcdr;
     }
 }
