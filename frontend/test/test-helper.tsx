@@ -11,24 +11,22 @@ export function mockRealI18n() {
 
 export function mockMonacoEditor() {
   vi.mock("next/dynamic", () => ({
-    default: () => {
-      return function MockMonacoEditor({
-        value,
-        theme,
-        onChange
-      }: {
-        value?: string
-        theme?: string
-        onChange?: (value?: string) => void
-      }) {
-        return (
-          <textarea
-            data-testid="monaco-editor"
-            data-theme={theme ?? ""}
-            value={value ?? ""}
-            onChange={(e) => onChange?.(e.target.value)}/>
-        );
-      };
+    default: () => function MockMonacoEditor({
+      value,
+      theme,
+      onChange
+    }: {
+      value?: string
+      theme?: string
+      onChange?: (value?: string) => void
+    }) {
+      return (
+        <textarea
+          data-testid="monaco-editor"
+          data-theme={theme ?? ""}
+          value={value ?? ""}
+          onChange={(e) => onChange?.(e.target.value)}/>
+      );
     }
   }));
 }
