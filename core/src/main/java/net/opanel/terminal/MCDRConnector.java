@@ -36,7 +36,9 @@ public class MCDRConnector {
     public void dispose() {
         running = false;
         clearListeners();
-        socketThread.interrupt();
+        if(socketThread != null) {
+            socketThread.interrupt();
+        }
     }
 
     private void connectLoop() {
