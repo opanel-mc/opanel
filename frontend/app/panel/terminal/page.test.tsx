@@ -3,6 +3,8 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { toast } from "sonner";
 import { createMockTerminalWsClient, createTerminalSettingsState } from "@/test/terminal-helper";
+import { createMockVersionContext } from "@/test/contexts-helper";
+import { VersionContext } from "@/contexts/api-context";
 import Terminal from "./page";
 
 const { wsRef, settingsRef, changeSettingsSpy } = vi.hoisted(() => ({
@@ -41,6 +43,8 @@ vi.mock("@/components/autocomplete-input", () => ({
   AutocompleteInput: ({ ref, onInput, onKeyDown, itemList, enabled, prefix, ...props }: any) => (
     <input
       data-testid="terminal-input"
+      data-prefix={prefix}
+      data-item-list={JSON.stringify(itemList)}
       {...props}
       ref={(elem) => {
         if(ref) {
@@ -174,6 +178,143 @@ describe("test terminal page", () => {
 
     expect(toast.warning).toHaveBeenCalled();
     expect(wsRef.current?.client.send).not.toHaveBeenCalledWith("command", expect.any(String));
+  });
+
+  describe("mcdr command autocomplete", () => {
+    const mcdrVersionCtx = createMockVersionContext({ mcdr: true });
+
+    it("should set autocomplete item list to MCDR commands when typing MCDR prefix", async () => {
+      render(
+        <VersionContext.Provider value={mcdrVersionCtx}>
+          <Terminal />
+        </VersionContext.Provider>
+      );
+
+      const input = screen.getByTestId("terminal-input");
+      fireEvent.input(input, { target: { value: "!!" } });
+
+      await waitFor(() => {
+        const itemList = JSON.parse(input.getAttribute("data-item-list") ?? "[]") as string[];
+        expect(itemList).toContain("MCDR");
+        expect(itemList).toContain("help");
+      });
+    });
+
+    it("should switch AutocompleteInput prefix to !! when typing MCDR command, and revert to / after clearing it", async () => {
+      render(
+        <VersionContext.Provider value={mcdrVersionCtx}>
+          <Terminal />
+        </VersionContext.Provider>
+      );
+
+      const input = screen.getByTestId("terminal-input");
+
+      expect(input).toHaveAttribute("data-prefix", "/");
+
+      fireEvent.input(input, { target: { value: "!!" } });
+      await waitFor(() => {
+        expect(input).toHaveAttribute("data-prefix", "!!");
+      });
+
+      fireEvent.input(input, { target: { value: "/say hi" } });
+      await waitFor(() => {
+        expect(input).toHaveAttribute("data-prefix", "/");
+      });
+    });
+
+    it("should not send WebSocket autocomplete request when typing MCDR command prefix", () => {
+      render(
+        <VersionContext.Provider value={mcdrVersionCtx}>
+          <Terminal />
+        </VersionContext.Provider>
+      );
+
+      const input = screen.getByTestId("terminal-input");
+      fireEvent.input(input, { target: { value: "!!MCDR" } });
+
+      expect(wsRef.current?.client.send).not.toHaveBeenCalledWith("autocomplete", expect.any(Object));
+    });
+
+    it("should resume WebSocket autocomplete after switching from MCDR prefix to normal command", async () => {
+      render(
+        <VersionContext.Provider value={mcdrVersionCtx}>
+          <Terminal />
+        </VersionContext.Provider>
+      );
+
+      const input = screen.getByTestId("terminal-input");
+      fireEvent.input(input, { target: { value: "!!MCDR" } });
+      fireEvent.input(input, { target: { value: "/say hi" } });
+
+      await waitFor(() => {
+        expect(wsRef.current?.client.send).toHaveBeenCalledWith(
+          "autocomplete",
+          expect.objectContaining({ command: "say hi" })
+        );
+      });
+    });
+
+    it("should not trigger MCDR mode when mcdr is disabled even if input starts with !!", async () => {
+      render(
+        <VersionContext.Provider value={createMockVersionContext({ mcdr: false })}>
+          <Terminal />
+        </VersionContext.Provider>
+      );
+
+      const input = screen.getByTestId("terminal-input");
+      fireEvent.input(input, { target: { value: "!!MCDR" } });
+
+      await waitFor(() => {
+        expect(input).toHaveAttribute("data-prefix", "/");
+      });
+
+      const itemList = JSON.parse(input.getAttribute("data-item-list") ?? "[]") as string[];
+      expect(itemList).not.toContain("MCDR");
+      expect(itemList).not.toContain("help");
+    });
+
+    it("should not trigger MCDR mode when input starts with single ! (not !!)", async () => {
+      render(
+        <VersionContext.Provider value={mcdrVersionCtx}>
+          <Terminal />
+        </VersionContext.Provider>
+      );
+
+      const input = screen.getByTestId("terminal-input");
+      fireEvent.input(input, { target: { value: "!single" } });
+
+      await waitFor(() => {
+        expect(input).toHaveAttribute("data-prefix", "/");
+      });
+
+      const itemList = JSON.parse(input.getAttribute("data-item-list") ?? "[]") as string[];
+      expect(itemList).not.toContain("MCDR");
+      expect(itemList).not.toContain("help");
+    });
+
+    it("should reset autocomplete item list when clearing MCDR prefix back to empty", async () => {
+      render(
+        <VersionContext.Provider value={mcdrVersionCtx}>
+          <Terminal />
+        </VersionContext.Provider>
+      );
+
+      const input = screen.getByTestId("terminal-input");
+      fireEvent.input(input, { target: { value: "!!" } });
+
+      await waitFor(() => {
+        const itemList = JSON.parse(input.getAttribute("data-item-list") ?? "[]") as string[];
+        expect(itemList).toContain("MCDR");
+      });
+
+      fireEvent.input(input, { target: { value: "" } });
+
+      await waitFor(() => {
+        const itemList = JSON.parse(input.getAttribute("data-item-list") ?? "[]") as string[];
+        expect(itemList).toEqual([]);
+        expect(input).toHaveAttribute("data-prefix", "/");
+      });
+    });
   });
 
   it("should create shortcut and execute it only on double click", async () => {
