@@ -87,7 +87,10 @@ public class TerminalEndpoint extends BaseEndpoint {
         logListenerManager.clearListeners();
         if(mcdrConnector != null) {
             mcdrConnector.clearListeners();
+            mcdrConnector.dispose();
+            mcdrConnector = null;
         }
         hasLogListenerRegistered.set(false);
+        hasMCDRLogListenerRegistered.set(false);
     }
 }
