@@ -4,6 +4,7 @@ import type { CommandShortcut } from "@/lib/types";
 import {
   type KeyboardEvent,
   useCallback,
+  useContext,
   useEffect,
   useRef,
   useState
@@ -30,8 +31,10 @@ import { $ } from "@/lib/i18n";
 import { type ConsoleLogLevel, defaultLogLevel, TerminalClient } from "@/lib/ws/terminal";
 import { Toggle } from "@/components/ui/toggle";
 import { CreateShortcutDialog } from "./create-shortcut-dialog";
+import { VersionContext } from "@/contexts/api-context";
 
 export default function Terminal() {
+  const versionCtx = useContext(VersionContext);
   const client = useWebSocket(TerminalClient);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const terminalContainerRef = useRef<HTMLDivElement | null>(null);
@@ -169,6 +172,19 @@ export default function Terminal() {
         ref={terminalContainerRef}>
         <TerminalViewer client={client} level={logLevel} className="flex-1 border-none"/>
         <div className={cn("px-3 pt-1 flex flex-wrap items-center gap-1 transition-[gap]", editingShortcuts && "gap-3")}>
+          {versionCtx?.mcdr && (
+            <Button
+              size="xs"
+              className={cn("cursor-pointer", googleSansCode.className)}
+              onClick={() => {
+                if(!inputRef.current) return;
+                inputRef.current.value = "!!MCDR ";
+                inputRef.current.focus();
+              }}
+              onDoubleClick={() => handleSend()}>
+              !!MCDR
+            </Button>
+          )}
           {shortcuts.map((shortcut, i) => (
             <div
               className="relative *:cursor-pointer"
