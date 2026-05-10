@@ -83,7 +83,7 @@ export function CreateCodeOfConductDialog({
                     ISO-639-1
                   </Link>,
                   <Link
-                    href="https://iso.org/iso-3166-country-codes"
+                    href="https://iso.org/iso-3166-country-codes.html"
                     target="_blank"
                     rel="noopener noreferrer"
                     key={2}>
