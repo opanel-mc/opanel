@@ -17,7 +17,7 @@ body:
     attributes:
       label: Please check the following
       description: |
-        1. **I've read [FAQ](https://opanel.cn/en/docs/faq.html)**
+        1. **I've read [FAQ](https://opanel.cn/en/docs/faq)**
         2. I'm sure this feature has NOT been suggested before
       options:
         - label: I checked

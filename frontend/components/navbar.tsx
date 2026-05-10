@@ -47,7 +47,7 @@ export function Navbar({ className, ...props }: React.ComponentProps<"nav">) {
           variant="ghost"
           asChild>
           <Link
-            href="https://opanel.cn/docs/quick-start.html"
+            href="https://opanel.cn/docs/quick-start"
             target="_blank"
             rel="noopener noreferrer">
             <BookText />

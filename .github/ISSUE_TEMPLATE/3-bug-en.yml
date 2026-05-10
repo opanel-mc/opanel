@@ -51,7 +51,7 @@ body:
     attributes:
       label: Please check the following
       description: |
-        1. **I've read the [docs](https://opanel.cn/en/docs/quick-start.html) and [FAQ](https://opanel.cn/en/docs/faq.html)**
+        1. **I've read the [docs](https://opanel.cn/en/docs/quick-start) and [FAQ](https://opanel.cn/en/docs/faq)**
         2. I'm sure this issue has NOT been reported before
       options:
         - label: I checked

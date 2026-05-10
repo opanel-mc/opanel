@@ -51,11 +51,11 @@ OPanel 的功能包括：
 
 ## 用法
 
-请阅读[快速开始](https://opanel.cn/docs/quick-start.html)。
+请阅读[快速开始](https://opanel.cn/docs/quick-start)。
 
 ## 贡献
 
-查看[贡献指南](https://opanel.cn/docs/contributing.html)以了解更多信息。
+查看[贡献指南](https://opanel.cn/docs/contributing)以了解更多信息。
 
 ## 友情链接
 

@@ -51,7 +51,7 @@ body:
     attributes:
       label: 请确认以下事项
       description: |
-        1. **我已仔细阅读[官方文档](https://opanel.cn/docs/quick-start.html)和[常见问题](https://opanel.cn/docs/faq.html)**
+        1. **我已仔细阅读[官方文档](https://opanel.cn/docs/quick-start)和[常见问题](https://opanel.cn/docs/faq)**
         2. 我已确认该问题在之前没有被其他人反馈过
       options:
         - label: 我已确认以上事项

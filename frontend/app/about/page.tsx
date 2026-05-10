@@ -126,7 +126,7 @@ export default function About() {
           size="icon"
           title={$("about.footer.docs")}
           asChild>
-          <Link href="https://opanel.cn/docs/quick-start.html" target="_blank" rel="noopener noreferrer">
+          <Link href="https://opanel.cn/docs/quick-start" target="_blank" rel="noopener noreferrer">
             <BookText />
           </Link>
         </Button>
