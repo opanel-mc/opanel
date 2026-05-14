@@ -14,6 +14,7 @@
     "bundle": "node scripts/bundle",
     "prelaunch": "node scripts/prelaunch",
     "prelaunch:force": "node scripts/prelaunch -f",
+    "wasm:test": "cd wasm-lib && cargo test -p wasm-lib",
     "wasm:build": "node scripts/build-wasm --run",
     "wasm:build:force": "node scripts/build-wasm -f --run"
   },

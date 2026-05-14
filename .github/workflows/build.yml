@@ -40,6 +40,9 @@ jobs:
     - name: Run unit tests
       run: npm run test
     
+    - name: Run wasm unit tests
+      run: npm run wasm:test
+    
     - name: Test building frontend
       run: npm run build
 
