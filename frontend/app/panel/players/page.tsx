@@ -101,6 +101,7 @@ export default function Players() {
       description={$("players.description")}
       category={$("sidebar.management")}
       icon={<Users />}
+      pageClassName="min-xl:px-64!"
       className="flex flex-col gap-3">
       <span className="text-sm text-muted-foreground">{$("players.hint")}</span>
       <Tabs
@@ -109,7 +110,7 @@ export default function Players() {
           setCurrentTab(value as TabValueType);
           changeSettings("state.players.tab", value as TabValueType);
         }}>
-        <div className="flex justify-between items-end max-lg:flex-col-reverse max-lg:items-start">
+        <div className="flex flex-col-reverse items-start lg:flex-row lg:justify-between lg:items-end xl:flex-col-reverse xl:items-start 2xl:flex-row 2xl:justify-between 2xl:items-end">
           <TabsList>
             <TabsTrigger value="player-list">
               {`${$("players.player-list.title")} (${players.filter(({ isOnline }) => isOnline).length} / ${maxPlayerCount})`}
@@ -118,7 +119,7 @@ export default function Players() {
               {`${$("players.banned-list.title")} (${players.filter(({ isBanned }) => isBanned).length})`}
             </TabsTrigger>
           </TabsList>
-          <div className="min-w-fit border-b border-b-sidebar-border max-lg:border-b-transparent pb-1 flex gap-2 max-sm:flex-col max-sm:items-start *:cursor-pointer">
+          <div className="min-w-fit border-b border-b-transparent lg:border-b-sidebar-border xl:border-b-transparent 2xl:border-b-sidebar-border pb-1 flex gap-2 max-sm:flex-col max-sm:items-start *:cursor-pointer">
             <Button
               variant="ghost"
               title={$("players.action.refresh")}
