@@ -110,7 +110,7 @@ export default function Players() {
           setCurrentTab(value as TabValueType);
           changeSettings("state.players.tab", value as TabValueType);
         }}>
-        <div className="flex justify-between items-end max-lg:flex-col-reverse max-lg:items-start">
+        <div className="flex justify-between items-end max-2xl:flex-col max-2xl:items-start max-2xl:gap-2 max-lg:flex-col-reverse">
           <TabsList>
             <TabsTrigger value="player-list">
               {`${$("players.player-list.title")} (${players.filter(({ isOnline }) => isOnline).length} / ${maxPlayerCount})`}
