@@ -101,7 +101,8 @@ export default function Players() {
       description={$("players.description")}
       category={$("sidebar.management")}
       icon={<Users />}
-      className="flex flex-col gap-3">
+      className="flex flex-col gap-3"
+      pageClassName="min-xl:px-64!">
       <span className="text-sm text-muted-foreground">{$("players.hint")}</span>
       <Tabs
         value={currentTab}
