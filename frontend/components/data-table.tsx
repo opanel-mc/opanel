@@ -29,8 +29,7 @@ export function DataTable<D, V>({
   pagination = false,
   paginationQueryKey,
   fallbackMessage = $("table.empty"),
-  className,
-  outerClassName
+  className
 }: {
   columns: ColumnDef<D, V>[]
   data: D[]
@@ -38,7 +37,6 @@ export function DataTable<D, V>({
   paginationQueryKey?: string
   fallbackMessage?: string
   className?: string
-  outerClassName?: string
 }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -94,7 +92,7 @@ export function DataTable<D, V>({
   }, [data.length, pagination, paginationQueryKey, paginationState.pageSize, searchParams]);
 
   return (
-    <div className={cn("flex flex-col gap-5", outerClassName)}>
+    <div className="flex flex-col gap-5">
       <div className={cn(className, "border rounded-md bg-background dark:bg-transparent")}>
         <Table>
           <TableHeader>
