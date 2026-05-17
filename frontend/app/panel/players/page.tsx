@@ -187,6 +187,7 @@ export default function Players() {
             ]}
             pagination
             paginationQueryKey="page"
+            outerClassName="contain-layout"
             fallbackMessage={$("players.empty")}/>
         </TabsContent>
         <TabsContent value="banned-list">
@@ -195,6 +196,7 @@ export default function Players() {
             data={bannedPlayers.filter(({ name }) => name.toLowerCase().includes(searchString.toLowerCase()))}
             pagination
             paginationQueryKey="banned-page"
+            outerClassName="contain-layout"
             fallbackMessage={$("players.empty")}/>
         </TabsContent>
       </Tabs>
