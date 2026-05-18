@@ -44,7 +44,7 @@
     "minecraft-textures": "^1.21.11",
     "monaco-editor": "^0.53.0",
     "monaco-yaml": "^5.4.0",
-    "next": "15.4.10",
+    "next": "15.5.18",
     "next-themes": "^0.4.6",
     "properties-file": "^3.6.1",
     "radix-ui": "^1.4.3",
