@@ -69,8 +69,18 @@ jobs:
           14
         distribution: "zulu"
         cache: "gradle"
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: ./frontend/package-lock.json
     - name: Change wrapper permissions
       run: chmod +x ./gradlew
+
+    - run: npm i
+    - name: Build and bundle frontend
+      run: npm run build:pack
 
     - name: Building jar files
       run: JAVA_HOME=$JAVA_HOME_25_X64 ./gradlew build --stacktrace
