@@ -78,9 +78,9 @@ jobs:
     - name: Change wrapper permissions
       run: chmod +x ./gradlew
 
-    - run: npm i
+    - run: cd frontend && npm i
     - name: Build and bundle frontend
-      run: npm run build:pack
+      run: cd frontend && npm run build:pack
 
     - name: Building jar files
       run: JAVA_HOME=$JAVA_HOME_25_X64 ./gradlew build --stacktrace
