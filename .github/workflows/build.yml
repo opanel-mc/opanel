@@ -84,37 +84,25 @@ jobs:
 
     - name: Building jar files
       run: JAVA_HOME=$JAVA_HOME_25_X64 ./gradlew build --stacktrace
-    - name: Upload Bukkit/Spigot jars
-      uses: actions/upload-artifact@v4
-      with:
-        name: opanel-bukkit-jars
-        path: ./build/libs/opanel-bukkit-*-build.jar
-        if-no-files-found: warn
-
-    - name: Upload Folia jars
-      uses: actions/upload-artifact@v4
-      with:
-        name: opanel-folia-jars
-        path: ./build/libs/opanel-folia-*-build.jar
-        if-no-files-found: warn
-
-    - name: Upload Fabric jars
-      uses: actions/upload-artifact@v4
-      with:
-        name: opanel-fabric-jars
-        path: ./build/libs/opanel-fabric-*-build.jar
-        if-no-files-found: warn
-
-    - name: Upload Forge jars
-      uses: actions/upload-artifact@v4
-      with:
-        name: opanel-forge-jars
-        path: ./build/libs/opanel-forge-*-build.jar
-        if-no-files-found: warn
-
-    - name: Upload NeoForge jars
-      uses: actions/upload-artifact@v4
-      with:
-        name: opanel-neoforge-jars
-        path: ./build/libs/opanel-neoforge-*-build.jar
-        if-no-files-found: warn
+    - name: Upload individual jar artifacts
+      run: |
+        npm install --prefix /tmp/artifact-uploader @actions/artifact --silent
+        node << 'SCRIPT'
+        const { DefaultArtifactClient } = require('/tmp/artifact-uploader/node_modules/@actions/artifact');
+        const fs = require('fs');
+        const path = require('path');
+        (async () => {
+          const client = new DefaultArtifactClient();
+          const libsDir = path.resolve('build/libs');
+          const jars = fs.readdirSync(libsDir)
+            .filter(f => /^opanel-.*-build\.jar$/.test(f))
+            .sort();
+          console.log(`Uploading ${jars.length} jars individually...`);
+          for (const jar of jars) {
+            const name = path.basename(jar, '.jar');
+            process.stdout.write(`  ${name} ... `);
+            await client.uploadArtifact(name, [path.join(libsDir, jar)], libsDir);
+            console.log('done');
+          }
+        })().catch(e => { console.error(e); process.exit(1); });
+        SCRIPT
