@@ -84,8 +84,37 @@ jobs:
 
     - name: Building jar files
       run: JAVA_HOME=$JAVA_HOME_25_X64 ./gradlew build --stacktrace
-    - name: Upload artifacts
+    - name: Upload Bukkit/Spigot jars
       uses: actions/upload-artifact@v4
       with:
-        name: opanel-jars
-        path: ./build/libs/*
+        name: opanel-bukkit-jars
+        path: ./build/libs/opanel-bukkit-*-build.jar
+        if-no-files-found: warn
+
+    - name: Upload Folia jars
+      uses: actions/upload-artifact@v4
+      with:
+        name: opanel-folia-jars
+        path: ./build/libs/opanel-folia-*-build.jar
+        if-no-files-found: warn
+
+    - name: Upload Fabric jars
+      uses: actions/upload-artifact@v4
+      with:
+        name: opanel-fabric-jars
+        path: ./build/libs/opanel-fabric-*-build.jar
+        if-no-files-found: warn
+
+    - name: Upload Forge jars
+      uses: actions/upload-artifact@v4
+      with:
+        name: opanel-forge-jars
+        path: ./build/libs/opanel-forge-*-build.jar
+        if-no-files-found: warn
+
+    - name: Upload NeoForge jars
+      uses: actions/upload-artifact@v4
+      with:
+        name: opanel-neoforge-jars
+        path: ./build/libs/opanel-neoforge-*-build.jar
+        if-no-files-found: warn
