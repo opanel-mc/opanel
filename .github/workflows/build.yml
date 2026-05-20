@@ -95,7 +95,7 @@ jobs:
           const client = new DefaultArtifactClient();
           const libsDir = path.resolve('build/libs');
           const jars = fs.readdirSync(libsDir)
-            .filter(f => /^opanel-.*-build\.jar$/.test(f))
+            .filter(f => /^opanel-.*-build.*\.jar$/.test(f))
             .sort();
           console.log(`Uploading ${jars.length} jars individually...`);
           for (const jar of jars) {
