@@ -547,6 +547,8 @@
   "bukkit-config.editor.status-bar.edited": "*已編輯",
 
   "settings.title": "設定",
+  "settings.general.title": "通用",
+  "settings.editor.title": "編輯器",
   "settings.dashboard.title": "儀表板",
   "settings.dashboard.monitor-interval": "資源監控刷新間隔",
   "settings.dashboard.monitor-interval.description": "刷新監控數據時間間隔（單位：毫秒）",

@@ -547,6 +547,8 @@
   "bukkit-config.editor.status-bar.edited": "*已编辑",
 
   "settings.title": "设置",
+  "settings.general.title": "通用",
+  "settings.editor.title": "编辑器",
   "settings.dashboard.title": "仪表盘",
   "settings.dashboard.monitor-interval": "资源监控刷新间隔",
   "settings.dashboard.monitor-interval.description": "刷新监控数据时间间隔（单位: ms）",

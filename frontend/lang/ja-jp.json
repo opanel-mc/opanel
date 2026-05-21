@@ -547,6 +547,8 @@
   "bukkit-config.editor.status-bar.edited": "*編集済み",
 
   "settings.title": "設定",
+  "settings.general.title": "一般",
+  "settings.editor.title": "エディター",
   "settings.dashboard.title": "ダッシュボード",
   "settings.dashboard.monitor-interval": "リソース監視更新間隔",
   "settings.dashboard.monitor-interval.description": "監視データの更新間隔（単位: ms）",

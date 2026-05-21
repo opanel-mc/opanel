@@ -547,6 +547,8 @@
   "bukkit-config.editor.status-bar.edited": "*Edited",
 
   "settings.title": "Settings",
+  "settings.general.title": "General",
+  "settings.editor.title": "Editor",
   "settings.dashboard.title": "Dashboard",
   "settings.dashboard.monitor-interval": "Resource Monitoring Refresh Interval",
   "settings.dashboard.monitor-interval.description": "Refresh monitoring data interval (unit: ms)",

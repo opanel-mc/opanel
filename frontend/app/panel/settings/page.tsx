@@ -30,11 +30,25 @@ import { type LanguageCode, languages } from "@/lang";
 import { $ } from "@/lib/i18n";
 import { sendDeleteRequest } from "@/lib/api";
 
-const SETTINGS_TAB_VALUES = ["dashboard", "players", "terminal", "code-of-conduct", "monaco", "server", "opanel"] as const;
+const SETTINGS_TAB_VALUES = ["general", "server", "terminal", "editor"] as const;
 
 function Section({ children }: PropsWithChildren) {
   return (
     <div className="bg-background dark:bg-transparent border rounded-md flex flex-col">{children}</div>
+  );
+}
+
+function SectionGroup({
+  title,
+  children
+}: PropsWithChildren & {
+  title: string
+}) {
+  return (
+    <div className="mb-4 flex flex-col gap-3">
+      <h3 className="mx-1 font-semibold">{title}</h3>
+      {children}
+    </div>
   );
 }
 
@@ -67,7 +81,7 @@ export default function Settings() {
   const tabFromUrl = searchParams.get("tab");
   const currentTab = (SETTINGS_TAB_VALUES as readonly string[]).includes(tabFromUrl ?? "")
     ? (tabFromUrl as (typeof SETTINGS_TAB_VALUES)[number])
-    : "dashboard";
+    : "general";
   const [openLaunchCommand, setOpenLaunchCommand] = useState(false);
 
   const setTab = (value: string) => {
@@ -79,12 +93,13 @@ export default function Settings() {
   useEffect(() => {
     if(searchParams.has("openLaunchCommand")) {
       setOpenLaunchCommand(true);
-      setTab("server");
       toast.warning($("settings.server.launch-command.required"));
       
       const next = new URLSearchParams(searchParams.toString());
       next.delete("openLaunchCommand");
       replace(`${pathname}?${next.toString()}`);
+      
+      setTab("server");
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -113,11 +128,11 @@ export default function Settings() {
         <TabsList>
           {SETTINGS_TAB_VALUES.map((value) => (
             <TabsTrigger key={value} value={value}>
-              {value === "opanel" ? "OPanel" : $(`settings.${value}.title`)}
+              {$(`settings.${value}.title`)}
             </TabsTrigger>
           ))}
         </TabsList>
-        <TabsContent value="dashboard">
+        <TabsContent value="general" className="space-y-3">
           <Section>
             <SettingsItem
               id="dashboard.monitor-interval"
@@ -125,8 +140,6 @@ export default function Settings() {
               description={$("settings.dashboard.monitor-interval.description")}
               control={<SettingsNumberInput id="dashboard.monitor-interval" min={1}/>}/>
           </Section>
-        </TabsContent>
-        <TabsContent value="players">
           <Section>
             <SettingsItem
               id="players.avatar-provider"
@@ -187,6 +200,83 @@ export default function Settings() {
                 </Select>
               }/> */}
           </Section>
+          <SectionGroup title="OPanel">
+            <Section>
+              <SettingsItem
+                id="system.language"
+                name="🇨🇳 🇩🇪 🇺🇸 🇫🇷 🇰🇷 🇰🇵 🇯🇵"
+                control={
+                  <Select
+                    defaultValue={getSettings("system.language")}
+                    onValueChange={(value) => {
+                      changeSettings("system.language", value as LanguageCode);
+                      window.location.reload();
+                    }}>
+                    <SelectTrigger className="w-40">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.keys(languages).map((lang, i) => (
+                        <SelectItem value={lang} key={i}>{languages[lang]["$lang"]}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                }/>
+              <SettingsItem
+                id="system.login-banner"
+                name={$("settings.login-banner.title")}
+                description={$("settings.login-banner.description")}
+                control={
+                  <LoginBannerDialog asChild>
+                    <Button className="cursor-pointer" size="sm">{$("settings.system.login-banner.modify")}</Button>
+                  </LoginBannerDialog>
+                }/>
+              <SettingsItem
+                id="system.mcp"
+                name={$("settings.system.mcp")}
+                description={$("settings.system.mcp.description")}
+                control={
+                  <Button
+                    className="cursor-pointer"
+                    size="sm"
+                    asChild>
+                    <Link href="/panel/mcp">{$("settings.system.mcp.configure")}</Link>
+                  </Button>
+                }/>
+              <SettingsItem
+                id="system.access-key"
+                name={$("settings.system.access-key")}
+                control={
+                  <SecurityDialog asChild>
+                    <Button className="cursor-pointer" size="sm">{$("settings.system.access-key.modify")}</Button>
+                  </SecurityDialog>
+                }/>
+              <SettingsItem
+                id="system.check-update"
+                name={$("settings.system.check-update")}
+                control={
+                  <UpdateDialog asChild>
+                    <Button className="cursor-pointer" size="sm">{$("settings.system.check-update.check")}</Button>
+                  </UpdateDialog>
+                }/>
+            </Section>
+          </SectionGroup>
+        </TabsContent>
+        <TabsContent value="server">
+          <Section>
+            <SettingsItem
+              id="server.launch-command"
+              name={$("settings.server.launch-command")}
+              description={$("settings.server.launch-command.description")}
+              control={
+                <LaunchCommandDialog
+                  asChild
+                  open={openLaunchCommand}
+                  onOpenChange={setOpenLaunchCommand}>
+                  <Button className="cursor-pointer" size="sm">{$("settings.server.launch-command.modify")}</Button>
+                </LaunchCommandDialog>
+              }/>
+          </Section>
         </TabsContent>
         <TabsContent value="terminal">
           <Section>
@@ -245,104 +335,29 @@ export default function Settings() {
               control={<SettingsSwitch id="terminal.rich-style"/>}/>
           </Section>
         </TabsContent>
-        <TabsContent value="code-of-conduct">
-          <Section>
-            <SettingsItem
-              id="code-of-conduct.auto-saving-interval"
-              name={$("settings.code-of-conduct.auto-saving-interval")}
-              description={$("settings.code-of-conduct.auto-saving-interval.description")}
-              control={<SettingsNumberInput id="code-of-conduct.auto-saving-interval" min={1000}/>}/>
-          </Section>
-        </TabsContent>
-        <TabsContent value="monaco">
-          <Section>
-            <SettingsItem
-              id="monaco.word-wrap"
-              name={$("settings.monaco.word-wrap")}
-              control={<SettingsSwitch id="monaco.word-wrap"/>}/>
-            <SettingsItem
-              id="monaco.font-size"
-              name={$("settings.monaco.font-size")}
-              description={$("settings.monaco.font-size.description")}
-              control={<SettingsNumberInput id="monaco.font-size" min={1} max={30}/>}/>
-          </Section>
-        </TabsContent>
-        <TabsContent value="server">
-          <Section>
-            <SettingsItem
-              id="server.launch-command"
-              name={$("settings.server.launch-command")}
-              description={$("settings.server.launch-command.description")}
-              control={
-                <LaunchCommandDialog
-                  asChild
-                  open={openLaunchCommand}
-                  onOpenChange={setOpenLaunchCommand}>
-                  <Button className="cursor-pointer" size="sm">{$("settings.server.launch-command.modify")}</Button>
-                </LaunchCommandDialog>
-              }/>
-          </Section>
-        </TabsContent>
-        <TabsContent value="opanel">
-          <Section>
-            <SettingsItem
-              id="system.language"
-              name="🇨🇳 🇩🇪 🇺🇸 🇫🇷 🇰🇷 🇰🇵 🇯🇵"
-              control={
-                <Select
-                  defaultValue={getSettings("system.language")}
-                  onValueChange={(value) => {
-                    changeSettings("system.language", value as LanguageCode);
-                    window.location.reload();
-                  }}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.keys(languages).map((lang, i) => (
-                      <SelectItem value={lang} key={i}>{languages[lang]["$lang"]}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              }/>
-            <SettingsItem
-              id="system.login-banner"
-              name={$("settings.login-banner.title")}
-              description={$("settings.login-banner.description")}
-              control={
-                <LoginBannerDialog asChild>
-                  <Button className="cursor-pointer" size="sm">{$("settings.system.login-banner.modify")}</Button>
-                </LoginBannerDialog>
-              }/>
-            <SettingsItem
-              id="system.mcp"
-              name={$("settings.system.mcp")}
-              description={$("settings.system.mcp.description")}
-              control={
-                <Button
-                  className="cursor-pointer"
-                  size="sm"
-                  asChild>
-                  <Link href="/panel/mcp">{$("settings.system.mcp.configure")}</Link>
-                </Button>
-              }/>
-            <SettingsItem
-              id="system.access-key"
-              name={$("settings.system.access-key")}
-              control={
-                <SecurityDialog asChild>
-                  <Button className="cursor-pointer" size="sm">{$("settings.system.access-key.modify")}</Button>
-                </SecurityDialog>
-              }/>
-            <SettingsItem
-              id="system.check-update"
-              name={$("settings.system.check-update")}
-              control={
-                <UpdateDialog asChild>
-                  <Button className="cursor-pointer" size="sm">{$("settings.system.check-update.check")}</Button>
-                </UpdateDialog>
-              }/>
-          </Section>
+        <TabsContent value="editor">
+          <SectionGroup title={$("settings.code-of-conduct.title")}>
+            <Section>
+              <SettingsItem
+                id="code-of-conduct.auto-saving-interval"
+                name={$("settings.code-of-conduct.auto-saving-interval")}
+                description={$("settings.code-of-conduct.auto-saving-interval.description")}
+                control={<SettingsNumberInput id="code-of-conduct.auto-saving-interval" min={1000}/>}/>
+            </Section>
+          </SectionGroup>
+          <SectionGroup title={$("settings.monaco.title")}>
+            <Section>
+              <SettingsItem
+                id="monaco.word-wrap"
+                name={$("settings.monaco.word-wrap")}
+                control={<SettingsSwitch id="monaco.word-wrap"/>}/>
+              <SettingsItem
+                id="monaco.font-size"
+                name={$("settings.monaco.font-size")}
+                description={$("settings.monaco.font-size.description")}
+                control={<SettingsNumberInput id="monaco.font-size" min={1} max={30}/>}/>
+            </Section>
+          </SectionGroup>
         </TabsContent>
       </Tabs>
     </SubPage>
