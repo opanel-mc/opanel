@@ -28,7 +28,10 @@ import { googleSansCode } from "@/lib/fonts";
 import { AvatarProvider, SkinProvider } from "@/lib/types";
 import { type LanguageCode, languages } from "@/lang";
 import { $ } from "@/lib/i18n";
-import { sendDeleteRequest } from "@/lib/api";
+import { sendDeleteRequest, sendGetRequest, sendPostRequest, toastError } from "@/lib/api";
+import { Switch } from "@/components/ui/switch";
+import { emitter } from "@/lib/emitter";
+import { toastRestartAlert } from "@/components/restart-alert";
 
 const SETTINGS_TAB_VALUES = ["general", "server", "terminal", "editor"] as const;
 
@@ -67,7 +70,7 @@ function SettingsItem<K extends keyof SettingsStorageType>({
     <div id={id} className="flex justify-between items-center flex-wrap gap-2 px-4 py-3 border-b last:border-b-0">
       <div className="flex flex-col gap-1">
         <span className="text-sm">{name}</span>
-        <span className="text-xs text-muted-foreground">{description}</span>
+        <span className="text-xs text-muted-foreground whitespace-pre-line">{description}</span>
       </div>
       {control}
     </div>
@@ -83,11 +86,38 @@ export default function Settings() {
     ? (tabFromUrl as (typeof SETTINGS_TAB_VALUES)[number])
     : "general";
   const [openLaunchCommand, setOpenLaunchCommand] = useState(false);
+  const [mapFeatureEnabled, setMapFeatureEnabled] = useState(false);
 
   const setTab = (value: string) => {
     const next = new URLSearchParams(searchParams.toString());
     next.set("tab", value);
     replace(`${pathname}?${next.toString()}`);
+  };
+  
+  const fetchMapFeatureEnabled = async () => {
+    try {
+      const { enabled: mapEnabled } = await sendGetRequest<{ enabled: boolean }>("/api/map");
+      setMapFeatureEnabled(mapEnabled);
+    } catch (e: any) {
+      toastError(e, $("map.fetch-enabled.error"), [
+        [401, $("common.error.401")],
+        [500, $("common.error.500")]
+      ]);
+    }
+  };
+  
+  const handleToggleMap = async (enabled: boolean) => {
+    try {
+      await sendPostRequest(`/api/map?enabled=${enabled ? "1" : "0"}`);
+      setMapFeatureEnabled(enabled);
+      toastRestartAlert();
+    } catch (e: any) {
+      toastError(e, enabled ? $("map.toggle.enable.error") : $("map.toggle.disable.error"), [
+        [400, $("common.error.400")],
+        [401, $("common.error.401")],
+        [500, $("common.error.500")]
+      ]);
+    }
   };
 
   useEffect(() => {
@@ -102,6 +132,12 @@ export default function Settings() {
       setTab("server");
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    fetchMapFeatureEnabled();
+
+    emitter.on("refresh-data", () => fetchMapFeatureEnabled());
   }, []);
 
   return (
@@ -276,6 +312,11 @@ export default function Settings() {
                   <Button className="cursor-pointer" size="sm">{$("settings.server.launch-command.modify")}</Button>
                 </LaunchCommandDialog>
               }/>
+            <SettingsItem
+              id="server.map-feature"
+              name={$("settings.server.map-feature")}
+              description={$("settings.server.map-feature.description")}
+              control={<Switch checked={mapFeatureEnabled} onCheckedChange={handleToggleMap}/>}/>
           </Section>
         </TabsContent>
         <TabsContent value="terminal">

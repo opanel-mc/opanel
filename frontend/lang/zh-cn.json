@@ -401,6 +401,9 @@
   "terminal.shortcut.form.command.empty": "命令不可为空",
 
   "map.title": "地图",
+  "map.fetch-enabled.error": "获取地图功能状态失败",
+  "map.toggle.enable.error": "启用地图功能失败",
+  "map.toggle.disable.error": "禁用地图功能失败",
   "map.settings.title": "地图设置",
   "map.settings.description": "在此调整地图显示设置选项。",
   "map.settings.biome-coloring": "生物群系着色",
@@ -588,6 +591,8 @@
   "settings.server.launch-command.save.success": "启动命令保存成功",
   "settings.server.launch-command.save.error": "保存启动命令失败",
   "settings.server.launch-command.required": "请先设置启动命令后再尝试重启服务器",
+  "settings.server.map-feature": "地图功能",
+  "settings.server.map-feature.description": "启用地图功能后，OPanel将渲染服务器地图并提供地图页面以供查看\n此功能开启后需要重启服务器，重启后将开启多线程渲染当前存档",
   "settings.system.language": "语言",
   "settings.system.mcp": "MCP服务器",
   "settings.system.mcp.description": "配置MCP服务器，以实现大模型对OPanel的操作",

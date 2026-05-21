@@ -401,6 +401,9 @@
   "terminal.shortcut.form.command.empty": "命令は空にできません",
 
   "map.title": "マップ",
+  "map.fetch-enabled.error": "マップ機能の状態の取得に失敗しました",
+  "map.toggle.enable.error": "マップ機能の有効化に失敗しました",
+  "map.toggle.disable.error": "マップ機能の無効化に失敗しました",
   "map.settings.title": "マップ設定",
   "map.settings.description": "ここでマップの表示設定を調整できます。",
   "map.settings.biome-coloring": "バイオーム着色",
@@ -588,6 +591,8 @@
   "settings.server.launch-command.save.success": "起動コマンドの保存に成功しました",
   "settings.server.launch-command.save.error": "起動コマンドの保存に失敗しました",
   "settings.server.launch-command.required": "サーバーを再起動する前に起動コマンドを設定してください",
+  "settings.server.map-feature": "マップ機能",
+  "settings.server.map-feature.description": "マップ機能を有効にすると、OPanelはサーバーマップをレンダリングし、表示用のマップページを提供します\nこの機能を有効にするとサーバーの再起動が必要で、再起動後は現在のワールドをマルチスレッドでレンダリングします",
   "settings.system.language": "言語",
   "settings.system.mcp": "MCPサーバー",
   "settings.system.mcp.description": "MCPサーバーを配置して、大規模モデルによるOPanelの操作を実現する",

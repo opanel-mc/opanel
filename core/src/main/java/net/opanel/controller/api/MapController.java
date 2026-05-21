@@ -4,9 +4,12 @@ import io.javalin.http.ContentType;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 import net.opanel.OPanel;
+import net.opanel.config.MapConfiguration;
 import net.opanel.controller.BaseController;
 import net.opanel.map.MapRenderManager;
 import net.opanel.map.TileCompressor;
+import net.opanel.storage.Storage;
+import net.opanel.storage.StorageKey;
 import net.opanel.utils.Utils;
 
 import java.io.IOException;
@@ -18,11 +21,40 @@ import java.util.Map;
 import java.util.Set;
 
 public class MapController extends BaseController {
+    private MapConfiguration config;
+    private boolean originalEnabled;
+
     public MapController(OPanel plugin) {
         super(plugin);
+
+        config = Storage.get().getStoredData(StorageKey.MAP_CONFIG);
+        originalEnabled = config != null && config.enabled;
     }
 
+    public Handler getMapEnabled = ctx -> {
+        HashMap<String, Object> obj = new HashMap<>();
+        obj.put("enabled", config.enabled);
+        sendResponse(ctx, obj);
+    };
+
+    public Handler toggleMap = ctx -> {
+        final String enabled = ctx.queryParam("enabled");
+        if(enabled == null) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Status is missing.");
+            return;
+        }
+
+        config.enabled = enabled.equals("1");
+        Storage.get().setStoredData(StorageKey.MAP_CONFIG, config);
+        sendResponse(ctx, HttpStatus.OK);
+    };
+
     public Handler getAvailableTiles = ctx -> {
+        if(!originalEnabled) {
+            sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "Map feature is not enabled.");
+            return;
+        }
+
         final String saveName = ctx.pathParam("saveName");
         if(!Utils.isSafeFileName(saveName)) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal save name.");
@@ -57,6 +89,11 @@ public class MapController extends BaseController {
     };
 
     public Handler getTilesInRange = ctx -> {
+        if(!originalEnabled) {
+            sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "Map feature is not enabled.");
+            return;
+        }
+
         final String saveName = ctx.pathParam("saveName");
         if(!Utils.isSafeFileName(saveName)) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal save name.");
@@ -118,6 +155,11 @@ public class MapController extends BaseController {
     };
 
     public Handler getTiles = ctx -> {
+        if(!originalEnabled) {
+            sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "Map feature is not enabled.");
+            return;
+        }
+
         final String saveName = ctx.pathParam("saveName");
         if(!Utils.isSafeFileName(saveName)) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal save name.");

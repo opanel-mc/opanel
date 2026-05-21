@@ -180,6 +180,8 @@ public class WebServer {
                 delete("{fileName}", logsController.deleteLog);
             });
             path("map", () -> {
+                get("/", mapController.getMapEnabled);
+                post("/", mapController.toggleMap);
                 get("{saveName}", mapController.getAvailableTiles);
                 post("{saveName}/tiles-range", mapController.getTilesInRange);
                 post("{saveName}/tiles", mapController.getTiles);

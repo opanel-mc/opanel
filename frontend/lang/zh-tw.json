@@ -401,6 +401,9 @@
   "terminal.shortcut.form.command.empty": "命令不可為空",
 
   "map.title": "地圖",
+  "map.fetch-enabled.error": "取得地圖功能狀態失敗",
+  "map.toggle.enable.error": "啟用地圖功能失敗",
+  "map.toggle.disable.error": "停用地圖功能失敗",
   "map.settings.title": "地圖設定",
   "map.settings.description": "在這裡調整地圖顯示設定選項。",
   "map.settings.biome-coloring": "生物群系著色",
@@ -588,6 +591,8 @@
   "settings.server.launch-command.save.success": "啟動命令儲存成功",
   "settings.server.launch-command.save.error": "儲存啟動命令失敗",
   "settings.server.launch-command.required": "請先設定啟動命令後再嘗試重新啟動伺服器",
+  "settings.server.map-feature": "地圖功能",
+  "settings.server.map-feature.description": "啟用地圖功能後，OPanel會渲染伺服器地圖並提供地圖頁面以供檢視\n此功能開啟後需要重新啟動伺服器，重新啟動後將開啟多執行緒渲染當前存檔",
   "settings.system.language": "語言",
   "settings.system.mcp": "MCP伺服器",
   "settings.system.mcp.description": "配置MCP伺服器，以便大語言模型操作OPanel",

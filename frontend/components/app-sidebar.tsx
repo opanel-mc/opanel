@@ -117,17 +117,21 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {serverGroupItems.map((item, i) => (
-                <SidebarMenuItem key={i}>
-                  <SidebarMenuButton
-                    isActive={pathname.startsWith(item.url)}
-                    asChild>
-                    <Link href={item.url} className="pl-3">
-                      {pathname.startsWith(item.url) && <SidebarIndicator className="left-2"/>}
-                      <item.icon />
-                      <span className="whitespace-nowrap">{item.name}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                item.url === "/panel/map" && !versionCtx?.map
+                ? null
+                : (
+                  <SidebarMenuItem key={i}>
+                    <SidebarMenuButton
+                      isActive={pathname.startsWith(item.url)}
+                      asChild>
+                      <Link href={item.url} className="pl-3">
+                        {pathname.startsWith(item.url) && <SidebarIndicator className="left-2"/>}
+                        <item.icon />
+                        <span className="whitespace-nowrap">{item.name}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
               ))}
             </SidebarMenu>
           </SidebarGroupContent>

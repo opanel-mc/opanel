@@ -5,10 +5,13 @@ import net.opanel.common.OPanelChunkAccessor;
 import net.opanel.common.OPanelSave;
 import net.opanel.common.OPanelServer;
 import net.opanel.common.OPanelWorldRegion;
+import net.opanel.config.MapConfiguration;
 import net.opanel.event.EventManager;
 import net.opanel.event.EventType;
 import net.opanel.event.OPanelChunkDirtyEvent;
 import net.opanel.event.OPanelDirtyChunksFlushEvent;
+import net.opanel.storage.Storage;
+import net.opanel.storage.StorageKey;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,6 +31,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class MapRenderManager {
@@ -39,6 +43,7 @@ public class MapRenderManager {
     private static final long BUNDLE_WRITE_DEBOUNCE_MS = 5000L;
 
     private final OPanel plugin;
+    private final MapConfiguration config;
     private final ExecutorService executor = Executors.newFixedThreadPool(
         Runtime.getRuntime().availableProcessors()
     );
@@ -53,11 +58,13 @@ public class MapRenderManager {
     private final Map<String, Map<Long, byte[]>> tileBytesCache = new ConcurrentHashMap<>();
     private final Map<String, AtomicLong> indexVersion = new ConcurrentHashMap<>();
 
+    private Consumer<OPanelChunkDirtyEvent> chunkDirtyListener;
     private final DirtyChunkTracker dirtyChunkTracker = new DirtyChunkTracker();
     private final Map<String, ScheduledFuture<?>> pendingBundleWrite = new ConcurrentHashMap<>();
 
     public MapRenderManager(OPanel plugin) {
         this.plugin = plugin;
+        config = Storage.get().getStoredData(StorageKey.MAP_CONFIG);
     }
 
     public static long packCoord(int x, int z) {
@@ -73,6 +80,8 @@ public class MapRenderManager {
     }
 
     public void init() {
+        if(config == null || !config.enabled) return;
+
         for(OPanelSave save : plugin.getServer().getSaves()) {
             if(!save.isRunning()) continue; // skip the saves that is not running on the server
             saveRegionMap.put(save.getName(), save.getRegions());
@@ -86,7 +95,8 @@ public class MapRenderManager {
                 executor.execute(() -> loadTileBundle(saveName));
             } else {
                 renderSave(saveName, entry.getValue())
-                    .thenRunAsync(() -> writeTileBundle(saveName), executor);
+                    .thenRunAsync(() -> writeTileBundle(saveName), executor)
+                    .thenRunAsync(() -> plugin.logger.info("Save '"+ saveName +"' is pre-rendered successfully"));
             }
         }
 
@@ -97,9 +107,11 @@ public class MapRenderManager {
                 TimeUnit.MILLISECONDS
         );
 
-        EventManager.get().on(EventType.CHUNK_DIRTY, (OPanelChunkDirtyEvent e) -> {
+        chunkDirtyListener = (OPanelChunkDirtyEvent e) -> {
             dirtyChunkTracker.markDirty(e.getChunkX(), e.getChunkZ());
-        });
+        };
+
+        EventManager.get().on(EventType.CHUNK_DIRTY, chunkDirtyListener);
     }
 
     private void flushDirtyChunks() {
@@ -270,5 +282,12 @@ public class MapRenderManager {
             }
         }
         executor.shutdownNow();
+
+        saveRegionMap.clear();
+        tileBytesCache.clear();
+        indexVersion.clear();
+        if(chunkDirtyListener != null) {
+            EventManager.get().off(EventType.CHUNK_DIRTY, chunkDirtyListener);
+        }
     }
 }

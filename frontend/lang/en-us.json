@@ -401,6 +401,9 @@
   "terminal.shortcut.form.command.empty": "Command cannot be empty",
 
   "map.title": "Map",
+  "map.fetch-enabled.error": "Failed to get map feature status",
+  "map.toggle.enable.error": "Failed to enable map feature",
+  "map.toggle.disable.error": "Failed to disable map feature",
   "map.settings.title": "Map Settings",
   "map.settings.description": "Adjust map display settings here.",
   "map.settings.biome-coloring": "Biome Coloring",
@@ -588,6 +591,8 @@
   "settings.server.launch-command.save.success": "Launch command saved",
   "settings.server.launch-command.save.error": "Failed to save launch command",
   "settings.server.launch-command.required": "Please set the launch command before restarting the server",
+  "settings.server.map-feature": "Map Feature",
+  "settings.server.map-feature.description": "Once enabled, OPanel will render the server map and provide a map page to view it\nThis feature requires a server restart. After restarting, multi-threaded rendering of the current save will begin",
   "settings.system.language": "Language",
   "settings.system.mcp": "MCP Server",
   "settings.system.mcp.description": "Configure the MCP server so LLMs can get access to OPanel",

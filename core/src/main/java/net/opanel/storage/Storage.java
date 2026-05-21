@@ -2,6 +2,7 @@ package net.opanel.storage;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import net.opanel.config.MapConfiguration;
 import net.opanel.config.McpConfiguration;
 import net.opanel.config.OpenAPIConfiguration;
 import net.opanel.task.ScheduledTask;
@@ -36,6 +37,11 @@ public class Storage {
         registeredStorageFiles.put(StorageKey.LAUNCH_COMMAND, new StorageFile<>(
             "launch-command.txt",
             ""
+        ));
+        registeredStorageFiles.put(StorageKey.MAP_CONFIG, new StorageFile<>(
+            "map-config.json",
+            MapConfiguration.class,
+            new MapConfiguration(false)
         ));
     }
 
