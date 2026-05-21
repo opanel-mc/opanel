@@ -55,44 +55,34 @@ describe("test settings page", () => {
     mockTab = null;
   });
 
-  it("should select dashboard tab when URL has no tab query", () => {
+  it("should select general tab when URL has no tab query", () => {
     mockTab = null;
     mockQueryString = "";
 
     render(<Settings />);
 
     const selectedTab = screen.getByRole("tab", { selected: true });
-    expect(selectedTab).toHaveTextContent("[settings.dashboard.title]");
+    expect(selectedTab).toHaveTextContent("[settings.general.title]");
   });
 
-  it("should select dashboard tab when URL has invalid tab query", () => {
+  it("should select general tab when URL has invalid tab query", () => {
     mockTab = "invalid-tab";
     mockQueryString = "tab=invalid-tab";
 
     render(<Settings />);
 
     const selectedTab = screen.getByRole("tab", { selected: true });
-    expect(selectedTab).toHaveTextContent("[settings.dashboard.title]");
+    expect(selectedTab).toHaveTextContent("[settings.general.title]");
   });
 
   it("should select the tab matching the tab query when valid", () => {
-    mockTab = "players";
-    mockQueryString = "tab=players";
+    mockTab = "terminal";
+    mockQueryString = "tab=terminal";
 
     render(<Settings />);
 
     const selectedTab = screen.getByRole("tab", { selected: true });
-    expect(selectedTab).toHaveTextContent("[settings.players.title]");
-  });
-
-  it("should select opanel tab when tab=opanel in URL", () => {
-    mockTab = "opanel";
-    mockQueryString = "tab=opanel";
-
-    render(<Settings />);
-
-    const selectedTab = screen.getByRole("tab", { selected: true });
-    expect(selectedTab).toHaveTextContent("OPanel");
+    expect(selectedTab).toHaveTextContent("[settings.terminal.title]");
   });
 
   it("should call replace with new tab in query when user switches tab", async () => {
@@ -101,23 +91,23 @@ describe("test settings page", () => {
 
     render(<Settings />);
 
-    const playersTab = screen.getByRole("tab", { name: "[settings.players.title]" });
-    await userEvent.click(playersTab);
+    const terminalTab = screen.getByRole("tab", { name: "[settings.terminal.title]" });
+    await userEvent.click(terminalTab);
 
-    expect(mockReplace).toHaveBeenCalledWith("/panel/settings?tab=players");
+    expect(mockReplace).toHaveBeenCalledWith("/panel/settings?tab=terminal");
   });
 
   it("should preserve other query params when switching tab", async () => {
-    mockTab = "dashboard";
-    mockQueryString = "tab=dashboard&foo=bar";
+    mockTab = "general";
+    mockQueryString = "tab=general&foo=bar";
 
     render(<Settings />);
 
-    const playersTab = screen.getByRole("tab", { name: "[settings.players.title]" });
-    await userEvent.click(playersTab);
+    const terminalTab = screen.getByRole("tab", { name: "[settings.terminal.title]" });
+    await userEvent.click(terminalTab);
 
     const callUrl = mockReplace.mock.calls[0][0];
-    expect(callUrl).toContain("tab=players");
+    expect(callUrl).toContain("tab=terminal");
     expect(callUrl).toContain("foo=bar");
   });
 
