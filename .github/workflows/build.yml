@@ -43,9 +43,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    outputs:
-      jars: ${{ steps.list-jars.outputs.jars }}
-
     strategy:
       matrix:
         java-version: [25]
@@ -79,45 +76,17 @@ jobs:
     - name: Change wrapper permissions
       run: chmod +x ./gradlew
 
-    - run: cd frontend && npm i
+    - name: Install frontend dependencies
+      run: cd frontend && npm i
     - name: Build and bundle frontend
       run: cd frontend && npm run build:pack
 
     - name: Building jar files
       run: JAVA_HOME=$JAVA_HOME_25_X64 ./gradlew build --stacktrace
 
-    - name: Collect jar list
-      id: list-jars
+    - name: Upload jars
+      working-directory: ${{ runner.temp }}
       run: |
-        jars=$(cd build/libs && ls *.jar | jq -R -s -c 'split("\n") | map(select(length > 0))')
-        echo "jars=$jars" >> "$GITHUB_OUTPUT"
-
-    - name: Upload jars (transport)
-      uses: actions/upload-artifact@v7
-      with:
-        name: opanel-jars-all
-        path: ./build/libs/*
-        retention-days: 1
-
-  upload-jars:
-
-    needs: jar
-    runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        jar: ${{ fromJSON(needs.jar.outputs.jars) }}
-
-    steps:
-    - name: Download built jars
-      uses: actions/download-artifact@v8
-      with:
-        name: opanel-jars-all
-        path: ./libs
-
-    - name: Upload ${{ matrix.jar }}
-      uses: actions/upload-artifact@v7
-      with:
-        name: ${{ matrix.jar }}
-        path: ./libs/${{ matrix.jar }}
+        npm init -y >/dev/null
+        npm i @actions/artifact@^2
+        node "$GITHUB_WORKSPACE/.github/scripts/upload-jars.mjs"
