@@ -20,9 +20,9 @@ jobs:
         working-directory: ./frontend
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
@@ -38,9 +38,6 @@ jobs:
     
     - name: Run wasm unit tests
       run: npm run wasm:test
-    
-    - name: Test building frontend
-      run: npm run build
 
   jar:
 
@@ -62,9 +59,9 @@ jobs:
         rm -rf /opt/hostedtoolcache
         df -h
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Use JDK 25, 21, 17, 14
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         java-version: |
           25
@@ -74,7 +71,7 @@ jobs:
         distribution: "zulu"
         cache: "gradle"
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
@@ -96,7 +93,7 @@ jobs:
         echo "jars=$jars" >> "$GITHUB_OUTPUT"
 
     - name: Upload jars (transport)
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: opanel-jars-all
         path: ./build/libs/*
@@ -114,13 +111,13 @@ jobs:
 
     steps:
     - name: Download built jars
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: opanel-jars-all
         path: ./libs
 
     - name: Upload ${{ matrix.jar }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ matrix.jar }}
         path: ./libs/${{ matrix.jar }}

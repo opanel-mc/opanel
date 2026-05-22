@@ -181,7 +181,7 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
     if(settingsRef.current?.debugMode) {
       worker.postMessage({ type: "setFpsReporting", enabled: true } satisfies MainToWorker);
     }
-  }, [save, onFpsChangeRef, onTilesLoadedChangeRef, postRequestTiles]);
+  }, [save, onFpsChangeRef, onTilesLoadedChangeRef, onLoadRef, postRequestTiles]);
 
   useImperativeHandle(ref, () => ({
     zoomIn: () => applyZoom(1.1, 0, 0),
