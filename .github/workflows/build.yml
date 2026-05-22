@@ -87,8 +87,8 @@ jobs:
       run: JAVA_HOME=$JAVA_HOME_25_X64 ./gradlew build --stacktrace
 
     - name: Upload jar files
-      working-directory: ${{ runner.temp }}
+      working-directory: .github/scripts
       run: |
         npm init -y >/dev/null
         npm i @actions/artifact@^2
-        node "$GITHUB_WORKSPACE/.github/scripts/upload-jars.mjs"
+        node upload-jars.mjs
