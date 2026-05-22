@@ -46,10 +46,14 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    outputs:
+      jars: ${{ steps.list-jars.outputs.jars }}
+
     strategy:
       matrix:
         java-version: [25]
         gradle-version: [9.3.0]
+        node-version: [22.x]
 
     steps:
     - name: Remove unnecessary files to release disk space
@@ -84,8 +88,39 @@ jobs:
 
     - name: Building jar files
       run: JAVA_HOME=$JAVA_HOME_25_X64 ./gradlew build --stacktrace
-    - name: Upload artifacts
+
+    - name: Collect jar list
+      id: list-jars
+      run: |
+        jars=$(cd build/libs && ls *.jar | jq -R -s -c 'split("\n") | map(select(length > 0))')
+        echo "jars=$jars" >> "$GITHUB_OUTPUT"
+
+    - name: Upload jars (transport)
       uses: actions/upload-artifact@v4
       with:
-        name: opanel-jars
+        name: opanel-jars-all
         path: ./build/libs/*
+        retention-days: 1
+
+  upload-jars:
+
+    needs: jar
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        jar: ${{ fromJSON(needs.jar.outputs.jars) }}
+
+    steps:
+    - name: Download built jars
+      uses: actions/download-artifact@v4
+      with:
+        name: opanel-jars-all
+        path: ./libs
+
+    - name: Upload ${{ matrix.jar }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.jar }}
+        path: ./libs/${{ matrix.jar }}
