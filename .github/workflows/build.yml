@@ -27,8 +27,10 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
         cache-dependency-path: ./frontend/package-lock.json
-    - run: npm i
-    - run: npm run prelaunch
+    - name: Install dependencies
+      run: npm i
+    - name: Run prelaunch scripts
+      run: npm run prelaunch
     
     - name: Run lint
       run: npm run lint
@@ -81,10 +83,10 @@ jobs:
     - name: Build and bundle frontend
       run: cd frontend && npm run build:pack
 
-    - name: Building jar files
+    - name: Build jar files
       run: JAVA_HOME=$JAVA_HOME_25_X64 ./gradlew build --stacktrace
 
-    - name: Upload jars
+    - name: Upload jar files
       working-directory: ${{ runner.temp }}
       run: |
         npm init -y >/dev/null
