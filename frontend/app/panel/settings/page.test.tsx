@@ -39,7 +39,10 @@ vi.mock("../sub-page", () => ({
 
 vi.mock("@/lib/api", () => ({
   apiUrl: "",
-  sendDeleteRequest: vi.fn()
+  sendDeleteRequest: vi.fn(),
+  sendGetRequest: vi.fn(() => Promise.resolve({ enabled: false })),
+  sendPostRequest: vi.fn(() => Promise.resolve()),
+  toastError: vi.fn()
 }));
 
 describe("test settings page", () => {
