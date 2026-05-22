@@ -86,6 +86,13 @@ jobs:
     - name: Build jar files
       run: JAVA_HOME=$JAVA_HOME_25_X64 ./gradlew build --stacktrace
 
+    - name: Expose Actions runtime token
+      uses: actions/github-script@v9
+      with:
+        script: |
+          core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN)
+          core.exportVariable('ACTIONS_RESULTS_URL', process.env.ACTIONS_RESULTS_URL)
+
     - name: Upload jar files
       working-directory: .github/scripts
       run: |
