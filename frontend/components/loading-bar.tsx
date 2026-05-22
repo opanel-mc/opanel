@@ -15,11 +15,22 @@ export function LoadingBar() {
   const [visible, setVisible] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const neverMountedRef = useRef(true);
+  const isActiveRef = useRef(false);
 
   const handleDone = () => {
+    if(!isActiveRef.current) return;
+    isActiveRef.current = false;
     setProgress(100);
-    setTimeout(() => setVisible(false), DURATION);
-    setTimeout(() => setProgress(0), 2 * DURATION);
+
+    const visibilityTimer = setTimeout(() => {
+      setVisible(false);
+      clearTimeout(visibilityTimer);
+    }, DURATION);
+    
+    const progressResetTimer = setTimeout(() => {
+      setProgress(0);
+      clearTimeout(progressResetTimer);
+    }, 2 * DURATION);
   };
 
   useEffect(() => {
@@ -28,6 +39,7 @@ export function LoadingBar() {
       return;
     }
 
+    isActiveRef.current = true;
     setVisible(true);
     setProgress(INITIAL_PROGRESS);
     timerRef.current = setInterval(() => {
@@ -58,7 +70,7 @@ export function LoadingBar() {
       )}
       style={{
         width: `${progress}%`,
-        animationDuration: `${DURATION}ms`
+        transitionDuration: `${DURATION}ms`
       }}/>
   );
 }
