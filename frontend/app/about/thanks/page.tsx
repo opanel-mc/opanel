@@ -22,6 +22,7 @@ import { minecraftAE } from "@/lib/fonts";
 import { $ } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { Text } from "@/components/i18n-text";
+import { useLoadingDone } from "@/hooks/use-loading-done";
 
 const thanksList = [
   {
@@ -67,6 +68,8 @@ const thanksList = [
 ];
 
 export default function Thanks() {
+  useLoadingDone();
+
   return (
     <Card className="min-w-0 max-md:rounded-none">
       <CardHeader>

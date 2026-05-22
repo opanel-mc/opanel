@@ -40,6 +40,7 @@ import { Text } from "@/components/i18n-text";
 import { VersionContext } from "@/contexts/api-context";
 import { useKeydown } from "@/hooks/use-keydown";
 import { Skeleton } from "@/components/ui/skeleton";
+import { emitter } from "@/lib/emitter";
 
 export default function Gamerules() {
   const versionCtx = useContext(VersionContext);
@@ -63,6 +64,8 @@ export default function Gamerules() {
     try {
       const res = await sendGetRequest<GamerulesResponse>("/api/gamerules");
       setServerGamerules(res.gamerules);
+      
+      emitter.emit("loading-done");
     } catch (e: any) {
       toastError(e, $("gamerules.fetch.error"), [
         [401, $("common.error.401")]

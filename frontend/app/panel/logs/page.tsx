@@ -23,6 +23,8 @@ export default function Logs() {
     try {
       const res = await sendGetRequest<LogsResponse>("/api/logs");
       setLogs(res.logs);
+
+      emitter.emit("loading-done");
     } catch (e: any) {
       toastError(e, $("logs.fetch.error"), [
         [400, $("common.error.400")],

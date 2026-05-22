@@ -32,6 +32,7 @@ import { sendGetRequest, toastError } from "@/lib/api";
 import { $ } from "@/lib/i18n";
 import { changeSettings, getSettings } from "@/lib/settings";
 import { DEFAULT_ZOOM } from "@/hooks/use-map-tiles";
+import { emitter } from "@/lib/emitter";
 
 const MapCanvas = dynamic(() => import("./map-canvas"), { ssr: false });
 
@@ -133,7 +134,8 @@ export default function ServerMap() {
           onFpsChange={setFps}
           onTilesLoadedChange={setTilesLoaded}
           onZoomChange={setZoom}
-          onResize={(width, height) => setViewportSize({ width, height })}/>
+          onResize={(width, height) => setViewportSize({ width, height })}
+          onLoad={() => emitter.emit("loading-done")}/>
 
         <div className="absolute bottom-6 left-6 bg-accent border w-xs h-10 rounded-lg shadow-xl flex items-center">
           <Select value={save} onValueChange={setSave}>

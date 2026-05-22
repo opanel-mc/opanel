@@ -73,6 +73,8 @@ export default function CodeOfConduct() {
       }
 
       setCurrentEditing(storedCurrentEditing);
+
+      emitter.emit("loading-done");
     } catch (e: any) {
       toastError(e, $("coc.fetch.error"), [
         [400, $("common.error.400")],

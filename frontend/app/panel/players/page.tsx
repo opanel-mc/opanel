@@ -64,6 +64,8 @@ export default function Players() {
 
       setPlayers(namedPlayers);
       setUnnamedPlayers(players.filter(({ name }) => name === undefined) as UnnamedPlayer[]);
+
+      emitter.emit("loading-done");
     });
 
     client.subscribe("join", (player: Player) => {

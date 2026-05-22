@@ -27,6 +27,8 @@ export default function Tasks() {
     try {
       const res = await sendGetRequest<TasksResponse>("/api/tasks");
       setTasks(res.tasks);
+      
+      emitter.emit("loading-done");
     } catch (e: any) {
       toastError(e, $("tasks.fetch.error"), [
         [400, $("common.error.400")],

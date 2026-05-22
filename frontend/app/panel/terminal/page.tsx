@@ -32,6 +32,7 @@ import { type ConsoleLogLevel, defaultLogLevel, TerminalClient } from "@/lib/ws/
 import { Toggle } from "@/components/ui/toggle";
 import { CreateShortcutDialog } from "./create-shortcut-dialog";
 import { VersionContext } from "@/contexts/api-context";
+import { emitter } from "@/lib/emitter";
 
 const MCDR_COMMAND_PREFIX = "!!";
 const MCDR_AUTOCOMPLETE_LIST = [
@@ -166,6 +167,10 @@ export default function Terminal() {
   };
 
   useEffect(() => {
+    client?.subscribe("connect", () => {
+      emitter.emit("loading-done");
+    });
+
     client?.subscribe("autocomplete", (data: string[]) => {
       setAutocompleteList(data);
     });

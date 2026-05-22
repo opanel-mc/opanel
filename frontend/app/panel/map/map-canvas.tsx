@@ -32,6 +32,7 @@ interface MapCanvasProps {
   onTilesLoadedChange?: (count: number) => void
   onZoomChange?: (zoom: number) => void
   onResize?: (width: number, height: number) => void
+  onLoad?: () => void
 }
 
 const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas({
@@ -41,7 +42,8 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
   onFpsChange,
   onTilesLoadedChange,
   onZoomChange,
-  onResize
+  onResize,
+  onLoad
 }, ref) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -51,6 +53,7 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
   const onFpsChangeRef = useLatestRef(onFpsChange);
   const onTilesLoadedChangeRef = useLatestRef(onTilesLoadedChange);
   const onResizeRef = useLatestRef(onResize);
+  const onLoadRef = useLatestRef(onLoad);
   const saveRef = useLatestRef(save);
   const client = useWebSocket(MapClient);
 
@@ -156,6 +159,7 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
         case "ready":
           // First tiles fetch
           postRequestTiles();
+          onLoadRef.current?.();
           return;
         case "fps":
           onFpsChangeRef.current?.(e.data.value);

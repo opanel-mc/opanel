@@ -6,8 +6,11 @@ import { googleSansCode } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
 import { copyrightInfo } from "@/lib/global";
 import { $ } from "@/lib/i18n";
+import { useLoadingDone } from "@/hooks/use-loading-done";
 
 export default function NotFound() {
+  useLoadingDone();
+
   return (
     <div className="w-screen h-screen flex justify-center items-center">
       <div className="text-center space-y-4">

@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { emitter } from "@/lib/emitter";
 import { GenerateTokenDialog } from "./generate-token-dialog";
 import { ConfigItem, ConfigSection } from "@/components/config-item";
+import { useLoadingDone } from "@/hooks/use-loading-done";
 
 const MonacoEditor = dynamic(() => import("@/components/monaco-editor"), { ssr: false });
 
@@ -89,6 +90,8 @@ export default function MCPConfiguration() {
 
     emitter.on("refresh-data", () => fetchMaskedAccessToken());
   }, []);
+
+  useLoadingDone();
 
   return (
     <SubPage

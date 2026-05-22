@@ -61,6 +61,8 @@ export default function Plugins() {
       const res = await sendGetRequest<PluginsResponse>("/api/plugins");
       setPlugins(res.plugins.sort((a, b) => a.name.localeCompare(b.name)));
       setFolderPath(res.folderPath);
+      
+      emitter.emit("loading-done");
     } catch (e: any) {
       toastError(e, $("plugins.fetch.error"), [
         [400, $("common.error.400")],

@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 import { minecraftAE } from "@/lib/fonts";
 import { Brand } from "@/components/logo";
 import { $ } from "@/lib/i18n";
+import { useLoadingDone } from "@/hooks/use-loading-done";
 
 const info = [
   {
@@ -56,6 +57,8 @@ const info = [
 ];
 
 export default function About() {
+  useLoadingDone();
+
   return (
     <Card className="w-3xl max-md:rounded-none">
       <CardHeader>

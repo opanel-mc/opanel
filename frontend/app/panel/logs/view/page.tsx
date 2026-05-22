@@ -13,6 +13,7 @@ import { deleteLog, downloadLog } from "../log-utils";
 import { monacoSettingsOptions } from "@/lib/settings";
 import { $ } from "@/lib/i18n";
 import { Text } from "@/components/i18n-text";
+import { emitter } from "@/lib/emitter";
 
 const MonacoEditor = dynamic(() => import("@/components/monaco-editor"), { ssr: false });
 
@@ -33,6 +34,8 @@ export default function LogView() {
     try {
       const res = await sendGetRequest<string>(`/api/logs/${log}`);
       setContent(res);
+      
+      emitter.emit("loading-done");
     } catch (e: any) {
       toastError(e, $("logs.view.fetch.error"), [
         [400, $("common.error.400")],

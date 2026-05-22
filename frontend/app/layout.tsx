@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { googleSansCode, notoColorEmoji, notoSansSC } from "@/lib/fonts";
 import { BrowserInit } from "./browser-init";
+import { LoadingBar } from "@/components/loading-bar";
 
 import LogoIcon from "@/assets/images/logo.png";
 
@@ -22,7 +23,8 @@ export default function RootLayout({
   return (
     <html lang="zh-cn" suppressHydrationWarning>
       <body
-        className={cn(notoSansSC.className, notoColorEmoji.variable, googleSansCode.variable, "antialiased overflow-hidden")}>
+        className={cn(notoSansSC.className, notoColorEmoji.variable, googleSansCode.variable, "antialiased overflow-hidden relative")}>
+        <LoadingBar />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

@@ -90,6 +90,7 @@ export default function Inventory() {
 
     client.subscribe("init", (data: PlayerInventory) => {
       setInventory(data);
+      emitter.emit("loading-done");
     });
 
     client.subscribe("update", (data: PlayerInventory) => {

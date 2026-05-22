@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { sendGetRequest, sendPostRequest, toastError } from "@/lib/api";
 import { Interface, InterfaceDescription, InterfaceRequest, InterfaceResponse, InterfaceSection } from "./interface";
 import { Text } from "@/components/i18n-text";
+import { useLoadingDone } from "@/hooks/use-loading-done";
 
 export default function OpenAPI() {
   const [enabled, setEnabled] = useState(false);
@@ -42,6 +43,8 @@ export default function OpenAPI() {
   useEffect(() => {
     fetchOpenAPIEnabled();
   }, []);
+
+  useLoadingDone();
 
   return (
     <SubPage

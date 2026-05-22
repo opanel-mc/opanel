@@ -32,6 +32,7 @@ import { sendDeleteRequest, sendGetRequest, sendPostRequest, toastError } from "
 import { Switch } from "@/components/ui/switch";
 import { emitter } from "@/lib/emitter";
 import { toastRestartAlert } from "@/components/restart-alert";
+import { useLoadingDone } from "@/hooks/use-loading-done";
 
 const SETTINGS_TAB_VALUES = ["general", "server", "terminal", "editor"] as const;
 
@@ -139,6 +140,8 @@ export default function Settings() {
 
     emitter.on("refresh-data", () => fetchMapFeatureEnabled());
   }, []);
+
+  useLoadingDone();
 
   return (
     <SubPage

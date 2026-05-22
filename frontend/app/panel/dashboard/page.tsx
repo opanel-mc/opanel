@@ -81,6 +81,12 @@ export default function Dashboard() {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    if(info && monitorData && versionCtx) {
+      emitter.emit("loading-done");
+    }
+  }, [info, monitorData, versionCtx]);
+
   return (
     <SubPage
       title={$("dashboard.title")}

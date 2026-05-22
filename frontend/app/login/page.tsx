@@ -36,6 +36,7 @@ import { Text } from "@/components/i18n-text";
 import { useKeydown } from "@/hooks/use-keydown";
 import { useCheckAuth } from "@/hooks/use-check-auth";
 import { doAutoUpdateCheck, resetUpdateCheckInfo } from "@/lib/update";
+import { useLoadingDone } from "@/hooks/use-loading-done";
 
 const formSchema = z.object({
   accessKey: z.string().nonempty($("login.form.input.empty")),
@@ -88,6 +89,8 @@ export default function Login() {
   useCheckAuth(() => push("/panel/dashboard"));
 
   useKeydown("Enter", {}, () => handleLogin());
+
+  useLoadingDone();
 
   return (
     <div className="flex flex-col">
