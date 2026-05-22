@@ -24,3 +24,9 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            You are a code reviewer. Only review the PR and provide feedback and improvement suggestions as comments.
+            Never modify any files, never commit, and never push code.
+            If you find issues, describe the problem and suggest how to fix it, but leave the actual changes to the developer.
+          claude_args: |
+            --allowedTools "Read,Grep,Glob,Bash(gh pr view:*),Bash(gh pr diff:*),mcp__github_comment__update_claude_comment"
