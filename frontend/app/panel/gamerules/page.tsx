@@ -64,12 +64,12 @@ export default function Gamerules() {
     try {
       const res = await sendGetRequest<GamerulesResponse>("/api/gamerules");
       setServerGamerules(res.gamerules);
-      
-      emitter.emit("loading-done");
     } catch (e: any) {
       toastError(e, $("gamerules.fetch.error"), [
         [401, $("common.error.401")]
       ]);
+    } finally {
+      emitter.emit("loading-done");
     }
   };
 

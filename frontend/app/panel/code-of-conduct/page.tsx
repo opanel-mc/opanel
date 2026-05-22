@@ -63,7 +63,7 @@ export default function CodeOfConduct() {
         changeSettings("state.code-of-conduct.current-editing", undefined);
         return;
       }
-      
+
       const storedCurrentEditing = getSettings("state.code-of-conduct.current-editing");
       if(!storedCurrentEditing || !parsedMap.has(storedCurrentEditing)) {
         const firstOne = parsedMap.keys().next().value;
@@ -73,8 +73,6 @@ export default function CodeOfConduct() {
       }
 
       setCurrentEditing(storedCurrentEditing);
-
-      emitter.emit("loading-done");
     } catch (e: any) {
       toastError(e, $("coc.fetch.error"), [
         [400, $("common.error.400")],
@@ -82,6 +80,8 @@ export default function CodeOfConduct() {
         [500, $("common.error.500")],
         [503, $("coc.error.503")]
       ]);
+    } finally {
+      emitter.emit("loading-done");
     }
   }, [push, versionCtx]);
 

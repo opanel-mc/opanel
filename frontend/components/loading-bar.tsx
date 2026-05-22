@@ -14,23 +14,21 @@ export function LoadingBar() {
   const [progress, setProgress] = useState(0);
   const [visible, setVisible] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const doneTimersRef = useRef<NodeJS.Timeout[]>([]);
   const neverMountedRef = useRef(true);
   const isActiveRef = useRef(false);
 
   const handleDone = () => {
     if(!isActiveRef.current) return;
     isActiveRef.current = false;
+    doneTimersRef.current.forEach(clearTimeout);
+    doneTimersRef.current = [];
     setProgress(100);
 
-    const visibilityTimer = setTimeout(() => {
-      setVisible(false);
-      clearTimeout(visibilityTimer);
-    }, DURATION);
-    
-    const progressResetTimer = setTimeout(() => {
-      setProgress(0);
-      clearTimeout(progressResetTimer);
-    }, 2 * DURATION);
+    doneTimersRef.current.push(
+      setTimeout(() => setVisible(false), DURATION),
+      setTimeout(() => setProgress(0), 2 * DURATION)
+    );
   };
 
   useEffect(() => {
@@ -39,6 +37,8 @@ export function LoadingBar() {
       return;
     }
 
+    doneTimersRef.current.forEach(clearTimeout);
+    doneTimersRef.current = [];
     isActiveRef.current = true;
     setVisible(true);
     setProgress(INITIAL_PROGRESS);
@@ -65,7 +65,7 @@ export function LoadingBar() {
   return (
     <div
       className={cn(
-        "absolute top-0 left-0 right-0 h-0.5 bg-highlight-primary transition-all ease-out z-20",
+        "absolute top-0 left-0 right-0 h-0.5 bg-highlight-primary transition-[width,opacity] ease-out z-20",
         visible ? "opacity-100" : "opacity-0"
       )}
       style={{

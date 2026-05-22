@@ -34,8 +34,6 @@ export default function LogView() {
     try {
       const res = await sendGetRequest<string>(`/api/logs/${log}`);
       setContent(res);
-      
-      emitter.emit("loading-done");
     } catch (e: any) {
       toastError(e, $("logs.view.fetch.error"), [
         [400, $("common.error.400")],
@@ -43,6 +41,8 @@ export default function LogView() {
         [404, $("logs.view.fetch.error.404")],
         [500, $("common.error.500")]
       ]);
+    } finally {
+      emitter.emit("loading-done");
     }
   }, [log, push]);
 

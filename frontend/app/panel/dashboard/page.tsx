@@ -1,7 +1,7 @@
 "use client";
 
 import type { APIResponse, InfoResponse, MonitorResponse } from "@/lib/types";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Gauge, RotateCw, TriangleAlert } from "lucide-react";
 import { InfoContext, MonitorContext, VersionContext } from "@/contexts/api-context";
 import { sendGetRequest, toastError } from "@/lib/api";
@@ -44,6 +44,7 @@ export default function Dashboard() {
     new Array<MonitorResponse>(50).fill({ cpu: 0, memory: 0, tps: 20 })
   );
   const [isError, setError] = useState(false);
+  const doneRef = useRef(false);
 
   const fetchServerInfo = async () => {
     try {
@@ -82,7 +83,8 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    if(info && monitorData && versionCtx) {
+    if(info && monitorData && versionCtx && !doneRef.current) {
+      doneRef.current = true;
       emitter.emit("loading-done");
     }
   }, [info, monitorData, versionCtx]);

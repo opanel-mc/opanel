@@ -56,8 +56,6 @@ export default function BukkitConfig() {
       setConfigs(parsedMap);
       setCurrentEditing(getSettings("state.bukkit-config.current-editing"));
       setSaved(true);
-
-      emitter.emit("loading-done");
     } catch (e: any) {
       toastError(e, $("bukkit-config.fetch.error"), [
         [400, $("common.error.400")],
@@ -65,6 +63,8 @@ export default function BukkitConfig() {
         [500, $("common.error.500")],
         [503, $("bukkit-config.error.503")]
       ]);
+    } finally {
+      emitter.emit("loading-done");
     }
   }, [push, versionCtx]);
 

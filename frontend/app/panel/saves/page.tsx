@@ -37,13 +37,13 @@ export default function Saves() {
     try {
       const res = await sendGetRequest<SavesResponse>("/api/saves");
       setSaves(res.saves);
-      
-      emitter.emit("loading-done");
     } catch (e: any) {
       toastError(e, $("saves.fetch.error"), [
         [400, $("common.error.400")],
         [401, $("common.error.401")]
       ]);
+    } finally {
+      emitter.emit("loading-done");
     }
   };
 
