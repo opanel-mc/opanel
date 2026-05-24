@@ -57,6 +57,10 @@ OPanel 的功能包括：
 
 查看[贡献指南](https://opanel.cn/docs/contributing)以了解更多信息。
 
+## 支持语言:
+
+英文，汉语（包括简体字，繁体字，粤语)，日文，法文（即将支持），德文（即将支持），韩文（即将支持）
+
 ## 友情链接
 
 [<img src="./images/friends/rainyun.png" width="300"/>](https://rainyun.com/opanel_)
