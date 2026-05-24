@@ -177,7 +177,7 @@ export default function ServerMap() {
             <span>W: {viewportSize.width.toFixed(2)}</span>
             <span>H: {viewportSize.height.toFixed(2)}</span>
             <span>{fps} FPS</span>
-            <span>Zoom: {zoom.toFixed(2)}</span>
+            <span>Zoom: {zoom.toFixed(3)}</span>
             <span>X: {coord?.x.toFixed(2)}</span>
             <span>Z: {coord?.z.toFixed(2)}</span>
             <span>{tilesLoaded} tiles</span>

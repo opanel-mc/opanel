@@ -4,12 +4,63 @@ import { useLatestRef } from "./use-latest-ref";
 
 const TILE_BLOCKS = 16;
 export const DEFAULT_ZOOM = 2;
+export const MIN_ZOOM = 1.75;
+export const MAX_ZOOM = 10;
+const VIEWPORT_QUERY_KEY = "v";
+const COORD_LIMIT = 2_000_000;
 
 export interface UseMapTilesOptions {
   postWorkerMessage: (msg: MainToWorker) => void;
 }
 
 type ViewportUpdateKind = "viewport" | "requestTiles";
+
+function parseViewportFromUrl(): { x: number, z: number, zoom: number } {
+  const fallback = { x: 0, z: 0, zoom: DEFAULT_ZOOM };
+  if(typeof window === "undefined") return fallback;
+  
+  const raw = new URLSearchParams(window.location.search).get(VIEWPORT_QUERY_KEY);
+  if(!raw) return fallback;
+
+  const [coords, zoomStr] = raw.split("@");
+  if(!coords || !zoomStr) return fallback;
+
+  const [xStr, zStr] = coords.split(",");
+  if(!xStr || !zStr) return fallback;
+
+  let x = parseFloat(xStr);
+  let z = parseFloat(zStr);
+  let zoom = parseFloat(zoomStr);
+
+  if(
+    !Number.isFinite(x) || !Number.isFinite(z)
+    || Math.abs(x) > COORD_LIMIT || Math.abs(z) > COORD_LIMIT
+  ) {
+    x = 0;
+    z = 0;
+  }
+
+  zoom = (
+    !Number.isFinite(zoom)
+    ? DEFAULT_ZOOM
+    : Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom))
+  )
+
+  return { x, z, zoom };
+}
+
+function serializeViewportToUrl(camera: { x: number, z: number }, zoom: number): void {
+  if(typeof window === "undefined") return;
+
+  const params = new URLSearchParams(window.location.search);
+  params.delete(VIEWPORT_QUERY_KEY);
+
+  const others = params.toString();
+  const v = `${camera.x.toFixed(2)},${camera.z.toFixed(2)}@${zoom.toFixed(3)}`;
+  const newSearch = others ? `?${others}&${VIEWPORT_QUERY_KEY}=${v}` : `?${VIEWPORT_QUERY_KEY}=${v}`;
+  const newUrl = `${window.location.pathname}${newSearch}${window.location.hash}`;
+  window.history.replaceState(window.history.state, "", newUrl);
+}
 
 /**
  * Pure state container + rAF-coalesced dispatcher for map viewport updates.
@@ -18,10 +69,11 @@ type ViewportUpdateKind = "viewport" | "requestTiles";
  * `postViewport()` (render only) or `postRequestTiles()` (render + fetch).
  */
 export function useMapTiles({ postWorkerMessage }: UseMapTilesOptions) {
+  const initial = parseViewportFromUrl();
   const viewportRef = useRef<Viewport>({
     generation: 0,
-    camera: { x: 0, z: 0 },
-    zoom: DEFAULT_ZOOM,
+    camera: { x: initial.x, z: initial.z },
+    zoom: initial.zoom,
     viewportPx: { width: 0, height: 0 },
     tileBounds: { xMin: 0, xMax: 0, zMin: 0, zMax: 0 },
   });
@@ -61,6 +113,10 @@ export function useMapTiles({ postWorkerMessage }: UseMapTilesOptions) {
         ? { type: "viewport", viewport: viewportRef.current }
         : { type: "requestTiles", viewport: viewportRef.current }
       );
+
+      if(k === "requestTiles") {
+        serializeViewportToUrl(viewport.camera, viewport.zoom);
+      }
     });
   }, [postWorkerMessageRef]);
 

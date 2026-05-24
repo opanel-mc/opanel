@@ -10,14 +10,12 @@ import {
   type PointerEvent,
   type WheelEvent,
 } from "react";
-import { useMapTiles } from "@/hooks/use-map-tiles";
+import { MAX_ZOOM, MIN_ZOOM, useMapTiles } from "@/hooks/use-map-tiles";
 import { useLatestRef } from "@/hooks/use-latest-ref";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { type ChunksFlushedPayload, MapClient } from "@/lib/ws/map";
 
 const TILE_BLOCKS = 16;
-const MIN_ZOOM = 1.75;
-const MAX_ZOOM = 10;
 
 export interface MapCanvasHandle {
   zoomIn: () => void;
@@ -52,6 +50,7 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
   const settingsRef = useRef(settings);
   const onFpsChangeRef = useLatestRef(onFpsChange);
   const onTilesLoadedChangeRef = useLatestRef(onTilesLoadedChange);
+  const onZoomChangeRef = useLatestRef(onZoomChange);
   const onResizeRef = useLatestRef(onResize);
   const onLoadRef = useLatestRef(onLoad);
   const saveRef = useLatestRef(save);
@@ -196,6 +195,11 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
       workerRef.current = null;
     };
   }, [initWorker]);
+
+  useEffect(() => {
+    onZoomChangeRef.current?.(viewportRef.current.zoom);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if(!client) return;
