@@ -10,8 +10,18 @@ export const notoSansTC = localFont({
   fallback: ["notoColorEmoji"]
 });
 
+export const notoSansHK = localFont({
+  src: [{ path: "../assets/fonts/NotoSansHK-VariableFont_wght.ttf", style: "normal" }],
+  fallback: ["notoColorEmoji"]
+});
+
 export const notoSansJP = localFont({
   src: [{ path: "../assets/fonts/NotoSansJP-VariableFont_wght.ttf", style: "normal" }],
+  fallback: ["notoColorEmoji"]
+});
+
+export const notoSansKR = localFont({
+  src: [{ path: "../assets/fonts/NotoSansKR-VariableFont_wght.ttf", style: "normal" }],
   fallback: ["notoColorEmoji"]
 });
 

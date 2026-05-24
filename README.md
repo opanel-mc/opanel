@@ -59,7 +59,7 @@ See [Contributing Guidelines](https://opanel.cn/docs/contributing) for more info
 
 ## Supported languages
 
-English, Chinese (including Simplified, Traditional, Cantonese), Japanese, French (coming soon), German (coming soon), Korean (coming soon)
+Chinese (including Simplified, Traditional, Cantonese), English, Japanese, French, German, Korean
 
 ## Friend Links
 
