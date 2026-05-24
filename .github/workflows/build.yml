@@ -4,7 +4,23 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - ".claude/**"
+      - ".github/**"
+      - ".vscode/**"
+      - "images/**"
+      - ".gitignore"
+      - "**/*.md"
+      - "LICENSE"
   pull_request:
+    paths-ignore:
+      - ".claude/**"
+      - ".github/**"
+      - ".vscode/**"
+      - "images/**"
+      - ".gitignore"
+      - "**/*.md"
+      - "LICENSE"
 
 jobs:
   frontend:
