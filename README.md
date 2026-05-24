@@ -57,6 +57,10 @@ Read the [Quick Start](https://opanel.cn/docs/quick-start) to get started.
 
 See [Contributing Guidelines](https://opanel.cn/docs/contributing) for more information.
 
+## Supported languages:
+
+English, Chinese (including Simplified, Traditional, Cantonese), Japanese, French (coming soon), German (coming soon), Korean (coming soon)
+
 ## Friend Links
 
 [<img src="./images/friends/rainyun.png" width="300"/>](https://rainyun.com/opanel_)
