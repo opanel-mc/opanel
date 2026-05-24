@@ -57,7 +57,7 @@ Read the [Quick Start](https://opanel.cn/docs/quick-start) to get started.
 
 See [Contributing Guidelines](https://opanel.cn/docs/contributing) for more information.
 
-## Supported languages:
+## Supported languages
 
 English, Chinese (including Simplified, Traditional, Cantonese), Japanese, French (coming soon), German (coming soon), Korean (coming soon)
 
