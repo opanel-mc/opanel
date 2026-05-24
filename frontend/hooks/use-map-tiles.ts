@@ -44,7 +44,7 @@ function parseViewportFromUrl(): { x: number, z: number, zoom: number } {
     !Number.isFinite(zoom)
     ? DEFAULT_ZOOM
     : Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom))
-  )
+  );
 
   return { x, z, zoom };
 }
