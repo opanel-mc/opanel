@@ -59,7 +59,7 @@
     "react-svg": "^16.3.0",
     "recharts": "^3.1.0",
     "semver": "^7.7.3",
-    "snbt-js": "^1.0.5",
+    "snbt-js": "^1.0.6",
     "sonner": "^2.0.6",
     "tailwind-merge": "^3.3.1",
     "textarea-caret": "^3.1.0",
