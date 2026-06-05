@@ -9,7 +9,7 @@ type LogData = {
   type: LogType;
 };
 
-const LOG_ARCHIVE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})-(\d+)\.log\.gz$/;
+export const LOG_ARCHIVE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})-(\d+)\.log\.gz$/;
 
 export function sortLogs(logs: string[]): LogData[] {
   return logs
