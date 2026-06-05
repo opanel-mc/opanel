@@ -65,7 +65,7 @@ export function LoadingBar() {
   return (
     <div
       className={cn(
-        "absolute top-0 left-0 right-0 h-0.5 bg-highlight-primary transition-[width,opacity] ease-out z-20",
+        "absolute top-0 left-0 right-0 h-0.5 bg-[#f89d13] dark:bg-highlight-primary transition-[width,opacity] ease-out z-20",
         visible ? "opacity-100" : "opacity-0"
       )}
       style={{
