@@ -114,7 +114,7 @@
   "dashboard.empty.description": "嘗試重新整理頁面、使用{0}開啟瀏覽器控制台，或檢查伺服器後台日誌，並向OPanel反饋問題",
   "dashboard.empty.refresh": "重新整理",
   "dashboard.info.version": "版本:",
-  "dashboard.info.port": "端口:",
+  "dashboard.info.port": "連綫埠:",
   "dashboard.info.status.running": "正在運行",
   "dashboard.info.status.stopped": "未運行",
   "dashboard.info.status.warning": "資源佔用過高",
