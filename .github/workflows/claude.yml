@@ -23,8 +23,5 @@ jobs:
       - name: Run Claude
         uses: anthropics/claude-code-action@v1
         with:
+          mode: review
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          prompt: |
-            You are a code reviewer. Only review the PR and provide feedback and improvement suggestions as comments.
-            Never modify any files, never commit, and never push code.
-            If you find issues, describe the problem and suggest how to fix it, but leave the actual changes to the developer.
