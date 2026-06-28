@@ -417,7 +417,7 @@
   "map.settings.description": "喺呢度調整地圖顯示設定選項。",
   "map.settings.biome-coloring": "生物群系著色",
   "map.settings.render-shadows": "渲染陰影",
-  "map.settings.debug-mode": "偵錯模式",
+  "map.settings.debug-mode": "除錯模式",
 
   "logs.title": "日誌",
   "logs.description": "管理和查看伺服器的所有日誌文件",
