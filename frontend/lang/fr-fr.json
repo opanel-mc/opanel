@@ -459,6 +459,8 @@
   "coc.empty.description": "Aucun code de conduite n'a encore été rédigé pour ce serveur, vous pouvez créer le premier document ici.",
   "coc.empty.create": "Nouveau code de conduite",
   "coc.empty.create.error": "Impossible de créer le code de conduite",
+  "coc.not-enabled.title": "Le code de conduite n'est pas activé",
+  "coc.not-enabled.description": "Activez le code de conduite dans {0} puis redémarrez le serveur.",
   "coc.item.delete": "Supprimer le code de conduite",
   "coc.item.delete.error": "Impossible de supprimer le code de conduite : {0}.txt",
   "coc.item.delete.alert.title": "Êtes-vous sûr de vouloir supprimer le code de conduite {0}.txt ?",

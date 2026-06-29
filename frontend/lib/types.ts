@@ -138,6 +138,7 @@ export interface VersionResponse {
   version: string
   map: boolean
   mcdr: boolean
+  codeOfConduct: boolean
 }
 
 /** `/api/info` */

@@ -459,6 +459,8 @@
   "coc.empty.description": "No code of conduct has been written on this server yet. You can create the first code of conduct document here.",
   "coc.empty.create": "Create a New Code of Conduct",
   "coc.empty.create.error": "Unable to create code of conduct",
+  "coc.not-enabled.title": "Code of Conduct is not enabled",
+  "coc.not-enabled.description": "Enable the code of conduct in {0} and restart the server.",
   "coc.item.delete": "Delete",
   "coc.item.delete.error": "Unable to delete Code of Conduct: {0}.txt",
   "coc.item.delete.alert.title": "Are you sure to delete the Code of Conduct document {0}.txt?",

@@ -459,6 +459,8 @@
   "coc.empty.description": "이 서버에 아직 작성된 행동 수칙이 없습니다. 첫 번째 문서를 작성해 보세요.",
   "coc.empty.create": "새 행동 수칙 작성",
   "coc.empty.create.error": "행동 수칙 문서를 생성하지 못했습니다",
+  "coc.not-enabled.title": "행동 수칙이 활성화되지 않았습니다",
+  "coc.not-enabled.description": "{0}에서 행동 수칙을 활성화한 뒤 서버를 다시 시작하세요.",
   "coc.item.delete": "행동 수칙 삭제",
   "coc.item.delete.error": "{0}.txt 행동 수칙 문서를 삭제하지 못했습니다",
   "coc.item.delete.alert.title": "{0}.txt 행동 수칙 문서를 삭제하시겠습니까?",

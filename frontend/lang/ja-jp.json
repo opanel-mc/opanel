@@ -459,6 +459,8 @@
   "coc.empty.description": "このサーバーにはまだ行動規範が作成されていません。ここで最初の行動規範のドキュメントを作成できます。",
   "coc.empty.create": "新しい行動規範を作成",
   "coc.empty.create.error": "行動規範を作成できません",
+  "coc.not-enabled.title": "行動規範が有効になっていません",
+  "coc.not-enabled.description": "{0} で行動規範を有効にし、サーバーを再起動してください。",
   "coc.item.delete": "行動規範を削除する",
   "coc.item.delete.error": "行動規範を削除できません: {0}.txt",
   "coc.item.delete.alert.title": "{0}.txt の行動規範ドキュメントを削除してもよろしいですか？",

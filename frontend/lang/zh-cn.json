@@ -459,6 +459,8 @@
   "coc.empty.description": "此服务器上还没有编写任何行为准则，你可以在此创建第一个行为准则文档。",
   "coc.empty.create": "新建行为准则",
   "coc.empty.create.error": "无法创建行为准则",
+  "coc.not-enabled.title": "行为准则尚未启用",
+  "coc.not-enabled.description": "需在{0}中启用行为准则并重启服务器",
   "coc.item.delete": "删除行为准则",
   "coc.item.delete.error": "无法删除行为准则: {0}.txt",
   "coc.item.delete.alert.title": "确定要删除行为准则文档 {0}.txt 吗？",

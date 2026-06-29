@@ -19,6 +19,7 @@ import { changeSettings, getSettings, monacoSettingsOptions } from "@/lib/settin
 import { CodeOfConductItem } from "./coc-item";
 import { CreateCodeOfConductDialog } from "./create-coc-dialog";
 import { Spinner } from "@/components/ui/spinner";
+import { Text } from "@/components/i18n-text";
 import { $ } from "@/lib/i18n";
 import {
   FilesEditor,
@@ -45,6 +46,11 @@ export default function CodeOfConduct() {
   const fetchCodeOfConducts = useCallback(async () => {
     if(versionCtx && compare(versionCtx.version, "1.21.9") < 0) {
       push("/panel/dashboard");
+      return;
+    }
+
+    if(!versionCtx?.codeOfConduct) {
+      emitter.emit("loading-done");
       return;
     }
 
@@ -152,7 +158,7 @@ export default function CodeOfConduct() {
    * To avoid the <Empty> content appearing for a very shord period time
    * when the fetching request is awaiting response
    */
-  if(!codeOfConducts) return <></>;
+  if(versionCtx?.codeOfConduct && !codeOfConducts) return <></>;
 
   return (
     <SubPage
@@ -164,7 +170,7 @@ export default function CodeOfConduct() {
       className="flex-1 min-h-0">
       <FilesEditor>
         {
-          codeOfConducts.size !== 0 && currentEditing
+          versionCtx?.codeOfConduct && codeOfConducts && codeOfConducts.size !== 0 && currentEditing
           ? (
             <>
               <FilesEditorSidebar>
@@ -223,6 +229,24 @@ export default function CodeOfConduct() {
                 </FilesEditorStatusBar>
               </FilesEditorContent>
             </>
+          )
+          : !versionCtx?.codeOfConduct
+          ? (
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <HeartHandshake />
+                </EmptyMedia>
+                <EmptyTitle>{$("coc.not-enabled.title")}</EmptyTitle>
+                <EmptyDescription>
+                  <Text
+                    id="coc.not-enabled.description"
+                    args={[
+                      <code key={0}>server.properties</code>
+                    ]}/>
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
           )
           : (
             <Empty>

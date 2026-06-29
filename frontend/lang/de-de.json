@@ -459,6 +459,8 @@
   "coc.empty.description": "für diesen Server wurde noch kein Verhaltenskodex verfasst. Sie können hier das erste Dokument erstellen.",
   "coc.empty.create": "Neuer Verhaltenskodex",
   "coc.empty.create.error": "Verhaltenskodex konnte nicht erstellt werden",
+  "coc.not-enabled.title": "Verhaltenskodex ist nicht aktiviert",
+  "coc.not-enabled.description": "Aktivieren Sie den Verhaltenskodex in {0} und starten Sie den Server neu.",
   "coc.item.delete": "Verhaltenskodex löschen",
   "coc.item.delete.error": "Verhaltenskodex {0}.txt konnte nicht gelöscht werden",
   "coc.item.delete.alert.title": "Sind Sie sicher, dass Sie den Verhaltenskodex {0}.txt löschen möchten?",

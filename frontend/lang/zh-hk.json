@@ -459,6 +459,8 @@
   "coc.empty.description": "呢個伺服器上仲未有編寫任何行為守則，你可以喺呢度建立第一份行為守則文件。",
   "coc.empty.create": "新建行為準則",
   "coc.empty.create.error": "無法建立行為準則",
+  "coc.not-enabled.title": "行為準則尚未啟用",
+  "coc.not-enabled.description": "需要在{0}中啟用行為準則並重新啟動伺服器",
   "coc.item.delete": "刪除行為準則",
   "coc.item.delete.error": "無法刪除行為準則: {0}.txt",
   "coc.item.delete.alert.title": "確定要刪除行為準則文件 {0}.txt 嗎？",
