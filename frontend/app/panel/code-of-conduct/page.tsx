@@ -158,7 +158,7 @@ export default function CodeOfConduct() {
    * To avoid the <Empty> content appearing for a very shord period time
    * when the fetching request is awaiting response
    */
-  if(versionCtx?.codeOfConduct && !codeOfConducts) return <></>;
+  if(!versionCtx || (versionCtx.codeOfConduct && !codeOfConducts)) return <></>;
 
   return (
     <SubPage
