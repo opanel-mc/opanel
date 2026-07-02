@@ -6,9 +6,9 @@ import net.opanel.config.MapConfiguration;
 import net.opanel.config.McpConfiguration;
 import net.opanel.config.OpenAPIConfiguration;
 import net.opanel.task.ScheduledTask;
+import net.opanel.task.ScheduledTaskManager;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -22,7 +22,7 @@ public class Storage {
         registeredStorageFiles.put(StorageKey.SCHEDULED_TASKS, new StorageFile<>(
             "tasks.json",
             new TypeToken<List<ScheduledTask>>() {}.getType(),
-            new ArrayList<ScheduledTask>()
+            ScheduledTaskManager.DEFAULT_TASKS
         ));
         registeredStorageFiles.put(StorageKey.MCP_CONFIG, new StorageFile<>(
             "mcp-config.json",
