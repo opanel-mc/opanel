@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 
 public class OidcManager {
     private static final long STATE_MAX_AGE_MS = 10 * 60 * 1000; // 10 minutes
+    private static final long DISCOVER_REFRESH_MS = 6 * 60 * 60 * 1000; // 6 hours
     private final ConcurrentHashMap<String, StateEntry> stateStore = new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
         Thread t = new Thread(r, "opanel-oidc-cleanup");
@@ -53,11 +54,15 @@ public class OidcManager {
     private OIDCProviderMetadata providerMetadata;
     private IDTokenValidator idTokenValidator;
     private boolean discovered = false;
+    private long lastDiscoveredAt = 0;
 
     /**
      * Perform OpenID Connect Discovery and cache the provider metadata.
      */
     public void discover(String discoveryUrl, String clientId) throws Exception {
+        if(discoveryUrl.equalsIgnoreCase("/.well-known/openid-configuration")) {
+            discoveryUrl = discoveryUrl.replace("/.well-known/openid-configuration", "");
+        }
         Issuer issuer = new Issuer(discoveryUrl);
         OIDCProviderMetadata metadata = OIDCProviderMetadata.resolve(issuer);
         this.providerMetadata = metadata;
@@ -74,10 +79,19 @@ public class OidcManager {
         );
 
         this.discovered = true;
+        this.lastDiscoveredAt = System.currentTimeMillis();
     }
 
     public boolean isDiscovered() {
         return discovered;
+    }
+
+    /**
+     * Whether the provider metadata and JWK source should be refreshed
+     * (e.g. after key rotation or metadata changes on the provider side).
+     */
+    public boolean needDiscovery() {
+        return System.currentTimeMillis() - lastDiscoveredAt > DISCOVER_REFRESH_MS;
     }
 
     /**
@@ -169,13 +183,9 @@ public class OidcManager {
 
         IDTokenClaimsSet claimsSet;
         try {
-            claimsSet = idTokenValidator.validate(idToken, null);
+            claimsSet = idTokenValidator.validate(idToken, Nonce.parse(stateEntry.nonce));
         } catch (Exception e) {
             throw new RuntimeException("OIDC ID token validation failed: " + e.getMessage());
-        }
-
-        if(claimsSet.getNonce() == null || !claimsSet.getNonce().getValue().equals(stateEntry.nonce)) {
-            throw new RuntimeException("Nonce mismatch in OIDC ID token");
         }
 
         return claimsSet.toJWTClaimsSet();
@@ -184,6 +194,18 @@ public class OidcManager {
     public void cleanExpiredStates() {
         long now = System.currentTimeMillis();
         stateStore.entrySet().removeIf(entry -> now - entry.getValue().timestamp > STATE_MAX_AGE_MS);
+    }
+
+    public void shutdown() {
+        scheduler.shutdown();
+        try {
+            if(!scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
+                scheduler.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            scheduler.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
     }
 
     private static class StateEntry {

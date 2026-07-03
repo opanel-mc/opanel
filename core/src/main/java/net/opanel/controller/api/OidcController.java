@@ -30,9 +30,9 @@ public class OidcController extends BaseController {
     }
 
     private void ensureInitialized() throws Exception {
-        if(initialized && oidcManager.isDiscovered()) return;
-
         if(!plugin.getConfig().oidcEnabled) return;
+
+        if(initialized && oidcManager.isDiscovered() && !oidcManager.needDiscovery()) return;
 
         oidcManager.discover(plugin.getConfig().oidcDiscoveryUrl, plugin.getConfig().oidcClientId);
         initialized = true;
@@ -242,6 +242,12 @@ public class OidcController extends BaseController {
 
     private String buildRedirectUri(io.javalin.http.Context ctx) {
         String scheme = ctx.scheme();
+        if(plugin.getConfig().proxyHeaders) {
+            String forwardedProto = ctx.header("X-Forwarded-Proto");
+            if(forwardedProto != null && !forwardedProto.isEmpty()) {
+                scheme = forwardedProto;
+            }
+        }
         String host = ctx.host();
         return scheme + "://" + host + "/api/auth/oidc/callback";
     }
