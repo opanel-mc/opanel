@@ -134,7 +134,6 @@ export default function OIDCConfiguration() {
                 onKeyDown={(e) => { if(e.key === "Enter") handleAdd(); }} />
               <Button
                 className="cursor-pointer"
-                size="sm"
                 disabled={!newUserId.trim()}
                 onClick={handleAdd}>
                 <Plus />
