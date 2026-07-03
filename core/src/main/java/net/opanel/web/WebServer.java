@@ -303,6 +303,7 @@ public class WebServer {
 
         app.events(event -> {
             event.serverStopping(BaseController::unregisterAllControllerInstances);
+            event.serverStopping(oidcManager::shutdown);
         });
     }
 
