@@ -552,7 +552,7 @@
   "mcp.dialog.status.generating": "Zugriffstoken wird generiert...",
   "mcp.dialog.status.error": "Zugriffstoken konnte nicht generiert werden",
 
-  "oidc.description": "Benutzer-IDs konfigurieren, die sich per OIDC Single Sign-On anmelden dürfen",
+  "oidc.description": "OIDC Single Sign-On Einstellungen verwalten",
   "oidc.not-enabled": "OIDC ist nicht aktiviert. Bitte konfigurieren Sie OIDC zuerst in der Serverkonfigurationsdatei.",
   "oidc.fetch.error": "Zulässige Benutzer konnten nicht geladen werden",
   "oidc.add": "Hinzufügen",
@@ -562,6 +562,10 @@
   "oidc.remove.error": "Benutzer-ID konnte nicht entfernt werden",
   "oidc.item.allowed-users": "Zulässige Benutzer-IDs",
   "oidc.item.allowed-users.description": "Nur Benutzer in dieser Liste können sich über OIDC anmelden. Neue Benutzer müssen beim ersten Login ihren Zugriffsschlüssel binden.",
+  "oidc.item.basic-info": "Grundlegende Informationen",
+  "oidc.item.provider": "Dienstanbieter",
+  "oidc.item.discovery-url": "Discovery-URL",
+  "oidc.item.client-id": "Client-ID",
   "oidc.item.allowed-users.placeholder": "Benutzer-ID eingeben...",
   "oidc.item.allowed-users.empty": "Noch keine zulässigen Benutzer",
 

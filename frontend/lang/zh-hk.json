@@ -552,7 +552,7 @@
   "mcp.dialog.status.generating": "正在生成訪問令牌...",
   "mcp.dialog.status.error": "訪問令牌生成失敗",
 
-  "oidc.description": "設定允許透過OIDC單一登入的使用者ID",
+  "oidc.description": "管理OIDC單一登入配置與允許用戶",
   "oidc.not-enabled": "OIDC未啟用，請先在伺服器設定檔中設定OIDC。",
   "oidc.fetch.error": "獲取允許使用者列表失敗",
   "oidc.add": "添加",
@@ -562,6 +562,10 @@
   "oidc.remove.error": "移除使用者ID失敗",
   "oidc.item.allowed-users": "允許的使用者ID",
   "oidc.item.allowed-users.description": "只有在此列表中的使用者才能透過OIDC登入。新使用者首次登入時需要綁定存取密鑰。",
+  "oidc.item.basic-info": "基本資訊",
+  "oidc.item.provider": "服務提供者",
+  "oidc.item.discovery-url": "服務發現",
+  "oidc.item.client-id": "客戶端ID",
   "oidc.item.allowed-users.placeholder": "請輸入使用者ID...",
   "oidc.item.allowed-users.empty": "暫無允許的使用者",
 

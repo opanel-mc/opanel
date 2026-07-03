@@ -182,6 +182,8 @@ public class OidcController extends BaseController {
         if(plugin.getConfig().oidcEnabled) {
             res.put("enabled", true);
             res.put("displayName", plugin.getConfig().oidcDisplayName);
+            res.put("discoveryUrl", plugin.getConfig().oidcDiscoveryUrl);
+            res.put("clientId", plugin.getConfig().oidcClientId);
         } else {
             res.put("enabled", false);
         }

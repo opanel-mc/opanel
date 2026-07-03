@@ -552,7 +552,7 @@
   "mcp.dialog.status.generating": "アクセス トークンを生成中...",
   "mcp.dialog.status.error": "アクセス トークンの生成に失敗しました",
 
-  "oidc.description": "OIDCシングルサインオンでのログインを許可するユーザーIDを設定する",
+  "oidc.description": "OIDCシングルサインオンの設定を管理する",
   "oidc.not-enabled": "OIDCが有効になっていません。サーバーの設定ファイルでOIDCを設定してください。",
   "oidc.fetch.error": "許可ユーザー一覧の取得に失敗しました",
   "oidc.add": "追加",
@@ -562,6 +562,10 @@
   "oidc.remove.error": "ユーザーIDの削除に失敗しました",
   "oidc.item.allowed-users": "許可されたユーザーID",
   "oidc.item.allowed-users.description": "このリストに含まれるユーザーのみがOIDCでログインできます。新規ユーザーは初回ログイン時にアクセスキーのバインドが必要です。",
+  "oidc.item.basic-info": "基本情報",
+  "oidc.item.provider": "サービスプロバイダー",
+  "oidc.item.discovery-url": "ディスカバリーURL",
+  "oidc.item.client-id": "クライアントID",
   "oidc.item.allowed-users.placeholder": "ユーザーIDを入力...",
   "oidc.item.allowed-users.empty": "許可されたユーザーはいません",
 

@@ -10,18 +10,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { sendGetRequest, sendPostRequest, sendDeleteRequest, toastError } from "@/lib/api";
 import { ConfigItem, ConfigSection } from "@/components/config-item";
-import { Empty, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
+import { Empty, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { emitter } from "@/lib/emitter";
+import { googleSansCode } from "@/lib/fonts";
+import { cn } from "@/lib/utils";
 
 export default function OIDCConfiguration() {
-  const [enabled, setEnabled] = useState<boolean | null>(null);
+  const [config, setConfig] = useState<Partial<OidcConfigResponse>>({});
   const [allowedUserIds, setAllowedUserIds] = useState<string[]>([]);
   const [newUserId, setNewUserId] = useState("");
 
   const fetchOidcStatus = async () => {
     try {
       const res = await sendGetRequest<OidcConfigResponse>("/api/auth/oidc/config", false);
-      setEnabled(res.enabled);
+      setConfig({ enabled: res.enabled, displayName: res.displayName, discoveryUrl: res.discoveryUrl, clientId: res.clientId });
       if(res.enabled) {
         const { allowedUserIds: ids } = await sendGetRequest<{ allowedUserIds: string[] }>("/api/auth/oidc/allowed-users");
         setAllowedUserIds(ids ?? []);
@@ -31,7 +33,7 @@ export default function OIDCConfiguration() {
         [401, $("common.error.401")],
         [500, $("common.error.500")]
       ]);
-      setEnabled(false);
+      setConfig({ enabled: false });
     } finally {
       emitter.emit("loading-done");
     }
@@ -81,21 +83,49 @@ export default function OIDCConfiguration() {
       category={$("nav.settings")}
       icon={<ShieldCheck />}
       pageClassName="min-xl:px-64!">
-      {enabled === false ? (
-        <Empty>
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <ShieldCheck />
-            </EmptyMedia>
-            <EmptyTitle>{$("oidc.not-enabled")}</EmptyTitle>
-          </EmptyHeader>
-        </Empty>
-      ) : (
-        <ConfigSection>
-          <ConfigItem
-            name={$("oidc.item.allowed-users")}
-            description={$("oidc.item.allowed-users.description")}>
-            <div className="w-full flex gap-2">
+      {config.enabled ? (
+        <>
+          <h2 className="text-lg font-semibold mb-3">{$("oidc.item.basic-info")}</h2>
+          <ConfigSection>
+          {config.displayName && (
+            <ConfigItem name={$("oidc.item.provider")}>
+              <span className="text-sm font-medium">{config.displayName}</span>
+            </ConfigItem>
+          )}
+          {config.discoveryUrl && (
+            <ConfigItem name={$("oidc.item.discovery-url")}>
+              <span className={cn("text-sm", googleSansCode.className)}>{config.discoveryUrl}</span>
+            </ConfigItem>
+          )}
+          {config.clientId && (
+            <ConfigItem name={$("oidc.item.client-id")}>
+              <span className={cn("text-sm", googleSansCode.className)}>{config.clientId}</span>
+            </ConfigItem>
+          )}
+          </ConfigSection>
+          <h2 className="text-lg font-semibold mt-6 mb-3">{$("oidc.item.allowed-users")}</h2>
+          <div className="bg-background dark:bg-transparent border rounded-md flex flex-col overflow-hidden max-h-[360px]">
+            <div className="overflow-y-auto">
+              {allowedUserIds.length === 0 ? (
+                <span className="block px-4 py-3 text-sm text-muted-foreground">
+                  {$("oidc.item.allowed-users.empty")}
+                </span>
+              ) : (
+                allowedUserIds.map((userId) => (
+                  <div key={userId} className="flex items-center gap-2 px-4 py-2 border-b last:border-b-0">
+                    <span className={cn("text-sm mr-auto", googleSansCode.className)}>{userId}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="cursor-pointer text-destructive hover:text-destructive"
+                      onClick={() => handleRemove(userId)}>
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
+                ))
+              )}
+            </div>
+            <div className="sticky bottom-0 bg-background border-t p-2 flex gap-2">
               <Input
                 className="flex-1"
                 placeholder={$("oidc.item.allowed-users.placeholder")}
@@ -111,26 +141,14 @@ export default function OIDCConfiguration() {
                 {$("oidc.add")}
               </Button>
             </div>
-          </ConfigItem>
-          {allowedUserIds.length === 0 ? (
-            <div className="px-4 py-3 text-sm text-muted-foreground">
-              {$("oidc.item.allowed-users.empty")}
-            </div>
-          ) : (
-            allowedUserIds.map((userId) => (
-              <div key={userId} className="flex items-center gap-2 px-4 py-2 border-b last:border-b-0">
-                <span className="text-sm font-mono mr-auto">{userId}</span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="cursor-pointer text-destructive hover:text-destructive"
-                  onClick={() => handleRemove(userId)}>
-                  <Trash2 size={16} />
-                </Button>
-              </div>
-            ))
-          )}
-        </ConfigSection>
+          </div>
+        </>
+      ) : (
+        <Empty>
+          <EmptyHeader>
+            <EmptyTitle>{$("oidc.not-enabled")}</EmptyTitle>
+          </EmptyHeader>
+        </Empty>
       )}
     </SubPage>
   );

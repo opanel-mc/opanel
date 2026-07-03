@@ -552,7 +552,7 @@
   "mcp.dialog.status.generating": "正在生成访问令牌...",
   "mcp.dialog.status.error": "访问令牌生成失败",
 
-  "oidc.description": "配置允许通过OIDC单点登录的用户ID",
+  "oidc.description": "管理OIDC单点登录设置",
   "oidc.not-enabled": "OIDC未启用，请先在服务端配置文件中配置OIDC。",
   "oidc.fetch.error": "获取允许用户列表失败",
   "oidc.add": "添加",
@@ -562,6 +562,10 @@
   "oidc.remove.error": "移除用户ID失败",
   "oidc.item.allowed-users": "允许的用户ID",
   "oidc.item.allowed-users.description": "只有在此列表中的用户才能通过OIDC登录。新用户首次登录时需要绑定访问密钥。",
+  "oidc.item.basic-info": "基本信息",
+  "oidc.item.provider": "服务提供商",
+  "oidc.item.discovery-url": "服务发现",
+  "oidc.item.client-id": "客户端ID",
   "oidc.item.allowed-users.placeholder": "请输入用户ID...",
   "oidc.item.allowed-users.empty": "暂无允许的用户",
 

@@ -552,7 +552,7 @@
   "mcp.dialog.status.generating": "Génération du jeton d'accès en cours...",
   "mcp.dialog.status.error": "Échec de la génération du jeton d'accès",
 
-  "oidc.description": "Configurer les IDs utilisateurs autorisés à se connecter via OIDC",
+  "oidc.description": "Gérer la configuration OIDC et les utilisateurs autorisés",
   "oidc.not-enabled": "L'OIDC n'est pas activé. Veuillez d'abord configurer l'OIDC dans le fichier de configuration du serveur.",
   "oidc.fetch.error": "Échec de la récupération des utilisateurs autorisés",
   "oidc.add": "Ajouter",
@@ -562,6 +562,10 @@
   "oidc.remove.error": "Échec de la suppression de l'ID utilisateur",
   "oidc.item.allowed-users": "IDs utilisateurs autorisés",
   "oidc.item.allowed-users.description": "Seuls les utilisateurs de cette liste peuvent se connecter via OIDC. Les nouveaux utilisateurs devront lier leur clé d'accès à la première connexion.",
+  "oidc.item.basic-info": "Informations de base",
+  "oidc.item.provider": "Fournisseur de service",
+  "oidc.item.discovery-url": "URL de découverte",
+  "oidc.item.client-id": "ID client",
   "oidc.item.allowed-users.placeholder": "Entrez l'ID utilisateur...",
   "oidc.item.allowed-users.empty": "Aucun utilisateur autorisé pour le moment",
 

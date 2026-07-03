@@ -552,7 +552,7 @@
   "mcp.dialog.status.generating": "액세스 토큰 생성 중...",
   "mcp.dialog.status.error": "액세스 토큰 생성 실패",
 
-  "oidc.description": "OIDC 싱글사인온 로그인을 허용할 사용자ID를 설정합니다",
+  "oidc.description": "OIDC 싱글사인온 설정 관리",
   "oidc.not-enabled": "OIDC가 활성화되지 않았습니다. 서버 설정 파일에서 OIDC를 먼저 설정해 주세요.",
   "oidc.fetch.error": "허용 사용자 목록을 가져오지 못했습니다",
   "oidc.add": "추가",
@@ -562,6 +562,10 @@
   "oidc.remove.error": "사용자ID 제거에 실패했습니다",
   "oidc.item.allowed-users": "허용된 사용자ID",
   "oidc.item.allowed-users.description": "이 목록에 있는 사용자만 OIDC로 로그인할 수 있습니다. 신규 사용자는 첫 로그인 시 액세스 키를 바인딩해야 합니다.",
+  "oidc.item.basic-info": "기본 정보",
+  "oidc.item.provider": "서비스 제공자",
+  "oidc.item.discovery-url": "디스커버리 URL",
+  "oidc.item.client-id": "클라이언트 ID",
   "oidc.item.allowed-users.placeholder": "사용자ID를 입력하세요...",
   "oidc.item.allowed-users.empty": "허용된 사용자가 없습니다",
 

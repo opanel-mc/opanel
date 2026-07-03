@@ -257,4 +257,6 @@ export type GithubReleaseResponse = {
 export interface OidcConfigResponse {
   enabled: boolean
   displayName?: string
+  discoveryUrl?: string
+  clientId?: string
 }

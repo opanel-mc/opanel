@@ -552,7 +552,7 @@
   "mcp.dialog.status.generating": "Generating access token...",
   "mcp.dialog.status.error": "Failed to generate access token",
 
-  "oidc.description": "Configure user IDs allowed to log in via OIDC single sign-on",
+  "oidc.description": "Manage OIDC single sign-on settings",
   "oidc.not-enabled": "OIDC is not enabled. Please configure OIDC in the server configuration file first.",
   "oidc.fetch.error": "Failed to get allowed users",
   "oidc.add": "Add",
@@ -562,6 +562,10 @@
   "oidc.remove.error": "Failed to remove user ID",
   "oidc.item.allowed-users": "Allowed User IDs",
   "oidc.item.allowed-users.description": "Only users in this list can log in via OIDC. New users will need to bind their access key on first login.",
+  "oidc.item.basic-info": "Basic Information",
+  "oidc.item.provider": "Service Provider",
+  "oidc.item.discovery-url": "Discovery URL",
+  "oidc.item.client-id": "Client ID",
   "oidc.item.allowed-users.placeholder": "Enter user ID...",
   "oidc.item.allowed-users.empty": "No allowed users yet",
 
