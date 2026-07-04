@@ -1,5 +1,5 @@
 {
-  "$lang": "繁體中文（台灣）",
+  "$lang": "正體中文（台灣）",
 
   "common.error.400": "請求參數錯誤",
   "common.error.401": "未登入",
@@ -15,7 +15,7 @@
   "common.copy.success": "拷貝成功",
   "common.copy.error": "拷貝失敗",
   "common.controls.restart": "正在重啓伺服器...",
-  "common.controls.restart.error": "重新啟動伺服器失敗",
+  "common.controls.restart.error": "重新啓動伺服器失敗",
   "common.controls.stop": "正在停止伺服器…",
 
   "restart-alert.title": "需要重啓伺服器先至改動生效",
@@ -451,7 +451,7 @@
   "logs.action.delete.error.404": "找不到這個日誌",
   "logs.view.fetch.error": "無法獲取日誌內容",
   "logs.view.fetch.error.404": "找不到這個日誌",
-  "logs.view.hint": "文件類型：{0}",
+  "logs.view.hint": "檔案類型：{0}",
   "logs.view.decompressed": "已解壓",
   "logs.view.monaco.readonly": "日誌唔可以編輯",
 
