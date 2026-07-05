@@ -72,7 +72,7 @@ export function OidcBindDialog({
               autoFocus
               value={accessKey}
               onChange={(e) => { setAccessKey(e.target.value); setError(""); }}
-              onKeyDown={(e) => { if(e.key === "Enter") handleBind(); }} />
+              onKeyDown={(e) => { if(e.key === "Enter") handleBind(); }}/>
             {error && (
               <span className="text-sm text-destructive">{error}</span>
             )}
