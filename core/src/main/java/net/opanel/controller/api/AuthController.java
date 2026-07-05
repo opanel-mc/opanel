@@ -25,7 +25,16 @@ public class AuthController extends BaseController {
         super(plugin);
     }
 
+    private boolean isOidcEnabled() {
+        return plugin.getConfig().oidcEnabled;
+    }
+
     public Handler getCram = ctx -> {
+        if(isOidcEnabled()) {
+            sendResponse(ctx, HttpStatus.FORBIDDEN, "Secret login is disabled when OIDC is enabled.");
+            return;
+        }
+
         final String id = ctx.queryParam("id");
         if(id == null) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Id is missing.");
@@ -47,6 +56,11 @@ public class AuthController extends BaseController {
     };
 
     public Handler validateCram = ctx -> {
+        if(isOidcEnabled()) {
+            sendResponse(ctx, HttpStatus.FORBIDDEN, "Secret login is disabled when OIDC is enabled.");
+            return;
+        }
+
         RequestBodyType reqBody = ctx.bodyAsClass(RequestBodyType.class);
         if(reqBody.id == null || reqBody.result == null) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Id or result is missing.");

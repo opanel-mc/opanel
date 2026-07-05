@@ -4,3 +4,8 @@ webServerPort: 3000
 mcdrSocketPort: 25576
 cookieSecure: false
 proxyHeaders: false
+oidcEnabled: false
+oidcDiscoveryUrl: ""
+oidcClientId: ""
+oidcClientSecret: ""
+oidcDisplayName: "OIDC"

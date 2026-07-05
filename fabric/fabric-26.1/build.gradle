@@ -65,6 +65,8 @@ shadowJar {
     relocate 'org.objectweb.asm', 'net.opanel.deps.objectweb.asm'
     relocate 'io.javalin', 'net.opanel.deps.javalin'
     relocate 'kotlin', 'net.opanel.deps.kotlin'
+    relocate 'com.nimbusds', 'net.opanel.deps.nimbusds'
+    relocate 'net.minidev', 'net.opanel.deps.minidev'
     relocate 'space.nocp.configx', 'net.opanel.deps.configx'
 
     exclude 'META-INF/*.SF'
@@ -110,3 +112,4 @@ java {
         languageVersion = JavaLanguageVersion.of(25)
     }
 }
+

@@ -59,6 +59,8 @@ shadowJar {
     relocate 'io.javalin', 'net.opanel.deps.javalin'
     relocate 'kotlin', 'net.opanel.deps.kotlin'
     relocate 'org.bstats', 'net.opanel.deps.bstats'
+    relocate 'com.nimbusds', 'net.opanel.deps.nimbusds'
+    relocate 'net.minidev', 'net.opanel.deps.minidev'
 
     exclude 'META-INF/*.SF'
     exclude 'META-INF/*.DSA'
@@ -92,3 +94,4 @@ java {
         languageVersion = JavaLanguageVersion.of(21)
     }
 }
+

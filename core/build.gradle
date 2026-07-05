@@ -18,6 +18,7 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
     runtimeOnly 'io.jsonwebtoken:jjwt-gson:0.13.0'
     implementation 'com.cronutils:cron-utils:9.2.1'
+    implementation 'com.nimbusds:oauth2-oidc-sdk:11.21'
 }
 
 tasks.register('generateOPanelProperties') {

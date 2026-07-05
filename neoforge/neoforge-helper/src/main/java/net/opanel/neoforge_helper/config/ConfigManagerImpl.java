@@ -12,7 +12,12 @@ public class ConfigManagerImpl implements ConfigManager {
                 Config.WEB_SERVER_PORT.get(),
                 Config.MCDR_SOCKET_PORT.get(),
                 Config.COOKIE_SECURE.get(),
-                Config.PROXY_HEADERS.get()
+                Config.PROXY_HEADERS.get(),
+                Config.OIDC_ENABLED.get(),
+                Config.OIDC_DISCOVERY_URL.get(),
+                Config.OIDC_CLIENT_ID.get(),
+                Config.OIDC_CLIENT_SECRET.get(),
+                Config.OIDC_DISPLAY_NAME.get()
         );
     }
 
@@ -24,6 +29,11 @@ public class ConfigManagerImpl implements ConfigManager {
         Config.MCDR_SOCKET_PORT.set(config.mcdrSocketPort);
         Config.COOKIE_SECURE.set(config.cookieSecure);
         Config.PROXY_HEADERS.set(config.proxyHeaders);
+        Config.OIDC_ENABLED.set(config.oidcEnabled);
+        Config.OIDC_DISCOVERY_URL.set(config.oidcDiscoveryUrl);
+        Config.OIDC_CLIENT_ID.set(config.oidcClientId);
+        Config.OIDC_CLIENT_SECRET.set(config.oidcClientSecret);
+        Config.OIDC_DISPLAY_NAME.set(config.oidcDisplayName);
         Config.SPEC.save();
     }
 }

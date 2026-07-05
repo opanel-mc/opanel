@@ -22,7 +22,12 @@ public class ConfigManagerImpl implements ConfigManager {
                 configSrc.getInt("webServerPort"),
                 configSrc.getInt("mcdrSocketPort"),
                 configSrc.getBoolean("cookieSecure"),
-                configSrc.getBoolean("proxyHeaders")
+                configSrc.getBoolean("proxyHeaders"),
+                configSrc.getBoolean("oidcEnabled"),
+                configSrc.getString("oidcDiscoveryUrl"),
+                configSrc.getString("oidcClientId"),
+                configSrc.getString("oidcClientSecret"),
+                configSrc.getString("oidcDisplayName")
         );
     }
 
@@ -34,6 +39,11 @@ public class ConfigManagerImpl implements ConfigManager {
         configSrc.set("mcdrSocketPort", config.mcdrSocketPort);
         configSrc.set("cookieSecure", config.cookieSecure);
         configSrc.set("proxyHeaders", config.proxyHeaders);
+        configSrc.set("oidcEnabled", config.oidcEnabled);
+        configSrc.set("oidcDiscoveryUrl", config.oidcDiscoveryUrl);
+        configSrc.set("oidcClientId", config.oidcClientId);
+        configSrc.set("oidcClientSecret", config.oidcClientSecret);
+        configSrc.set("oidcDisplayName", config.oidcDisplayName);
         plugin.saveConfig();
     }
 }

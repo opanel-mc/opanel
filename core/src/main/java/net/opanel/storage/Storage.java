@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.opanel.config.MapConfiguration;
 import net.opanel.config.McpConfiguration;
+import net.opanel.config.OidcConfiguration;
 import net.opanel.config.OpenAPIConfiguration;
 import net.opanel.task.ScheduledTask;
 import net.opanel.task.ScheduledTaskManager;
@@ -42,6 +43,11 @@ public class Storage {
             "map-config.json",
             MapConfiguration.class,
             new MapConfiguration(false)
+        ));
+        registeredStorageFiles.put(StorageKey.OIDC_CONFIG, new StorageFile<>(
+            "oidc-config.json",
+            OidcConfiguration.class,
+            new OidcConfiguration()
         ));
     }
 

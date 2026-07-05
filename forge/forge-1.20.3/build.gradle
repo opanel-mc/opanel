@@ -40,7 +40,6 @@ dependencies {
     shadowImplementation(project(":core")) {
         // To avoid conflict
         exclude group: 'com.github.oshi', module: 'oshi-core'
-        exclude group: 'org.slf4j', module: 'slf4j-api'
     }
     compileOnly(project(":forge-helper")) {
         transitive = false
@@ -79,6 +78,8 @@ shadowJar {
     relocate 'org.objectweb.asm', 'net.opanel.deps.objectweb.asm'
     relocate 'io.javalin', 'net.opanel.deps.javalin'
     relocate 'kotlin', 'net.opanel.deps.kotlin'
+    relocate 'com.nimbusds', 'net.opanel.deps.nimbusds'
+    relocate 'net.minidev', 'net.opanel.deps.minidev'
 
     exclude 'META-INF/*.SF'
     exclude 'META-INF/*.DSA'
@@ -108,3 +109,4 @@ java {
         languageVersion = JavaLanguageVersion.of(17)
     }
 }
+

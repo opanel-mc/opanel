@@ -38,6 +38,7 @@ export type SettingsStorageType = {
   "system.language": LanguageCode
   "system.preview-channel": boolean
   "system.mcp"?: never
+  "system.oidc"?: never
   "system.access-key"?: never
   "system.check-update"?: never
   "state.sidebar.open": boolean

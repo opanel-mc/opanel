@@ -43,6 +43,10 @@ dependencies {
         // To avoid conflict
         exclude group: 'com.github.oshi', module: 'oshi-core'
         exclude group: 'org.slf4j', module: 'slf4j-api'
+        exclude group: 'com.nimbusds', module: 'nimbus-jose-jwt'
+        exclude group: 'com.nimbusds', module: 'oauth2-oidc-sdk'
+        exclude group: 'net.minidev', module: 'accessors-smart'
+        exclude group: 'net.minidev', module: 'json-smart'
     }
 }
 

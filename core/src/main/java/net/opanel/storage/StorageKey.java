@@ -5,7 +5,8 @@ public enum StorageKey {
     MCP_CONFIG("mcp-config"),
     OPEN_API_CONFIG("open-api"),
     LAUNCH_COMMAND("launch-command"),
-    MAP_CONFIG("map-config");
+    MAP_CONFIG("map-config"),
+    OIDC_CONFIG("oidc-config");
 
     private final String id;
 

@@ -12,6 +12,11 @@ public class Config {
     public static final ForgeConfigSpec.IntValue MCDR_SOCKET_PORT = BUILDER.defineInRange("mcdrSocketPort", OPanelConfiguration.defaultConfig.mcdrSocketPort, 1, 65535);
     public static final ForgeConfigSpec.BooleanValue COOKIE_SECURE = BUILDER.define("cookieSecure", OPanelConfiguration.defaultConfig.cookieSecure);
     public static final ForgeConfigSpec.BooleanValue PROXY_HEADERS = BUILDER.define("proxyHeaders", OPanelConfiguration.defaultConfig.proxyHeaders);
+    public static final ForgeConfigSpec.BooleanValue OIDC_ENABLED = BUILDER.define("oidcEnabled", OPanelConfiguration.defaultConfig.oidcEnabled);
+    public static final ForgeConfigSpec.ConfigValue<String> OIDC_DISCOVERY_URL = BUILDER.define("oidcDiscoveryUrl", OPanelConfiguration.defaultConfig.oidcDiscoveryUrl);
+    public static final ForgeConfigSpec.ConfigValue<String> OIDC_CLIENT_ID = BUILDER.define("oidcClientId", OPanelConfiguration.defaultConfig.oidcClientId);
+    public static final ForgeConfigSpec.ConfigValue<String> OIDC_CLIENT_SECRET = BUILDER.define("oidcClientSecret", OPanelConfiguration.defaultConfig.oidcClientSecret);
+    public static final ForgeConfigSpec.ConfigValue<String> OIDC_DISPLAY_NAME = BUILDER.define("oidcDisplayName", OPanelConfiguration.defaultConfig.oidcDisplayName);
 
     public static final ForgeConfigSpec SPEC = BUILDER.build();
 }

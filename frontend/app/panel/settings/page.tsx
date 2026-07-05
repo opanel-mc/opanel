@@ -323,6 +323,18 @@ export default function Settings() {
                   </Button>
                 }/>
               <SettingsItem
+                id="system.oidc"
+                name="OIDC"
+                description={$("oidc.description")}
+                control={
+                  <Button
+                    className="cursor-pointer"
+                    size="sm"
+                    asChild>
+                    <Link href="/panel/oidc">{$("settings.system.oidc.configure")}</Link>
+                  </Button>
+                }/>
+              <SettingsItem
                 id="system.access-key"
                 name={$("settings.system.access-key")}
                 control={

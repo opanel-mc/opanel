@@ -252,3 +252,11 @@ export type GithubReleaseResponse = {
   published_at: string
   body: string
 }[]
+
+/** `/api/auth/oidc/config` */
+export interface OidcConfigResponse {
+  enabled: boolean
+  displayName?: string
+  discoveryUrl?: string
+  clientId?: string
+}
