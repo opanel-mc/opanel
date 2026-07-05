@@ -87,21 +87,21 @@ export default function OIDCConfiguration() {
         <>
           <h2 className="text-lg font-semibold mb-3">{$("oidc.item.basic-info")}</h2>
           <ConfigSection>
-          {config.displayName && (
-            <ConfigItem name={$("oidc.item.provider")}>
-              <span className="text-sm font-medium">{config.displayName}</span>
-            </ConfigItem>
-          )}
-          {config.discoveryUrl && (
-            <ConfigItem name={$("oidc.item.discovery-url")}>
-              <span className={cn("text-sm", googleSansCode.className)}>{config.discoveryUrl}</span>
-            </ConfigItem>
-          )}
-          {config.clientId && (
-            <ConfigItem name={$("oidc.item.client-id")}>
-              <span className={cn("text-sm", googleSansCode.className)}>{config.clientId}</span>
-            </ConfigItem>
-          )}
+            {config.displayName && (
+              <ConfigItem name={$("oidc.item.provider")}>
+                <span className="text-sm font-medium">{config.displayName}</span>
+              </ConfigItem>
+            )}
+            {config.discoveryUrl && (
+              <ConfigItem name={$("oidc.item.discovery-url")}>
+                <span className={cn("text-sm", googleSansCode.className)}>{config.discoveryUrl}</span>
+              </ConfigItem>
+            )}
+            {config.clientId && (
+              <ConfigItem name={$("oidc.item.client-id")}>
+                <span className={cn("text-sm", googleSansCode.className)}>{config.clientId}</span>
+              </ConfigItem>
+            )}
           </ConfigSection>
           <h2 className="text-lg font-semibold mt-6 mb-3">{$("oidc.item.allowed-users")}</h2>
           <div className="bg-background dark:bg-transparent border rounded-md flex flex-col overflow-hidden max-h-[360px]">
@@ -119,7 +119,7 @@ export default function OIDCConfiguration() {
                       size="icon"
                       className="cursor-pointer text-destructive hover:text-destructive"
                       onClick={() => handleRemove(userId)}>
-                      <Trash2 size={16} />
+                      <Trash2 size={16}/>
                     </Button>
                   </div>
                 ))
@@ -131,7 +131,7 @@ export default function OIDCConfiguration() {
                 placeholder={$("oidc.item.allowed-users.placeholder")}
                 value={newUserId}
                 onChange={(e) => setNewUserId(e.target.value)}
-                onKeyDown={(e) => { if(e.key === "Enter") handleAdd(); }} />
+                onKeyDown={(e) => { if(e.key === "Enter") handleAdd(); }}/>
               <Button
                 className="cursor-pointer"
                 disabled={!newUserId.trim()}

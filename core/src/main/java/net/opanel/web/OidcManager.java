@@ -2,7 +2,7 @@ package net.opanel.web;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.jwk.source.RemoteJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSourceBuilder;
 import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
@@ -67,10 +67,10 @@ public class OidcManager {
         OIDCProviderMetadata metadata = OIDCProviderMetadata.resolve(issuer);
         this.providerMetadata = metadata;
 
-        JWKSource<SecurityContext> jwkSource = new RemoteJWKSet<>(metadata.getJWKSetURI().toURL());
+        JWKSource<SecurityContext> jwkSource = JWKSourceBuilder.create(metadata.getJWKSetURI().toURL()).build();
         JWSKeySelector<SecurityContext> jwsKeySelector = new JWSVerificationKeySelector<>(
                 JWSAlgorithm.Family.SIGNATURE, jwkSource
-            );
+        );
         this.idTokenValidator = new IDTokenValidator(
                 metadata.getIssuer(),
                 new ClientID(clientId),
@@ -107,9 +107,7 @@ public class OidcManager {
 
         stateStore.put(state.getValue(), new StateEntry(nonce.getValue(), System.currentTimeMillis()));
 
-        AuthorizationRequest request = new AuthorizationRequest.Builder(
-                ResponseType.CODE,
-                new ClientID(clientId))
+        AuthorizationRequest request = new AuthorizationRequest.Builder(ResponseType.CODE, new ClientID(clientId))
                 .endpointURI(providerMetadata.getAuthorizationEndpointURI())
                 .redirectionURI(new URI(redirectUri))
                 .scope(new Scope("openid", "profile"))
@@ -150,22 +148,12 @@ public class OidcManager {
 
         AuthorizationCode code = authResponse.toSuccessResponse().getAuthorizationCode();
 
-        TokenRequest tokenRequest;
         ClientID clientIDObj = new ClientID(clientId);
         URI redirectUriObj = new URI(redirectUri);
 
-        if(clientSecret != null && !clientSecret.isEmpty()) {
-            ClientAuthentication clientAuth = new ClientSecretBasic(clientIDObj, new Secret(clientSecret));
-            tokenRequest = new TokenRequest(
-                    providerMetadata.getTokenEndpointURI(),
-                    clientAuth,
-                    new AuthorizationCodeGrant(code, redirectUriObj));
-        } else {
-            tokenRequest = new TokenRequest(
-                    providerMetadata.getTokenEndpointURI(),
-                    clientIDObj,
-                    new AuthorizationCodeGrant(code, redirectUriObj));
-        }
+        AuthorizationCodeGrant grant = new AuthorizationCodeGrant(code, redirectUriObj);
+        ClientAuthentication clientAuth = new ClientSecretBasic(clientIDObj, new Secret(clientSecret));
+        TokenRequest tokenRequest = new TokenRequest.Builder(providerMetadata.getTokenEndpointURI(), clientAuth, grant).build();
 
         TokenResponse tokenResponse;
         try {
