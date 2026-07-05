@@ -15,7 +15,7 @@
   "common.copy.success": "拷貝成功",
   "common.copy.error": "拷貝失敗",
   "common.controls.restart": "正在重啓伺服器...",
-  "common.controls.restart.error": "重新啟動伺服器失敗",
+  "common.controls.restart.error": "重新啓動伺服器失敗",
   "common.controls.stop": "正在停止伺服器…",
 
   "restart-alert.title": "需要重啓伺服器先至改動生效",
