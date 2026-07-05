@@ -188,10 +188,16 @@ public class OPanel {
     }
 
     public String getStatus() {
+        String webServerHost = getConfig().webServerHost;
+        if(webServerHost == null || webServerHost.isBlank()) {
+            webServerHost = OPanelConfiguration.defaultConfig.webServerHost;
+        }
+
         StringBuilder sb = new StringBuilder();
         sb.append("§6§lOPanel §r§fStatus\n");
         sb.append("§r§7Version: §f").append(VERSION).append("\n");
         sb.append("§r§7Status: ").append(getWebServer().isRunning() ? "§aRunning" : "§cStopped").append("\n");
+        sb.append("§r§7Host: §f").append(webServerHost).append("\n");
         sb.append("§r§7Port: §f").append(getConfig().webServerPort).append("\n");
         sb.append("§r§7Javalin Version: §f").append(JAVALIN_VERSION);
         return sb.toString();
