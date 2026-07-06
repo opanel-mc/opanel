@@ -2,7 +2,7 @@
 
 import { useContext } from "react";
 import { Area, AreaChart, CartesianGrid, YAxis } from "recharts";
-import { ChartLine } from "lucide-react";
+import { Activity } from "lucide-react";
 import { FunctionalCard } from "@/components/functional-card";
 import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
@@ -27,8 +27,9 @@ export function MonitorCard({
 
   return (
     <FunctionalCard
-      icon={ChartLine}
+      icon={Activity}
       title={$("dashboard.monitor.title")}
+      moreLink="/panel/monitor"
       className={cn(className, "justify-between")}
       innerClassName="!overflow-hidden">
       <ChartContainer config={chartConfig} className="w-full max-h-96">

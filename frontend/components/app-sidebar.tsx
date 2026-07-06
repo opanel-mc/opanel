@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Fragment, useContext } from "react";
 import { compare } from "semver";
-import { Blocks, ClockFading, Earth, Gauge, HeartHandshake, MapIcon, PaintBucket, PencilRuler, ScrollText, SquareTerminal, Unplug, Users } from "lucide-react";
+import { Activity, Blocks, ClockFading, Earth, Gauge, HeartHandshake, MapIcon, PaintBucket, PencilRuler, ScrollText, SquareTerminal, Unplug, Users } from "lucide-react";
 import { SiModelcontextprotocol } from "@icons-pack/react-simple-icons";
 import {
   Sidebar,
@@ -31,6 +31,11 @@ const serverGroupItems = [
     name: $("sidebar.server.dashboard"),
     url: "/panel/dashboard",
     icon: Gauge
+  },
+  {
+    name: "监控",
+    url: "/panel/monitor",
+    icon: Activity
   },
   {
     name: $("sidebar.server.terminal"),
