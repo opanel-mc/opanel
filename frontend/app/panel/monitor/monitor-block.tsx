@@ -246,3 +246,52 @@ export function TpsMonitorBlock({ className }: {
     </MonitorBlock>
   );
 }
+
+export function NetworkMonitorBlock({ className }: {
+  className?: string
+}) {
+  const monitorDataList = useContext(MonitorContext);
+
+  return (
+    <MonitorBlock
+      title={$("monitor.network.title")}
+      description={$("monitor.network.description")}
+      className={className}>
+      <ChartContainer
+        config={{
+          networkUpload: {
+            label: $("monitor.chart.network-upload")
+          },
+          networkDownload: {
+            label: $("monitor.chart.network-download")
+          }
+        }}
+        className="w-full max-h-24">
+        <AreaChart
+          accessibilityLayer
+          data={monitorDataList}
+          margin={{ top: 10, left: 0, right: 0, bottom: 10 }}>
+          <CartesianGrid vertical={false} stroke="var(--border)"/>
+          <Area
+            dataKey="networkUpload"
+            type="monotone"
+            fill="transparent"
+            stroke="var(--color-chart-5)"
+            strokeWidth="2"
+            isAnimationActive={false}/>
+          <Area
+            dataKey="networkDownload"
+            type="monotone"
+            fill="transparent"
+            stroke="var(--color-chart-2)"
+            strokeWidth="2"
+            isAnimationActive={false}/>
+          <YAxis hide domain={["auto", "auto"]}/>
+          <ChartTooltip
+            cursor={false}
+            content={<ChartTooltipContent hideLabel indicator="line" valueFormatter={(value) => `${formatDataSize(parseInt(value))}/s`}/>}/>
+        </AreaChart>
+      </ChartContainer>
+    </MonitorBlock>
+  );
+}

@@ -36,8 +36,8 @@ export interface MonitorData {
   memory: number
   jvmMemory: number
   tps: number
-  networkUpload: 0 // todo
-  networkDownload: 0 // todo
+  networkUpload: number
+  networkDownload: number
 }
 
 export interface Save {

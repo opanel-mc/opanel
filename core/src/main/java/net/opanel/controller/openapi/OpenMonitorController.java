@@ -25,8 +25,8 @@ public class OpenMonitorController extends BaseController {
         obj.put("memory", data == null ? 0 : data.memory);
         obj.put("jvmMemory", data == null ? 0 : data.jvmMemory);
         obj.put("tps", data == null ? 0 : data.tps);
-        obj.put("networkUpload", 0); // todo
-        obj.put("networkDownload", 0); // todo
+        obj.put("networkUpload", data == null ? 0 : data.networkUpload);
+        obj.put("networkDownload", data == null ? 0 : data.networkDownload);
 
         sendResponse(ctx, obj);
     };

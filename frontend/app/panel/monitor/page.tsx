@@ -7,7 +7,7 @@ import { $ } from "@/lib/i18n";
 import { SubPage } from "../sub-page";
 import { InfoContext, MonitorContext } from "@/contexts/api-context";
 import { useMonitor } from "@/hooks/use-monitor";
-import { CpuMonitorBlock, JvmMemoryMonitorBlock, MemoryMonitorBlock, TpsMonitorBlock } from "./monitor-block";
+import { CpuMonitorBlock, JvmMemoryMonitorBlock, MemoryMonitorBlock, NetworkMonitorBlock, TpsMonitorBlock } from "./monitor-block";
 import { emitter } from "@/lib/emitter";
 import { sendGetRequest, toastError } from "@/lib/api";
 
@@ -46,7 +46,8 @@ export default function Monitor() {
           <CpuMonitorBlock className="col-span-2"/>
           <MemoryMonitorBlock className="max-lg:col-span-2"/>
           <JvmMemoryMonitorBlock className="max-lg:col-span-2"/>
-          <TpsMonitorBlock className="col-span-2"/>
+          <TpsMonitorBlock className="max-lg:col-span-2"/>
+          <NetworkMonitorBlock className="max-lg:col-span-2"/>
         </MonitorContext.Provider>
       </InfoContext.Provider>
     </SubPage>

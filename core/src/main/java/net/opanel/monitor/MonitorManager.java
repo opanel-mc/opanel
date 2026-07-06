@@ -24,6 +24,7 @@ public class MonitorManager {
     private final OPanel plugin;
     private final SystemInfo si = new SystemInfo();
     private final CpuSampler cpuSampler = new CpuSampler(si);
+    private final NetworkMonitor networkMonitor = new NetworkMonitor(si);
     private final ArrayDeque<MonitorData> monitorDataList = new ArrayDeque<>(MAX_HISTORY_SIZE);
     private final Set<Consumer<MonitorData>> updateListeners = new CopyOnWriteArraySet<>();
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
@@ -60,13 +61,14 @@ public class MonitorManager {
 
     private void snapshotMonitor() {
         try {
+            NetworkMonitor.NetworkRate networkRate = networkMonitor.sampleRate();
             MonitorData data = new MonitorData(
                     cpuSampler.sampleRate(),
                     getMemoryRate(si),
                     getJvmMemoryRate(),
                     TPS.getRecentTPS(),
-                    0, // todo
-                    0 // todo
+                    networkRate.upload,
+                    networkRate.download
             );
 
             lock.writeLock().lock();
