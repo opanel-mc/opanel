@@ -5,7 +5,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { Gauge, RotateCw, TriangleAlert } from "lucide-react";
 import { InfoContext, MonitorContext, VersionContext } from "@/contexts/api-context";
 import { sendGetRequest, toastError } from "@/lib/api";
-import { cn, getCurrentState } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { InfoCard } from "./info-card";
 import { TimeCard } from "./time-card";
 import { PlayersCard } from "./players-card";
@@ -14,7 +14,6 @@ import { TerminalCard } from "./terminal-card";
 import { TPSCard } from "./tps-card";
 import { SubPage } from "../sub-page";
 import { emitter } from "@/lib/emitter";
-import { getSettings } from "@/lib/settings";
 import { $ } from "@/lib/i18n";
 import { SystemCard } from "./system-card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -28,8 +27,8 @@ import {
 } from "@/components/ui/empty";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/i18n-text";
-
-const requestMonitorInterval = getSettings("dashboard.monitor-interval");
+import { MonitorClient } from "@/lib/ws/monitor";
+import { useWebSocket } from "@/hooks/use-websocket";
 
 function CardSkeleton({ className }: { className?: string }) {
   return (
@@ -39,6 +38,7 @@ function CardSkeleton({ className }: { className?: string }) {
 
 export default function Dashboard() {
   const versionCtx = useContext(VersionContext);
+  const monitorClient = useWebSocket(MonitorClient);
   const [info, setInfo] = useState<APIResponse<InfoResponse>>();
   const [monitorData, setMonitorData] = useState(
     new Array<MonitorResponse>(50).fill({ cpu: 0, memory: 0, tps: 20 })
@@ -59,15 +59,6 @@ export default function Dashboard() {
     }
   };
 
-  const requestMonitor = async () => {
-    const res = await sendGetRequest<MonitorResponse>("/api/monitor");
-    const currentData = await getCurrentState(setMonitorData);
-    const newData = [...currentData];
-    newData.shift();
-    newData.push(res);
-    setMonitorData(newData);
-  };
-
   useEffect(() => {
     fetchServerInfo();
 
@@ -75,12 +66,21 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      requestMonitor();
-    }, requestMonitorInterval);
+    if(!monitorClient) return;
 
-    return () => clearInterval(timer);
-  }, []);
+    monitorClient.subscribe("init", (data: MonitorResponse[]) => {
+      setMonitorData(data);
+    });
+
+    monitorClient.subscribe("update", (data: MonitorResponse) => {
+      setMonitorData((prev) => {
+        const newData = [...prev];
+        newData.shift();
+        newData.push(data);
+        return newData;
+      });
+    });
+  }, [monitorClient]);
 
   useEffect(() => {
     if(info && monitorData && versionCtx && !doneRef.current) {

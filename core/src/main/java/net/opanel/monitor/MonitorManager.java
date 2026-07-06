@@ -19,7 +19,7 @@ import static net.opanel.monitor.Monitor.*;
 
 public class MonitorManager {
     public static final int MAX_HISTORY_SIZE = 50;
-    public static final long SNAPSHOT_INTERVAL_MS = 2000L;
+    public static final long SNAPSHOT_INTERVAL_MS = 1000L;
 
     private final OPanel plugin;
     private final SystemInfo si = new SystemInfo();
