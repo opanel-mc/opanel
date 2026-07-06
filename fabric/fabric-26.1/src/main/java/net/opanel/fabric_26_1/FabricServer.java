@@ -10,6 +10,7 @@ import net.minecraft.world.level.gamerules.GameRuleTypeVisitor;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.storage.LevelResource;
 import net.opanel.common.*;
+import net.opanel.exception.MissingPlayerCacheException;
 import net.opanel.common.features.CodeOfConductFeature;
 import net.opanel.fabric_helper_unmapped.BaseFabricServer;
 import net.opanel.fabric_helper_unmapped.utils.FabricUtils;
@@ -128,6 +129,8 @@ public class FabricServer extends BaseFabricServer implements OPanelServer, Code
 
                             FabricOfflinePlayer player = new FabricOfflinePlayer(server, UUID.fromString(uuid));
                             list.add(player);
+                        } catch (MissingPlayerCacheException e) {
+                            //
                         } catch (Exception e) {
                             Main.LOGGER.warn("Cannot read the player data from "+ item.getFileName() +": "+ e.getMessage());
                         }

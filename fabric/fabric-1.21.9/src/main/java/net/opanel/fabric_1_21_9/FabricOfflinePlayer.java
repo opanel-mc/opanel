@@ -6,6 +6,7 @@ import net.minecraft.nbt.NbtSizeTracker;
 import net.minecraft.server.*;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
+import net.opanel.exception.MissingPlayerCacheException;
 import net.opanel.fabric_helper.BaseFabricOfflinePlayer;
 
 import java.io.IOException;
@@ -21,7 +22,7 @@ public class FabricOfflinePlayer extends BaseFabricOfflinePlayer implements OPan
 
         Optional<PlayerConfigEntry> configEntryOptional = server.getApiServices().nameToIdCache().getByUuid(uuid);
         if(configEntryOptional.isEmpty()) {
-            throw new RuntimeException("Cannot get the cache of the provided player.");
+            throw new MissingPlayerCacheException("Cannot get the cache of the provided player.");
         }
         configEntry = configEntryOptional.get();
     }

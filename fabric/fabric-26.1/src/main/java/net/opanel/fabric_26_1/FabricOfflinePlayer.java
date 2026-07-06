@@ -9,6 +9,7 @@ import net.minecraft.server.players.UserBanList;
 import net.minecraft.server.players.UserBanListEntry;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
+import net.opanel.exception.MissingPlayerCacheException;
 import net.opanel.fabric_helper_unmapped.BaseFabricOfflinePlayer;
 
 import java.io.IOException;
@@ -24,7 +25,7 @@ public class FabricOfflinePlayer extends BaseFabricOfflinePlayer implements OPan
 
         Optional<NameAndId> nameAndIdOptional = server.services().nameToIdCache().get(uuid);
         if(nameAndIdOptional.isEmpty()) {
-            throw new RuntimeException("Cannot get the cache of the provided player.");
+            throw new MissingPlayerCacheException("Cannot get the cache of the provided player.");
         }
         nameAndId = nameAndIdOptional.get();
     }

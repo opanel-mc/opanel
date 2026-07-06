@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.storage.LevelResource;
 import net.opanel.common.*;
+import net.opanel.exception.MissingPlayerCacheException;
 import net.opanel.neoforge_helper.BaseNeoServer;
 import net.opanel.neoforge_helper.utils.NeoUtils;
 import net.opanel.utils.Utils;
@@ -111,6 +112,8 @@ public class NeoServer extends BaseNeoServer implements OPanelServer {
 
                             NeoOfflinePlayer player = new NeoOfflinePlayer(server, UUID.fromString(uuid));
                             list.add(player);
+                        } catch (MissingPlayerCacheException e) {
+                            //
                         } catch (Exception e) {
                             Main.LOGGER.warn("Cannot read the player data from "+ item.getFileName() +": "+ e.getMessage());
                         }
