@@ -9,6 +9,7 @@ import net.minecraft.server.players.UserBanList;
 import net.minecraft.server.players.UserBanListEntry;
 import net.minecraft.world.level.storage.LevelResource;
 import net.opanel.common.OPanelPlayer;
+import net.opanel.exception.MissingPlayerCacheException;
 
 import java.net.InetAddress;
 import java.nio.file.Files;
@@ -34,7 +35,7 @@ public abstract class BaseNeoOfflinePlayer implements OPanelPlayer {
         }
 
         if(profileCache == null) {
-            throw new NullPointerException("Cannot get player profile cache.");
+            throw new MissingPlayerCacheException("Cannot get player profile cache.");
         }
 
         ServerPlayer serverPlayer = playerManager.getPlayer(uuid);
@@ -44,7 +45,7 @@ public abstract class BaseNeoOfflinePlayer implements OPanelPlayer {
 
         Optional<GameProfile> profileOpt = profileCache.get(uuid);
         if(profileOpt.isEmpty()) {
-            throw new NullPointerException("Cannot get the game profile of the provided player.");
+            throw new MissingPlayerCacheException("Cannot get the game profile of the provided player.");
         }
 
         profile = profileOpt.get();

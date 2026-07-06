@@ -7,6 +7,7 @@ import net.opanel.annotation.Rewrite;
 import net.opanel.bukkit_helper.BaseBukkitServer;
 import net.opanel.bukkit_helper.utils.BukkitUtils;
 import net.opanel.common.*;
+import net.opanel.exception.MissingPlayerCacheException;
 import net.opanel.common.features.BukkitConfigFeature;
 import net.opanel.exception.ActLaterException;
 import org.bukkit.*;
@@ -112,7 +113,11 @@ public class SpigotServer extends BaseBukkitServer implements OPanelServer, Bukk
                 if(serverPlayer == null) continue;
                 list.add(new SpigotPlayer((Main) plugin, serverPlayer));
             } else {
-                list.add(new SpigotOfflinePlayer((Main) plugin, server, offlinePlayer));
+                try {
+                    list.add(new SpigotOfflinePlayer((Main) plugin, server, offlinePlayer));
+                } catch (MissingPlayerCacheException e) {
+                    //
+                }
             }
         }
         return list;

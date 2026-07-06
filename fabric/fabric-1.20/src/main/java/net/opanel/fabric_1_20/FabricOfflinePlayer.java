@@ -7,6 +7,7 @@ import net.minecraft.server.*;
 import net.minecraft.util.UserCache;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
+import net.opanel.exception.MissingPlayerCacheException;
 import net.opanel.fabric_helper.BaseFabricOfflinePlayer;
 
 import java.io.IOException;
@@ -23,12 +24,12 @@ public class FabricOfflinePlayer extends BaseFabricOfflinePlayer implements OPan
         UserCache userCache = server.getUserCache();
 
         if(userCache == null) {
-            throw new NullPointerException("Cannot get server user cache.");
+            throw new MissingPlayerCacheException("Cannot get server user cache.");
         }
 
         Optional<GameProfile> profileOpt = userCache.getByUuid(uuid);
         if(profileOpt.isEmpty()) {
-            throw new NullPointerException("Cannot get the game profile of the provided player.");
+            throw new MissingPlayerCacheException("Cannot get the game profile of the provided player.");
         }
 
         profile = profileOpt.get();

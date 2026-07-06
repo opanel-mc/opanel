@@ -4,6 +4,7 @@ import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
+import net.opanel.exception.MissingPlayerCacheException;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -27,6 +28,9 @@ public abstract class BaseBukkitOfflinePlayer implements OPanelPlayer {
         this.player = player;
 
         if(player.isOnline()) throw new IllegalStateException("The player is offline.");
+        if(player.getName() == null) {
+            throw new MissingPlayerCacheException("Cannot get the cache of the provided player.");
+        }
 
         playerDataPath = getPlayerDataPath();
     }

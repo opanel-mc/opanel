@@ -7,6 +7,7 @@ import net.opanel.annotation.Rewrite;
 import net.opanel.bukkit_helper.BaseBukkitServer;
 import net.opanel.bukkit_helper.utils.BukkitUtils;
 import net.opanel.common.*;
+import net.opanel.exception.MissingPlayerCacheException;
 import net.opanel.common.features.BukkitConfigFeature;
 import net.opanel.common.features.CodeOfConductFeature;
 import net.opanel.exception.ActLaterException;
@@ -119,7 +120,11 @@ public class FoliaServer extends BaseBukkitServer implements OPanelServer, CodeO
                 if(serverPlayer == null) continue;
                 list.add(new FoliaPlayer((Main) plugin, serverPlayer));
             } else {
-                list.add(new FoliaOfflinePlayer((Main) plugin, server, offlinePlayer));
+                try {
+                    list.add(new FoliaOfflinePlayer((Main) plugin, server, offlinePlayer));
+                } catch (MissingPlayerCacheException e) {
+                    //
+                }
             }
         }
         return list;

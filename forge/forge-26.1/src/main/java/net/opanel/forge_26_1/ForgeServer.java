@@ -14,6 +14,7 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.forgespi.locating.IModFile;
 import net.opanel.common.*;
+import net.opanel.exception.MissingPlayerCacheException;
 import net.opanel.common.features.CodeOfConductFeature;
 import net.opanel.forge_helper.BaseForgeServer;
 import net.opanel.forge_helper.utils.ForgeUtils;
@@ -134,6 +135,8 @@ public class ForgeServer extends BaseForgeServer implements OPanelServer, CodeOf
 
                             ForgeOfflinePlayer player = new ForgeOfflinePlayer(server, UUID.fromString(uuid));
                             list.add(player);
+                        } catch (MissingPlayerCacheException e) {
+                            //
                         } catch (Exception e) {
                             Main.LOGGER.warn("Cannot read the player data from "+ item.getFileName() +": "+ e.getMessage());
                         }

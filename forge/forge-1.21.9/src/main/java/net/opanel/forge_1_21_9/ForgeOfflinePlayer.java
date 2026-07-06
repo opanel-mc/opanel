@@ -7,6 +7,7 @@ import net.minecraft.server.*;
 import net.minecraft.server.players.*;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
+import net.opanel.exception.MissingPlayerCacheException;
 import net.opanel.forge_helper.BaseForgeOfflinePlayer;
 
 import java.io.IOException;
@@ -22,7 +23,7 @@ public class ForgeOfflinePlayer extends BaseForgeOfflinePlayer implements OPanel
 
         Optional<NameAndId> nameAndIdOptional = server.services().nameToIdCache().get(uuid);
         if(nameAndIdOptional.isEmpty()) {
-            throw new RuntimeException("Cannot get the cache of the provided player.");
+            throw new MissingPlayerCacheException("Cannot get the cache of the provided player.");
         }
         nameAndId = nameAndIdOptional.get();
     }

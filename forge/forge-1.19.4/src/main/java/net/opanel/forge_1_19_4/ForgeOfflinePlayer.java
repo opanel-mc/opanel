@@ -9,6 +9,7 @@ import net.minecraft.server.players.UserBanList;
 import net.minecraft.server.players.UserBanListEntry;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
+import net.opanel.exception.MissingPlayerCacheException;
 import net.opanel.forge_helper.BaseForgeOfflinePlayer;
 
 import java.io.IOException;
@@ -25,7 +26,7 @@ public class ForgeOfflinePlayer extends BaseForgeOfflinePlayer implements OPanel
         GameProfileCache profileCache = server.getProfileCache();
         Optional<GameProfile> profileOpt = profileCache.get(uuid);
         if(profileOpt.isEmpty()) {
-            throw new NullPointerException("Cannot get the game profile of the provided player.");
+            throw new MissingPlayerCacheException("Cannot get the game profile of the provided player.");
         }
 
         profile = profileOpt.get();
