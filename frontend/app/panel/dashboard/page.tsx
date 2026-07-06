@@ -1,6 +1,6 @@
 "use client";
 
-import type { APIResponse, InfoResponse, MonitorResponse } from "@/lib/types";
+import type { APIResponse, InfoResponse } from "@/lib/types";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Gauge, RotateCw, TriangleAlert } from "lucide-react";
 import { InfoContext, MonitorContext, VersionContext } from "@/contexts/api-context";
@@ -27,8 +27,7 @@ import {
 } from "@/components/ui/empty";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/i18n-text";
-import { MonitorClient } from "@/lib/ws/monitor";
-import { useWebSocket } from "@/hooks/use-websocket";
+import { useMonitor } from "@/hooks/use-monitor";
 
 function CardSkeleton({ className }: { className?: string }) {
   return (
@@ -38,11 +37,8 @@ function CardSkeleton({ className }: { className?: string }) {
 
 export default function Dashboard() {
   const versionCtx = useContext(VersionContext);
-  const monitorClient = useWebSocket(MonitorClient);
+  const monitorDataList = useMonitor(50);
   const [info, setInfo] = useState<APIResponse<InfoResponse>>();
-  const [monitorData, setMonitorData] = useState(
-    new Array<MonitorResponse>(50).fill({ cpu: 0, memory: 0, tps: 20 })
-  );
   const [isError, setError] = useState(false);
   const doneRef = useRef(false);
 
@@ -66,28 +62,11 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    if(!monitorClient) return;
-
-    monitorClient.subscribe("init", (data: MonitorResponse[]) => {
-      setMonitorData(data);
-    });
-
-    monitorClient.subscribe("update", (data: MonitorResponse) => {
-      setMonitorData((prev) => {
-        const newData = [...prev];
-        newData.shift();
-        newData.push(data);
-        return newData;
-      });
-    });
-  }, [monitorClient]);
-
-  useEffect(() => {
-    if(info && monitorData && versionCtx && !doneRef.current) {
+    if(info && monitorDataList && versionCtx && !doneRef.current) {
       doneRef.current = true;
       emitter.emit("loading-done");
     }
-  }, [info, monitorData, versionCtx]);
+  }, [info, monitorDataList, versionCtx]);
 
   return (
     <SubPage
@@ -100,7 +79,7 @@ export default function Dashboard() {
         !isError
         ? (
           <InfoContext.Provider value={info}>
-            <MonitorContext.Provider value={monitorData}>
+            <MonitorContext.Provider value={monitorDataList}>
               {/* Left side */}
               <div className="flex-2 flex flex-col gap-2">
                 {/* Upper */}

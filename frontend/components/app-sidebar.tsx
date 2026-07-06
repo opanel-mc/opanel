@@ -33,7 +33,7 @@ const serverGroupItems = [
     icon: Gauge
   },
   {
-    name: "监控",
+    name: $("sidebar.server.monitor"),
     url: "/panel/monitor",
     icon: Activity
   },

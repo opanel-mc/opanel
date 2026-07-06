@@ -9,8 +9,8 @@ export type MonitorMessageType = (
 );
 
 export class MonitorClient extends WebSocketClient<MonitorMessageType> {
-  constructor() {
-    super("/socket/monitor");
+  constructor(limit: number) {
+    super(`/socket/monitor?limit=${limit}`);
   }
 
   protected override onOpen() {

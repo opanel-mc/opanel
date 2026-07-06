@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 import static net.opanel.monitor.Monitor.*;
 
 public class MonitorManager {
-    public static final int MAX_HISTORY_SIZE = 50;
+    public static final int MAX_HISTORY_SIZE = 200;
     public static final long SNAPSHOT_INTERVAL_MS = 1000L;
 
     private final OPanel plugin;
@@ -92,9 +92,19 @@ public class MonitorManager {
     }
 
     public List<MonitorData> getHistory() {
+        return getHistory(MAX_HISTORY_SIZE);
+    }
+
+    public List<MonitorData> getHistory(int limit) {
+        int safeLimit = Math.max(0, Math.min(limit, MAX_HISTORY_SIZE));
+
         lock.readLock().lock();
         try {
-            return new ArrayList<>(monitorDataList);
+            List<MonitorData> history = new ArrayList<>(monitorDataList);
+            if(safeLimit >= history.size()) {
+                return history;
+            }
+            return new ArrayList<>(history.subList(history.size() - safeLimit, history.size()));
         } finally {
             lock.readLock().unlock();
         }

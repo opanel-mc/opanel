@@ -34,12 +34,24 @@ public class MonitorEndpoint extends BaseEndpoint {
 
     @Override
     public void onConnect(WsContext ctx) {
-        List<MonitorData> history = monitorManager.getHistory();
+        List<MonitorData> history = monitorManager.getHistory(parseInitLimit(ctx.queryParam("limit")));
         ctx.send(new MonitorPacket<>(MonitorPacket.INIT, history));
     }
 
     @Override
     public void onShutdown() {
         monitorManager.removeUpdateListener(updateListener);
+    }
+
+    private int parseInitLimit(String initLimit) {
+        if(initLimit == null || initLimit.isBlank()) {
+            return MonitorManager.MAX_HISTORY_SIZE;
+        }
+
+        try {
+            return Integer.parseInt(initLimit);
+        } catch (NumberFormatException ignored) {
+            return MonitorManager.MAX_HISTORY_SIZE;
+        }
     }
 }

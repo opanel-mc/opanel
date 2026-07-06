@@ -26,8 +26,7 @@ export abstract class WebSocketClient<M extends string> {
       }
     });
 
-    const url = new URL(wsUrl);
-    url.pathname = route;
+    const url = new URL(route, wsUrl);
     this.socket = new WebSocket(url);
     this.init();
   }

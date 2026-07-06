@@ -11,10 +11,10 @@ import { $ } from "@/lib/i18n";
 
 const chartConfig = {
   memory: {
-    label: $("dashboard.monitor.chart.memory")
+    label: $("monitor.chart.memory")
   },
   cpu: {
-    label: $("dashboard.monitor.chart.cpu")
+    label: $("monitor.chart.cpu")
   }
 } satisfies ChartConfig;
 

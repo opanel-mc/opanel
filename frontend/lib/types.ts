@@ -31,6 +31,15 @@ export enum Dimension {
   THE_END = "the_end"
 }
 
+export interface MonitorData {
+  cpu: number
+  memory: number
+  jvmMemory: number
+  tps: number
+  networkUpload: 0 // todo
+  networkDownload: 0 // todo
+}
+
 export interface Save {
   name: string
   displayName: string // base64
@@ -165,13 +174,6 @@ export interface InfoResponse {
     gpus: string[]
     java: string
   }
-}
-
-/** `/api/monitor` */
-export interface MonitorResponse {
-  cpu: number
-  memory: number
-  tps: number
 }
 
 /** `/api/control/properties` */

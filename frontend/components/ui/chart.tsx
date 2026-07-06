@@ -210,18 +210,18 @@ function ChartTooltipContent({
                   )}
                   <div
                     className={cn(
-                      "flex flex-1 justify-between leading-none",
+                      "flex flex-1 items-center justify-between gap-3 leading-none",
                       nestLabel ? "items-end" : "items-center",
                     )}
                   >
-                    <div className="grid gap-1.5">
+                    <div className="min-w-0 grid flex-1 gap-1.5">
                       {nestLabel ? tooltipLabel : null}
-                      <span className="text-muted-foreground">
+                      <span className="break-words text-muted-foreground">
                         {itemConfig?.label ?? item.name}
                       </span>
                     </div>
                     {item.value != null && (
-                      <span className={cn("font-medium text-foreground tabular-nums", googleSansCode.className)}>
+                      <span className={cn("shrink-0 pl-1 font-medium text-foreground tabular-nums", googleSansCode.className)}>
                         {
                           valueFormatter
                           ? valueFormatter(
