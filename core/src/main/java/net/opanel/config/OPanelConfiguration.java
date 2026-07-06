@@ -5,6 +5,7 @@ public class OPanelConfiguration {
 //            "14e1b600b1fd579f47433b88e8d85291", // 123456 (hashed 2)
             "", // to be generated on the initial launch
             "", // to be generated on the initial launch
+            "0.0.0.0",
             3000,
             25576,
             false,
@@ -18,6 +19,7 @@ public class OPanelConfiguration {
 
     public String accessKey;
     public String salt;
+    public String webServerHost;
     public int webServerPort;
     public int mcdrSocketPort;
     public boolean cookieSecure;
@@ -31,6 +33,7 @@ public class OPanelConfiguration {
     public OPanelConfiguration(
             String accessKey,
             String salt,
+            String webServerHost,
             int webServerPort,
             int mcdrSocketPort,
             boolean cookieSecure,
@@ -43,6 +46,7 @@ public class OPanelConfiguration {
                               ) {
         this.accessKey = accessKey;
         this.salt = salt;
+        this.webServerHost = webServerHost;
         this.webServerPort = webServerPort;
         this.mcdrSocketPort = mcdrSocketPort;
         this.cookieSecure = cookieSecure;

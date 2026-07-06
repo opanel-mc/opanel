@@ -19,6 +19,7 @@ public class ConfigManagerImpl implements ConfigManager {
         return new OPanelConfiguration(
                 configSrc.getString("accessKey"),
                 configSrc.getString("salt"),
+                configSrc.getString("webServerHost"),
                 configSrc.getInt("webServerPort"),
                 configSrc.getInt("mcdrSocketPort"),
                 configSrc.getBoolean("cookieSecure"),
@@ -35,6 +36,7 @@ public class ConfigManagerImpl implements ConfigManager {
     public void set(OPanelConfiguration config) {
         configSrc.set("accessKey", config.accessKey);
         configSrc.set("salt", config.salt);
+        configSrc.set("webServerHost", config.webServerHost);
         configSrc.set("webServerPort", config.webServerPort);
         configSrc.set("mcdrSocketPort", config.mcdrSocketPort);
         configSrc.set("cookieSecure", config.cookieSecure);

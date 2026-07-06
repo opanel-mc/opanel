@@ -8,6 +8,7 @@ import io.javalin.jetty.JettyServer;
 import io.javalin.json.JavalinGson;
 import io.javalin.util.JavalinLogger;
 import net.opanel.OPanel;
+import net.opanel.config.OPanelConfiguration;
 import net.opanel.controller.BaseController;
 import net.opanel.controller.BeforeController;
 import net.opanel.controller.ErrorController;
@@ -24,6 +25,7 @@ import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class WebServer {
     public static final String ROOT_PATH = "web";
+    public final String HOST;
     public final int PORT;
 
     private final OPanel plugin;
@@ -31,9 +33,18 @@ public class WebServer {
 
     public WebServer(OPanel plugin) {
         this.plugin = plugin;
+        HOST = getConfiguredHost(plugin);
         PORT = plugin.getConfig().webServerPort;
 
         JavalinLogger.enabled = false;
+    }
+
+    private static String getConfiguredHost(OPanel plugin) {
+        String host = plugin.getConfig().webServerHost;
+        if(host == null || host.isBlank()) {
+            return OPanelConfiguration.defaultConfig.webServerHost;
+        }
+        return host;
     }
 
     public void start() throws Exception {
@@ -297,8 +308,8 @@ public class WebServer {
             ctx.json(jsonObj);
         });
 
-        app.start(PORT);
-        plugin.logger.info("OPanel web server is ready on port "+ PORT);
+        app.start(HOST, PORT);
+        plugin.logger.info("OPanel web server is ready on "+ HOST +":"+ PORT);
         plugin.initializeAccessKey();
 
         app.events(event -> {
