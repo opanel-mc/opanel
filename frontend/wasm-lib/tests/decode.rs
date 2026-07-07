@@ -20,6 +20,7 @@ fn build_otile(
     heights: &[u16; TILE_BLOCKS],
     biomes_palette: &[&str],
     biomes: &[u16; TILE_BLOCKS],
+    height_bits: u32,
 ) -> Vec<u8> {
     let mut out = Vec::new();
     out.extend_from_slice(b"OTILE");
@@ -40,8 +41,8 @@ fn build_otile(
         out.extend_from_slice(&p.to_be_bytes());
     }
 
-    // height map part — fixed 9 bits per value
-    let packed_heights = bitpack(heights, 9);
+    // height map part
+    let packed_heights = bitpack(heights, height_bits);
     out.extend_from_slice(&(packed_heights.len() as u16).to_be_bytes());
     for p in &packed_heights {
         out.extend_from_slice(&p.to_be_bytes());
@@ -82,6 +83,7 @@ fn build_otile_simple(
         heights,
         &["minecraft:plains"],
         &[0u16; TILE_BLOCKS],
+        9,
     )
 }
 
@@ -161,6 +163,7 @@ fn multi_biome_packs_at_native_bits() {
         &[64u16; TILE_BLOCKS],
         &biomes_palette,
         &biomes,
+        9,
     );
     let tile = decode(&bytes).expect("decode ok");
     assert_eq!(
@@ -182,6 +185,27 @@ fn bad_magic_errors() {
         Err(DecodeError::BadMagic) => {}
         other => panic!("expected BadMagic, got {:?}", other),
     }
+}
+
+#[test]
+fn ten_bit_height_map_is_inferred_from_long_count() {
+    let palette = ["minecraft:stone"];
+    let blocks = [0u16; TILE_BLOCKS];
+    let mut heights = [0u16; TILE_BLOCKS];
+    for (i, height) in heights.iter_mut().enumerate() {
+        *height = 320 + (i % 32) as u16;
+    }
+
+    let bytes = build_otile(
+        &palette,
+        &blocks,
+        &heights,
+        &["minecraft:plains"],
+        &[0u16; TILE_BLOCKS],
+        10,
+    );
+    let tile = decode(&bytes).expect("decode ok");
+    assert_eq!(tile.heights, heights);
 }
 
 #[test]

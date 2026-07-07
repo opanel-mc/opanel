@@ -2,6 +2,7 @@ package net.opanel.map;
 
 import net.opanel.utils.AnvilUtility;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ public class Tile {
     private static final String AIR_ID = "minecraft:air";
     private static final String THE_VOID_ID = "minecraft:the_void";
     private static final String PLAINS_ID = "minecraft:plains";
+    private static final int HEIGHT_MAP_COLUMNS = 16 * 16;
 
     public static class Block {
         public final String id;
@@ -80,6 +82,7 @@ public class Tile {
     private final int chunkZ;
     private final Map<Integer, Section> sections = new HashMap<>();
     private final int[] heightMap;
+    private final int heightMapBits;
     private final int minY;
 
     public Tile(int chunkX, int chunkZ, List<Section> sections, long[] packedHeightMap, boolean afterCavesCliffs) {
@@ -90,7 +93,8 @@ public class Tile {
             this.sections.put(section.getY(), section);
         }
 
-        heightMap = AnvilUtility.bitunpack(packedHeightMap, 9);
+        heightMapBits = AnvilUtility.heightMapBitsFromSectionCount(sections.size());
+        heightMap = Arrays.copyOf(AnvilUtility.bitunpack(packedHeightMap, heightMapBits), HEIGHT_MAP_COLUMNS);
         minY = afterCavesCliffs ? -64 : 0;
     }
 
@@ -138,6 +142,10 @@ public class Tile {
 
     public int[] getHeightMap() {
         return heightMap;
+    }
+
+    public int getHeightMapBits() {
+        return heightMapBits;
     }
 
     public static Section createSection(int y, List<String> palette, long[] packedBlockStates) {
