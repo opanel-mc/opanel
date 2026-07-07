@@ -19,7 +19,6 @@ import static net.opanel.monitor.Monitor.*;
 
 public class MonitorManager {
     public static final int MAX_HISTORY_SIZE = 200;
-    public static final long SNAPSHOT_INTERVAL_MS = 1000L;
 
     private final OPanel plugin;
     private final SystemInfo si = new SystemInfo();
@@ -28,6 +27,7 @@ public class MonitorManager {
     private final ArrayDeque<MonitorData> monitorDataList = new ArrayDeque<>(MAX_HISTORY_SIZE);
     private final Set<Consumer<MonitorData>> updateListeners = new CopyOnWriteArraySet<>();
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    private final long snapshotIntervalMs;
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(task -> {
         Thread thread = new Thread(task, "opanel-monitor-scheduler");
         thread.setDaemon(true);
@@ -36,6 +36,7 @@ public class MonitorManager {
 
     public MonitorManager(OPanel plugin) {
         this.plugin = plugin;
+        snapshotIntervalMs = plugin.getConfig().monitorSnapshotInterval;
 
         // Initialize the data list
         for(int i = 0; i < MAX_HISTORY_SIZE; i++) {
@@ -53,8 +54,8 @@ public class MonitorManager {
         snapshotMonitor();
         scheduler.scheduleAtFixedRate(
                 this::snapshotMonitor,
-                SNAPSHOT_INTERVAL_MS,
-                SNAPSHOT_INTERVAL_MS,
+                snapshotIntervalMs,
+                snapshotIntervalMs,
                 TimeUnit.MILLISECONDS
         );
     }
