@@ -202,6 +202,9 @@
   "monitor.network.title": "네트워크",
   "monitor.network.description": "네트워크 업로드 및 다운로드 트래픽",
   "monitor.tps.description": "서버 응답성",
+  "monitor.tps.status.smooth": "원활",
+  "monitor.tps.status.fluctuating": "약간 불안정",
+  "monitor.tps.status.lagging": "지연 발생",
 
   "saves.title": "월드 및 백업",
   "saves.description": "서버 디렉토리 내의 월드 폴더를 관리하고 업로드합니다",

@@ -202,6 +202,9 @@
   "monitor.network.title": "Netzwerk",
   "monitor.network.description": "Ein- und ausgehender Netzwerkverkehr",
   "monitor.tps.description": "Server-Reaktionsfähigkeit",
+  "monitor.tps.status.smooth": "Flüssig",
+  "monitor.tps.status.fluctuating": "Leichte Schwankung",
+  "monitor.tps.status.lagging": "Laggt",
 
   "saves.title": "Welten & Sicherungen",
   "saves.description": "Verwalten und Hochladen von Weltordnern im Serververzeichnis",

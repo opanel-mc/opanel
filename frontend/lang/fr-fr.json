@@ -202,6 +202,9 @@
   "monitor.network.title": "Réseau",
   "monitor.network.description": "Trafic réseau entrant et sortant",
   "monitor.tps.description": "Réactivité du serveur",
+  "monitor.tps.status.smooth": "Fluide",
+  "monitor.tps.status.fluctuating": "Légère fluctuation",
+  "monitor.tps.status.lagging": "Ralentissements",
 
   "saves.title": "Mondes & Sauvegardes",
   "saves.description": "Gérer et téléverser les dossiers de mondes sous le répertoire du serveur",

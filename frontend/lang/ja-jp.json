@@ -202,6 +202,9 @@
   "monitor.network.title": "ネットワーク",
   "monitor.network.description": "ネットワーク送受信トラフィック",
   "monitor.tps.description": "サーバー応答性",
+  "monitor.tps.status.smooth": "快適",
+  "monitor.tps.status.fluctuating": "やや不安定",
+  "monitor.tps.status.lagging": "ラグあり",
 
   "saves.title": "アーカイブ",
   "saves.description": "サーバーフォルダ内の保存ファイルを管理およびアップロードする",

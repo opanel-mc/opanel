@@ -1,13 +1,16 @@
-import { useContext, type PropsWithChildren } from "react";
+import { type ReactNode, useContext, type PropsWithChildren } from "react";
 import { Area, AreaChart, CartesianGrid, YAxis } from "recharts";
+import { ArrowUpDown, MoveDown, MoveUp } from "lucide-react";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent
 } from "@/components/ui/chart";
+import { Badge } from "@/components/ui/badge";
 import { cn, formatDataSize } from "@/lib/utils";
 import { $ } from "@/lib/i18n";
 import { InfoContext, MonitorContext } from "@/contexts/api-context";
+import { googleSansCode } from "@/lib/fonts";
 
 const YAXIS_TICKS = [0, 25, 50, 75, 100];
 
@@ -21,7 +24,7 @@ export function MonitorBlock({
 }: PropsWithChildren<{
   title: string
   description?: string
-  additionalInfo?: string
+  additionalInfo?: string | ReactNode
   className?: string
   innerClassName?: string
 }>) {
@@ -202,11 +205,50 @@ export function TpsMonitorBlock({ className }: {
   className?: string
 }) {
   const monitorDataList = useContext(MonitorContext);
+  const latestTps = (
+    monitorDataList.length > 0
+    ? monitorDataList[monitorDataList.length - 1].tps
+    : 20
+  );
+
+  const getTpsStatus = (tps: number) => {
+    if(tps >= 18) {
+      return {
+        label: $("monitor.tps.status.smooth"),
+        className: "border-emerald-600/30 bg-emerald-500/10 text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/15 dark:text-emerald-300",
+        dotClassName: "bg-emerald-600 dark:bg-emerald-400"
+      };
+    }
+
+    if(tps >= 16) {
+      return {
+        label: $("monitor.tps.status.fluctuating"),
+        className: "border-amber-600/30 bg-amber-500/10 text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/15 dark:text-amber-300",
+        dotClassName: "bg-amber-600 dark:bg-amber-400"
+      };
+    }
+
+    return {
+      label: $("monitor.tps.status.lagging"),
+      className: "border-red-600/30 bg-red-500/10 text-red-700 dark:border-red-500/40 dark:bg-red-500/15 dark:text-red-300",
+      dotClassName: "bg-red-600 dark:bg-red-400"
+    };
+  }
+  const tpsStatus = getTpsStatus(latestTps);
 
   return (
     <MonitorBlock
       title="TPS"
       description={$("monitor.tps.description")}
+      additionalInfo={
+        <Badge
+          variant="outline"
+          title={`${latestTps.toFixed(1)} TPS`}
+          className={cn("cursor-help gap-1.5 px-2 py-0.5", tpsStatus.className)}>
+          <div className={cn("w-2 h-2 rounded-full", tpsStatus.dotClassName)}/>
+          {tpsStatus.label}
+        </Badge>
+      }
       className={className}>
       <ChartContainer
         config={{
@@ -251,11 +293,30 @@ export function NetworkMonitorBlock({ className }: {
   className?: string
 }) {
   const monitorDataList = useContext(MonitorContext);
+  const latestData = (
+    monitorDataList.length > 0
+    ? monitorDataList[monitorDataList.length - 1]
+    : null
+  );
 
   return (
     <MonitorBlock
       title={$("monitor.network.title")}
       description={$("monitor.network.description")}
+      additionalInfo={
+        <span className={cn("text-xs flex items-center [&>svg]:size-3", googleSansCode.className)}>
+          <MoveUp />
+          {`${latestData ? formatDataSize(latestData.networkUpload) : "0 KB"}/s`}
+          <MoveDown className="ml-2"/>
+          {`${latestData ? formatDataSize(latestData.networkDownload) : "0KB"}/s`}
+          <ArrowUpDown className="ml-2 mr-1"/>
+          {`${
+            latestData
+            ? formatDataSize((latestData.networkUpload + latestData.networkDownload) / 2)
+            : "0KB"
+          }/s`}
+        </span>
+      }
       className={className}>
       <ChartContainer
         config={{

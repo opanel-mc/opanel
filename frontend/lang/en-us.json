@@ -202,6 +202,9 @@
   "monitor.network.title": "Network",
   "monitor.network.description": "Network upload and download throughput",
   "monitor.tps.description": "Server responsiveness",
+  "monitor.tps.status.smooth": "Smooth",
+  "monitor.tps.status.fluctuating": "Slight Fluctuation",
+  "monitor.tps.status.lagging": "Lagging",
 
   "saves.title": "Saves",
   "saves.description": "Manage and upload save files in the server directory",

@@ -202,6 +202,9 @@
   "monitor.network.title": "網路",
   "monitor.network.description": "網路上下行流量",
   "monitor.tps.description": "伺服器流暢度",
+  "monitor.tps.status.smooth": "運行流暢",
+  "monitor.tps.status.fluctuating": "輕微波動",
+  "monitor.tps.status.lagging": "明顯卡頓",
 
   "saves.title": "存檔",
   "saves.description": "管理和上傳伺服器文件夾下的存檔文件",
