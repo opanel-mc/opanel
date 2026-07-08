@@ -42,7 +42,7 @@ dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
     implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}+${minecraft_version}"
-    include(implementation("space.nocp:configx:2.0.5"))
+    include(implementation("space.nocp:configx:2.0.6"))
     shadowImplementation "com.cozooo.dlc_manager:dlc-fileops-helper:1.0.1"
 
     shadowImplementation(project(":core")) {
@@ -76,7 +76,7 @@ shadowJar {
 
 shadowJar.from(project.files(
     configurations.detachedConfiguration(
-        dependencies.create("space.nocp:configx:2.0.5")
+        dependencies.create("space.nocp:configx:2.0.6")
     ).files.findAll { it.name.contains('configx') && it.name.endsWith('.jar') }
 ))
 
