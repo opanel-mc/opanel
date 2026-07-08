@@ -7,6 +7,7 @@ pub const TILE_BLOCKS: usize = TILE_SIDE * TILE_SIDE;
 
 const MAGIC: [u8; 5] = *b"OTILE";
 const BUNDLE_MAGIC: [u8; 6] = *b"OTILES";
+const DEFAULT_HEIGHT_BITS: u32 = 9;
 
 #[derive(Debug)]
 pub enum DecodeError {
@@ -14,7 +15,7 @@ pub enum DecodeError {
     Truncated,
     Utf8(std::str::Utf8Error),
     BadPaletteIndex(u16),
-    BadHeightLongCount(usize),
+    BadHeightBits(u8),
 }
 
 #[derive(Debug)]
@@ -129,8 +130,20 @@ fn read_packed_array<const N: usize>(
 }
 
 fn read_height_array<const N: usize>(cur: &mut Cursor<'_>) -> Result<[u16; N], DecodeError> {
+    // Height data is right after the block longs. New-format tiles store one
+    // explicit bits byte here. Legacy tiles have no prefix, so the next byte is
+    // the high byte of the u16 long-count, which is 0 for valid legacy tiles;
+    // in that case we must not consume it and instead fall back to 9 bits.
+    let bits = match cur.peek_u8()? {
+        0 => DEFAULT_HEIGHT_BITS,
+        raw @ 1..=16 => {
+            cur.read_u8()?;
+            raw as u32
+        }
+        raw => return Err(DecodeError::BadHeightBits(raw)),
+    };
+
     let packed = read_packed_longs(cur)?;
-    let bits = infer_bits_from_long_count(N, packed.len())?;
     let unpacked = bitunpack(&packed, bits);
     if unpacked.len() < N {
         return Err(DecodeError::Truncated);
@@ -147,20 +160,6 @@ fn read_packed_longs(cur: &mut Cursor<'_>) -> Result<Vec<u64>, DecodeError> {
         packed.push(cur.read_u64()?);
     }
     Ok(packed)
-}
-
-fn infer_bits_from_long_count(logical_len: usize, long_count: usize) -> Result<u32, DecodeError> {
-    for bits in 1..=16 {
-        let values_per_long = (64 / bits) as usize;
-        if values_per_long == 0 {
-            continue;
-        }
-        let expected_long_count = logical_len.div_ceil(values_per_long);
-        if expected_long_count == long_count {
-            return Ok(bits);
-        }
-    }
-    Err(DecodeError::BadHeightLongCount(long_count))
 }
 
 struct Cursor<'a> {
@@ -180,6 +179,13 @@ impl<'a> Cursor<'a> {
 
     fn read_u8(&mut self) -> Result<u8, DecodeError> {
         Ok(self.read_array::<1>()?[0])
+    }
+
+    fn peek_u8(&self) -> Result<u8, DecodeError> {
+        self.buf
+            .get(self.pos)
+            .copied()
+            .ok_or(DecodeError::Truncated)
     }
 
     fn read_u16(&mut self) -> Result<u16, DecodeError> {

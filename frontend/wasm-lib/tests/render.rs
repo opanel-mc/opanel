@@ -23,6 +23,7 @@ fn build_otile(palette: &[&str], blocks: &[u16; TILE_BLOCKS], heights: &[u16; TI
 
     // height map part
     let packed_heights = bitpack(heights, 9);
+    out.push(9);
     out.extend_from_slice(&(packed_heights.len() as u16).to_be_bytes());
     for p in &packed_heights {
         out.extend_from_slice(&p.to_be_bytes());

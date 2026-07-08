@@ -82,6 +82,7 @@ public class TileCompressor {
         }
 
         // write height map part
+        dos.writeByte(tile.getHeightMapBits() & 0xff);
         dos.writeShort(bitpackedHeightMap.length);
         for(long data : bitpackedHeightMap) {
             dos.writeLong(data);
