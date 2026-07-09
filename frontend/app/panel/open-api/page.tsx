@@ -95,6 +95,7 @@ export default function OpenAPI() {
     cpuCore: number
     cpuThread: number
     memory: number
+    jvmMemory: number
     gpus: string[]
     java: string
   }

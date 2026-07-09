@@ -30,6 +30,7 @@ public class OpenInfoController extends BaseController {
         sysObj.put("cpuCore", si.getHardware().getProcessor().getPhysicalProcessorCount());
         sysObj.put("cpuThread", si.getHardware().getProcessor().getLogicalProcessorCount());
         sysObj.put("memory", si.getHardware().getMemory().getTotal());
+        sysObj.put("jvmMemory", Runtime.getRuntime().maxMemory());
         sysObj.put("gpus", si.getHardware().getGraphicsCards().stream().map(gpu -> gpu.getName().trim()).toArray());
         sysObj.put("java", System.getProperty("java.version"));
         obj.put("system", sysObj);

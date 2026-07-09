@@ -160,7 +160,16 @@ export function JvmMemoryMonitorBlock({ className }: {
     <MonitorBlock
       title={$("monitor.jvm-memory.title")}
       description={$("monitor.jvm-memory.description")}
-      additionalInfo={info ? `Java ${info.system.java}` : undefined}
+      additionalInfo={
+        info
+        ? (
+          <>
+            {formatDataSize(info.system.jvmMemory)}
+            <Badge variant="outline" className="ml-2">{`Java ${info.system.java}`}</Badge>
+          </>
+        )
+        : undefined
+      }
       className={className}>
       <ChartContainer
         config={{
