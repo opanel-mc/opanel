@@ -48,6 +48,21 @@ public class AnvilUtility {
         return paletteSize <= 1 ? minSize : Math.max(minSize, Integer.SIZE - Integer.numberOfLeadingZeros(paletteSize - 1));
     }
 
+    /**
+     * Calculate the bit width required by a heightmap for the given world height range.
+     *
+     * @param minY inclusive lower world height bound
+     * @param maxY exclusive upper world height bound, so the highest valid block Y is {@code maxY - 1}
+     * @return bits required to store heightmap values relative to {@code minY}, including the zero/empty slot
+     */
+    public static int heightMapBitsFromYRange(int minY, int maxY) {
+        if(maxY <= minY) {
+            throw new IllegalArgumentException("maxY must be greater than minY");
+        }
+
+        return paletteSizeToBitsSize(maxY - minY + 1);
+    }
+
     public static int[] getGlobalChunkPosition(String mcaFileName, int chunkX, int chunkZ) throws NumberFormatException {
         String[] parts = mcaFileName.split("\\.");
         int mcaX = Integer.parseInt(parts[1]);

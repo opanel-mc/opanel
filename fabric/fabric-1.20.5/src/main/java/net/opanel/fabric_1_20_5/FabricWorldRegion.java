@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FabricWorldRegion extends BaseFabricWorldRegion implements OPanelWorldRegion {
-    public FabricWorldRegion(String saveName, Path regionPath) {
-        super(saveName, regionPath);
+    public FabricWorldRegion(net.minecraft.server.MinecraftServer server, String saveName, Path regionPath) {
+        super(server, saveName, regionPath);
     }
 
     @Override
@@ -70,7 +70,9 @@ public class FabricWorldRegion extends BaseFabricWorldRegion implements OPanelWo
                 }
             }
 
-            return new Tile(chunkX, chunkZ, sections, motionBlockingHeightMap, true);
+            int minY = server.getOverworld().getBottomY();
+            int maxY = server.getOverworld().getTopY();
+            return new Tile(chunkX, chunkZ, sections, motionBlockingHeightMap, minY, maxY);
         } catch (IOException e) {
             e.printStackTrace();
             return null;

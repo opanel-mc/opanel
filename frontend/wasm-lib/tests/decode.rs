@@ -20,6 +20,8 @@ fn build_otile(
     heights: &[u16; TILE_BLOCKS],
     biomes_palette: &[&str],
     biomes: &[u16; TILE_BLOCKS],
+    height_bits: u32,
+    explicit_height_bits: bool,
 ) -> Vec<u8> {
     let mut out = Vec::new();
     out.extend_from_slice(b"OTILE");
@@ -40,8 +42,11 @@ fn build_otile(
         out.extend_from_slice(&p.to_be_bytes());
     }
 
-    // height map part — fixed 9 bits per value
-    let packed_heights = bitpack(heights, 9);
+    // height map part
+    let packed_heights = bitpack(heights, height_bits);
+    if explicit_height_bits {
+        out.push(height_bits as u8);
+    }
     out.extend_from_slice(&(packed_heights.len() as u16).to_be_bytes());
     for p in &packed_heights {
         out.extend_from_slice(&p.to_be_bytes());
@@ -82,6 +87,24 @@ fn build_otile_simple(
         heights,
         &["minecraft:plains"],
         &[0u16; TILE_BLOCKS],
+        9,
+        true,
+    )
+}
+
+fn build_otile_legacy_simple(
+    palette: &[&str],
+    blocks: &[u16; TILE_BLOCKS],
+    heights: &[u16; TILE_BLOCKS],
+) -> Vec<u8> {
+    build_otile(
+        palette,
+        blocks,
+        heights,
+        &["minecraft:plains"],
+        &[0u16; TILE_BLOCKS],
+        9,
+        false,
     )
 }
 
@@ -161,6 +184,8 @@ fn multi_biome_packs_at_native_bits() {
         &[64u16; TILE_BLOCKS],
         &biomes_palette,
         &biomes,
+        9,
+        true,
     );
     let tile = decode(&bytes).expect("decode ok");
     assert_eq!(
@@ -181,6 +206,59 @@ fn bad_magic_errors() {
     match decode(&bytes) {
         Err(DecodeError::BadMagic) => {}
         other => panic!("expected BadMagic, got {:?}", other),
+    }
+}
+
+#[test]
+fn legacy_height_map_defaults_to_nine_bits() {
+    let palette = ["minecraft:stone"];
+    let blocks = [0u16; TILE_BLOCKS];
+    let mut heights = [0u16; TILE_BLOCKS];
+    for (i, height) in heights.iter_mut().enumerate() {
+        *height = 256 + (i % 32) as u16;
+    }
+
+    let bytes = build_otile_legacy_simple(&palette, &blocks, &heights);
+    let tile = decode(&bytes).expect("decode ok");
+    assert_eq!(tile.heights, heights);
+}
+
+#[test]
+fn ten_bit_height_map_uses_explicit_bit_width() {
+    let palette = ["minecraft:stone"];
+    let blocks = [0u16; TILE_BLOCKS];
+    let mut heights = [0u16; TILE_BLOCKS];
+    for (i, height) in heights.iter_mut().enumerate() {
+        *height = 320 + (i % 32) as u16;
+    }
+
+    let bytes = build_otile(
+        &palette,
+        &blocks,
+        &heights,
+        &["minecraft:plains"],
+        &[0u16; TILE_BLOCKS],
+        10,
+        true,
+    );
+    let tile = decode(&bytes).expect("decode ok");
+    assert_eq!(tile.heights, heights);
+}
+
+#[test]
+fn explicit_height_bits_out_of_range_errors() {
+    let mut bytes = build_otile_simple(
+        &["minecraft:stone"],
+        &[0u16; TILE_BLOCKS],
+        &[64u16; TILE_BLOCKS],
+    );
+
+    const HEIGHT_BITS_OFFSET: usize = 5 + 2 + 16 + 2 + 128;
+    bytes[HEIGHT_BITS_OFFSET] = 17;
+
+    match decode(&bytes) {
+        Err(DecodeError::BadHeightBits(17)) => {}
+        other => panic!("expected BadHeightBits(17), got {:?}", other),
     }
 }
 
@@ -216,16 +294,24 @@ fn bundle_round_trip_multiple_tiles() {
         blocks_a[i] = (i % 2) as u16;
         heights_a[i] = i as u16;
     }
-    let tile_a = build_otile_simple(&palette, &blocks_a, &heights_a);
+    let tile_a = build_otile_legacy_simple(&palette, &blocks_a, &heights_a);
 
     let blocks_b = [1u16; TILE_BLOCKS];
-    let heights_b = [256u16; TILE_BLOCKS];
-    let tile_b = build_otile_simple(&palette, &blocks_b, &heights_b);
+    let mut heights_b = [0u16; TILE_BLOCKS];
+    for (i, height) in heights_b.iter_mut().enumerate() {
+        *height = 320 + (i % 32) as u16;
+    }
+    let tile_b = build_otile(
+        &palette,
+        &blocks_b,
+        &heights_b,
+        &["minecraft:plains"],
+        &[0u16; TILE_BLOCKS],
+        10,
+        true,
+    );
 
-    let bytes = build_otiles(&[
-        (-3, 7, tile_a.clone()),
-        (100, -200, tile_b.clone()),
-    ]);
+    let bytes = build_otiles(&[(-3, 7, tile_a.clone()), (100, -200, tile_b.clone())]);
 
     let entries = decode_bundle(&bytes).expect("decode bundle ok");
     assert_eq!(entries.len(), 2);

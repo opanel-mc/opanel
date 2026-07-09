@@ -60,7 +60,7 @@ public class TileCompressor {
         long[] bitpackedBiomesData = biomesPalette.size() > 1 ? AnvilUtility.bitpack(biomesData, AnvilUtility.paletteSizeToBitsSize(biomesPalette.size())) : new long[] { 0L };
 
         // pack height map
-        long[] bitpackedHeightMap = AnvilUtility.bitpack(heightMap, 9);
+        long[] bitpackedHeightMap = AnvilUtility.bitpack(heightMap, tile.getHeightMapBits());
 
         // start writing to output stream
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -82,6 +82,7 @@ public class TileCompressor {
         }
 
         // write height map part
+        dos.writeByte(tile.getHeightMapBits() & 0xff);
         dos.writeShort(bitpackedHeightMap.length);
         for(long data : bitpackedHeightMap) {
             dos.writeLong(data);

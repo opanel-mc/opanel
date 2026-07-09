@@ -212,7 +212,7 @@ public class FabricSave extends BaseFabricSave implements OPanelSave {
                     ))
                     .map(Path::toAbsolutePath)
                     .forEach(path -> {
-                        FabricWorldRegion region = new FabricWorldRegion(savePath.getFileName().toString(), path);
+                        FabricWorldRegion region = new FabricWorldRegion(server, savePath.getFileName().toString(), path);
                         regions.add(region);
                     });
         } catch (IOException e) {

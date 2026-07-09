@@ -1,12 +1,10 @@
 package net.opanel.bukkit_helper;
 
+import net.opanel.bukkit_helper.utils.BukkitUtils;
 import net.opanel.common.OPanelChunkAccessor;
 import net.opanel.map.Tile;
 import net.opanel.utils.AnvilUtility;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.ChunkSnapshot;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -44,12 +42,15 @@ public abstract class BaseBukkitChunkAccessor implements OPanelChunkAccessor {
         Chunk chunk = world.getChunkAt(chunkX, chunkZ);
         ChunkSnapshot snap = chunk.getChunkSnapshot(true, true, false);
 
-        final int minY = -64;
-        final int maxY = world.getMaxHeight();
+        final int minY = BukkitUtils.getMinY(world);
+        final int maxY = BukkitUtils.getMaxY(world);
         final int firstSection = minY >> 4;
         final int lastSection = (maxY - 1) >> 4;
+        final int sectionCount = lastSection - firstSection + 1;
+        final int heightMapBits = AnvilUtility.heightMapBitsFromYRange(minY, maxY);
+        final int maxStoredHeight = maxY - minY;
 
-        List<Tile.Section> sections = new ArrayList<>(lastSection - firstSection + 1);
+        List<Tile.Section> sections = new ArrayList<>(sectionCount);
         for(int sectionY = firstSection; sectionY <= lastSection; sectionY++) {
             Tile.Section section = buildSection(snap, sectionY);
             if(section != null) sections.add(section);
@@ -62,13 +63,13 @@ public abstract class BaseBukkitChunkAccessor implements OPanelChunkAccessor {
                 // Tile.getHeight() returns storedHeight + minY - 1, so invert.
                 int stored = highest + 1 - minY;
                 if(stored < 0) stored = 0;
-                if(stored > 511) stored = 511; // 9-bit ceiling
+                if(stored > maxStoredHeight) stored = maxStoredHeight;
                 heightMap[z * 16 + x] = stored;
             }
         }
-        long[] packedHeightMap = AnvilUtility.bitpack(heightMap, 9);
+        long[] packedHeightMap = AnvilUtility.bitpack(heightMap, heightMapBits);
 
-        return new Tile(chunkX, chunkZ, sections, packedHeightMap, true);
+        return new Tile(chunkX, chunkZ, sections, packedHeightMap, minY, maxY);
     }
 
     protected Tile.Section buildSection(ChunkSnapshot snap, int sectionY) {

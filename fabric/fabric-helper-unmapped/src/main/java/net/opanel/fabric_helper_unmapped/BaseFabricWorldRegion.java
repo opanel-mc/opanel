@@ -1,6 +1,7 @@
 package net.opanel.fabric_helper_unmapped;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.MinecraftServer;
 import net.opanel.common.OPanelWorldRegion;
 import net.opanel.map.Tile;
 
@@ -8,10 +9,12 @@ import java.io.DataInputStream;
 import java.nio.file.Path;
 
 public abstract class BaseFabricWorldRegion implements OPanelWorldRegion {
+    protected final MinecraftServer server;
     protected final String saveName;
     protected final Path regionPath;
 
-    public BaseFabricWorldRegion(String saveName, Path regionPath) {
+    public BaseFabricWorldRegion(MinecraftServer server, String saveName, Path regionPath) {
+        this.server = server;
         this.saveName = saveName;
 
         if(!regionPath.toString().endsWith(".mca")) {

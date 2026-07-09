@@ -5,8 +5,10 @@ import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBTCompoundList;
 import net.opanel.annotation.Rewrite;
 import net.opanel.bukkit_helper.BaseBukkitWorldRegion;
+import net.opanel.bukkit_helper.utils.BukkitUtils;
 import net.opanel.common.OPanelWorldRegion;
 import net.opanel.map.Tile;
+import org.bukkit.Server;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,8 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SpigotWorldRegion extends BaseBukkitWorldRegion implements OPanelWorldRegion {
-    public SpigotWorldRegion(Path regionPath) {
-        super(regionPath);
+    public SpigotWorldRegion(Server server, Path regionPath) {
+        super(server, regionPath);
     }
 
     @Rewrite
@@ -44,7 +46,7 @@ public class SpigotWorldRegion extends BaseBukkitWorldRegion implements OPanelWo
                 }
             }
 
-            return new Tile(chunkX, chunkZ, sections, motionBlockingHeightMap, false);
+            return new Tile(chunkX, chunkZ, sections, motionBlockingHeightMap, 0, BukkitUtils.getMaxY(server));
         } catch (IOException e) {
             e.printStackTrace();
             return null;

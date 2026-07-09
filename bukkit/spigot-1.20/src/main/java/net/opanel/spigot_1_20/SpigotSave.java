@@ -31,7 +31,7 @@ public class SpigotSave extends BaseBukkitSave implements OPanelSave {
                     ))
                     .map(Path::toAbsolutePath)
                     .forEach(path -> {
-                        SpigotWorldRegion region = new SpigotWorldRegion(path);
+                        SpigotWorldRegion region = new SpigotWorldRegion(server, path);
                         regions.add(region);
                     });
         } catch (IOException e) {

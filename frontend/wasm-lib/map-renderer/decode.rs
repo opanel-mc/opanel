@@ -7,7 +7,7 @@ pub const TILE_BLOCKS: usize = TILE_SIDE * TILE_SIDE;
 
 const MAGIC: [u8; 5] = *b"OTILE";
 const BUNDLE_MAGIC: [u8; 6] = *b"OTILES";
-const HEIGHT_BITS: u32 = 9;
+const DEFAULT_HEIGHT_BITS: u32 = 9;
 
 #[derive(Debug)]
 pub enum DecodeError {
@@ -15,6 +15,7 @@ pub enum DecodeError {
     Truncated,
     Utf8(std::str::Utf8Error),
     BadPaletteIndex(u16),
+    BadHeightBits(u8),
 }
 
 #[derive(Debug)]
@@ -82,7 +83,7 @@ pub fn decode(bytes: &[u8]) -> Result<DecodedTile, DecodeError> {
     }
 
     // decode height map part
-    let heights = read_packed_array::<TILE_BLOCKS>(&mut cur, HEIGHT_BITS)?;
+    let heights = read_height_array::<TILE_BLOCKS>(&mut cur)?;
 
     // decode biomes palette part
     let biomes_palette_size = cur.read_u16()? as usize;
@@ -118,11 +119,7 @@ fn read_packed_array<const N: usize>(
     cur: &mut Cursor<'_>,
     bits: u32,
 ) -> Result<[u16; N], DecodeError> {
-    let long_count = cur.read_u16()? as usize;
-    let mut packed = Vec::with_capacity(long_count);
-    for _ in 0..long_count {
-        packed.push(cur.read_u64()?);
-    }
+    let packed = read_packed_longs(cur)?;
     let unpacked = bitunpack(&packed, bits);
     if unpacked.len() < N {
         return Err(DecodeError::Truncated);
@@ -130,6 +127,39 @@ fn read_packed_array<const N: usize>(
     let mut out = [0u16; N];
     out.copy_from_slice(&unpacked[..N]);
     Ok(out)
+}
+
+fn read_height_array<const N: usize>(cur: &mut Cursor<'_>) -> Result<[u16; N], DecodeError> {
+    // Height data is right after the block longs. New-format tiles store one
+    // explicit bits byte here. Legacy tiles have no prefix, so the next byte is
+    // the high byte of the u16 long-count, which is 0 for valid legacy tiles;
+    // in that case we must not consume it and instead fall back to 9 bits.
+    let bits = match cur.peek_u8()? {
+        0 => DEFAULT_HEIGHT_BITS,
+        raw @ 1..=16 => {
+            cur.read_u8()?;
+            raw as u32
+        }
+        raw => return Err(DecodeError::BadHeightBits(raw)),
+    };
+
+    let packed = read_packed_longs(cur)?;
+    let unpacked = bitunpack(&packed, bits);
+    if unpacked.len() < N {
+        return Err(DecodeError::Truncated);
+    }
+    let mut out = [0u16; N];
+    out.copy_from_slice(&unpacked[..N]);
+    Ok(out)
+}
+
+fn read_packed_longs(cur: &mut Cursor<'_>) -> Result<Vec<u64>, DecodeError> {
+    let long_count = cur.read_u16()? as usize;
+    let mut packed = Vec::with_capacity(long_count);
+    for _ in 0..long_count {
+        packed.push(cur.read_u64()?);
+    }
+    Ok(packed)
 }
 
 struct Cursor<'a> {
@@ -149,6 +179,13 @@ impl<'a> Cursor<'a> {
 
     fn read_u8(&mut self) -> Result<u8, DecodeError> {
         Ok(self.read_array::<1>()?[0])
+    }
+
+    fn peek_u8(&self) -> Result<u8, DecodeError> {
+        self.buf
+            .get(self.pos)
+            .copied()
+            .ok_or(DecodeError::Truncated)
     }
 
     fn read_u16(&mut self) -> Result<u16, DecodeError> {

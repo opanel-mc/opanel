@@ -8,8 +8,10 @@ import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBTCompoundList;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBTList;
 import net.opanel.annotation.Rewrite;
+import net.opanel.bukkit_helper.utils.BukkitUtils;
 import net.opanel.common.OPanelWorldRegion;
 import net.opanel.map.Tile;
+import org.bukkit.Server;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -33,10 +35,13 @@ public abstract class BaseBukkitWorldRegion implements OPanelWorldRegion {
     private static final int COMPRESSION_NONE = 3;
     private static final int EXTERNAL_FLAG = 0x80;
 
+    protected final Server server;
     protected final Path regionPath;
     private RandomAccessFile raf;
 
-    public BaseBukkitWorldRegion(Path regionPath) {
+    public BaseBukkitWorldRegion(Server server, Path regionPath) {
+        this.server = server;
+
         if(!regionPath.toString().endsWith(".mca")) {
             throw new IllegalArgumentException("Region file extension must be .mca");
         }
@@ -174,7 +179,7 @@ public abstract class BaseBukkitWorldRegion implements OPanelWorldRegion {
                 }
             }
 
-            return new Tile(chunkX, chunkZ, sections, motionBlockingHeightMap, true);
+            return new Tile(chunkX, chunkZ, sections, motionBlockingHeightMap, BukkitUtils.getMinY(server), BukkitUtils.getMaxY(server));
         } catch (IOException e) {
             e.printStackTrace();
             return null;

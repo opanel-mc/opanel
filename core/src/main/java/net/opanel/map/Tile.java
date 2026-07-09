@@ -2,6 +2,7 @@ package net.opanel.map;
 
 import net.opanel.utils.AnvilUtility;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ public class Tile {
     private static final String AIR_ID = "minecraft:air";
     private static final String THE_VOID_ID = "minecraft:the_void";
     private static final String PLAINS_ID = "minecraft:plains";
+    private static final int HEIGHT_MAP_COLUMNS = 16 * 16;
 
     public static class Block {
         public final String id;
@@ -80,18 +82,24 @@ public class Tile {
     private final int chunkZ;
     private final Map<Integer, Section> sections = new HashMap<>();
     private final int[] heightMap;
+    private final int heightMapBits;
     private final int minY;
 
-    public Tile(int chunkX, int chunkZ, List<Section> sections, long[] packedHeightMap, boolean afterCavesCliffs) {
+    /**
+     * @param minY inclusive lower world height bound
+     * @param maxY exclusive upper world height bound, so the highest valid block Y is {@code maxY - 1}
+     */
+    public Tile(int chunkX, int chunkZ, List<Section> sections, long[] packedHeightMap, int minY, int maxY) {
         this.chunkX = chunkX;
         this.chunkZ = chunkZ;
+        this.minY = minY;
 
         for(Section section : sections) {
             this.sections.put(section.getY(), section);
         }
 
-        heightMap = AnvilUtility.bitunpack(packedHeightMap, 9);
-        minY = afterCavesCliffs ? -64 : 0;
+        heightMapBits = AnvilUtility.heightMapBitsFromYRange(minY, maxY);
+        heightMap = Arrays.copyOf(AnvilUtility.bitunpack(packedHeightMap, heightMapBits), HEIGHT_MAP_COLUMNS);
     }
 
     public int getX() {
@@ -138,6 +146,10 @@ public class Tile {
 
     public int[] getHeightMap() {
         return heightMap;
+    }
+
+    public int getHeightMapBits() {
+        return heightMapBits;
     }
 
     public static Section createSection(int y, List<String> palette, long[] packedBlockStates) {

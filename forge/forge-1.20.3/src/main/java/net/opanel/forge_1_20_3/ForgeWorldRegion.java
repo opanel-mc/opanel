@@ -1,6 +1,7 @@
 package net.opanel.forge_1_20_3;
 
 import net.minecraft.nbt.*;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.storage.RegionFile;
 import net.opanel.common.OPanelWorldRegion;
@@ -15,8 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ForgeWorldRegion extends BaseForgeWorldRegion implements OPanelWorldRegion {
-    public ForgeWorldRegion(String saveName, Path regionPath) {
-        super(saveName, regionPath);
+    public ForgeWorldRegion(MinecraftServer server, String saveName, Path regionPath) {
+        super(server, saveName, regionPath);
     }
 
     @Override
@@ -67,7 +68,9 @@ public class ForgeWorldRegion extends BaseForgeWorldRegion implements OPanelWorl
                 }
             }
 
-            return new Tile(chunkX, chunkZ, sections, motionBlockingHeightMap, true);
+            int minY = server.overworld().getMinBuildHeight();
+            int maxY = server.overworld().getMaxBuildHeight();
+            return new Tile(chunkX, chunkZ, sections, motionBlockingHeightMap, minY, maxY);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
