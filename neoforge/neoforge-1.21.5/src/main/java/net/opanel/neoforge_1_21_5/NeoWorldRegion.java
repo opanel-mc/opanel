@@ -1,6 +1,7 @@
 package net.opanel.neoforge_1_21_5;
 
 import net.minecraft.nbt.*;
+import net.minecraft.server.MinecraftServer;
 import net.opanel.common.OPanelWorldRegion;
 import net.opanel.map.Tile;
 import net.opanel.neoforge_helper.BaseNeoWorldRegion;
@@ -13,8 +14,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class NeoWorldRegion extends BaseNeoWorldRegion implements OPanelWorldRegion {
-    public NeoWorldRegion(String saveName, Path regionPath) {
-        super(saveName, regionPath);
+    public NeoWorldRegion(MinecraftServer server, String saveName, Path regionPath) {
+        super(server, saveName, regionPath);
     }
 
     @Override
@@ -40,7 +41,9 @@ public class NeoWorldRegion extends BaseNeoWorldRegion implements OPanelWorldReg
                 }
             }
 
-            return new Tile(chunkX, chunkZ, sections, motionBlockingHeightMap, true);
+            int minY = server.overworld().getMinY();
+            int maxY = server.overworld().getMaxY() + 1;
+            return new Tile(chunkX, chunkZ, sections, motionBlockingHeightMap, minY, maxY);
         } catch (IOException e) {
             e.printStackTrace();
             return null;

@@ -2,6 +2,7 @@ package net.opanel.spigot_1_16_1;
 
 import net.opanel.annotation.Rewrite;
 import net.opanel.bukkit_helper.BaseBukkitChunkAccessor;
+import net.opanel.bukkit_helper.utils.BukkitUtils;
 import net.opanel.map.Tile;
 import net.opanel.utils.AnvilUtility;
 import org.bukkit.Chunk;
@@ -32,12 +33,12 @@ public class SpigotChunkAccessor extends BaseBukkitChunkAccessor {
         ChunkSnapshot snap = chunk.getChunkSnapshot(true, true, false);
 
         final int minY = 0;
-        final int maxY = world.getMaxHeight();
+        final int maxY = BukkitUtils.getMaxY(world);
         final int firstSection = minY >> 4;
         final int lastSection = (maxY - 1) >> 4;
         final int sectionCount = lastSection - firstSection + 1;
-        final int heightMapBits = AnvilUtility.heightMapBitsFromSectionCount(sectionCount);
-        final int maxStoredHeight = AnvilUtility.maxStoredHeightFromSectionCount(sectionCount);
+        final int heightMapBits = AnvilUtility.heightMapBitsFromYRange(minY, maxY);
+        final int maxStoredHeight = maxY - minY;
 
         List<Tile.Section> sections = new ArrayList<>(sectionCount);
         for(int sectionY = firstSection; sectionY <= lastSection; sectionY++) {
@@ -58,7 +59,7 @@ public class SpigotChunkAccessor extends BaseBukkitChunkAccessor {
         }
         long[] packedHeightMap = AnvilUtility.bitpack(heightMap, heightMapBits);
 
-        return new Tile(chunkX, chunkZ, sections, packedHeightMap, false);
+        return new Tile(chunkX, chunkZ, sections, packedHeightMap, minY, maxY);
     }
 
     @Rewrite

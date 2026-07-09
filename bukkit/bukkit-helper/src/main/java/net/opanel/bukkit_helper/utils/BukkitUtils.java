@@ -71,6 +71,28 @@ public class BukkitUtils {
         return Bukkit.getWorlds().get(0);
     }
 
+    /** Not compatible with <= 1.16.5 */
+    public static int getMinY(Server server) {
+        return getMinY(server.getWorlds().get(0));
+    }
+
+    /** Not compatible with <= 1.16.5 */
+    public static int getMinY(World world) {
+        try {
+            return (int) world.getClass().getMethod("getMinHeight").invoke(world);
+        } catch (ReflectiveOperationException e) {
+            return -64;
+        }
+    }
+
+    public static int getMaxY(Server server) {
+        return getMaxY(server.getWorlds().get(0));
+    }
+
+    public static int getMaxY(World world) {
+        return world.getMaxHeight();
+    }
+
     public static boolean isLeaves() {
         return leaves;
     }

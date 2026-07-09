@@ -183,7 +183,7 @@ public class NeoSave extends BaseNeoSave implements OPanelSave {
                     ))
                     .map(Path::toAbsolutePath)
                     .forEach(path -> {
-                        NeoWorldRegion region = new NeoWorldRegion(savePath.getFileName().toString(), path);
+                        NeoWorldRegion region = new NeoWorldRegion(server, savePath.getFileName().toString(), path);
                         regions.add(region);
                     });
         } catch (IOException e) {

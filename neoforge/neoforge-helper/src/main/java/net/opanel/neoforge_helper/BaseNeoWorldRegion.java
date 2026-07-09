@@ -1,6 +1,7 @@
 package net.opanel.neoforge_helper;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.storage.RegionFile;
@@ -16,10 +17,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class BaseNeoWorldRegion implements OPanelWorldRegion {
+    protected final MinecraftServer server;
     protected final String saveName;
     protected final Path regionPath;
 
-    public BaseNeoWorldRegion(String saveName, Path regionPath) {
+    public BaseNeoWorldRegion(MinecraftServer server, String saveName, Path regionPath) {
+        this.server = server;
         this.saveName = saveName;
 
         if(!regionPath.toString().endsWith(".mca")) {

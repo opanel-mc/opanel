@@ -85,17 +85,21 @@ public class Tile {
     private final int heightMapBits;
     private final int minY;
 
-    public Tile(int chunkX, int chunkZ, List<Section> sections, long[] packedHeightMap, boolean afterCavesCliffs) {
+    /**
+     * @param minY inclusive lower world height bound
+     * @param maxY exclusive upper world height bound, so the highest valid block Y is {@code maxY - 1}
+     */
+    public Tile(int chunkX, int chunkZ, List<Section> sections, long[] packedHeightMap, int minY, int maxY) {
         this.chunkX = chunkX;
         this.chunkZ = chunkZ;
+        this.minY = minY;
 
         for(Section section : sections) {
             this.sections.put(section.getY(), section);
         }
 
-        heightMapBits = AnvilUtility.heightMapBitsFromSectionCount(sections.size());
+        heightMapBits = AnvilUtility.heightMapBitsFromYRange(minY, maxY);
         heightMap = Arrays.copyOf(AnvilUtility.bitunpack(packedHeightMap, heightMapBits), HEIGHT_MAP_COLUMNS);
-        minY = afterCavesCliffs ? -64 : 0;
     }
 
     public int getX() {

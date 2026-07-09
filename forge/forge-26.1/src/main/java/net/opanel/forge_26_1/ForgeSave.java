@@ -209,7 +209,7 @@ public class ForgeSave extends BaseForgeSave implements OPanelSave {
                     ))
                     .map(Path::toAbsolutePath)
                     .forEach(path -> {
-                        ForgeWorldRegion region = new ForgeWorldRegion(savePath.getFileName().toString(), path);
+                        ForgeWorldRegion region = new ForgeWorldRegion(server, savePath.getFileName().toString(), path);
                         regions.add(region);
                     });
         } catch (IOException e) {

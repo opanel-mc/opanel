@@ -1,8 +1,6 @@
 package net.opanel.utils;
 
 public class AnvilUtility {
-    private static final int DEFAULT_HEIGHT_BITS = 9;
-
     public static int[] bitunpack(long[] packed, int bitsPerValue) {
         final int valueAmount = Long.SIZE / bitsPerValue;
         final long mask = (1L << bitsPerValue) - 1;
@@ -50,14 +48,19 @@ public class AnvilUtility {
         return paletteSize <= 1 ? minSize : Math.max(minSize, Integer.SIZE - Integer.numberOfLeadingZeros(paletteSize - 1));
     }
 
-    public static int heightMapBitsFromSectionCount(int sectionCount) {
-        if(sectionCount <= 0) return DEFAULT_HEIGHT_BITS;
-        return paletteSizeToBitsSize(sectionCount * 16 + 1);
-    }
+    /**
+     * Calculate the bit width required by a heightmap for the given world height range.
+     *
+     * @param minY inclusive lower world height bound
+     * @param maxY exclusive upper world height bound, so the highest valid block Y is {@code maxY - 1}
+     * @return bits required to store heightmap values relative to {@code minY}, including the zero/empty slot
+     */
+    public static int heightMapBitsFromYRange(int minY, int maxY) {
+        if(maxY <= minY) {
+            throw new IllegalArgumentException("maxY must be greater than minY");
+        }
 
-    public static int maxStoredHeightFromSectionCount(int sectionCount) {
-        int bits = heightMapBitsFromSectionCount(sectionCount);
-        return (1 << bits) - 1;
+        return paletteSizeToBitsSize(maxY - minY + 1);
     }
 
     public static int[] getGlobalChunkPosition(String mcaFileName, int chunkX, int chunkZ) throws NumberFormatException {

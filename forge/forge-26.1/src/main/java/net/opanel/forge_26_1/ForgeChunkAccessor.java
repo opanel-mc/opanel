@@ -30,13 +30,13 @@ public class ForgeChunkAccessor extends BaseForgeChunkAccessor {
         LevelChunk chunk = world.getChunkSource().getChunkNow(chunkX, chunkZ);
         if(chunk == null) return null;
 
-        final int minY = -64;
-        final int maxY = world.getMaxY();
+        final int minY = world.getMinY();
+        final int maxY = world.getMaxY() + 1;
         final int firstSection = minY >> 4;
         final int lastSection = (maxY - 1) >> 4;
         final int sectionCount = lastSection - firstSection + 1;
-        final int heightMapBits = AnvilUtility.heightMapBitsFromSectionCount(sectionCount);
-        final int maxStoredHeight = AnvilUtility.maxStoredHeightFromSectionCount(sectionCount);
+        final int heightMapBits = AnvilUtility.heightMapBitsFromYRange(minY, maxY);
+        final int maxStoredHeight = maxY - minY;
 
         List<Tile.Section> sections = new ArrayList<>(sectionCount);
         for(int sectionY = firstSection; sectionY <= lastSection; sectionY++) {
@@ -57,7 +57,7 @@ public class ForgeChunkAccessor extends BaseForgeChunkAccessor {
         }
         long[] packedHeightMap = AnvilUtility.bitpack(heightMap, heightMapBits);
 
-        return new Tile(chunkX, chunkZ, sections, packedHeightMap, true);
+        return new Tile(chunkX, chunkZ, sections, packedHeightMap, minY, maxY);
     }
 
     @Override

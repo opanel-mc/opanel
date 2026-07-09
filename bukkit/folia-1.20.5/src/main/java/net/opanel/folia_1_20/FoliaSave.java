@@ -31,7 +31,7 @@ public class FoliaSave extends BaseBukkitSave implements OPanelSave {
                     ))
                     .map(Path::toAbsolutePath)
                     .forEach(path -> {
-                        FoliaWorldRegion region = new FoliaWorldRegion(path);
+                        FoliaWorldRegion region = new FoliaWorldRegion(server, path);
                         regions.add(region);
                     });
         } catch (IOException e) {
