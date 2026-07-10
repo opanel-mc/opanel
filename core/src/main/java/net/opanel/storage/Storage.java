@@ -1,21 +1,21 @@
 package net.opanel.storage;
 
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.opanel.config.MapConfiguration;
 import net.opanel.config.McpConfiguration;
 import net.opanel.config.OidcConfiguration;
 import net.opanel.config.OpenAPIConfiguration;
+import net.opanel.monitor.ActivityData;
 import net.opanel.task.ScheduledTask;
 import net.opanel.task.ScheduledTaskManager;
 
+import java.util.ArrayList;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
 public class Storage {
     private static Storage instance;
-    private final Gson gson = new Gson();
 
     private final HashMap<StorageKey, StorageFile<?>> registeredStorageFiles = new HashMap<>();
 
@@ -48,6 +48,11 @@ public class Storage {
             "oidc-config.json",
             OidcConfiguration.class,
             new OidcConfiguration()
+        ));
+        registeredStorageFiles.put(StorageKey.ACTIVITY, new StorageFile<>(
+            "activity.json",
+            new TypeToken<List<ActivityData>>() {}.getType(),
+            new ArrayList<ActivityData>()
         ));
     }
 

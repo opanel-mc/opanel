@@ -114,6 +114,7 @@ public class WebServer {
         InfoController infoController = new InfoController(plugin);
         LogsController logsController = new LogsController(plugin);
         MapController mapController = new MapController(plugin);
+        MonitorController monitorController = new MonitorController(plugin);
         PlayersController playersController = new PlayersController(plugin);
         SavesController savesController = new SavesController(plugin);
         PluginsController pluginsController = new PluginsController(plugin);
@@ -203,6 +204,9 @@ public class WebServer {
                 get("{saveName}", mapController.getAvailableTiles);
                 post("{saveName}/tiles-range", mapController.getTilesInRange);
                 post("{saveName}/tiles", mapController.getTiles);
+            });
+            path("monitor", () -> {
+                get("activity", monitorController.getActivity);
             });
             path("players", () -> {
                 get("/", playersController.getPlayersOverview);

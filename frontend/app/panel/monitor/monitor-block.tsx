@@ -1,5 +1,13 @@
-import { type ReactNode, useContext, type PropsWithChildren } from "react";
-import { Area, AreaChart, CartesianGrid, YAxis } from "recharts";
+import type { ActivityData, ActivityResponse } from "@/lib/types";
+import {
+  type ReactNode,
+  type PropsWithChildren,
+  useContext,
+  useState,
+  useEffect,
+  memo
+} from "react";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { ArrowUpDown, MoveDown, MoveUp } from "lucide-react";
 import {
   ChartContainer,
@@ -11,6 +19,7 @@ import { cn, formatDataSize } from "@/lib/utils";
 import { $ } from "@/lib/i18n";
 import { InfoContext, MonitorContext } from "@/contexts/api-context";
 import { googleSansCode } from "@/lib/fonts";
+import { sendGetRequest, toastError } from "@/lib/api";
 
 const YAXIS_TICKS = [0, 25, 50, 75, 100];
 
@@ -38,7 +47,7 @@ export function MonitorBlock({
           )}
         </div>
         {additionalInfo && (
-          <span className="ml-auto text-sm text-muted-foreground text-right">{additionalInfo}</span>
+          <div className="ml-auto text-sm text-muted-foreground text-right">{additionalInfo}</div>
         )}
       </div>
       <div className={cn("border rounded-md bg-background", innerClassName)}>
@@ -46,6 +55,21 @@ export function MonitorBlock({
       </div>
     </section>
   );
+}
+
+type ActivityChartData = {
+  dateLabel: string
+  fullDateLabel: string
+  playerCount: number
+}
+
+function formatActivityDate(dateText: string | null, options: Intl.DateTimeFormatOptions): string {
+  if(!dateText) return "";
+  
+  const date = new Date(dateText);
+  if(isNaN(date.getTime())) return "";
+
+  return new Intl.DateTimeFormat(undefined, options).format(date);
 }
 
 export function CpuMonitorBlock({ className }: {
@@ -365,3 +389,75 @@ export function NetworkMonitorBlock({ className }: {
     </MonitorBlock>
   );
 }
+
+export const ActivityMonitorBlock = memo(({ className }: {
+  className?: string
+}) => {
+  const info = useContext(InfoContext);
+  const [activities, setActivities] = useState<ActivityData[]>([]);
+
+  const fetchActivity = async () => {
+    try {
+      const { activities } = await sendGetRequest<ActivityResponse>("/api/monitor/activity");
+      setActivities(activities);
+    } catch (e: any) {
+      toastError(e, $("dashboard.error"), [
+        [401, $("common.error.401")],
+        [500, $("common.error.500")]
+      ]);
+    }
+  };
+
+  useEffect(() => {
+    fetchActivity();
+  }, []);
+
+  const activityChartData: ActivityChartData[] = activities.map((activity) => ({
+    dateLabel: formatActivityDate(activity.date, { month: "short", day: "numeric" }),
+    fullDateLabel: formatActivityDate(activity.date, { year: "numeric", month: "short", day: "numeric" }),
+    playerCount: activity.players.length
+  }));
+
+  return (
+    <MonitorBlock
+      title={$("monitor.activity.title")}
+      description={$("monitor.activity.description")}
+      className={className}>
+      <ChartContainer
+        config={{
+          playerCount: {
+            label: $("monitor.chart.activity"),
+            color: "var(--color-highlight-primary)"
+          }
+        }}
+        className="w-full max-h-56">
+        <BarChart
+          accessibilityLayer
+          data={activityChartData}
+          margin={{ top: 10, left: 0, right: 12, bottom: 10 }}>
+          <CartesianGrid vertical={false} stroke="var(--border)"/>
+          <XAxis
+            dataKey="dateLabel"
+            tickLine={false}
+            axisLine={false}
+            tickMargin={8}
+            minTickGap={24}/>
+          <YAxis hide domain={[0, info ? info.maxPlayerCount : "auto"]}/>
+          <ChartTooltip
+            cursor={false}
+            content={(
+              <ChartTooltipContent
+                labelFormatter={(_, payload) => payload?.[0]?.payload?.fullDateLabel ?? ""}
+                indicator="line"
+                valueFormatter={(value) => value}/>
+            )}/>
+          <Bar
+            dataKey="playerCount"
+            fill="var(--color-playerCount)"
+            radius={[6, 6, 0, 0]}
+            isAnimationActive={false}/>
+        </BarChart>
+      </ChartContainer>
+    </MonitorBlock>
+  );
+})

@@ -3,6 +3,7 @@ package net.opanel;
 import net.opanel.common.Constants;
 import net.opanel.config.ConfigManager;
 import net.opanel.config.OPanelConfiguration;
+import net.opanel.monitor.ActivityManager;
 import net.opanel.monitor.MonitorManager;
 import net.opanel.event.OPanelPlayerInventoryChangeEvent;
 import net.opanel.map.MapRenderManager;
@@ -41,6 +42,7 @@ public class OPanel {
     private final ScheduledTaskManager scheduledTaskManager;
     private final MapRenderManager mapRenderManager;
     private final MonitorManager monitorManager;
+    private final ActivityManager activityManager;
     private final WebServer webServer;
     private OPanelServer server;
     private LogListenerManager logListenerManager;
@@ -66,6 +68,9 @@ public class OPanel {
 
         // Initialize monitor service
         monitorManager = new MonitorManager(this);
+
+        // Initialize activity recorder
+        activityManager = new ActivityManager(this);
 
         // Initialize inventory poller
         OPanelPlayerInventoryChangeEvent.registerPoller(this);
@@ -156,6 +161,10 @@ public class OPanel {
         return monitorManager;
     }
 
+    public ActivityManager getActivityManager() {
+        return activityManager;
+    }
+
     public WebServer getWebServer() {
         return webServer;
     }
@@ -187,6 +196,10 @@ public class OPanel {
 
         if(monitorManager != null) {
             monitorManager.shutdown();
+        }
+
+        if(activityManager != null) {
+            activityManager.shutdown();
         }
 
         OPanelPlayerInventoryChangeEvent.shutdown();

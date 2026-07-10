@@ -11,10 +11,9 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.util.Base64;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Properties;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
@@ -311,5 +310,9 @@ public class Utils {
             }
         }
         return false;
+    }
+
+    public static Date localDateToDate(LocalDate localDate) {
+        return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 }

@@ -24,6 +24,7 @@ public class MonitorManager {
     private final SystemInfo si = new SystemInfo();
     private final CpuSampler cpuSampler = new CpuSampler(si);
     private final NetworkMonitor networkMonitor = new NetworkMonitor(si);
+
     private final ArrayDeque<MonitorData> monitorDataList = new ArrayDeque<>(MAX_HISTORY_SIZE);
     private final Set<Consumer<MonitorData>> updateListeners = new CopyOnWriteArraySet<>();
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();

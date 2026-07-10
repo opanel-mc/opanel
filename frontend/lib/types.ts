@@ -116,6 +116,11 @@ export interface ScheduledTask {
   enabled: boolean
 }
 
+export interface ActivityData {
+  date: string | null // yyyy-MM-dd'T'HH:mm:ss
+  players: { name: string; uuid: string }[]
+}
+
 export type EditorRefType = Parameters<OnMount>[0];
 export type EditorOptionsType = React.ComponentProps<typeof Editor>["options"];
 
@@ -246,6 +251,19 @@ export interface CreateTaskResponse {
   taskId: string
 }
 
+/** `/api/auth/oidc/config` */
+export interface OidcConfigResponse {
+  enabled: boolean
+  displayName?: string
+  discoveryUrl?: string
+  clientId?: string
+}
+
+/** `/api/monitor/activity` */
+export interface ActivityResponse {
+  activities: ActivityData[]
+}
+
 /** `https://api.github.com/repos/opanel-mc/opanel/releases` */
 export type GithubReleaseResponse = {
   id: number
@@ -255,11 +273,3 @@ export type GithubReleaseResponse = {
   published_at: string
   body: string
 }[]
-
-/** `/api/auth/oidc/config` */
-export interface OidcConfigResponse {
-  enabled: boolean
-  displayName?: string
-  discoveryUrl?: string
-  clientId?: string
-}
