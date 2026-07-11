@@ -22,6 +22,7 @@ public class ConfigManagerImpl implements ConfigManager {
                 configSrc.getString("webServerHost"),
                 configSrc.getInt("webServerPort"),
                 configSrc.getInt("mcdrSocketPort"),
+                configSrc.getInt("mapPrerenderConcurrent"),
                 configSrc.getBoolean("cookieSecure"),
                 configSrc.getBoolean("proxyHeaders"),
                 configSrc.getBoolean("oidcEnabled"),
@@ -39,6 +40,7 @@ public class ConfigManagerImpl implements ConfigManager {
         configSrc.set("webServerHost", config.webServerHost);
         configSrc.set("webServerPort", config.webServerPort);
         configSrc.set("mcdrSocketPort", config.mcdrSocketPort);
+        configSrc.set("mapPrerenderConcurrent", config.mapPrerenderConcurrent);
         configSrc.set("cookieSecure", config.cookieSecure);
         configSrc.set("proxyHeaders", config.proxyHeaders);
         configSrc.set("oidcEnabled", config.oidcEnabled);

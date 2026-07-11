@@ -11,6 +11,7 @@ public class Config {
     public static final ModConfigSpec.ConfigValue<String> WEB_SERVER_HOST = BUILDER.define("webServerHost", OPanelConfiguration.defaultConfig.webServerHost);
     public static final ModConfigSpec.IntValue WEB_SERVER_PORT = BUILDER.defineInRange("webServerPort", OPanelConfiguration.defaultConfig.webServerPort, 1, 65535);
     public static final ModConfigSpec.IntValue MCDR_SOCKET_PORT = BUILDER.defineInRange("mcdrSocketPort", OPanelConfiguration.defaultConfig.mcdrSocketPort, 1, 65535);
+    public static final ModConfigSpec.IntValue MAP_PRERENDER_CONCURRENT = BUILDER.defineInRange("mapPrerenderConcurrent", OPanelConfiguration.defaultConfig.mapPrerenderConcurrent, 1, Integer.MAX_VALUE);
     public static final ModConfigSpec.BooleanValue COOKIE_SECURE = BUILDER.define("cookieSecure", OPanelConfiguration.defaultConfig.cookieSecure);
     public static final ModConfigSpec.BooleanValue PROXY_HEADERS = BUILDER.define("proxyHeaders", OPanelConfiguration.defaultConfig.proxyHeaders);
     public static final ModConfigSpec.BooleanValue OIDC_ENABLED = BUILDER.define("oidcEnabled", OPanelConfiguration.defaultConfig.oidcEnabled);

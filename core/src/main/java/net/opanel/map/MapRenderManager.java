@@ -211,7 +211,8 @@ public class MapRenderManager {
     public CompletableFuture<?> renderSave(String saveName, List<OPanelWorldRegion> regions) {
         if(regions.isEmpty()) return CompletableFuture.completedFuture(null);
 
-        Semaphore permit = new Semaphore(4);
+        final int concurrent = plugin.getConfig().mapPrerenderConcurrent;
+        Semaphore permit = new Semaphore(concurrent <= 0 ? 4 : concurrent);
         CompletableFuture<?>[] arr = new CompletableFuture[regions.size()];
         for(int i = 0; i < regions.size(); i++) {
             OPanelWorldRegion region = regions.get(i);
