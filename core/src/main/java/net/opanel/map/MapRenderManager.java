@@ -23,13 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -217,10 +211,21 @@ public class MapRenderManager {
     public CompletableFuture<?> renderSave(String saveName, List<OPanelWorldRegion> regions) {
         if(regions.isEmpty()) return CompletableFuture.completedFuture(null);
 
-        CompletableFuture<?>[] arr = regions.stream()
-            .map(region -> CompletableFuture.runAsync(new TilesRenderTask(plugin, saveName, region), executor))
-            .toArray(CompletableFuture[]::new);
-
+        Semaphore permit = new Semaphore(4);
+        CompletableFuture<?>[] arr = new CompletableFuture[regions.size()];
+        for(int i = 0; i < regions.size(); i++) {
+            OPanelWorldRegion region = regions.get(i);
+            arr[i] = CompletableFuture.runAsync(() -> {
+                try {
+                    permit.acquire();
+                    new TilesRenderTask(plugin, saveName, region).run();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                } finally {
+                    permit.release();
+                }
+            }, executor);
+        }
         return CompletableFuture.allOf(arr);
     }
 
