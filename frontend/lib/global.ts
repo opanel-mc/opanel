@@ -1,7 +1,7 @@
 /**
  * Version of OPanel
  */
-export const version = "2.1.3";
+export const version = "2.1.4";
 /**
  * Copyright Info of OPanel Project
  */
