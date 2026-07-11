@@ -1,11 +1,11 @@
 "use client";
 
-import type { APIResponse, InfoResponse, MonitorResponse } from "@/lib/types";
+import type { APIResponse, InfoResponse } from "@/lib/types";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Gauge, RotateCw, TriangleAlert } from "lucide-react";
 import { InfoContext, MonitorContext, VersionContext } from "@/contexts/api-context";
 import { sendGetRequest, toastError } from "@/lib/api";
-import { cn, getCurrentState } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { InfoCard } from "./info-card";
 import { TimeCard } from "./time-card";
 import { PlayersCard } from "./players-card";
@@ -14,7 +14,6 @@ import { TerminalCard } from "./terminal-card";
 import { TPSCard } from "./tps-card";
 import { SubPage } from "../sub-page";
 import { emitter } from "@/lib/emitter";
-import { getSettings } from "@/lib/settings";
 import { $ } from "@/lib/i18n";
 import { SystemCard } from "./system-card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -28,8 +27,7 @@ import {
 } from "@/components/ui/empty";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/i18n-text";
-
-const requestMonitorInterval = getSettings("dashboard.monitor-interval");
+import { useMonitor } from "@/hooks/use-monitor";
 
 function CardSkeleton({ className }: { className?: string }) {
   return (
@@ -39,10 +37,8 @@ function CardSkeleton({ className }: { className?: string }) {
 
 export default function Dashboard() {
   const versionCtx = useContext(VersionContext);
+  const monitorDataList = useMonitor(50);
   const [info, setInfo] = useState<APIResponse<InfoResponse>>();
-  const [monitorData, setMonitorData] = useState(
-    new Array<MonitorResponse>(50).fill({ cpu: 0, memory: 0, tps: 20 })
-  );
   const [isError, setError] = useState(false);
   const doneRef = useRef(false);
 
@@ -59,15 +55,6 @@ export default function Dashboard() {
     }
   };
 
-  const requestMonitor = async () => {
-    const res = await sendGetRequest<MonitorResponse>("/api/monitor");
-    const currentData = await getCurrentState(setMonitorData);
-    const newData = [...currentData];
-    newData.shift();
-    newData.push(res);
-    setMonitorData(newData);
-  };
-
   useEffect(() => {
     fetchServerInfo();
 
@@ -75,19 +62,11 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      requestMonitor();
-    }, requestMonitorInterval);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    if(info && monitorData && versionCtx && !doneRef.current) {
+    if(info && monitorDataList && versionCtx && !doneRef.current) {
       doneRef.current = true;
       emitter.emit("loading-done");
     }
-  }, [info, monitorData, versionCtx]);
+  }, [info, monitorDataList, versionCtx]);
 
   return (
     <SubPage
@@ -100,7 +79,7 @@ export default function Dashboard() {
         !isError
         ? (
           <InfoContext.Provider value={info}>
-            <MonitorContext.Provider value={monitorData}>
+            <MonitorContext.Provider value={monitorDataList}>
               {/* Left side */}
               <div className="flex-2 flex flex-col gap-2">
                 {/* Upper */}

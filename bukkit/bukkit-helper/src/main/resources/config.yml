@@ -3,6 +3,7 @@ salt: ""
 webServerHost: "0.0.0.0"
 webServerPort: 3000
 mcdrSocketPort: 25576
+monitorSnapshotInterval: 1000
 cookieSecure: false
 proxyHeaders: false
 oidcEnabled: false

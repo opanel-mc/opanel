@@ -8,6 +8,7 @@ public class OPanelConfiguration {
             "0.0.0.0",
             3000,
             25576,
+            1000,
             false,
             false,
             false,
@@ -22,6 +23,7 @@ public class OPanelConfiguration {
     public String webServerHost;
     public int webServerPort;
     public int mcdrSocketPort;
+    public int monitorSnapshotInterval;
     public boolean cookieSecure;
     public boolean proxyHeaders;
     public boolean oidcEnabled;
@@ -36,6 +38,7 @@ public class OPanelConfiguration {
             String webServerHost,
             int webServerPort,
             int mcdrSocketPort,
+            int monitorSnapshotInterval,
             boolean cookieSecure,
             boolean proxyHeaders,
             boolean oidcEnabled,
@@ -49,6 +52,7 @@ public class OPanelConfiguration {
         this.webServerHost = webServerHost;
         this.webServerPort = webServerPort;
         this.mcdrSocketPort = mcdrSocketPort;
+        this.monitorSnapshotInterval = monitorSnapshotInterval;
         this.cookieSecure = cookieSecure;
         this.proxyHeaders = proxyHeaders;
         this.oidcEnabled = oidcEnabled;
