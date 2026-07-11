@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import net.opanel.OPanel;
+import net.opanel.utils.DateAdapter;
 import net.opanel.utils.Utils;
 
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Date;
 import java.util.Map;
 
 public class StorageFile<T> {
@@ -28,9 +30,7 @@ public class StorageFile<T> {
         this(
             fileName,
             dataType,
-            new GsonBuilder()
-                .setPrettyPrinting()
-                .create(),
+            createGsonBuilder().create(),
             defaultValue
         );
     }
@@ -39,9 +39,8 @@ public class StorageFile<T> {
         this(
             fileName,
             dataType,
-            new GsonBuilder()
+            createGsonBuilder()
                 .registerTypeAdapter(dataType, typeAdapter)
-                .setPrettyPrinting()
                 .create(),
             defaultValue
         );
@@ -80,6 +79,12 @@ public class StorageFile<T> {
                 e.printStackTrace();
             }
         }
+    }
+
+    private static GsonBuilder createGsonBuilder() {
+        return new GsonBuilder()
+                .registerTypeAdapter(Date.class, new DateAdapter())
+                .setPrettyPrinting();
     }
 
     @SuppressWarnings("unchecked")

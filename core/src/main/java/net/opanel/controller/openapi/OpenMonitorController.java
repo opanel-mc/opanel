@@ -3,27 +3,30 @@ package net.opanel.controller.openapi;
 import io.javalin.http.Handler;
 import net.opanel.OPanel;
 import net.opanel.controller.BaseController;
-import net.opanel.time.TPS;
-import net.opanel.utils.MonitorUtility.CpuSampler;
-import oshi.SystemInfo;
+import net.opanel.monitor.MonitorData;
 
 import java.util.HashMap;
-
-import static net.opanel.utils.MonitorUtility.getMemoryRate;
+import java.util.List;
 
 public class OpenMonitorController extends BaseController {
-    private final SystemInfo si = new SystemInfo();
-    private final CpuSampler cpuSampler = new CpuSampler(si);
-
     public OpenMonitorController(OPanel plugin) {
         super(plugin);
     }
 
     public Handler getMonitor = ctx -> {
+        MonitorData data = null;
+        List<MonitorData> history = plugin.getMonitorManager().getHistory();
+        if(!history.isEmpty()) {
+            data = history.get(history.size() - 1);
+        }
+
         HashMap<String, Object> obj = new HashMap<>();
-        obj.put("cpu", cpuSampler.sampleRate());
-        obj.put("memory", getMemoryRate(si));
-        obj.put("tps", TPS.getRecentTPS());
+        obj.put("cpu", data == null ? 0 : data.cpu);
+        obj.put("memory", data == null ? 0 : data.memory);
+        obj.put("jvmMemory", data == null ? 0 : data.jvmMemory);
+        obj.put("tps", data == null ? 0 : data.tps);
+        obj.put("networkUpload", data == null ? 0 : data.networkUpload);
+        obj.put("networkDownload", data == null ? 0 : data.networkDownload);
 
         sendResponse(ctx, obj);
     };

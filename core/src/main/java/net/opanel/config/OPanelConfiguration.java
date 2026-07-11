@@ -9,6 +9,7 @@ public class OPanelConfiguration {
             3000,
             25576,
             4,
+            1000,
             false,
             false,
             false,
@@ -24,6 +25,7 @@ public class OPanelConfiguration {
     public int webServerPort;
     public int mcdrSocketPort;
     public int mapPrerenderConcurrent;
+    public int monitorSnapshotInterval;
     public boolean cookieSecure;
     public boolean proxyHeaders;
     public boolean oidcEnabled;
@@ -39,6 +41,7 @@ public class OPanelConfiguration {
             int webServerPort,
             int mcdrSocketPort,
             int mapPrerenderConcurrent,
+            int monitorSnapshotInterval,
             boolean cookieSecure,
             boolean proxyHeaders,
             boolean oidcEnabled,
@@ -53,6 +56,7 @@ public class OPanelConfiguration {
         this.webServerPort = webServerPort;
         this.mcdrSocketPort = mcdrSocketPort;
         this.mapPrerenderConcurrent = mapPrerenderConcurrent;
+        this.monitorSnapshotInterval = monitorSnapshotInterval;
         this.cookieSecure = cookieSecure;
         this.proxyHeaders = proxyHeaders;
         this.oidcEnabled = oidcEnabled;

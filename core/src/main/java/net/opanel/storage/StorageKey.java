@@ -6,7 +6,8 @@ public enum StorageKey {
     OPEN_API_CONFIG("open-api"),
     LAUNCH_COMMAND("launch-command"),
     MAP_CONFIG("map-config"),
-    OIDC_CONFIG("oidc-config");
+    OIDC_CONFIG("oidc-config"),
+    ACTIVITY("activity");
 
     private final String id;
 

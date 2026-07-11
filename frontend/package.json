@@ -4,7 +4,7 @@
   "private": true,
   "description": "A Minecraft server management panel",
   "scripts": {
-    "dev": "npm run prelaunch && next dev --turbopack -p 3001",
+    "dev": "npm run prelaunch && next dev -p 3001",
     "build": "npm run prelaunch && next build",
     "build:pack": "npm run build && npm run bundle",
     "start": "next start",

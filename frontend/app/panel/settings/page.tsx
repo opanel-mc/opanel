@@ -212,13 +212,6 @@ export default function Settings() {
           </div>
         </div>
         <TabsContent value="general" className="space-y-3">
-          <Section>
-            <SettingsItem
-              id="dashboard.monitor-interval"
-              name={$("settings.dashboard.monitor-interval")}
-              description={$("settings.dashboard.monitor-interval.description")}
-              control={<SettingsSlider id="dashboard.monitor-interval" unit="ms" min={500} max={5000} step={500}/>}/>
-          </Section>
           <Section className="mb-4">
             <SettingsItem
               id="players.avatar-provider"

@@ -31,6 +31,15 @@ export enum Dimension {
   THE_END = "the_end"
 }
 
+export interface MonitorData {
+  cpu: number
+  memory: number
+  jvmMemory: number
+  tps: number
+  networkUpload: number
+  networkDownload: number
+}
+
 export interface Save {
   name: string
   displayName: string // base64
@@ -107,6 +116,11 @@ export interface ScheduledTask {
   enabled: boolean
 }
 
+export interface ActivityData {
+  date: string | null // yyyy-MM-dd'T'HH:mm:ss
+  players: { name: string; uuid: string }[]
+}
+
 export type EditorRefType = Parameters<OnMount>[0];
 export type EditorOptionsType = React.ComponentProps<typeof Editor>["options"];
 
@@ -162,16 +176,10 @@ export interface InfoResponse {
     cpuCore: number
     cpuThread: number
     memory: number
+    jvmMemory: number
     gpus: string[]
     java: string
   }
-}
-
-/** `/api/monitor` */
-export interface MonitorResponse {
-  cpu: number
-  memory: number
-  tps: number
 }
 
 /** `/api/control/properties` */
@@ -243,6 +251,19 @@ export interface CreateTaskResponse {
   taskId: string
 }
 
+/** `/api/auth/oidc/config` */
+export interface OidcConfigResponse {
+  enabled: boolean
+  displayName?: string
+  discoveryUrl?: string
+  clientId?: string
+}
+
+/** `/api/monitor/activity` */
+export interface ActivityResponse {
+  activities: ActivityData[]
+}
+
 /** `https://api.github.com/repos/opanel-mc/opanel/releases` */
 export type GithubReleaseResponse = {
   id: number
@@ -252,11 +273,3 @@ export type GithubReleaseResponse = {
   published_at: string
   body: string
 }[]
-
-/** `/api/auth/oidc/config` */
-export interface OidcConfigResponse {
-  enabled: boolean
-  displayName?: string
-  discoveryUrl?: string
-  clientId?: string
-}
