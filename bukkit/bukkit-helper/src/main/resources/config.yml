@@ -1,3 +1,5 @@
+# https://opanel.cn/docs/configuration
+
 accessKey: ""
 salt: ""
 webServerHost: "0.0.0.0"
@@ -5,6 +7,7 @@ webServerPort: 3000
 mcdrSocketPort: 25576
 mapPrerenderConcurrent: 4
 monitorSnapshotInterval: 1000
+serverRestartDelay: 10
 cookieSecure: false
 proxyHeaders: false
 oidcEnabled: false

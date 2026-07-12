@@ -19,14 +19,15 @@ public class ConfigManagerImpl implements ConfigManager {
         return new OPanelConfiguration(
                 configSrc.getString("accessKey"),
                 configSrc.getString("salt"),
-                configSrc.getString("webServerHost"),
-                configSrc.getInt("webServerPort"),
+                configSrc.getString("webServerHost", OPanelConfiguration.defaultConfig.webServerHost),
+                configSrc.getInt("webServerPort", OPanelConfiguration.defaultConfig.webServerPort),
                 configSrc.getInt("mcdrSocketPort"),
-                configSrc.getInt("mapPrerenderConcurrent"),
+                configSrc.getInt("mapPrerenderConcurrent", OPanelConfiguration.defaultConfig.mapPrerenderConcurrent),
                 configSrc.getInt("monitorSnapshotInterval", OPanelConfiguration.defaultConfig.monitorSnapshotInterval),
-                configSrc.getBoolean("cookieSecure"),
-                configSrc.getBoolean("proxyHeaders"),
-                configSrc.getBoolean("oidcEnabled"),
+                configSrc.getInt("serverRestartDelay", OPanelConfiguration.defaultConfig.serverRestartDelay),
+                configSrc.getBoolean("cookieSecure", OPanelConfiguration.defaultConfig.cookieSecure),
+                configSrc.getBoolean("proxyHeaders", OPanelConfiguration.defaultConfig.proxyHeaders),
+                configSrc.getBoolean("oidcEnabled", OPanelConfiguration.defaultConfig.oidcEnabled),
                 configSrc.getString("oidcDiscoveryUrl"),
                 configSrc.getString("oidcClientId"),
                 configSrc.getString("oidcClientSecret"),
@@ -43,6 +44,7 @@ public class ConfigManagerImpl implements ConfigManager {
         configSrc.set("mcdrSocketPort", config.mcdrSocketPort);
         configSrc.set("mapPrerenderConcurrent", config.mapPrerenderConcurrent);
         configSrc.set("monitorSnapshotInterval", config.monitorSnapshotInterval);
+        configSrc.set("serverRestartDelay", config.serverRestartDelay);
         configSrc.set("cookieSecure", config.cookieSecure);
         configSrc.set("proxyHeaders", config.proxyHeaders);
         configSrc.set("oidcEnabled", config.oidcEnabled);
