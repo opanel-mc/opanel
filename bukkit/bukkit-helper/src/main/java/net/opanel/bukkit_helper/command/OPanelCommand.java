@@ -49,7 +49,7 @@ public class OPanelCommand implements CommandExecutor, TabCompleter {
                     }
                 }
             }
-            case "restart-server" -> instance.getServer().restart();
+            case "restart-server" -> instance.getServer().restart(instance.getConfig().serverRestartDelay);
         }
         return true;
     }

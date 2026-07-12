@@ -80,7 +80,7 @@ public class OPanelCommand {
                         .then(
                                 literal("restart-server")
                                         .executes(ctx -> {
-                                            instance.getServer().restart();
+                                            instance.getServer().restart(instance.getConfig().serverRestartDelay);
                                             return 1;
                                         })
                         )

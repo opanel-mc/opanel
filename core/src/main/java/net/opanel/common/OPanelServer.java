@@ -59,8 +59,9 @@ public interface OPanelServer {
     void reload();
     void stop();
 
-    default void restart(int delay) {
+    default void restart(int restartDelay) {
         final String launchCommand = Storage.get().getStoredData(StorageKey.LAUNCH_COMMAND);
+        final int delay = restartDelay <= 0 ? 10 : restartDelay;
 
         try {
             final Path cwd = Path.of(".").toRealPath();
