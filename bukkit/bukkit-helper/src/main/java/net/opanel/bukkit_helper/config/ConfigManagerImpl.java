@@ -24,6 +24,7 @@ public class ConfigManagerImpl implements ConfigManager {
                 configSrc.getInt("mcdrSocketPort"),
                 configSrc.getInt("mapPrerenderConcurrent", OPanelConfiguration.defaultConfig.mapPrerenderConcurrent),
                 configSrc.getInt("monitorSnapshotInterval", OPanelConfiguration.defaultConfig.monitorSnapshotInterval),
+                configSrc.getInt("serverRestartDelay", OPanelConfiguration.defaultConfig.serverRestartDelay),
                 configSrc.getBoolean("cookieSecure", OPanelConfiguration.defaultConfig.cookieSecure),
                 configSrc.getBoolean("proxyHeaders", OPanelConfiguration.defaultConfig.proxyHeaders),
                 configSrc.getBoolean("oidcEnabled", OPanelConfiguration.defaultConfig.oidcEnabled),
@@ -43,6 +44,7 @@ public class ConfigManagerImpl implements ConfigManager {
         configSrc.set("mcdrSocketPort", config.mcdrSocketPort);
         configSrc.set("mapPrerenderConcurrent", config.mapPrerenderConcurrent);
         configSrc.set("monitorSnapshotInterval", config.monitorSnapshotInterval);
+        configSrc.set("serverRestartDelay", config.serverRestartDelay);
         configSrc.set("cookieSecure", config.cookieSecure);
         configSrc.set("proxyHeaders", config.proxyHeaders);
         configSrc.set("oidcEnabled", config.oidcEnabled);

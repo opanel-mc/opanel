@@ -14,6 +14,7 @@ public class ConfigManagerImpl implements ConfigManager {
                 Config.MCDR_SOCKET_PORT.get(),
                 Config.MAP_PRERENDER_CONCURRENT.get(),
                 Config.MONITOR_SNAPSHOT_INTERVAL.get(),
+                Config.SERVER_RESTART_DELAY.get(),
                 Config.COOKIE_SECURE.get(),
                 Config.PROXY_HEADERS.get(),
                 Config.OIDC_ENABLED.get(),
@@ -33,6 +34,7 @@ public class ConfigManagerImpl implements ConfigManager {
         Config.MCDR_SOCKET_PORT.set(config.mcdrSocketPort);
         Config.MAP_PRERENDER_CONCURRENT.set(config.mapPrerenderConcurrent);
         Config.MONITOR_SNAPSHOT_INTERVAL.set(config.monitorSnapshotInterval);
+        Config.SERVER_RESTART_DELAY.set(config.serverRestartDelay);
         Config.COOKIE_SECURE.set(config.cookieSecure);
         Config.PROXY_HEADERS.set(config.proxyHeaders);
         Config.OIDC_ENABLED.set(config.oidcEnabled);

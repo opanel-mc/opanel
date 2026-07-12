@@ -129,7 +129,9 @@ public class ControlController extends BaseController {
             sendResponse(ctx, HttpStatus.NOT_ACCEPTABLE, "Launch command is not set.");
             return;
         }
-        server.restart();
+
+        final int serverRestartDelay = plugin.getConfig().serverRestartDelay;
+        server.restart(serverRestartDelay <= 0 ? 10 : serverRestartDelay);
         sendResponse(ctx, HttpStatus.OK);
     };
 

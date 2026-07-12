@@ -59,7 +59,7 @@ public interface OPanelServer {
     void reload();
     void stop();
 
-    default void restart() {
+    default void restart(int delay) {
         final String launchCommand = Storage.get().getStoredData(StorageKey.LAUNCH_COMMAND);
 
         try {
@@ -68,12 +68,12 @@ public interface OPanelServer {
             String os = System.getProperty("os.name").toLowerCase();
             String[] command;
             if(os.contains("win")) { // windows
-                command = new String[] { "cmd.exe", "/c", "start", "", "cmd.exe", "/c", "timeout 10 > NUL && "+ launchCommand };
+                command = new String[] { "cmd.exe", "/c", "start", "", "cmd.exe", "/c", "timeout "+ delay +" > NUL && "+ launchCommand };
             } else if(os.contains("mac")) { // mac
                 // create launch script file
                 final String scriptContent = new StringBuilder()
                     .append("#!/bin/bash").append("\n")
-                    .append("sleep 10").append("\n")
+                    .append("sleep ").append(delay).append("\n")
                     .append("cd \"").append(cwd.toAbsolutePath()).append("\"").append("\n")
                     .append(launchCommand).append("\n")
                     .append("rm -- \"$0\"")
@@ -88,7 +88,7 @@ public interface OPanelServer {
                 command = new String[] { "open", scriptPath.toString() };
             } else { // linux / other servers
                 final String safeLaunchCommand = launchCommand.replace("'", "'\\''");
-                command = new String[] { "bash", "-c", "nohup bash -c 'sleep 10 && "+ safeLaunchCommand +"'" };
+                command = new String[] { "bash", "-c", "nohup bash -c 'sleep "+ delay +" && "+ safeLaunchCommand +"'" };
             }
 
             new ProcessBuilder(command)
