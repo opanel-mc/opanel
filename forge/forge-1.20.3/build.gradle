@@ -40,6 +40,7 @@ dependencies {
     shadowImplementation(project(":core")) {
         // To avoid conflict
         exclude group: 'com.github.oshi', module: 'oshi-core'
+        exclude group: 'org.slf4j', module: 'slf4j-api'
     }
     compileOnly(project(":forge-helper")) {
         transitive = false
