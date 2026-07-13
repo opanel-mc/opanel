@@ -7,6 +7,7 @@ import com.cronutils.model.time.ExecutionTime;
 import com.cronutils.parser.CronParser;
 import net.opanel.OPanel;
 import net.opanel.common.OPanelServer;
+import net.opanel.exception.IllegalTaskCommandSyntaxException;
 import net.opanel.storage.Storage;
 import net.opanel.storage.StorageKey;
 import net.opanel.utils.Utils;
@@ -78,9 +79,7 @@ public class ScheduledTaskManager {
                 try {
                     List<String> commands = new ArrayList<>(task.getCommands());
 
-                    for(String command : commands) {
-                        server.sendServerCommand(command);
-                    }
+                    TaskCommandExecutor.execute(server, commands);
                 } finally {
                     readLock.unlock();
                 }
@@ -92,9 +91,10 @@ public class ScheduledTaskManager {
         taskFutures.put(task.getId(), future);
     }
 
-    public ScheduledTask createTask(String name, String cronExpression, List<String> commands) throws IllegalArgumentException {
+    public ScheduledTask createTask(String name, String cronExpression, List<String> commands) throws IllegalArgumentException, IllegalTaskCommandSyntaxException {
         writeLock.lock();
         try {
+            TaskCommandParser.parse(commands); // parse commands first to catch the syntax error if it has
             Cron cron = cronParser.parse(cronExpression); // parse cron first to catch the syntax error if it has
             ScheduledTask task = new ScheduledTask(
                 Utils.generateRandomCharSequence(16, false),
@@ -191,7 +191,7 @@ public class ScheduledTaskManager {
         }
     }
 
-    public void setTaskCommands(String id, List<String> commands) {
+    public void setTaskCommands(String id, List<String> commands) throws IllegalTaskCommandSyntaxException {
         writeLock.lock();
         try {
             ScheduledTask task = getTaskUnsafe(id);
@@ -199,6 +199,7 @@ public class ScheduledTaskManager {
                 throw new NoSuchElementException("Cannot find the task: "+ id);
             }
 
+            TaskCommandParser.parse(commands); // parse commands first to catch syntax error if it has
             task.setCommands(new ArrayList<>(commands));
             saveTasks();
         } finally {

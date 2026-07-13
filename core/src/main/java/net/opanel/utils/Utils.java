@@ -315,4 +315,10 @@ public class Utils {
     public static Date localDateToDate(LocalDate localDate) {
         return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
+
+    public static String gameTickToTime(long gameTick) {
+        int hour = (int) Math.floor((double) gameTick / 1000 + 6) % 24;
+        int minute = (int) Math.floor(((double) gameTick % 1000) / 16.6);
+        return (hour < 10 ? "0"+ hour : String.valueOf(hour)) +":"+ (minute < 10 ? "0"+ minute : String.valueOf(minute));
+    }
 }
