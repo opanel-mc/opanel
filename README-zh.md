@@ -68,7 +68,7 @@ OPanel 的功能包括：
 
 ## Star 历史曲线
 
-[![Star History](https://api.star-history.com/svg?repos=opanel-mc/opanel&type=date&legend=top-left)](https://star-history.com/#opanel-mc/opanel&type=date&legend=top-left)
+[![Star History](https://api.star-history.com/chart?repos=opanel-mc/opanel&type=date&legend=top-left&sealed_token=WGOOH6Aj_imV2YyQlr8o89vo7neQvl34-NzvZO2xplwkkWLdJM1KCZ79qnoqaXUyXMg-WvSNA70ul2l63dObZdz7Vmp1oXnIe3AJlfjIHe30ioBRtOF0VxdDl61P0clf0I5Ij_YZ4YnYw_MGIIwz4crUiSnfL3c3Rk-3OL1uaMAJ45sfcGNCRolnkqU3)](https://www.star-history.com/?type=date&legend=top-left&repos=opanel-mc%2Fopanel)
 
 ## 许可
 
