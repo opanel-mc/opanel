@@ -33,7 +33,7 @@ public class ScheduledTaskManager {
     private final CronParser cronParser = new CronParser(CronDefinitionBuilder.instanceDefinitionFor(CronType.UNIX));
 
     public static final List<ScheduledTask> DEFAULT_TASKS = List.of(
-        new ScheduledTask("restart-server", "定时重启服务器", "0 0 * * *", List.of("opanel restart-server"), false)
+        new ScheduledTask("restart-server", "定时重启服务器", "0 0 * * *", List.of("@restart"), false)
     );
 
     @SuppressWarnings("unchecked")
