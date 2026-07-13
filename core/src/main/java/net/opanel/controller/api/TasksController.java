@@ -4,6 +4,7 @@ import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 import net.opanel.OPanel;
 import net.opanel.controller.BaseController;
+import net.opanel.exception.IllegalTaskCommandSyntaxException;
 import net.opanel.task.ScheduledTask;
 import net.opanel.task.ScheduledTaskManager;
 import net.opanel.utils.Utils;
@@ -48,8 +49,10 @@ public class TasksController extends BaseController {
             HashMap<String, Object> obj = new HashMap<>();
             obj.put("taskId", task.getId());
             sendResponse(ctx, obj);
+        } catch (IllegalTaskCommandSyntaxException e) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal commands syntax: "+ e.getMessage());
         } catch (IllegalArgumentException e) {
-            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal cron expression.");
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal cron expression: "+ e.getMessage());
         } catch (Exception e) {
             sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
@@ -64,8 +67,10 @@ public class TasksController extends BaseController {
             scheduledTaskManager.setTaskName(id, reqBody.name);
             scheduledTaskManager.setTaskCommands(id, reqBody.commands);
             sendResponse(ctx, HttpStatus.OK);
+        } catch (IllegalTaskCommandSyntaxException e) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal commands syntax: "+ e.getMessage());
         } catch (IllegalArgumentException e) {
-            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal cron expression.");
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal cron expression: "+ e.getMessage());
         } catch (NoSuchElementException e) {
             sendResponse(ctx, HttpStatus.NOT_FOUND, "Task not found: " + id);
         } catch (Exception e) {

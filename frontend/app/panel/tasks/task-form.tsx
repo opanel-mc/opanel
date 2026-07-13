@@ -303,9 +303,9 @@ export function TaskForm({
               <FormLabel>{$("tasks.form.commands.label")}</FormLabel>
               <FormControl className="border rounded-md overflow-hidden">
                 <MonacoEditor
-                  defaultLanguage="txt"
+                  defaultLanguage="task-command"
                   value={field.value.join("\n")}
-                  theme={theme === "dark" ? "opanel-theme-dark-default" : "opanel-theme"}
+                  theme={theme === "dark" ? "task-command-theme-dark" : "task-command-theme"}
                   options={{
                     minimap: {
                       enabled: false
