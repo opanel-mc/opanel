@@ -38,6 +38,7 @@ import { monacoSettingsOptions } from "@/lib/settings";
 import { sendPostRequest, toastError } from "@/lib/api";
 import { $ } from "@/lib/i18n";
 import { Text } from "@/components/i18n-text";
+import { Spinner } from "@/components/ui/spinner";
 
 const MonacoEditor = dynamic(() => import("@/components/monaco-editor"), { ssr: false });
 
@@ -90,16 +91,19 @@ export const formSchema = z.object({
 export function TaskForm({
   task,
   mode = "create",
+  ready = true,
   onCreate,
   onEdit
 }: {
   task: ScheduledTask
   mode: TaskFormMode
+  ready: boolean
   onCreate?: (id: string) => void
   onEdit?: () => void
 }) {
   const { theme } = useTheme();
   const [cronInputType, setCronInputType] = useState<"simple" | "advanced">("simple");
+  const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -112,6 +116,7 @@ export function TaskForm({
 
   const handleCreate = async (data: z.infer<typeof formSchema>) => {
     try {
+      setLoading(true);
       const res = await sendPostRequest<CreateTaskResponse>("/api/tasks", {
         name: stringToBase64(data.name),
         cron: data.cron,
@@ -125,11 +130,14 @@ export function TaskForm({
         [401, $("common.error.401")],
         [500, $("common.error.500")]
       ]);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleEdit = async (data: z.infer<typeof formSchema>) => {
     try {
+      setLoading(true);
       await sendPostRequest(`/api/tasks/${task.id}`, data);
       onEdit && onEdit();
       toast.success($("tasks.edit.success"));
@@ -140,11 +148,12 @@ export function TaskForm({
         [404, $("tasks.error.404")],
         [500, $("common.error.500")]
       ]);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-    console.log("Submitted data:", data);
     mode === "create"
     ? handleCreate(data)
     : handleEdit(data);
@@ -322,7 +331,9 @@ export function TaskForm({
 
         <Button
           type="submit"
-          className="w-fit mt-auto cursor-pointer">
+          className="w-fit mt-auto cursor-pointer"
+          disabled={!ready || loading}>
+          {loading && <Spinner />}
           {mode === "create" ? $("dialog.create") : $("dialog.save")}
         </Button>
       </form>

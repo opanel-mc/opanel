@@ -56,7 +56,7 @@ export function TaskItem({
 
   return (
     <FilesEditorSidebarListItem
-      className="h-20 hover:bg-muted border grid grid-rows-2 grid-cols-2 gap-1"
+      className="hover:bg-muted border grid grid-rows-2 grid-cols-2 gap-1"
       id={task.id}
       isActive={isActive}
       onClick={() => onClick && onClick()}>

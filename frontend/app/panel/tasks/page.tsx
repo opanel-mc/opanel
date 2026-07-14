@@ -16,15 +16,18 @@ import { cn } from "@/lib/utils";
 import { TaskForm, type TaskFormMode } from "./task-form";
 import { emitter } from "@/lib/emitter";
 import { $ } from "@/lib/i18n";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Tasks() {
   const [tasks, setTasks] = useState<ScheduledTask[] | null>(null);
   const [currentEditing, setCurrentEditing] = useState<string | null>(null);
   const [mode, setMode] = useState<TaskFormMode>("create");
+  const [loading, setLoading] = useState(false);
   const currentEditingTask = tasks?.find(task => task.id === currentEditing) ?? null;
 
   const fetchTaskList = async () => {
     try {
+      setLoading(true);
       const res = await sendGetRequest<TasksResponse>("/api/tasks");
       setTasks(res.tasks);
     } catch (e: any) {
@@ -35,6 +38,7 @@ export default function Tasks() {
       ]);
     } finally {
       emitter.emit("loading-done");
+      setLoading(false);
     }
   };
 
@@ -56,33 +60,50 @@ export default function Tasks() {
       className="flex-1 min-h-0">
       <FilesEditor className="min-lg:*:flex-1">
         <FilesEditorSidebar className="h-full min-h-0 block overflow-y-auto o-scrollbar">
-          <FilesEditorSidebarList className="h-fit grid grid-cols-2 max-sm:grid-cols-1 gap-2">
-            {tasks?.map((task) => (
-              <TaskItem
-                task={task}
-                isActive={mode === "edit" && currentEditing === task.id}
-                onClick={() => {
-                  setCurrentEditing(task.id);
-                  setMode("edit");
-                }}
-                onDelete={async () => {
-                  await fetchTaskList();
-                  if(currentEditing === task.id) {
-                    setCurrentEditing(null);
-                    setMode("create");
-                  }
-                }}
-                key={task.id}/>
-            ))}
-            <div
-              className={cn(
-                "h-20 text-sm border rounded-sm hover:bg-muted transition-colors duration-75 flex justify-center items-center gap-2 cursor-pointer",
-                mode === "create" && "bg-muted"
-              )}
-              onClick={() => setMode("create")}>
-              <Plus size={18}/>
-              {$("tasks.create")}
-            </div>
+          <FilesEditorSidebarList className="h-fit grid grid-cols-2 max-sm:grid-cols-1 gap-2 *:h-20 *:rounded-sm">
+            {
+              loading
+              ? (
+                <>
+                  <Skeleton />
+                  <Skeleton />
+                  <Skeleton />
+                  <Skeleton />
+                  <Skeleton />
+                  <Skeleton />
+                </>
+              )
+              : (
+                <>
+                  {tasks?.map((task) => (
+                    <TaskItem
+                      task={task}
+                      isActive={mode === "edit" && currentEditing === task.id}
+                      onClick={() => {
+                        setCurrentEditing(task.id);
+                        setMode("edit");
+                      }}
+                      onDelete={async () => {
+                        await fetchTaskList();
+                        if(currentEditing === task.id) {
+                          setCurrentEditing(null);
+                          setMode("create");
+                        }
+                      }}
+                      key={task.id}/>
+                  ))}
+                  <div
+                    className={cn(
+                      "text-sm border hover:bg-muted transition-colors duration-75 flex justify-center items-center gap-2 cursor-pointer",
+                      mode === "create" && "bg-muted"
+                    )}
+                    onClick={() => setMode("create")}>
+                    <Plus size={18}/>
+                    {$("tasks.create")}
+                  </div>
+                </>
+              )
+            }
           </FilesEditorSidebarList>
         </FilesEditorSidebar>
         <FilesEditorContent className="min-lg:max-w-[50%]">
@@ -100,6 +121,7 @@ export default function Tasks() {
                 : currentEditingTask!
               }
               mode={mode}
+              ready={!loading}
               onCreate={async (id) => {
                 await fetchTaskList();
                 setCurrentEditing(id);
