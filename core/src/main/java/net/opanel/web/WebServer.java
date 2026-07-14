@@ -148,13 +148,15 @@ public class WebServer {
                 post("/", authController.validateCram);
                 post("/check", authController.checkAuth);
                 post("/logout", authController.logout);
-                get("oidc/login", oidcController.login);
-                get("oidc/callback", oidcController.callback);
-                post("oidc/bind-user", oidcController.bindNewUser);
-                get("oidc/config", oidcController.getConfig);
-                get("oidc/allowed-users", oidcController.getAllowedUsers);
-                post("oidc/allowed-users", oidcController.addAllowedUser);
-                delete("oidc/allowed-users", oidcController.removeAllowedUser);
+                path("oidc", () -> {
+                    get("login", oidcController.login);
+                    get("callback", oidcController.callback);
+                    post("bind-user", oidcController.bindNewUser);
+                    get("config", oidcController.getConfig);
+                    get("allowed-users", oidcController.getAllowedUsers);
+                    post("allowed-users", oidcController.addAllowedUser);
+                    delete("allowed-users", oidcController.removeAllowedUser);
+                });
             });
             path("banned-ips", () -> {
                 get("/", bannedIpsController.getBannedIps);
@@ -206,6 +208,7 @@ public class WebServer {
                 post("{saveName}/tiles", mapController.getTiles);
             });
             path("monitor", () -> {
+                get("/", monitorController.getMonitorSnapshot); // for mcp
                 get("activity", monitorController.getActivity);
             });
             path("players", () -> {

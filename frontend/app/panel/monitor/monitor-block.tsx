@@ -20,8 +20,10 @@ import { $ } from "@/lib/i18n";
 import { InfoContext, MonitorContext } from "@/contexts/api-context";
 import { googleSansCode } from "@/lib/fonts";
 import { sendGetRequest, toastError } from "@/lib/api";
+import { fillActivityData } from "./activity-data";
 
 const YAXIS_TICKS = [0, 25, 50, 75, 100];
+const ACTIVITY_DATE_LABEL_INTERVAL = 4;
 
 export function MonitorBlock({
   title,
@@ -412,11 +414,12 @@ export const ActivityMonitorBlock = memo(({ className }: {
     fetchActivity();
   }, []);
 
-  const activityChartData: ActivityChartData[] = activities.map((activity) => ({
-    dateLabel: formatActivityDate(activity.date, { month: "short", day: "numeric" }),
-    fullDateLabel: formatActivityDate(activity.date, { year: "numeric", month: "short", day: "numeric" }),
-    playerCount: activity.players.length
-  }));
+  const activityChartData: ActivityChartData[] = fillActivityData(activities)
+    .map((activity) => ({
+      dateLabel: formatActivityDate(activity.date, { month: "short", day: "numeric" }),
+      fullDateLabel: formatActivityDate(activity.date, { year: "numeric", month: "short", day: "numeric" }),
+      playerCount: activity.players.length
+    }));
 
   return (
     <MonitorBlock
@@ -438,10 +441,15 @@ export const ActivityMonitorBlock = memo(({ className }: {
           <CartesianGrid vertical={false} stroke="var(--border)"/>
           <XAxis
             dataKey="dateLabel"
+            interval={0}
             tickLine={false}
             axisLine={false}
             tickMargin={8}
-            minTickGap={24}/>
+            tickFormatter={(value, index) => (
+              (activityChartData.length - 1 - index) % ACTIVITY_DATE_LABEL_INTERVAL === 0
+                ? value
+                : ""
+            )}/>
           <YAxis hide domain={[0, info ? info.maxPlayerCount : "auto"]}/>
           <ChartTooltip
             cursor={false}

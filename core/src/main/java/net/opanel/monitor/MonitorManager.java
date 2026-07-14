@@ -95,6 +95,18 @@ public class MonitorManager {
         }
     }
 
+    public MonitorData getSnapshot() {
+        NetworkMonitor.NetworkRate networkRate = networkMonitor.sampleRate();
+        return new MonitorData(
+                cpuSampler.sampleRate(),
+                getMemoryRate(si),
+                getJvmMemoryRate(),
+                TPS.getRecentTPS(),
+                networkRate.upload,
+                networkRate.download
+        );
+    }
+
     public List<MonitorData> getHistory() {
         return getHistory(MAX_HISTORY_SIZE);
     }

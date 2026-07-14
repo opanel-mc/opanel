@@ -43,12 +43,7 @@ public class ActivityManager {
     }
 
     public synchronized List<ActivityData> getActivities() {
-        List<ActivityData> paddedActivities = new ArrayList<>(MAX_ACTIVITY_SIZE);
-        for(int i = activities.size(); i < MAX_ACTIVITY_SIZE; i++) {
-            paddedActivities.add(new ActivityData());
-        }
-        paddedActivities.addAll(activities);
-        return paddedActivities;
+        return new ArrayList<>(activities);
     }
 
     public synchronized void recordPlayerActivity(OPanelPlayer player) {
