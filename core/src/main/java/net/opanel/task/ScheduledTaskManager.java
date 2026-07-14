@@ -58,17 +58,20 @@ public class ScheduledTaskManager {
     }
 
     private void scheduleTask(ExecutionTime executionTime, ScheduledTask task) {
+        scheduleTask(executionTime, task, ZonedDateTime.now());
+    }
+
+    private void scheduleTask(ExecutionTime executionTime, ScheduledTask task, ZonedDateTime after) {
         ScheduledFuture<?> existingFuture = taskFutures.get(task.getId());
         if(existingFuture != null && !existingFuture.isDone()) {
             existingFuture.cancel(false);
         }
 
-        ZonedDateTime now = ZonedDateTime.now();
-        Optional<ZonedDateTime> nextOptional = executionTime.nextExecution(now);
+        Optional<ZonedDateTime> nextOptional = executionTime.nextExecution(after);
         if(nextOptional.isEmpty()) return;
 
         ZonedDateTime next = nextOptional.get();
-        long timeout = Duration.between(now, next).toMillis();
+        long timeout = Math.max(0, Duration.between(ZonedDateTime.now(), next).toNanos());
         
         ScheduledFuture<?> future = executor.schedule(() -> {
             OPanelServer server = plugin.getServer();
@@ -85,8 +88,13 @@ public class ScheduledTaskManager {
                 }
             }
 
-            scheduleTask(executionTime, task);
-        }, timeout, TimeUnit.MILLISECONDS);
+            ZonedDateTime rescheduleAfter = ZonedDateTime.now();
+            // Prevent an early callback or clock rollback from scheduling the same occurrence again.
+            if(rescheduleAfter.isBefore(next)) {
+                rescheduleAfter = next;
+            }
+            scheduleTask(executionTime, task, rescheduleAfter);
+        }, timeout, TimeUnit.NANOSECONDS);
         
         taskFutures.put(task.getId(), future);
     }
