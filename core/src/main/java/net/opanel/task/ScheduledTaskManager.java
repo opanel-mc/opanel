@@ -21,7 +21,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ScheduledTaskManager {
     private final OPanel plugin;
     private final List<ScheduledTask> tasks;
-    private final Map<String, ScheduledFuture<?>> taskFutures = new ConcurrentHashMap<>();
+    private final Map<String, TaskFutureRef> taskFutureRefs = new HashMap<>();
     
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private final ReentrantReadWriteLock.ReadLock readLock = lock.readLock();
@@ -35,6 +35,11 @@ public class ScheduledTaskManager {
     public static final List<ScheduledTask> DEFAULT_TASKS = List.of(
         new ScheduledTask("restart-server", "定时重启服务器", "0 0 * * *", List.of("@restart"), false)
     );
+
+    /** Future reference and identity token for one cron configuration */
+    private static class TaskFutureRef {
+        private ScheduledFuture<?> future;
+    }
 
     @SuppressWarnings("unchecked")
     public ScheduledTaskManager(OPanel plugin) {
@@ -53,19 +58,28 @@ public class ScheduledTaskManager {
         }
     }
 
-    private void saveTasks() { // Should be called within write lock
+    // Should be called within write lock
+    private void saveTasks() {
         Storage.get().setStoredData(StorageKey.SCHEDULED_TASKS, new ArrayList<>(tasks));
     }
 
+    // Should be called within write lock
     private void scheduleTask(ExecutionTime executionTime, ScheduledTask task) {
-        scheduleTask(executionTime, task, ZonedDateTime.now());
+        TaskFutureRef existingFutureRef = taskFutureRefs.get(task.getId());
+        if(existingFutureRef != null && existingFutureRef.future != null && !existingFutureRef.future.isDone()) {
+            existingFutureRef.future.cancel(false);
+        }
+
+        TaskFutureRef futureRef = new TaskFutureRef();
+        taskFutureRefs.put(task.getId(), futureRef);
+        scheduleTask(executionTime, task, ZonedDateTime.now(), futureRef);
     }
 
-    private void scheduleTask(ExecutionTime executionTime, ScheduledTask task, ZonedDateTime after) {
-        ScheduledFuture<?> existingFuture = taskFutures.get(task.getId());
-        if(existingFuture != null && !existingFuture.isDone()) {
-            existingFuture.cancel(false);
-        }
+    // Should be called within write lock
+    private void scheduleTask(ExecutionTime executionTime, ScheduledTask task, ZonedDateTime after, TaskFutureRef futureRef) {
+        // Prevent a stale callback from rescheduling a task
+        // after its future reference was replaced or removed
+        if(taskFutureRefs.get(task.getId()) != futureRef) return;
 
         Optional<ZonedDateTime> nextOptional = executionTime.nextExecution(after);
         if(nextOptional.isEmpty()) return;
@@ -73,19 +87,23 @@ public class ScheduledTaskManager {
         ZonedDateTime next = nextOptional.get();
         long timeout = Math.max(0, Duration.between(ZonedDateTime.now(), next).toNanos());
         
-        ScheduledFuture<?> future = executor.schedule(() -> {
+        futureRef.future = executor.schedule(() -> {
             OPanelServer server = plugin.getServer();
             if(server == null) return;
 
-            if(task.isEnabled()) {
-                readLock.lock();
-                try {
+            readLock.lock();
+            try {
+                // Prevent an already-started callback from executing
+                // after its future reference was replaced or removed
+                if(taskFutureRefs.get(task.getId()) != futureRef) return;
+
+                if(task.isEnabled()) {
                     List<String> commands = new ArrayList<>(task.getCommands());
 
                     TaskCommandExecutor.execute(server, commands);
-                } finally {
-                    readLock.unlock();
                 }
+            } finally {
+                readLock.unlock();
             }
 
             ZonedDateTime rescheduleAfter = ZonedDateTime.now();
@@ -93,10 +111,14 @@ public class ScheduledTaskManager {
             if(rescheduleAfter.isBefore(next)) {
                 rescheduleAfter = next;
             }
-            scheduleTask(executionTime, task, rescheduleAfter);
+
+            writeLock.lock();
+            try {
+                scheduleTask(executionTime, task, rescheduleAfter, futureRef);
+            } finally {
+                writeLock.unlock();
+            }
         }, timeout, TimeUnit.NANOSECONDS);
-        
-        taskFutures.put(task.getId(), future);
     }
 
     public ScheduledTask createTask(String name, String cronExpression, List<String> commands) throws IllegalArgumentException, IllegalTaskCommandSyntaxException {
@@ -128,9 +150,9 @@ public class ScheduledTaskManager {
                 throw new NoSuchElementException("Cannot find the task: " + id);
             }
 
-            ScheduledFuture<?> future = taskFutures.remove(id);
-            if(future != null && !future.isDone()) {
-                future.cancel(false);
+            TaskFutureRef futureRef = taskFutureRefs.remove(id);
+            if(futureRef != null && futureRef.future != null && !futureRef.future.isDone()) {
+                futureRef.future.cancel(false);
             }
 
             tasks.remove(task);
@@ -233,12 +255,12 @@ public class ScheduledTaskManager {
     public void shutdown() {
         writeLock.lock();
         try {
-            for(ScheduledFuture<?> future : taskFutures.values()) {
-                if(!future.isDone()) {
-                    future.cancel(false);
+            for(TaskFutureRef futureRef : taskFutureRefs.values()) {
+                if(futureRef.future != null && !futureRef.future.isDone()) {
+                    futureRef.future.cancel(false);
                 }
             }
-            taskFutures.clear();
+            taskFutureRefs.clear();
             executor.shutdownNow();
             saveTasks();
         } finally {
