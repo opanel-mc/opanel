@@ -40,13 +40,20 @@ export function SubPage({
 
   return (
     <div className={cn("group max-h-[100dvh] bg-sidebar flex-1 flex flex-col", outerClassName)}>
-      <Navbar className="px-8 max-sm:px-2"/>
-      <div className={cn("flex-1 p-8 flex flex-col gap-4 overflow-y-auto", !description && "gap-8", showHeader ? pageClassName : className)}>
+      <Navbar
+        className="px-8 max-sm:px-2"
+        title={title}
+        subTitle={subTitle}/>
+      <div className={cn(
+        "flex-1 p-8 max-sm:p-4 flex flex-col overflow-y-auto",
+        description ? "gap-4" : "gap-8",
+        showHeader ? pageClassName : className
+      )}>
         {
           showHeader
           ? (
             <>
-              <div className="space-y-4">
+              <div className="space-y-4 max-sm:hidden">
                 {category && (
                   <Breadcrumb className="mb-3">
                     <BreadcrumbList>

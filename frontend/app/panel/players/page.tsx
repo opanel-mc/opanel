@@ -2,7 +2,7 @@
 
 import type { Player, PlayersResponse, UnnamedPlayer } from "@/lib/types";
 import { useEffect, useMemo, useState } from "react";
-import { Ban, Contact, Download, RotateCw, Search, UserPen, Users } from "lucide-react";
+import { Ban, Contact, Download, Ellipsis, RotateCw, Search, UserPen, Users } from "lucide-react";
 import download from "downloadjs";
 import { base64ToString } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,6 +21,13 @@ import { $ } from "@/lib/i18n";
 import { PlayersClient } from "@/lib/ws/players";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { useKeydown } from "@/hooks/use-keydown";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
 
 type ExportPlayer = Omit<Player, "isOnline" | "ping" | "ip" | "joinTime">;
 
@@ -63,6 +70,22 @@ export default function Players() {
         isWhitelisted
       }));
     download(JSON.stringify(exportPlayers, null, 2), "players.json", "application/json");
+  };
+
+  const handleEnableWhitelist = async () => {
+    await setWhitelistEnabled(true);
+    await fetchPlayerList();
+    /**
+     * We need to set the state manually here
+     * because the whitelist state fetched from the server has a delay.
+     */
+    setWhitelistEnabledState(true);
+    emitter.emit("refresh-data");
+  };
+
+  const handleDisableWhitelist = () => {
+    setWhitelistEnabledState(false);
+    emitter.emit("refresh-data");
   };
 
   useEffect(() => {
@@ -130,6 +153,72 @@ export default function Players() {
           setCurrentTab(value as TabValueType);
           changeSettings("state.players.tab", value as TabValueType);
         }}>
+        {/* Mobile only */}
+        <div className="flex flex-col gap-2 min-sm:hidden">
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              title={$("players.action.refresh")}
+              onClick={() => emitter.emit("refresh-data")}>
+              <RotateCw />
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="ml-auto">
+                  <Ellipsis />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuGroup>
+                  <BannedIpsDialog asChild>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      <Ban />
+                      {$("players.banned-ips")}
+                    </DropdownMenuItem>
+                  </BannedIpsDialog>
+                  {
+                    isWhitelistEnabled
+                    ? (
+                      <WhitelistSheet
+                        onDisableWhitelist={() => handleDisableWhitelist()}
+                        asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                          <UserPen />
+                          {$("players.edit-whitelist")}
+                        </DropdownMenuItem>
+                      </WhitelistSheet>
+                    )
+                    : (
+                      <DropdownMenuItem onClick={() => handleEnableWhitelist()}>
+                        <Contact />
+                        {$("players.enable-whitelist")}
+                      </DropdownMenuItem>
+                    )
+                  }
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button
+              variant="outline"
+              onClick={() => handleExportList()}>
+              <Download />
+              {$("players.action.export")}
+            </Button>
+          </div>
+          <InputGroup>
+            <InputGroupAddon>
+              <Search />
+            </InputGroupAddon>
+            <InputGroupInput
+              value={searchString}
+              placeholder={$("players.search.placeholder")}
+              onChange={(e) => setSearchString(e.target.value)}/>
+          </InputGroup>
+        </div>
+        
         <div className="flex flex-col-reverse items-start gap-2 lg:flex-row lg:justify-between lg:items-end lg:gap-0 xl:flex-col-reverse xl:items-start xl:gap-2 2xl:flex-row 2xl:justify-between 2xl:items-end 2xl:gap-0">
           <TabsList>
             <TabsTrigger value="player-list">
@@ -139,7 +228,8 @@ export default function Players() {
               {`${$("players.banned-list.title")} (${players.filter(({ isBanned }) => isBanned).length})`}
             </TabsTrigger>
           </TabsList>
-          <div className="min-w-fit border-b border-b-transparent lg:border-b-sidebar-border xl:border-b-transparent 2xl:border-b-sidebar-border pb-1 flex gap-2 max-sm:flex-col max-sm:items-start *:cursor-pointer">
+
+          <div className="min-w-fit border-b border-b-transparent lg:border-b-sidebar-border xl:border-b-transparent 2xl:border-b-sidebar-border pb-1 flex gap-2 max-sm:hidden *:cursor-pointer">
             <Button
               variant="ghost"
               title={$("players.action.refresh")}
@@ -171,10 +261,7 @@ export default function Players() {
               isWhitelistEnabled
               ? (
                 <WhitelistSheet
-                  onDisableWhitelist={() => {
-                    setWhitelistEnabledState(false);
-                    emitter.emit("refresh-data");
-                  }}
+                  onDisableWhitelist={() => handleDisableWhitelist()}
                   asChild>
                   <Button variant="outline">
                     <UserPen />
@@ -185,16 +272,7 @@ export default function Players() {
               : (
                 <Button
                   variant="outline"
-                  onClick={async () => {
-                    await setWhitelistEnabled(true);
-                    await fetchPlayerList();
-                    /**
-                     * We need to set the state manually here
-                     * because the whitelist state fetched from the server has a delay.
-                     */
-                    setWhitelistEnabledState(true);
-                    emitter.emit("refresh-data");
-                  }}>
+                  onClick={() => handleEnableWhitelist()}>
                   <Contact />
                   {$("players.enable-whitelist")}
                 </Button>
