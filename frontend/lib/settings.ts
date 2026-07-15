@@ -1,6 +1,6 @@
 import type { LanguageCode } from "@/lang";
 import type { ConsoleLogLevel } from "./ws/terminal";
-import type { ConfigFile } from "@/app/panel/bukkit-config/page";
+import type { ConfigFile } from "@/app/panel/paper-config/page";
 import type { RenderSettings } from "./map/tile-worker-protocol";
 import {
   AvatarProvider,
@@ -45,7 +45,7 @@ export type SettingsStorageType = {
   "state.plugins.tab": "enabled-list" | "disabled-list"
   "state.terminal.history": string[]
   "state.code-of-conduct.current-editing"?: string
-  "state.bukkit-config.current-editing": ConfigFile
+  "state.paper-config.current-editing": ConfigFile
 };
 
 const defaultSettings: SettingsStorageType = {
@@ -84,7 +84,7 @@ const defaultSettings: SettingsStorageType = {
   "state.plugins.tab": "enabled-list",
   "state.terminal.history": [],
   "state.code-of-conduct.current-editing": undefined,
-  "state.bukkit-config.current-editing": "bukkit"
+  "state.paper-config.current-editing": "bukkit"
 };
 
 export const monacoSettingsOptions: EditorOptionsType = {

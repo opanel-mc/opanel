@@ -24,8 +24,6 @@ body:
     attributes:
       label: 服务端平台
       options:
-        - Bukkit
-        - Spigot
         - Paper
         - Folia
         - Fabric

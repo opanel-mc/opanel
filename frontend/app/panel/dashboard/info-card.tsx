@@ -73,9 +73,7 @@ function ControlButtonGroup({
             success: () => {
               setIsReloadingServer(false);
               if(
-                versionCtx?.serverType === "Bukkit"
-                || versionCtx?.serverType === "Spigot"
-                || versionCtx?.serverType === "Paper"
+                versionCtx?.serverType === "Paper"
                 || versionCtx?.serverType === "Folia"
               ) {
                 window.location.reload();

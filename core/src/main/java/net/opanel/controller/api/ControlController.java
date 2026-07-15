@@ -6,7 +6,7 @@ import net.opanel.OPanel;
 import net.opanel.common.OPanelSave;
 import net.opanel.common.OPanelServer;
 import net.opanel.common.ServerType;
-import net.opanel.common.features.BukkitConfigFeature;
+import net.opanel.common.features.PaperConfigFeature;
 import net.opanel.common.features.CodeOfConductFeature;
 import net.opanel.storage.Storage;
 import net.opanel.storage.StorageKey;
@@ -155,45 +155,37 @@ public class ControlController extends BaseController {
         }
     };
 
-    public Handler getBukkitServerConfig = ctx -> {
-        if(!(server instanceof BukkitConfigFeature)) {
-            sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "This server is not a bukkit server.");
+    public Handler getPaperServerConfig = ctx -> {
+        if(!(server instanceof PaperConfigFeature)) {
+            sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "This server is not a Paper server.");
             return;
         }
 
         ServerType serverType = server.getServerType();
         try {
             HashMap<String, Object> obj = new HashMap<>();
-            obj.put("bukkit", Utils.stringToBase64(((BukkitConfigFeature) server).getBukkitServerConfigContent("bukkit")));
-            if(serverType == ServerType.SPIGOT || serverType == ServerType.PAPER || serverType == ServerType.FOLIA || serverType == ServerType.LEAVES) {
-                obj.put("spigot", Utils.stringToBase64(
-                    ((BukkitConfigFeature) server).getBukkitServerConfigContent("spigot")
-                ));
-            }
-            if(serverType == ServerType.PAPER || serverType == ServerType.FOLIA || serverType == ServerType.LEAVES) {
-                obj.put("paper", Utils.stringToBase64(
-                    ((BukkitConfigFeature) server).getBukkitServerConfigContent("paper")
-                ));
-            }
+            obj.put("bukkit", Utils.stringToBase64(((PaperConfigFeature) server).getPaperServerConfigContent("bukkit")));
+            obj.put("spigot", Utils.stringToBase64(((PaperConfigFeature) server).getPaperServerConfigContent("spigot")));
+            obj.put("paper", Utils.stringToBase64(((PaperConfigFeature) server).getPaperServerConfigContent("paper")));
             if(serverType == ServerType.LEAVES) {
                 obj.put("leaves", Utils.stringToBase64(
-                    ((BukkitConfigFeature) server).getBukkitServerConfigContent("leaves")
+                    ((PaperConfigFeature) server).getPaperServerConfigContent("leaves")
                 ));
             }
             sendResponse(ctx, obj);
         } catch (IllegalArgumentException e) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Unknown target.");
         } catch (NoSuchFileException e) {
-            sendResponse(ctx, HttpStatus.NOT_FOUND, "Cannot find the target bukkit server config.");
+            sendResponse(ctx, HttpStatus.NOT_FOUND, "Cannot find the target Paper server config.");
         } catch (IOException e) {
             e.printStackTrace();
             sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     };
 
-    public Handler setBukkitServerConfig = ctx -> {
-        if(!(server instanceof BukkitConfigFeature)) {
-            sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "This server is not a bukkit server.");
+    public Handler setPaperServerConfig = ctx -> {
+        if(!(server instanceof PaperConfigFeature)) {
+            sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "This server is not a Paper server.");
             return;
         }
 
@@ -210,12 +202,12 @@ public class ControlController extends BaseController {
                 return;
             }
 
-            ((BukkitConfigFeature) server).writeBukkitServerConfigContent(target, Utils.base64ToString(content));
+            ((PaperConfigFeature) server).writePaperServerConfigContent(target, Utils.base64ToString(content));
             sendResponse(ctx, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Unknown target.");
         } catch (NoSuchFileException e) {
-            sendResponse(ctx, HttpStatus.NOT_FOUND, "Cannot find the target bukkit server config.");
+            sendResponse(ctx, HttpStatus.NOT_FOUND, "Cannot find the target Paper server config.");
         } catch (IOException e) {
             e.printStackTrace();
             sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
@@ -223,8 +215,8 @@ public class ControlController extends BaseController {
     };
 
     public Handler getPaperWorldConfig = ctx -> {
-        if(!(server instanceof BukkitConfigFeature)) {
-            sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "This server is not a bukkit server.");
+        if(!(server instanceof PaperConfigFeature)) {
+            sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "This server is not a Paper server.");
             return;
         }
 
@@ -233,9 +225,9 @@ public class ControlController extends BaseController {
 
             HashMap<String, Object> obj = new HashMap<>();
             if(worldName == null) {
-                obj.put("config", ((BukkitConfigFeature) server).getPaperWorldDefaultsConfigContent());
+                obj.put("config", ((PaperConfigFeature) server).getPaperWorldDefaultsConfigContent());
             } else {
-                obj.put("config", ((BukkitConfigFeature) server).getPaperWorldConfigContent(worldName));
+                obj.put("config", ((PaperConfigFeature) server).getPaperWorldConfigContent(worldName));
             }
             sendResponse(ctx, obj);
         } catch (NoSuchFileException e) {
@@ -247,8 +239,8 @@ public class ControlController extends BaseController {
     };
 
     public Handler setPaperWorldConfig = ctx -> {
-        if(!(server instanceof BukkitConfigFeature)) {
-            sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "This server is not a bukkit server.");
+        if(!(server instanceof PaperConfigFeature)) {
+            sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "This server is not a Paper server.");
             return;
         }
 
@@ -261,9 +253,9 @@ public class ControlController extends BaseController {
             }
 
             if(worldName == null) {
-                ((BukkitConfigFeature) server).writePaperWorldDefaultsConfigContent(Utils.base64ToString(content));
+                ((PaperConfigFeature) server).writePaperWorldDefaultsConfigContent(Utils.base64ToString(content));
             } else {
-                ((BukkitConfigFeature) server).writePaperWorldConfigContent(worldName, Utils.base64ToString(content));
+                ((PaperConfigFeature) server).writePaperWorldConfigContent(worldName, Utils.base64ToString(content));
             }
             sendResponse(ctx, HttpStatus.OK);
         } catch (NoSuchFileException e) {

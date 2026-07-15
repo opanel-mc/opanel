@@ -1,0 +1,92 @@
+plugins {
+    id 'java'
+    id 'com.gradleup.shadow' version '8.3.8'
+}
+
+configurations {
+    shadowImplementation
+    implementation.extendsFrom(shadowImplementation)
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "papermc"
+        url = uri("https://repo.papermc.io/repository/maven-public/")
+    }
+    maven {
+        name = "CodeMC"
+        url = uri("https://repo.codemc.io/repository/maven-public/")
+    }
+    maven {
+        name = "mojang"
+        url = uri("https://libraries.minecraft.net")
+    }
+}
+
+base {
+    archivesName = "${rootProject.name}-paper"
+}
+
+dependencies {
+    compileOnly "com.destroystokyo.paper:paper-api:${minecraft_version}-R0.1-SNAPSHOT"
+    shadowImplementation "de.tr7zw:item-nbt-api:2.15.2"
+    compileOnly "org.apache.logging.log4j:log4j-core:2.11.1"
+    compileOnly "com.mojang:brigadier:1.0.18"
+    shadowImplementation "org.bstats:bstats-bukkit:3.2.1"
+
+    shadowImplementation(project(":core"))
+    compileOnly(project(":paper-helper"))
+    shadowImplementation "com.github.oshi:oshi-core:6.8.2"
+}
+
+shadowJar {
+    configurations = [project.configurations.shadowImplementation]
+
+    archiveBaseName.set(baseName +"-build")
+    archiveClassifier.set('')
+    destinationDirectory.set(file("${rootProject.projectDir}/build/libs"))
+
+    relocate 'com.google.gson', 'net.opanel.deps.gson'
+    relocate 'org.objectweb.asm', 'net.opanel.deps.objectweb.asm'
+    relocate 'de.tr7zw.changeme.nbtapi', 'net.opanel.deps.nbtapi'
+    relocate 'oshi', 'net.opanel.deps.oshi'
+    relocate 'io.javalin', 'net.opanel.deps.javalin'
+    relocate 'kotlin', 'net.opanel.deps.kotlin'
+    relocate 'org.bstats', 'net.opanel.deps.bstats'
+    relocate 'com.nimbusds', 'net.opanel.deps.nimbusds'
+    relocate 'net.minidev', 'net.opanel.deps.minidev'
+
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
+}
+
+tasks.named('compileJava', JavaCompile) {
+    source(project(":paper-helper").sourceSets.main.allSource)
+}
+
+tasks.named('processResources', ProcessResources) {
+    var replaceProperties = [
+            version: project.version,
+            api_version: api_version
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching("plugin.yml") {
+        expand replaceProperties + [project: project]
+    }
+
+    from project(":paper-helper").sourceSets.main.resources
+}
+
+build {
+    dependsOn shadowJar
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(14)
+    }
+}
+

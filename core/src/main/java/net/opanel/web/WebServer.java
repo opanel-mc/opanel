@@ -173,8 +173,8 @@ public class WebServer {
                 post("reload", controlController.reloadServer);
                 post("restart", controlController.restartServer);
                 post("world", controlController.switchSave);
-                get("bukkit-config", controlController.getBukkitServerConfig);
-                post("bukkit-config", controlController.setBukkitServerConfig);
+                get("paper-config", controlController.getPaperServerConfig);
+                post("paper-config", controlController.setPaperServerConfig);
                 get("paper-world-config", controlController.getPaperWorldConfig);
                 post("paper-world-config", controlController.setPaperWorldConfig);
                 get("launch-command", controlController.getLaunchCommand);

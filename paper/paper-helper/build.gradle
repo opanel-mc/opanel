@@ -1,0 +1,36 @@
+plugins {
+    id 'java-library'
+}
+
+base {
+    archivesName = "paper-helper"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "papermc"
+        url = uri("https://repo.papermc.io/repository/maven-public/")
+    }
+    maven {
+        name = "CodeMC"
+        url = uri("https://repo.codemc.io/repository/maven-public/")
+    }
+    maven {
+        name = "mojang"
+        url = uri("https://libraries.minecraft.net")
+    }
+}
+
+dependencies {
+    compileOnly "com.destroystokyo.paper:paper-api:${common_minecraft_version}-R0.1-SNAPSHOT"
+    compileOnly "de.tr7zw:item-nbt-api:2.15.2"
+    compileOnly "com.mojang:brigadier:1.0.18"
+    compileOnly(project(":core"))
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(14)
+    }
+}

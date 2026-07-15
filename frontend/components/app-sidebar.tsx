@@ -20,7 +20,7 @@ import {
   SidebarMenuItem,
   SidebarTrigger,
 } from "./ui/sidebar";
-import { cn, isBukkit } from "@/lib/utils";
+import { cn, isPaperSeries } from "@/lib/utils";
 import { minecraftAE } from "@/lib/fonts";
 import { Logo } from "./logo";
 import { VersionContext } from "@/contexts/api-context";
@@ -90,8 +90,8 @@ const configurationGroupItems = [
     icon: ClockFading
   },
   {
-    name: $("sidebar.config.bukkit-config"),
-    url: "/panel/bukkit-config",
+    name: $("sidebar.config.paper-config"),
+    url: "/panel/paper-config",
     icon: PaintBucket
   },
   {
@@ -166,7 +166,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {configurationGroupItems.map((item, i) => (
-                (item.url === "/panel/bukkit-config" && (!versionCtx || !isBukkit(versionCtx.serverType)))
+                (item.url === "/panel/paper-config" && (!versionCtx || !isPaperSeries(versionCtx.serverType)))
                 ? <Fragment key={i}/>
                 : (
                   <SidebarMenuItem key={i}>

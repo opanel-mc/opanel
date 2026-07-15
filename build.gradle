@@ -21,6 +21,9 @@ allprojects {
         maven {
             name = "CoZoooo"
             url = "https://maven.cozozjw.cn/repository/maven-releases/"
+            content {
+                includeGroup "com.cozooo.dlc_manager"
+            }
         }
     }
 

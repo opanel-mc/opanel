@@ -9,7 +9,7 @@ export type APIResponse<T> = {
   error: string
 } & T;
 
-export type ServerType = "Bukkit" | "Spigot" | "Paper" | "Fabric" | "Forge" | "NeoForge" | "Folia" | "Leaves";
+export type ServerType = "Paper" | "Fabric" | "Forge" | "NeoForge" | "Folia" | "Leaves";
 
 export enum GameMode {
   ADVENTURE = "adventure",
@@ -192,11 +192,12 @@ export interface CodeOfConductResponse {
   codeOfConducts: Record<string, string> // base64
 }
 
-/** `/api/control/bukkit-config` */
-export interface BukkitServerConfigResponse {
+/** `/api/control/paper-config` */
+export interface PaperServerConfigResponse {
   bukkit: string // base64
-  spigot?: string // base64
-  paper?: string // base64
+  spigot: string // base64
+  paper: string // base64
+  leaves?: string // base64
 }
 
 /** `/api/gamerules` */

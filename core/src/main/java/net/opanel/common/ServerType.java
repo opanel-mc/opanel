@@ -1,8 +1,6 @@
 package net.opanel.common;
 
 public enum ServerType {
-    BUKKIT("Bukkit"),
-    SPIGOT("Spigot"),
     PAPER("Paper"),
     FABRIC("Fabric"),
     FORGE("Forge"),
@@ -20,11 +18,9 @@ public enum ServerType {
         return name;
     }
 
-    public boolean isBukkitSeries() {
+    public boolean isPaperSeries() {
         return (
-                this == BUKKIT
-                || this == SPIGOT
-                || this == PAPER
+                this == PAPER
                 || this == FOLIA
                 || this == LEAVES
         );

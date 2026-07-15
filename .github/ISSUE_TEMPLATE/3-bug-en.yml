@@ -24,8 +24,6 @@ body:
     attributes:
       label: Server platform
       options:
-        - Bukkit
-        - Spigot
         - Paper
         - Folia
         - Fabric
