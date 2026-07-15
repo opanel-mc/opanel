@@ -9,19 +9,6 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/bukkit/bukkit-helper" />
-            <option value="$PROJECT_DIR$/bukkit/folia-1.20" />
-            <option value="$PROJECT_DIR$/bukkit/folia-1.20.5" />
-            <option value="$PROJECT_DIR$/bukkit/folia-1.21" />
-            <option value="$PROJECT_DIR$/bukkit/folia-1.21.11" />
-            <option value="$PROJECT_DIR$/bukkit/folia-26.1.2" />
-            <option value="$PROJECT_DIR$/bukkit/spigot-1.16.1" />
-            <option value="$PROJECT_DIR$/bukkit/spigot-1.19.4" />
-            <option value="$PROJECT_DIR$/bukkit/spigot-1.20" />
-            <option value="$PROJECT_DIR$/bukkit/spigot-1.20.5" />
-            <option value="$PROJECT_DIR$/bukkit/spigot-1.21" />
-            <option value="$PROJECT_DIR$/bukkit/spigot-1.21.9" />
-            <option value="$PROJECT_DIR$/bukkit/spigot-26.1" />
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/fabric/fabric-1.19" />
             <option value="$PROJECT_DIR$/fabric/fabric-1.19.4" />
@@ -54,6 +41,19 @@
             <option value="$PROJECT_DIR$/neoforge/neoforge-1.21.3" />
             <option value="$PROJECT_DIR$/neoforge/neoforge-1.21.5" />
             <option value="$PROJECT_DIR$/neoforge/neoforge-helper" />
+            <option value="$PROJECT_DIR$/paper/folia-1.20" />
+            <option value="$PROJECT_DIR$/paper/folia-1.20.5" />
+            <option value="$PROJECT_DIR$/paper/folia-1.21" />
+            <option value="$PROJECT_DIR$/paper/folia-1.21.11" />
+            <option value="$PROJECT_DIR$/paper/folia-26.1.2" />
+            <option value="$PROJECT_DIR$/paper/paper-1.16.1" />
+            <option value="$PROJECT_DIR$/paper/paper-1.19.4" />
+            <option value="$PROJECT_DIR$/paper/paper-1.20" />
+            <option value="$PROJECT_DIR$/paper/paper-1.20.5" />
+            <option value="$PROJECT_DIR$/paper/paper-1.21" />
+            <option value="$PROJECT_DIR$/paper/paper-1.21.9" />
+            <option value="$PROJECT_DIR$/paper/paper-26.1" />
+            <option value="$PROJECT_DIR$/paper/paper-helper" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="true" />

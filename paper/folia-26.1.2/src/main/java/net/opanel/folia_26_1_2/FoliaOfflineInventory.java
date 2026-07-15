@@ -1,0 +1,21 @@
+package net.opanel.folia_26_1_2;
+
+import net.opanel.paper_helper.BasePaperOfflineInventory;
+
+import java.nio.file.Path;
+
+public class FoliaOfflineInventory extends BasePaperOfflineInventory {
+    public FoliaOfflineInventory(Path playerDataPath) {
+        super(playerDataPath);
+    }
+
+    @Override
+    protected String keyOfCount() {
+        return "count";
+    }
+
+    @Override
+    protected String keyOfNBT() {
+        return "components";
+    }
+}

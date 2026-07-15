@@ -13,7 +13,7 @@ OPanel是一个支持多个游戏版本的Minecraft服务端模组/插件，让�
 
 在这些模块中，有几个模块名称中没有标注游戏版本号，而是以`-helper`结尾，这些模块中存放的是特定服务端的通用代码，以供特定服务端不同游戏版本的模块调用，减少重复的冗余代码。
 
-除`core`与`frontend`外，所有服务端实现模块按平台归档到根目录下对应的平台文件夹中（`fabric/`、`forge/`、`neoforge/`、`bukkit/`），其中Spigot与Folia因共用`bukkit-helper`而同归于`bukkit/`。注意各模块在Gradle中仍使用扁平的项目名（如`:fabric-1.21`），平台文件夹仅是物理目录归档，模块间通过`project(":...")`互相引用时无需带平台前缀。
+除`core`与`frontend`外，所有服务端实现模块按平台归档到根目录下对应的平台文件夹中（`fabric/`、`forge/`、`neoforge/`、`paper/`），其中Paper与Folia因共用`paper-helper`而同归于`paper/`。注意各模块在Gradle中仍使用扁平的项目名（如`:fabric-1.21`），平台文件夹仅是物理目录归档，模块间通过`project(":...")`互相引用时无需带平台前缀。
 
 ```
 OPanel
@@ -80,9 +80,9 @@ OPanel
 ├─ neoforge/                               # NeoForge 平台模块
 │  ├─ neoforge-helper/                     # NeoForge 公共实现
 │  └─ neoforge-<mc_version>/               # NeoForge 版本实现
-├─ bukkit/                                 # Bukkit 系（Spigot/Paper/Leaves/Folia）平台模块
-│  ├─ bukkit-helper/                       # Bukkit/Spigot/Paper/Leaves/Folia 公共实现
-│  ├─ spigot-<mc_version>/                 # Bukkit 版本实现（注意：由于Bukkit模块依赖的是spigot的包，所以模块名称写spigot）
+├─ paper/                                  # Paper 系（Paper/Leaves/Folia）平台模块
+│  ├─ paper-helper/                        # Paper/Leaves/Folia 公共实现
+│  ├─ paper-<mc_version>/                  # Paper 版本实现
 │  └─ folia-<mc_version>/                  # Folia 版本实现
 └─ ...
 ```

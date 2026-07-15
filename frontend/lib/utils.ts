@@ -149,11 +149,9 @@ export async function sleep(ms: number): Promise<void> {
   });
 }
 
-export function isBukkit(serverType: ServerType): boolean {
+export function isPaperSeries(serverType: ServerType): boolean {
   return (
-    serverType === "Bukkit"
-    || serverType === "Spigot"
-    || serverType === "Paper"
+    serverType === "Paper"
     || serverType === "Folia"
     || serverType === "Leaves"
   );
