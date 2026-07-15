@@ -116,6 +116,7 @@ public abstract class BasePaperSave implements OPanelSave, PaperDimensionFeature
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public OPanelDifficulty getDifficulty() throws IOException {
         if(isCurrent()) return OPanelDifficulty.fromId(getCurrentWorld().getDifficulty().getValue());
 

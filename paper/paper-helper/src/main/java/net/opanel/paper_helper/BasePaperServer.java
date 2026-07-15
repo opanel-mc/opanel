@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+@SuppressWarnings("deprecation")
 public abstract class BasePaperServer implements OPanelServer {
     protected final JavaPlugin plugin;
     protected final TaskRunner runner;
