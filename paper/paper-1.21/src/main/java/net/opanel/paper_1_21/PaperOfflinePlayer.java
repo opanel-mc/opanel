@@ -1,9 +1,10 @@
 package net.opanel.paper_1_21;
 
+import com.destroystokyo.paper.profile.PlayerProfile;
+import io.papermc.paper.ban.BanListType;
 import net.opanel.paper_helper.BasePaperOfflinePlayer;
 import net.opanel.common.OPanelPlayer;
 import org.bukkit.*;
-import org.bukkit.profile.PlayerProfile;
 
 import java.util.Date;
 
@@ -23,14 +24,9 @@ public class PaperOfflinePlayer extends BasePaperOfflinePlayer implements OPanel
     }
 
     @Override
-    public PaperOfflineInventory getInventory() {
-        return new PaperOfflineInventory(playerDataPath);
-    }
-
-    @Override
     public String getBanReason() {
         if(!isBanned()) return null;
-        BanList<PlayerProfile> banList = server.getBanList(BanList.Type.PROFILE);
+        BanList<PlayerProfile> banList = server.getBanList(BanListType.PROFILE);
         BanEntry<PlayerProfile> banEntry = banList.getBanEntry(profile);
         if(banEntry == null) return null;
         return banEntry.getReason();
@@ -39,7 +35,12 @@ public class PaperOfflinePlayer extends BasePaperOfflinePlayer implements OPanel
     @Override
     public void pardon() {
         if(!isBanned()) return;
-        BanList<PlayerProfile> banList = server.getBanList(BanList.Type.PROFILE);
+        BanList<PlayerProfile> banList = server.getBanList(BanListType.PROFILE);
         runner.runTask(() -> banList.pardon(profile));
+    }
+
+    @Override
+    public PaperOfflineInventory getInventory() {
+        return new PaperOfflineInventory(playerDataPath);
     }
 }

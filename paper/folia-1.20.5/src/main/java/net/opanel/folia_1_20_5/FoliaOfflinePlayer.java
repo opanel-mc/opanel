@@ -1,9 +1,9 @@
-package net.opanel.folia_1_20;
+package net.opanel.folia_1_20_5;
 
+import com.destroystokyo.paper.profile.PlayerProfile;
 import net.opanel.paper_helper.BasePaperOfflinePlayer;
 import net.opanel.common.OPanelPlayer;
 import org.bukkit.*;
-import org.bukkit.profile.PlayerProfile;
 
 import java.util.Date;
 

@@ -1,4 +1,4 @@
-package net.opanel.folia_1_20;
+package net.opanel.folia_1_20_5;
 
 import com.cozooo.dlc_fileops_helper.FileOpsHelperBootstrap;
 import de.tr7zw.changeme.nbtapi.NBT;
@@ -8,7 +8,7 @@ import net.opanel.paper_helper.TaskRunner;
 import net.opanel.paper_helper.command.OPanelCommand;
 import net.opanel.paper_helper.config.ConfigManagerImpl;
 import net.opanel.common.Constants;
-import net.opanel.folia_1_20.terminal.LogListenerManagerImpl;
+import net.opanel.folia_1_20_5.terminal.LogListenerManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;

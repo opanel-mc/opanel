@@ -1,9 +1,13 @@
 package net.opanel.paper_1_20_5;
 
+import com.destroystokyo.paper.profile.PlayerProfile;
+import io.papermc.paper.ban.BanListType;
 import net.opanel.paper_helper.BasePaperOfflinePlayer;
 import net.opanel.common.OPanelPlayer;
 import org.bukkit.*;
-import org.bukkit.profile.PlayerProfile;
+import org.bukkit.ban.ProfileBanList;
+
+import java.util.Date;
 
 public class PaperOfflinePlayer extends BasePaperOfflinePlayer implements OPanelPlayer {
     private final PlayerProfile profile;
@@ -17,14 +21,14 @@ public class PaperOfflinePlayer extends BasePaperOfflinePlayer implements OPanel
     @Override
     public void ban(String reason) {
         if(isBanned()) return;
-        runner.runTask(() -> plugin.getServer().getBanList(BanList.Type.NAME).addBan(player.getName(), reason, null, null));
+        runner.runTask(() -> plugin.getServer().getBanList(BanListType.PROFILE).addBan(profile, reason, (Date) null, null));
     }
 
     @Override
     public String getBanReason() {
         if(!isBanned()) return null;
-        BanList banList = server.getBanList(BanList.Type.NAME);
-        BanEntry banEntry = banList.getBanEntry(player.getName());
+        ProfileBanList banList = server.getBanList(BanListType.PROFILE);
+        BanEntry<PlayerProfile> banEntry = banList.getBanEntry(profile);
         if(banEntry == null) return null;
         return banEntry.getReason();
     }
@@ -32,8 +36,8 @@ public class PaperOfflinePlayer extends BasePaperOfflinePlayer implements OPanel
     @Override
     public void pardon() {
         if(!isBanned()) return;
-        BanList banList = server.getBanList(BanList.Type.NAME);
-        runner.runTask(() -> banList.pardon(player.getName()));
+        ProfileBanList banList = server.getBanList(BanListType.PROFILE);
+        runner.runTask(() -> banList.pardon(profile));
     }
 
     @Override

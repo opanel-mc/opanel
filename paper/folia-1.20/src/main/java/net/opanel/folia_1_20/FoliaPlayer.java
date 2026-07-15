@@ -1,11 +1,14 @@
 package net.opanel.folia_1_20;
 
+import net.kyori.adventure.text.Component;
 import net.opanel.annotation.Rewrite;
 import net.opanel.paper_helper.BasePaperPlayer;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+
+import java.util.Date;
 
 public class FoliaPlayer extends BasePaperPlayer implements OPanelPlayer {
     public FoliaPlayer(Main plugin, Player player) {
@@ -50,17 +53,14 @@ public class FoliaPlayer extends BasePaperPlayer implements OPanelPlayer {
     @Override
     public void kick(String reason) {
         // Use entity scheduler for player-specific tasks in Folia
-        player.getScheduler().run(plugin, (task) -> player.kickPlayer(reason), null);
+        player.getScheduler().run(plugin, (task) -> player.kick(Component.text(reason)), null);
     }
 
     @Override
     public void ban(String reason) {
         if(isBanned()) return;
         // Use entity scheduler for player-specific tasks in Folia
-        player.getScheduler().run(plugin, (task) -> {
-            player.getServer().getBanList(BanList.Type.NAME).addBan(player.getName(), reason, null, null);
-            player.kickPlayer(reason);
-        }, null);
+        player.getScheduler().run(plugin, (task) -> player.ban(reason, (Date) null, null, true), null);
     }
 
     @Override

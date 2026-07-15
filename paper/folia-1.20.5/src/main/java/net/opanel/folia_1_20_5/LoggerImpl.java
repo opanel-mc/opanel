@@ -1,4 +1,4 @@
-package net.opanel.folia_1_20;
+package net.opanel.folia_1_20_5;
 
 import net.opanel.logger.Loggable;
 import net.opanel.utils.Utils;

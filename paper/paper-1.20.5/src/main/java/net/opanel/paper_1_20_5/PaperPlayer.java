@@ -1,5 +1,6 @@
 package net.opanel.paper_1_20_5;
 
+import net.kyori.adventure.text.Component;
 import net.opanel.paper_helper.BasePaperPlayer;
 import net.opanel.common.OPanelPlayer;
 import org.bukkit.entity.Player;
@@ -13,7 +14,7 @@ public class PaperPlayer extends BasePaperPlayer implements OPanelPlayer {
 
     @Override
     public void kick(String reason) {
-        runner.runTask(() -> player.kickPlayer(reason));
+        runner.runTask(() -> player.kick(Component.text(reason)));
     }
 
     @Override

@@ -1,5 +1,6 @@
 package net.opanel.paper_1_20;
 
+import net.kyori.adventure.text.Component;
 import net.opanel.paper_helper.BasePaperPlayer;
 import net.opanel.common.OPanelPlayer;
 import org.bukkit.*;
@@ -12,7 +13,7 @@ public class PaperPlayer extends BasePaperPlayer implements OPanelPlayer {
 
     @Override
     public void kick(String reason) {
-        runner.runTask(() -> player.kickPlayer(reason));
+        runner.runTask(() -> player.kick(Component.text(reason)));
     }
 
     @Override
@@ -25,7 +26,7 @@ public class PaperPlayer extends BasePaperPlayer implements OPanelPlayer {
         if(isBanned()) return;
         runner.runTask(() -> {
             player.getServer().getBanList(BanList.Type.NAME).addBan(player.getName(), reason, null, null);
-            player.kickPlayer(reason);
+            player.kick(Component.text(reason));
         });
     }
 

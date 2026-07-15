@@ -1,11 +1,11 @@
 package net.opanel.folia_26_1_2;
 
+import com.destroystokyo.paper.profile.PlayerProfile;
+import io.papermc.paper.ban.BanListType;
 import net.opanel.annotation.Rewrite;
 import net.opanel.paper_helper.BasePaperOfflinePlayer;
-import net.opanel.paper_helper.utils.PaperUtils;
 import net.opanel.common.OPanelPlayer;
 import org.bukkit.*;
-import org.bukkit.profile.PlayerProfile;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,7 +40,7 @@ public class FoliaOfflinePlayer extends BasePaperOfflinePlayer implements OPanel
     @Override
     public String getBanReason() {
         if(!isBanned()) return null;
-        BanList<PlayerProfile> banList = server.getBanList(BanList.Type.PROFILE);
+        BanList<PlayerProfile> banList = server.getBanList(BanListType.PROFILE);
         BanEntry<PlayerProfile> banEntry = banList.getBanEntry(profile);
         if(banEntry == null) return null;
         return banEntry.getReason();
@@ -49,7 +49,7 @@ public class FoliaOfflinePlayer extends BasePaperOfflinePlayer implements OPanel
     @Override
     public void pardon() {
         if(!isBanned()) return;
-        BanList<PlayerProfile> banList = server.getBanList(BanList.Type.PROFILE);
+        BanList<PlayerProfile> banList = server.getBanList(BanListType.PROFILE);
         runner.runTask(() -> banList.pardon(profile));
     }
 

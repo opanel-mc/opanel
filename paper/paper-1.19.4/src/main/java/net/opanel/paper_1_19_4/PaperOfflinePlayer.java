@@ -1,9 +1,9 @@
 package net.opanel.paper_1_19_4;
 
+import com.destroystokyo.paper.profile.PlayerProfile;
 import net.opanel.paper_helper.BasePaperOfflinePlayer;
 import net.opanel.common.OPanelPlayer;
 import org.bukkit.*;
-import org.bukkit.profile.PlayerProfile;
 
 public class PaperOfflinePlayer extends BasePaperOfflinePlayer implements OPanelPlayer {
     private final PlayerProfile profile;

@@ -1,4 +1,4 @@
-package net.opanel.folia_1_20;
+package net.opanel.folia_1_20_5;
 
 import com.cozooo.dlc_fileops_helper.api.FileOpsHelperApi;
 import com.mojang.brigadier.CommandDispatcher;
@@ -16,6 +16,8 @@ import org.bukkit.entity.Player;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -129,15 +131,15 @@ public class FoliaServer extends BasePaperServer implements OPanelServer, PaperC
     }
 
     @Override
-    public void banIp(String ip) {
+    public void banIp(String ip) throws UnknownHostException {
         if(server.getIPBans().contains(ip)) return;
-        server.banIP(ip);
+        server.banIP(InetAddress.getByName(ip));
     }
 
     @Override
-    public void pardonIp(String ip) {
+    public void pardonIp(String ip) throws UnknownHostException {
         if(!server.getIPBans().contains(ip)) return;
-        server.unbanIP(ip);
+        server.unbanIP(InetAddress.getByName(ip));
     }
 
     @Override
