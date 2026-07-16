@@ -1,6 +1,5 @@
 import { toast } from "sonner";
 import { checkAuth, wsUrl } from "../api";
-import { $ } from "../i18n";
 
 type MessageType<M extends string> = M | "connect" | "ping" | "pong" | "error";
 interface Packet<M extends string, D> {
@@ -54,7 +53,6 @@ export abstract class WebSocketClient<M extends string> {
 
     this.socket.addEventListener("error", (err) => {
       this.onError(err);
-      toast.error($("terminal.ws.error"));
     });
 
     this.socket.addEventListener("close", () => {

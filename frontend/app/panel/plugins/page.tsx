@@ -25,8 +25,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
+  AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -35,6 +34,35 @@ import { Progress } from "@/components/ui/progress";
 const DISABLED_SUFFIX = ".disabled";
 
 type ExportPlugin = Omit<Plugin, "enabled" | "loaded" | "size" | "icon">;
+
+function PluginUploadDialog({
+  open,
+  onOpenChange,
+  onInputFile
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onInputFile: (fileList: FileList | null) => void
+}) {
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{$("plugins.action.upload.title")}</AlertDialogTitle>
+          <AlertDialogDescription>{$("plugins.action.upload.description")}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <Label>{$("plugins.action.upload.input.label")}</Label>
+        <Input
+          type="file"
+          accept=".jar"
+          onChange={(e) => onInputFile((e.target as HTMLInputElement).files)}/>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{$("dialog.close")}</AlertDialogCancel>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
 
 export default function Plugins() {
   type TabValueType = SettingsStorageType["state.plugins.tab"];
@@ -112,6 +140,11 @@ export default function Plugins() {
     }
   };
 
+  const handleInputPluginFile = (fileList: FileList | null) => {
+    fileList && handleUpload(fileList[0]);
+    setUploadDialogOpen(false);
+  };
+
   useEffect(() => {
     fetchPluginList();
 
@@ -181,6 +214,40 @@ export default function Plugins() {
             setCurrentTab(value as TabValueType);
             changeSettings("state.plugins.tab", value as TabValueType);
           }}>
+          {/* Mobile only */}
+          <div className="flex flex-col gap-2 min-sm:hidden">
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                title={$("plugins.action.refresh")}
+                onClick={() => emitter.emit("refresh-data")}>
+                <RotateCw />
+              </Button>
+              <Button
+                variant="outline"
+                className="ml-auto"
+                onClick={() => handleExportList()}>
+                <Download />
+                {$("plugins.action.export")}
+              </Button>
+              <Button
+                className="cursor-pointer"
+                onClick={() => setUploadDialogOpen(true)}>
+                <Upload />
+                {$("plugins.action.upload")}
+              </Button>
+            </div>
+            <InputGroup>
+              <InputGroupAddon>
+                <Search />
+              </InputGroupAddon>
+              <InputGroupInput
+                value={searchString}
+                placeholder={$("plugins.search.placeholder")}
+                onChange={(e) => setSearchString(e.target.value)}/>
+            </InputGroup>
+          </div>
+
           <div className="flex justify-between items-end max-lg:flex-col-reverse max-lg:items-start">
             <TabsList>
               <TabsTrigger value="enabled-list">
@@ -192,7 +259,7 @@ export default function Plugins() {
                 {$("plugins.disabled-list.title")}
               </TabsTrigger>
             </TabsList>
-            <div className="min-w-fit border-b border-b-sidebar-border max-lg:border-b-transparent pb-1 flex gap-2 max-sm:flex-col max-sm:items-start *:cursor-pointer">
+            <div className="min-w-fit border-b border-b-sidebar-border max-lg:border-b-transparent pb-1 flex gap-2 max-sm:hidden *:cursor-pointer">
               <Button
                 variant="ghost"
                 title={$("plugins.action.refresh")}
@@ -214,32 +281,12 @@ export default function Plugins() {
                 <Download />
                 {$("plugins.action.export")}
               </Button>
-              <AlertDialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
-                <AlertDialogTrigger asChild>
-                  <Button className="cursor-pointer">
-                    <Upload />
-                    {$("plugins.action.upload")}
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>{$("plugins.action.upload.title")}</AlertDialogTitle>
-                    <AlertDialogDescription>{$("plugins.action.upload.description")}</AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <Label>{$("plugins.action.upload.input.label")}</Label>
-                  <Input
-                    type="file"
-                    accept=".jar"
-                    onChange={(e) => {
-                      const fileList = (e.target as HTMLInputElement).files;
-                      fileList && handleUpload(fileList[0]);
-                      setUploadDialogOpen(false);
-                    }}/>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>{$("dialog.close")}</AlertDialogCancel>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <Button
+                className="cursor-pointer"
+                onClick={() => setUploadDialogOpen(true)}>
+                <Upload />
+                {$("plugins.action.upload")}
+              </Button>
             </div>
           </div>
           <TabsContent value="enabled-list">
@@ -276,6 +323,11 @@ export default function Plugins() {
           </TabsContent>
         </Tabs>
       </div>
+
+      <PluginUploadDialog
+        open={uploadDialogOpen}
+        onOpenChange={setUploadDialogOpen}
+        onInputFile={handleInputPluginFile}/>
     </SubPage>
   );
 }

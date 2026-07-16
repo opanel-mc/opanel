@@ -133,7 +133,7 @@ export default function Gamerules() {
       outerClassName="max-h-[100dvh] overflow-y-hidden"
       pageClassName="min-xl:px-64!"
       className="flex-1 min-h-0 flex flex-col gap-3">
-      <div className="flex justify-between items-center gap-3 max-sm:flex-col-reverse max-sm:items-start">
+      <div className="flex justify-between items-center gap-3 max-sm:flex-col-reverse max-sm:items-end">
         <InputGroup className="flex-1">
           <InputGroupAddon>
             <Search />
