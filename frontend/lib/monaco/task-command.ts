@@ -22,6 +22,7 @@ monaco.languages.setMonarchTokensProvider("task-command", {
       [/^@\w+/, "task.command.builtin"],
       [/^\w+/, "task.command.server"],
       [/(@\{)([^{}\r\n]+)(\})/, ["task.variable.fragment", "task.variable", "task.variable.fragment"]],
+      [/^#.*/, "comment"]
     ]
   }
 });

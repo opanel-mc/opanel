@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TaskCommandParser {
+    private static final String COMMENT_PREFIX = "#";
+
     private final TaskCommand.Root root;
     private final List<String> commands;
 
@@ -21,7 +23,7 @@ public class TaskCommandParser {
     private void parse() throws IllegalTaskCommandSyntaxException {
         for(String command : commands) {
             final String line = command.trim();
-            if(line.isEmpty()) continue;
+            if(line.isEmpty() || line.startsWith(COMMENT_PREFIX)) continue;
 
             if(currentLoop != null) { // in loop
                 if(line.startsWith(TaskCommand.Loop.END_KEYWORD)) {
