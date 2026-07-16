@@ -124,7 +124,7 @@ export default function ServerMap() {
     <SubPage
       title={$("map.title")}
       showHeader={false}
-      className="bg-background p-0">
+      className="bg-background p-0!">
       <div className="relative w-full h-full shadow-[inset_0px_0px_20px_4px_rgba(0,0,0,0.14)]">
         <MapCanvas
           key={save}
@@ -138,9 +138,9 @@ export default function ServerMap() {
           onResize={(width, height) => setViewportSize({ width, height })}
           onLoad={() => emitter.emit("loading-done")}/>
 
-        <div className="absolute bottom-6 left-6 bg-accent border w-xs h-10 rounded-lg shadow-xl flex items-center">
+        <div className="absolute bottom-6 left-6 bg-accent border w-xs max-sm:w-40 h-10 rounded-lg shadow-xl flex items-center max-sm:flex-row-reverse">
           <Select value={save} onValueChange={setSave}>
-            <SelectTrigger className="bg-transparent! border-0 ring-0! outline-none px-4 cursor-pointer">
+            <SelectTrigger className="bg-transparent! border-0 ring-0! outline-none px-4 max-sm:hidden cursor-pointer">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -149,7 +149,7 @@ export default function ServerMap() {
               ))}
             </SelectContent>
           </Select>
-          <span className={cn("ml-auto px-2 text-xs", googleSansCode.className)}>
+          <span className={cn("ml-auto max-sm:mr-1 px-2 text-xs", googleSansCode.className)}>
             {coord ? `${coord.x.toFixed(0)} ${coord.z.toFixed(0)}` : ""}
           </span>
           <Button

@@ -25,8 +25,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
+  AlertDialogTitle
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -47,12 +46,6 @@ function PluginUploadDialog({
 }) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogTrigger asChild>
-        <Button className="cursor-pointer">
-          <Upload />
-          {$("plugins.action.upload")}
-        </Button>
-      </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{$("plugins.action.upload.title")}</AlertDialogTitle>
@@ -237,10 +230,12 @@ export default function Plugins() {
                 <Download />
                 {$("plugins.action.export")}
               </Button>
-              <PluginUploadDialog
-                open={uploadDialogOpen}
-                onOpenChange={setUploadDialogOpen}
-                onInputFile={handleInputPluginFile}/>
+              <Button
+                className="cursor-pointer"
+                onClick={() => setUploadDialogOpen(true)}>
+                <Upload />
+                {$("plugins.action.upload")}
+              </Button>
             </div>
             <InputGroup>
               <InputGroupAddon>
@@ -286,10 +281,12 @@ export default function Plugins() {
                 <Download />
                 {$("plugins.action.export")}
               </Button>
-              <PluginUploadDialog
-                open={uploadDialogOpen}
-                onOpenChange={setUploadDialogOpen}
-                onInputFile={handleInputPluginFile}/>
+              <Button
+                className="cursor-pointer"
+                onClick={() => setUploadDialogOpen(true)}>
+                <Upload />
+                {$("plugins.action.upload")}
+              </Button>
             </div>
           </div>
           <TabsContent value="enabled-list">
@@ -326,6 +323,11 @@ export default function Plugins() {
           </TabsContent>
         </Tabs>
       </div>
+
+      <PluginUploadDialog
+        open={uploadDialogOpen}
+        onOpenChange={setUploadDialogOpen}
+        onInputFile={handleInputPluginFile}/>
     </SubPage>
   );
 }
