@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Fragment, useContext } from "react";
 import { compare } from "semver";
-import { Activity, Blocks, ClockFading, Earth, Gauge, HeartHandshake, MapIcon, PaintBucket, PencilRuler, ScrollText, SquareTerminal, Unplug, Users } from "lucide-react";
+import { Activity, Blocks, ClockFading, Earth, Gauge, HeartHandshake, MapIcon, PaintBucket, PencilRuler, ScrollText, Settings, SquareTerminal, Unplug, Users } from "lucide-react";
 import { SiModelcontextprotocol } from "@icons-pack/react-simple-icons";
 import {
   Sidebar,
@@ -20,6 +20,7 @@ import {
   SidebarMenuItem,
   SidebarTrigger,
 } from "./ui/sidebar";
+import { Button } from "./ui/button";
 import { cn, isPaperSeries } from "@/lib/utils";
 import { minecraftAE } from "@/lib/fonts";
 import { Logo } from "./logo";
@@ -186,7 +187,16 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="p-4 bg-background items-end group-data-[state=collapsed]:px-0 group-data-[state=collapsed]:items-center">
+      <SidebarFooter className="p-4 max-sm:p-2 bg-background min-sm:items-end max-sm:flex-row max-sm:justify-between group-data-[state=collapsed]:px-0 group-data-[state=collapsed]:items-center">
+        <Button
+          variant="ghost"
+          className="min-sm:hidden"
+          asChild>
+          <Link href="/panel/settings">
+            <Settings />
+            {$("nav.settings")}
+          </Link>
+        </Button>
         <SidebarTrigger className="cursor-pointer"/>
       </SidebarFooter>
     </Sidebar>

@@ -126,12 +126,6 @@ export function Navbar({
           <DropdownMenuContent>
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
-                <Link href="/panel/settings">
-                  <Settings />
-                  {$("nav.settings")}
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
                 <Link
                   href="https://opanel.cn/docs/quick-start"
                   target="_blank"
