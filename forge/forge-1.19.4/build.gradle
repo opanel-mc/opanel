@@ -75,6 +75,7 @@ shadowJar {
     archiveBaseName.set(baseName +"-build")
     archiveClassifier.set('dev')
 
+    relocate 'org.eclipse.jetty', 'net.opanel.deps.jetty'
     relocate 'com.google.gson', 'net.opanel.deps.gson'
     relocate 'org.objectweb.asm', 'net.opanel.deps.objectweb.asm'
     relocate 'io.javalin', 'net.opanel.deps.javalin'

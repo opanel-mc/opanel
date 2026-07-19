@@ -18,7 +18,9 @@ import net.opanel.neoforge_1_21_1.command.OPanelCommand;
 import net.opanel.neoforge_helper.config.Config;
 import net.opanel.neoforge_helper.config.ConfigManagerImpl;
 import net.opanel.neoforge_1_21_1.terminal.LogListenerManagerImpl;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.slf4j.Logger;
 
 import java.nio.file.Paths;
@@ -32,6 +34,7 @@ public class Main {
     private LogListenerManagerImpl logListenerAppender;
 
     public Main(IEventBus modEventBus, ModContainer modContainer) {
+        Configurator.setLevel("net.opanel.deps.jetty", Level.INFO);
         FileOpsHelperBootstrap.initialize(Paths.get(""), OPanel.TMP_DIR_PATH);
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
