@@ -1,9 +1,12 @@
-name: Publish
+name: Publish to CurseForge
 
 on:
   workflow_dispatch:
   release:
     types: [published]
+
+permissions:
+  contents: read
 
 jobs:
   publish:
@@ -32,14 +35,12 @@ jobs:
     - name: Create version and upload files
       uses: Kir-Antipov/mc-publish@v3.3
       with:
-        # modrinth-id: ${{ vars.MODRINTH_ID }}
-        # modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
         curseforge-id: ${{ vars.CURSEFORGE_ID }}
         curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
         files: "${{ github.workspace }}/release-jars/*.jar"
         name: ${{ steps.release_info.outputs.name }}
         version: ${{ steps.release_info.outputs.tag_name }}
-        version-type: ${{ steps.release_info.outputs.prerelease == true && 'release' || 'beta' }}
+        version-type: ${{ steps.release_info.outputs.prerelease == 'true' && 'beta' || 'release' }}
         loaders: |
           bukkit
           folia
