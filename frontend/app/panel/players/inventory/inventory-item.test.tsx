@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
-import type { ItemStack } from "@/lib/types";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { InventoryType, type ItemStack } from "@/lib/types";
 import { VersionContext } from "@/contexts/api-context";
 import { InventoryContext } from "@/contexts/inventory-context";
 import { createMockVersionContext } from "@/test/contexts-helper";
@@ -40,6 +40,7 @@ vi.mock("@/lib/nbt/components-resolver", () => ({
 
 function renderInventoryItem(itemStack: ItemStack, options?: {
   held?: boolean,
+  inventoryType?: InventoryType,
   ctxOverrides?: Partial<ReturnType<typeof createMockInventoryContextValue>>
 }) {
   const ctx = createMockInventoryContextValue(options?.ctxOverrides);
@@ -48,6 +49,7 @@ function renderInventoryItem(itemStack: ItemStack, options?: {
       <InventoryContext.Provider value={ctx}>
         <InventoryItem
           itemStack={itemStack}
+          inventoryType={options?.inventoryType ?? InventoryType.MAIN}
           held={options?.held}/>
       </InventoryContext.Provider>
     </VersionContext.Provider>
@@ -95,7 +97,7 @@ describe("test inventory item", () => {
     fireEvent.click(itemElem);
 
     expect(ctx.setCurrentlyHeldItem).toHaveBeenCalledWith(item);
-    expect(ctx.removeClickedItem).toHaveBeenCalledWith(item);
+    expect(ctx.removeClickedItem).toHaveBeenCalledWith(InventoryType.MAIN, item);
   });
 
   it("should pick up clicked item without removing when left-clicking an explorer slot", () => {
@@ -119,7 +121,7 @@ describe("test inventory item", () => {
 
     fireEvent.click(itemElem);
 
-    expect(ctx.addClickedWithHeldItem).toHaveBeenCalledWith(clickedItem, 3);
+    expect(ctx.addClickedWithHeldItem).toHaveBeenCalledWith(InventoryType.MAIN, clickedItem, 3);
   });
 
   it("should swap held item with clicked item when left-clicking different item", () => {
@@ -132,7 +134,7 @@ describe("test inventory item", () => {
 
     fireEvent.click(itemElem);
 
-    expect(ctx.swapClickedWithHeldItem).toHaveBeenCalledWith(clickedItem);
+    expect(ctx.swapClickedWithHeldItem).toHaveBeenCalledWith(InventoryType.MAIN, clickedItem);
   });
 
   it("should swap held item with clicked item when ids are same but nbt is different", () => {
@@ -146,7 +148,7 @@ describe("test inventory item", () => {
 
     fireEvent.click(itemElem);
 
-    expect(ctx.swapClickedWithHeldItem).toHaveBeenCalledWith(clickedItem);
+    expect(ctx.swapClickedWithHeldItem).toHaveBeenCalledWith(InventoryType.MAIN, clickedItem);
     expect(ctx.addClickedWithHeldItem).not.toHaveBeenCalled();
   });
 
@@ -161,7 +163,7 @@ describe("test inventory item", () => {
 
     fireEvent.click(itemElem);
 
-    expect(ctx.addClickedWithHeldItem).toHaveBeenCalledWith(clickedItem, 40);
+    expect(ctx.addClickedWithHeldItem).toHaveBeenCalledWith(InventoryType.MAIN, clickedItem, 40);
   });
 
   it("should destroy held item when dropping to explorer with different item type", () => {
@@ -186,7 +188,7 @@ describe("test inventory item", () => {
     fireEvent.contextMenu(itemElem);
 
     expect(ctx.setCurrentlyHeldItem).toHaveBeenCalledWith({ ...item, count: 5 });
-    expect(ctx.halfClickedItem).toHaveBeenCalledWith(item);
+    expect(ctx.halfClickedItem).toHaveBeenCalledWith(InventoryType.MAIN, item);
   });
 
   it("should pick up 64 items from explorer on right-click with empty hand", () => {
@@ -209,7 +211,7 @@ describe("test inventory item", () => {
 
     fireEvent.contextMenu(itemElem);
 
-    expect(ctx.addClickedWithHeldItem).toHaveBeenCalledWith(clickedItem, 1);
+    expect(ctx.addClickedWithHeldItem).toHaveBeenCalledWith(InventoryType.MAIN, clickedItem, 1);
   });
 
   it("should place one item per right click when clicking same item multiple times", () => {
@@ -226,9 +228,9 @@ describe("test inventory item", () => {
     fireEvent.contextMenu(itemElem);
 
     expect(ctx.addClickedWithHeldItem).toHaveBeenCalledTimes(3);
-    expect(ctx.addClickedWithHeldItem).toHaveBeenNthCalledWith(1, clickedItem, 1);
-    expect(ctx.addClickedWithHeldItem).toHaveBeenNthCalledWith(2, clickedItem, 1);
-    expect(ctx.addClickedWithHeldItem).toHaveBeenNthCalledWith(3, clickedItem, 1);
+    expect(ctx.addClickedWithHeldItem).toHaveBeenNthCalledWith(1, InventoryType.MAIN, clickedItem, 1);
+    expect(ctx.addClickedWithHeldItem).toHaveBeenNthCalledWith(2, InventoryType.MAIN, clickedItem, 1);
+    expect(ctx.addClickedWithHeldItem).toHaveBeenNthCalledWith(3, InventoryType.MAIN, clickedItem, 1);
   });
 
   it("should place one held item into empty slot on right-click", () => {
@@ -243,6 +245,7 @@ describe("test inventory item", () => {
     fireEvent.contextMenu(itemElem);
 
     expect(ctx.addClickedWithHeldItem).toHaveBeenCalledWith(
+      InventoryType.MAIN,
       { ...clickedItem, id: heldItem.id, snbt: heldItem.snbt },
       1
     );

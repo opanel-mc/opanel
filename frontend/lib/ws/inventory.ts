@@ -1,8 +1,13 @@
-import type { ItemStack } from "../types";
+import type { InventoryType, ItemStack } from "../types";
 import { WebSocketClient } from ".";
 
 export interface InventoryMovePayload {
   items: ItemStack[]
+}
+
+export interface InventoryUpdatePayload {
+  inventoryType: InventoryType
+  item: ItemStack
 }
 
 export type InventoryMessageType = (

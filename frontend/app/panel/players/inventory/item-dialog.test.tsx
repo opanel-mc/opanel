@@ -2,6 +2,7 @@ import userEvent from "@testing-library/user-event";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { InventoryContext } from "@/contexts/inventory-context";
+import { InventoryType } from "@/lib/types";
 import { createItem, createMockInventoryContextValue } from "@/test/inventory-helper";
 import { ItemDialog } from "./item-dialog";
 
@@ -39,6 +40,7 @@ function renderItemDialog(options?: {
     <InventoryContext.Provider value={ctx}>
       <ItemDialog
         itemStack={itemStack}
+        inventoryType={InventoryType.MAIN}
         disabled={options?.disabled}
         asChild>
         <button>open dialog</button>
@@ -90,6 +92,7 @@ describe("test item nbt editing dialog", () => {
       <InventoryContext.Provider value={ctx}>
         <ItemDialog
           itemStack={newItemStack}
+          inventoryType={InventoryType.MAIN}
           asChild>
           <button>open dialog</button>
         </ItemDialog>
@@ -119,7 +122,7 @@ describe("test item nbt editing dialog", () => {
 
     await user.click(screen.getByRole("button", { name: /(\[dialog\.save\]|保存)/ }));
 
-    expect(updateItemNBT).toHaveBeenCalledWith(itemStack, "{bar:1b}");
+    expect(updateItemNBT).toHaveBeenCalledWith(InventoryType.MAIN, itemStack, "{bar:1b}");
   });
 
   it("should not call updateItemNBT when cancel button is clicked", async () => {

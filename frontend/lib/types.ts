@@ -84,10 +84,22 @@ export interface ItemStack {
   snbt?: string
 }
 
-export interface PlayerInventory {
+export enum InventoryType {
+  MAIN = "main",
+  EQUIPMENTS = "equipments",
+  ENDER_CHEST = "enderChest"
+}
+
+export interface InventoryData {
   size: number
-  hash: string
   items: ItemStack[]
+}
+
+export interface PlayerInventory {
+  hash: string
+  main: InventoryData
+  equipments: InventoryData
+  enderChest: InventoryData
 }
 
 export type Whitelist = {

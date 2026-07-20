@@ -1,4 +1,4 @@
-import type { ItemStack } from "@/lib/types";
+import type { InventoryType, ItemStack } from "@/lib/types";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useContext, useEffect, useState, type PropsWithChildren } from "react";
@@ -24,11 +24,13 @@ const MonacoEditor = dynamic(() => import("@/components/monaco-editor"), { ssr: 
 
 export function ItemDialog({
   itemStack,
+  inventoryType,
   children,
   disabled = false,
   asChild
 }: PropsWithChildren & {
   itemStack: ItemStack
+  inventoryType?: InventoryType
   disabled?: boolean
   asChild?: boolean
 }) {
@@ -39,7 +41,7 @@ export function ItemDialog({
   const { theme } = useTheme();
 
   const handleSave = () => {
-    updateItemNBT(itemStack, value);
+    if(inventoryType) updateItemNBT(inventoryType, itemStack, value);
   };
 
   useEffect(() => {

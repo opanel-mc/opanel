@@ -1,5 +1,7 @@
 package net.opanel.neoforge_1_21_3;
 
+import net.opanel.common.OPanelInventoryType;
+
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
@@ -28,13 +30,12 @@ public class NeoInventory extends BaseNeoInventory implements OPanelInventory {
     }
 
     @Override
-    public List<OPanelItemStack> getItems() {
-        Inventory inventory = player.getInventory();
-        int size = getSize();
+    public List<OPanelItemStack> getItems(OPanelInventoryType inventoryType) {
+        int size = getSize(inventoryType);
         List<OPanelItemStack> items = new ArrayList<>(size);
 
         for(int i = 0; i < size; i++) {
-            ItemStack stack = inventory.getItem(i);
+            ItemStack stack = getItemStack(inventoryType, i);
             if(stack.isEmpty()) {
                 items.add(new OPanelItemStack(i, "minecraft:air", 0, null));
                 continue;

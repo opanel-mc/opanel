@@ -6,7 +6,7 @@ import { VersionContext } from "@/contexts/api-context";
 import { emitter } from "@/lib/emitter";
 import { getTextures } from "@/lib/texture";
 import { createMockVersionContext } from "@/test/contexts-helper";
-import { createInventory, createMockInventoryWsClient } from "@/test/inventory-helper";
+import { createInventory, createInventoryData, createMockInventoryWsClient } from "@/test/inventory-helper";
 import InventoryPage from "./page";
 
 const mockPush = vi.fn();
@@ -33,8 +33,8 @@ vi.mock("../../sub-page", () => ({
 }));
 
 vi.mock("./inventory-content", () => ({
-  InventoryContent: ({ inventory }: { inventory: { hash: string } }) => (
-    <div data-testid="inventory-content">{inventory.hash}</div>
+  InventoryContent: ({ inventory }: { inventory: { size: number } }) => (
+    <div data-testid="inventory-content">{inventory.size}</div>
   )
 }));
 
@@ -111,10 +111,10 @@ describe("test inventory page", () => {
     });
 
     act(() => {
-      mockClient?.emit("init", createInventory({ hash: "init-hash" }));
+      mockClient?.emit("init", createInventory({ main: createInventoryData(101) }));
     });
 
-    expect(await screen.findByTestId("inventory-content")).toHaveTextContent("init-hash");
+    expect(await screen.findByTestId("inventory-content")).toHaveTextContent("101");
   });
 
   it("should update inventory content when receiving update packet", async () => {
@@ -125,16 +125,16 @@ describe("test inventory page", () => {
     });
 
     act(() => {
-      mockClient?.emit("init", createInventory({ hash: "init-hash" }));
+      mockClient?.emit("init", createInventory({ main: createInventoryData(101) }));
     });
-    expect(await screen.findByTestId("inventory-content")).toHaveTextContent("init-hash");
+    expect(await screen.findByTestId("inventory-content")).toHaveTextContent("101");
 
     act(() => {
-      mockClient?.emit("update", createInventory({ hash: "update-hash" }));
+      mockClient?.emit("update", createInventory({ main: createInventoryData(102) }));
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId("inventory-content")).toHaveTextContent("update-hash");
+      expect(screen.getByTestId("inventory-content")).toHaveTextContent("102");
     });
   });
 

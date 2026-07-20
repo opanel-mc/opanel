@@ -7,6 +7,7 @@ import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBTCompoundList;
 import net.opanel.paper_helper.utils.PaperUtils;
 import net.opanel.common.OPanelInventory;
+import net.opanel.common.OPanelInventoryType;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -41,56 +42,59 @@ public abstract class BasePaperOfflineInventory implements OPanelInventory {
     }
 
     @Override
-    public int getSize() {
-        return nbt.getCompoundList("Inventory").size();
-    }
+    public List<OPanelItemStack> getItems(OPanelInventoryType inventoryType) {
+        List<OPanelItemStack> items = OPanelInventory.createEmptyItems(inventoryType);
+        if(inventoryType == OPanelInventoryType.EQUIPMENTS && usesEquipmentTag()) {
+            ReadWriteNBT equipmentNbt = nbt.getCompound("equipment");
+            if(equipmentNbt == null) return items;
 
-    @Override
-    public List<OPanelItemStack> getItems() {
-        List<OPanelItemStack> items = new ArrayList<>();
-        ReadWriteNBTCompoundList list = nbt.getCompoundList("Inventory");
-        if(list == null) return items;
-
-        int nextSlot = 0;
-        for(ReadWriteNBT itemNbt : list) {
-            int slot = itemNbt.getByte("Slot");
-            if(slot > nextSlot) {
-                for(int i = nextSlot; i < slot; i++) {
-                    items.add(new OPanelItemStack(i, "minecraft:air", 0, null));
-                }
+            for(int slot = 0; slot < inventoryType.getSize(); slot++) {
+                ReadWriteNBT itemNbt = equipmentNbt.getCompound(OPanelInventoryType.getEquipmentSlotName(slot));
+                if(itemNbt != null) items.set(slot, fromNbt(slot, itemNbt));
             }
-
-            String id = itemNbt.getString("id");
-            int count = itemNbt.getByte(KEY_OF_COUNT);
-            ReadWriteNBT components = itemNbt.getCompound(KEY_OF_NBT);
-            items.add(new OPanelItemStack(
-                slot,
-                id,
-                count,
-                components == null ? null : components.toString()
-            ));
-            nextSlot = slot + 1;
+            return items;
         }
 
-        if(nextSlot <= 35) {
-            for(int i = nextSlot; i < 36; i++) {
-                items.add(new OPanelItemStack(i, "minecraft:air", 0, null));
-            }
+        ReadWriteNBTCompoundList list = getNbtList(inventoryType);
+        for(ReadWriteNBT itemNbt : list) {
+            int slot = toLogicalSlot(inventoryType, itemNbt.getByte("Slot"));
+            if(slot < 0 || slot >= inventoryType.getSize()) continue;
+
+            items.set(slot, fromNbt(slot, itemNbt));
         }
 
         return items;
     }
 
     @Override
-    public void setItems(List<OPanelItemStack> items) throws NbtApiException {
+    public void setItems(OPanelInventoryType inventoryType, List<OPanelItemStack> items) throws NbtApiException {
         try {
-            ReadWriteNBTCompoundList list = nbt.getCompoundList("Inventory");
-            if(list == null) return;
-            list.clear();
+            if(inventoryType == OPanelInventoryType.EQUIPMENTS && usesEquipmentTag()) {
+                ReadWriteNBT equipmentNbt = nbt.getOrCreateCompound("equipment");
+                for(int slot = 0; slot < inventoryType.getSize(); slot++) {
+                    equipmentNbt.removeKey(OPanelInventoryType.getEquipmentSlotName(slot));
+                }
+                for(OPanelItemStack item : items) {
+                    if(item == null || item.isEmpty() || item.slot < 0 || item.slot >= inventoryType.getSize()) continue;
+                    equipmentNbt.set(
+                        OPanelInventoryType.getEquipmentSlotName(item.slot),
+                        toNbt(inventoryType, item),
+                        NBTHandlers.STORE_READWRITE_TAG
+                    );
+                }
+                if(equipmentNbt.getKeys().isEmpty()) nbt.removeKey("equipment");
+                saveNbt();
+                return;
+            }
+
+            ReadWriteNBTCompoundList list = getNbtList(inventoryType);
+            for(int i = list.size() - 1; i >= 0; i--) {
+                if(toLogicalSlot(inventoryType, list.get(i).getByte("Slot")) >= 0) list.remove(i);
+            }
 
             for(OPanelItemStack item : items) {
-                if(item == null || item.isEmpty()) continue;
-                list.addCompound(toNbt(item));
+                if(item == null || item.isEmpty() || item.slot < 0 || item.slot >= inventoryType.getSize()) continue;
+                list.addCompound(toNbt(inventoryType, item));
             }
             saveNbt();
         } catch (IOException e) {
@@ -99,51 +103,17 @@ public abstract class BasePaperOfflineInventory implements OPanelInventory {
     }
 
     @Override
-    public void setItem(OPanelItemStack item) throws NbtApiException {
-        try {
-            ReadWriteNBTCompoundList list = nbt.getCompoundList("Inventory");
-            if(list == null) return;
-
-            // Insert into empty list or to the last
-            if(list.isEmpty() || item.slot > list.get(list.size() - 1).getByte("Slot")) {
-                list.addCompound(toNbt(item));
-                saveNbt();
-                return;
-            }
-
-            for(int i = 0; i < list.size(); i++) {
-                ReadWriteNBT itemNbt = list.get(i);
-                int slot = itemNbt.getByte("Slot");
-
-                // Insert into an empty slot
-                if(slot > item.slot) {
-                    PaperUtils.addCompoundToNBTList(list, toNbt(item), i);
-                    break;
-                }
-                // Remove the item
-                if(slot == item.slot && item.isEmpty()) {
-                    list.remove(i);
-                    break;
-                }
-                // Update the slot item
-                if(slot == item.slot) {
-                    itemNbt.setString("id", item.id);
-                    itemNbt.setByte(KEY_OF_COUNT, (byte) item.count);
-                    if(item.snbt != null) {
-                        itemNbt.set(KEY_OF_NBT, NBT.parseNBT(item.snbt), NBTHandlers.STORE_READWRITE_TAG);
-                    }
-                    break;
-                }
-            }
-            saveNbt();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void setItem(OPanelInventoryType inventoryType, OPanelItemStack item) throws NbtApiException {
+        List<OPanelItemStack> items = getItems(inventoryType);
+        items.set(item.slot, item);
+        setItems(inventoryType, items);
     }
 
-    protected ReadWriteNBT toNbt(OPanelItemStack item) throws NbtApiException {
+    protected ReadWriteNBT toNbt(OPanelInventoryType inventoryType, OPanelItemStack item) throws NbtApiException {
         ReadWriteNBT itemNbt = NBT.createNBTObject();
-        itemNbt.setByte("Slot", (byte) item.slot);
+        if(inventoryType != OPanelInventoryType.EQUIPMENTS || !usesEquipmentTag()) {
+            itemNbt.setByte("Slot", (byte) inventoryType.toSavedSlot(item.slot));
+        }
         itemNbt.setString("id", item.id);
         itemNbt.setByte(KEY_OF_COUNT, (byte) item.count);
         if(item.snbt != null) {
@@ -151,4 +121,24 @@ public abstract class BasePaperOfflineInventory implements OPanelInventory {
         }
         return itemNbt;
     }
+
+    private ReadWriteNBTCompoundList getNbtList(OPanelInventoryType inventoryType) {
+        return nbt.getCompoundList(inventoryType == OPanelInventoryType.ENDER_CHEST ? "EnderItems" : "Inventory");
+    }
+
+    private int toLogicalSlot(OPanelInventoryType inventoryType, int nativeSlot) {
+        return inventoryType.fromSavedSlot(nativeSlot);
+    }
+
+    private OPanelItemStack fromNbt(int slot, ReadWriteNBT itemNbt) {
+        ReadWriteNBT components = itemNbt.getCompound(KEY_OF_NBT);
+        return new OPanelItemStack(
+            slot,
+            itemNbt.getString("id"),
+            itemNbt.getByte(KEY_OF_COUNT),
+            components == null ? null : components.toString()
+        );
+    }
+
+    protected abstract boolean usesEquipmentTag();
 }

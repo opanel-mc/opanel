@@ -1,4 +1,4 @@
-import type { ItemStack } from "@/lib/types";
+import type { InventoryType, ItemStack } from "@/lib/types";
 import type { ItemNBTResolver } from "@/lib/nbt/resolver";
 import {
   type MouseEvent,
@@ -52,11 +52,13 @@ function getLeatherOverlay(id: string): string | null {
 
 export function InventoryItem({
   itemStack,
+  inventoryType,
   held = false,
   className,
   ref
 }: {
   itemStack: ItemStack
+  inventoryType?: InventoryType
   held?: boolean
   className?: string
   ref?: RefObject<HTMLDivElement | null>
@@ -98,7 +100,7 @@ export function InventoryItem({
 
     if(!currentlyHeldItem) { // pick up the item
       setCurrentlyHeldItem(itemStack);
-      !isFromExplorer(itemStack) && removeClickedItem(itemStack);
+      if(!isFromExplorer(itemStack) && inventoryType) removeClickedItem(inventoryType, itemStack);
       return;
     }
 
@@ -118,11 +120,11 @@ export function InventoryItem({
     }
 
     if(itemStack.id === currentlyHeldItem.id && itemStack.snbt === currentlyHeldItem.snbt) {
-      addClickedWithHeldItem(itemStack, currentlyHeldItem.count);
+      if(inventoryType) addClickedWithHeldItem(inventoryType, itemStack, currentlyHeldItem.count);
       return;
     }
 
-    swapClickedWithHeldItem(itemStack);
+    if(inventoryType) swapClickedWithHeldItem(inventoryType, itemStack);
   };
 
   const handleRightClick = (e: MouseEvent) => {
@@ -140,7 +142,7 @@ export function InventoryItem({
 
     if(!currentlyHeldItem) { // pick up half of the item
       setCurrentlyHeldItem({ ...itemStack, count: Math.ceil(itemStack.count / 2) });
-      halfClickedItem(itemStack);
+      if(inventoryType) halfClickedItem(inventoryType, itemStack);
       return;
     }
 
@@ -150,16 +152,22 @@ export function InventoryItem({
     }
 
     if(itemStack.id === currentlyHeldItem.id && itemStack.snbt === currentlyHeldItem.snbt) { // add one by one
-      addClickedWithHeldItem(itemStack, 1);
+      if(inventoryType) addClickedWithHeldItem(inventoryType, itemStack, 1);
       return;
     }
 
     if(itemStack.id === AIR) { // add one to empty slot
-      addClickedWithHeldItem({ ...itemStack, id: currentlyHeldItem.id, snbt: currentlyHeldItem.snbt }, 1);
+      if(inventoryType) {
+        addClickedWithHeldItem(
+          inventoryType,
+          { ...itemStack, id: currentlyHeldItem.id, snbt: currentlyHeldItem.snbt },
+          1
+        );
+      }
       return;
     }
 
-    swapClickedWithHeldItem(itemStack);
+    if(inventoryType) swapClickedWithHeldItem(inventoryType, itemStack);
   };
 
   const handleAuxClick = (e: MouseEvent) => {
@@ -376,6 +384,7 @@ export function InventoryItem({
   return (
     <ItemDialog
       itemStack={itemStack}
+      inventoryType={inventoryType}
       disabled={!nbtEditMode}
       asChild>
       {itemComponent}

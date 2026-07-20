@@ -18,4 +18,9 @@ public class PaperOfflineInventory extends BasePaperOfflineInventory {
     protected String keyOfNBT() {
         return "components";
     }
+
+    @Override
+    protected boolean usesEquipmentTag() {
+        return false;
+    }
 }

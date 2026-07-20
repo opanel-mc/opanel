@@ -1,6 +1,6 @@
 "use client";
 
-import type { PlayerInventory } from "@/lib/types";
+import type { InventoryData, InventoryType } from "@/lib/types";
 import { useContext } from "react";
 import { cn } from "@/lib/utils";
 import { InventoryItem } from "./inventory-item";
@@ -11,9 +11,11 @@ import { $ } from "@/lib/i18n";
 
 export function InventoryContent({
   inventory,
+  inventoryType,
   className
 }: {
-  inventory: PlayerInventory,
+  inventory: InventoryData,
+  inventoryType: InventoryType,
   className?: string
 }) {
   const ctx = useContext(InventoryContext);
@@ -37,12 +39,18 @@ export function InventoryContent({
       )}>
         <section className="flex-3 grid-rows-3 [&_*]:data-[slot=inventory-item]:nth-[n+19]:border-b-0">
           {inventory?.items.slice(9, 36).map((item, i) => (
-            <InventoryItem itemStack={item} key={i}/>
+            <InventoryItem
+              itemStack={item}
+              inventoryType={inventoryType}
+              key={i}/>
           ))}
         </section>
         <section className="flex-1 grid-rows-1 [&_*]:data-[slot=inventory-item]:border-b-0">
           {inventory?.items.slice(0, 9).map((item, i) => (
-            <InventoryItem itemStack={item} key={i}/>
+            <InventoryItem
+              itemStack={item}
+              inventoryType={inventoryType}
+              key={i}/>
           ))}
         </section>
         {/** @todo Ender chest */}
