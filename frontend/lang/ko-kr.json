@@ -304,6 +304,7 @@
   "players.edit.form.ip.alert.title": "정말로 IP {0}을(를) 차단하시겠습니까?",
   "players.edit.form.ip.alert.description": "플레이어를 서버에서 추방하고 이 IP를 차단 목록에 추가합니다. 이후 이 IP로는 다시 접속할 수 없습니다.",
   "players.edit.form.online-time": "플레이 시간",
+  "players.edit.form.position": "위치",
   "players.edit.form.gamemode.label": "게임 모드",
   "players.edit.form.op.label": "OP 권한",
   "players.edit.form.manage": "관리",

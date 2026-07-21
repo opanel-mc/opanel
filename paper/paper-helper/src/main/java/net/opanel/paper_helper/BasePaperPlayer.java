@@ -36,6 +36,21 @@ public abstract class BasePaperPlayer implements OPanelPlayer {
     }
 
     @Override
+    public double getX() {
+        return player.getLocation().getX();
+    }
+
+    @Override
+    public double getY() {
+        return player.getLocation().getY();
+    }
+
+    @Override
+    public double getZ() {
+        return player.getLocation().getZ();
+    }
+
+    @Override
     public boolean isOp() {
         return player.isOp();
     }

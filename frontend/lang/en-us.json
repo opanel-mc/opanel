@@ -304,6 +304,7 @@
   "players.edit.form.ip.alert.title": "Are you sure you want to ban IP {0}?",
   "players.edit.form.ip.alert.description": "This will kick the player from the server and add this IP to the banned list. The player will no longer be able to rejoin with this IP.",
   "players.edit.form.online-time": "Online Time",
+  "players.edit.form.position": "Position",
   "players.edit.form.gamemode.label": "Game Mode",
   "players.edit.form.op.label": "OP",
   "players.edit.form.manage": "Management",

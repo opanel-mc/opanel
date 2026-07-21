@@ -3,6 +3,7 @@ package net.opanel.neoforge_1_21_3;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.*;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
@@ -19,6 +20,18 @@ public class NeoOfflinePlayer extends BaseNeoOfflinePlayer implements OPanelPlay
     @Override
     public NeoOfflineInventory getInventory() {
         return new NeoOfflineInventory(playerDataPath);
+    }
+
+    @Override
+    protected double[] readPosition() {
+        try {
+            CompoundTag nbt = NbtIo.readCompressed(playerDataPath, NbtAccounter.unlimitedHeap());
+            var pos = nbt.getList("Pos", Tag.TAG_DOUBLE);
+            return new double[]{pos.getDouble(0), pos.getDouble(1), pos.getDouble(2)};
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new double[3];
     }
 
     @Override

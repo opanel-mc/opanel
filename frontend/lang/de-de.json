@@ -304,6 +304,7 @@
   "players.edit.form.ip.alert.title": "IP {0} wirklich sperren?",
   "players.edit.form.ip.alert.description": "Der Spieler wird vom Server geworfen und diese IP wird zur Sperrliste hinzugefügt. Der Spieler kann anschließend mit dieser IP nicht mehr beitreten.",
   "players.edit.form.online-time": "Spielzeit",
+  "players.edit.form.position": "Position",
   "players.edit.form.gamemode.label": "Spielmodus",
   "players.edit.form.op.label": "OP-Berechtigungen",
   "players.edit.form.manage": "Verwaltung",

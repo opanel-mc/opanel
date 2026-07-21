@@ -304,6 +304,7 @@
   "players.edit.form.ip.alert.title": "本当にIP {0} をブロックしますか？",
   "players.edit.form.ip.alert.description": "プレイヤーをサーバーからキックし、このIPをブロックリストに追加します。以降、このIPで再参加することはできません。",
   "players.edit.form.online-time": "オンライン時間",
+  "players.edit.form.position": "位置",
   "players.edit.form.gamemode.label": "ゲームモード",
   "players.edit.form.op.label": "OP権限",
   "players.edit.form.manage": "管理",

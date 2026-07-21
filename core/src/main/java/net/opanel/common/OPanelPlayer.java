@@ -14,6 +14,9 @@ public interface OPanelPlayer {
     boolean isOp();
     boolean isBanned();
     OPanelGameMode getGameMode();
+    double getX();
+    double getY();
+    double getZ();
     void setGameMode(OPanelGameMode gamemode);
     void giveOp();
     void depriveOp();
@@ -32,6 +35,13 @@ public interface OPanelPlayer {
         playerInfo.put("isOp", isOp());
         playerInfo.put("isBanned", isBanned());
         playerInfo.put("gamemode", getGameMode().getName());
+
+        HashMap<String, Double> position = new HashMap<>();
+        position.put("x", getX());
+        position.put("y", getY());
+        position.put("z", getZ());
+        playerInfo.put("position", position);
+
         final String banReason = getBanReason();
         if(banReason != null) playerInfo.put("banReason", Utils.stringToBase64(banReason));
         if(isWhitelistEnabled) playerInfo.put("isWhitelisted", whitelistedNames.contains(getName()));

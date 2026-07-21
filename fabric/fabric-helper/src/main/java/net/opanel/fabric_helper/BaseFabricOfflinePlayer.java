@@ -15,6 +15,7 @@ public abstract class BaseFabricOfflinePlayer implements OPanelPlayer {
     protected final PlayerManager playerManager;
     protected final Path playerDataPath;
     protected final UUID uuid;
+    private double[] position;
 
     public BaseFabricOfflinePlayer(MinecraftServer server, UUID uuid) {
         playerManager = server.getPlayerManager();
@@ -39,6 +40,28 @@ public abstract class BaseFabricOfflinePlayer implements OPanelPlayer {
     @Override
     public boolean isOnline() {
         return false;
+    }
+
+    protected abstract double[] readPosition();
+
+    private double[] getPosition() {
+        if(position == null) position = readPosition();
+        return position;
+    }
+
+    @Override
+    public double getX() {
+        return getPosition()[0];
+    }
+
+    @Override
+    public double getY() {
+        return getPosition()[1];
+    }
+
+    @Override
+    public double getZ() {
+        return getPosition()[2];
     }
 
     @Override

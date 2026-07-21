@@ -304,6 +304,7 @@
   "players.edit.form.ip.alert.title": "Voulez-vous vraiment bannir l'IP {0} ?",
   "players.edit.form.ip.alert.description": "Le joueur sera expulsé du serveur et cette IP sera ajoutée à la liste de bannissement. Le joueur ne pourra plus rejoindre avec cette IP.",
   "players.edit.form.online-time": "Temps de jeu",
+  "players.edit.form.position": "Position",
   "players.edit.form.gamemode.label": "Mode de jeu",
   "players.edit.form.op.label": "Permissions OP",
   "players.edit.form.manage": "Gestion",

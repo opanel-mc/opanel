@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.*;
 import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.server.players.UserBanList;
@@ -51,6 +52,18 @@ public class ForgeOfflinePlayer extends BaseForgeOfflinePlayer implements OPanel
     @Override
     public boolean isBanned() {
         return playerManager.getBans().isBanned(profile);
+    }
+
+    @Override
+    protected double[] readPosition() {
+        try {
+            CompoundTag nbt = NbtIo.readCompressed(playerDataPath, NbtAccounter.unlimitedHeap());
+            var pos = nbt.getList("Pos", Tag.TAG_DOUBLE);
+            return new double[]{pos.getDouble(0), pos.getDouble(1), pos.getDouble(2)};
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new double[3];
     }
 
     @Override
