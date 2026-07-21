@@ -36,7 +36,7 @@
     "@tanstack/react-table": "^8.21.3",
     "@types/downloadjs": "^1.4.6",
     "ansi-to-html": "^0.7.2",
-    "axios": "^1.16.0",
+    "axios": "^1.18.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-format-parse": "^0.2.7",
