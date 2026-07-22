@@ -6,6 +6,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.level.BlockEvent;
@@ -15,10 +17,11 @@ import net.minecraftforge.event.level.SaplingGrowTreeEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.event.*;
+import net.opanel.forge_helper.BaseForgeListener;
 
 import static net.opanel.forge_helper.utils.ForgeUtils.emitDirtyChunk;
 
-public class ForgeListener {
+public class ForgeListener extends BaseForgeListener {
     @SubscribeEvent
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
         EventManager.get().emit(EventType.PLAYER_JOIN, new OPanelPlayerJoinEvent(new ForgePlayer((ServerPlayer) event.getEntity())));
@@ -41,6 +44,26 @@ public class ForgeListener {
             default -> opanelGamemode = null;
         }
         EventManager.get().emit(EventType.PLAYER_GAMEMODE_CHANGE, new OPanelPlayerGameModeChangeEvent(new ForgePlayer((ServerPlayer) event.getEntity()), opanelGamemode));
+    }
+
+    @SubscribeEvent
+    public void onPlayerMove(TickEvent.PlayerTickEvent.Post event) {
+        if(!(event.player instanceof ServerPlayer player)) return;
+        
+        emitPlayerMove(player);
+    }
+
+    @SubscribeEvent
+    public void onPlayerEnterPortal(EntityTravelToDimensionEvent event) {
+        if(!(event.getEntity() instanceof ServerPlayer player)) return;
+
+        emitPlayerMove(player);
+    }
+
+    private static void emitPlayerMove(ServerPlayer player) {
+        if(!hasPlayerMoved(player)) return;
+
+        EventManager.get().emit(EventType.PLAYER_MOVE, new OPanelPlayerMoveEvent(new ForgePlayer(player)));
     }
 
     @SubscribeEvent

@@ -1,12 +1,16 @@
+import type { Player } from "../types";
 import { toast } from "sonner";
 import { WebSocketClient } from ".";
 import { $ } from "../i18n";
+
+export type PlayerMoveData = Pick<Player, "uuid" | "name" | "position">;
 
 export type PlayersMessageType = (
   /* server packet */
   "init"
   | "join"
   | "leave"
+  | "move"
   | "gamemode-change"
   /* client packet */
   | "fetch"

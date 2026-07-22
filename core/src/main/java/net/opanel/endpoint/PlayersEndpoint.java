@@ -5,21 +5,26 @@ import io.javalin.websocket.WsConfig;
 import io.javalin.websocket.WsContext;
 import net.opanel.OPanel;
 import net.opanel.event.*;
-import net.opanel.utils.Utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class PlayersEndpoint extends BaseEndpoint {
+    private static final long MOVE_BROADCAST_INTERVAL_MS = 1000L;
+
     private static class PlayersPacket<D> extends Packet<D> {
         public static final String INIT = "init";
         public static final String FETCH = "fetch";
         public static final String JOIN = "join";
         public static final String LEAVE = "leave";
+        public static final String MOVE = "move";
         public static final String GAMEMODE_CHANGE = "gamemode-change";
 
         public PlayersPacket(String type, D data) {
@@ -28,9 +33,17 @@ public class PlayersEndpoint extends BaseEndpoint {
     }
 
     private final ConcurrentHashMap<String, Long> joinTimeMap = new ConcurrentHashMap<>();
+    private final Object pendingPlayerMovesLock = new Object();
+    private final HashMap<String, HashMap<String, Object>> pendingPlayerMoves = new HashMap<>();
+    private final ScheduledExecutorService moveBroadcastScheduler = Executors.newSingleThreadScheduledExecutor(task -> {
+        Thread thread = new Thread(task, "opanel-player-move-scheduler");
+        thread.setDaemon(true);
+        return thread;
+    });
 
     private final Consumer<OPanelPlayerJoinEvent> joinListener;
     private final Consumer<OPanelPlayerLeaveEvent> leaveListener;
+    private final Consumer<OPanelPlayerMoveEvent> moveListener;
     private final Consumer<OPanelPlayerGameModeChangeEvent> gamemodeChangeListener;
 
     public PlayersEndpoint(Javalin app, WsConfig ws, OPanel plugin) {
@@ -50,7 +63,11 @@ public class PlayersEndpoint extends BaseEndpoint {
 
         leaveListener = (OPanelPlayerLeaveEvent event) -> {
             try {
-                joinTimeMap.remove(event.getPlayer().getUUID());
+                String uuid = event.getPlayer().getUUID();
+                joinTimeMap.remove(uuid);
+                synchronized(pendingPlayerMovesLock) {
+                    pendingPlayerMoves.remove(uuid);
+                }
 
                 List<String> whitelistedNames = server.getWhitelist().getNames();
                 HashMap<String, Object> playerInfo = event.getPlayer().serialize(server.isWhitelistEnabled(), whitelistedNames, null);
@@ -58,6 +75,23 @@ public class PlayersEndpoint extends BaseEndpoint {
                 broadcast(new PlayersPacket<>(PlayersPacket.LEAVE, playerInfo));
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        };
+
+        moveListener = (OPanelPlayerMoveEvent event) -> {
+            HashMap<String, Object> playerInfo = new HashMap<>();
+            String uuid = event.getPlayer().getUUID();
+            playerInfo.put("uuid", uuid);
+            playerInfo.put("name", event.getPlayer().getName());
+
+            HashMap<String, Double> position = new HashMap<>();
+            position.put("x", event.getPlayer().getX());
+            position.put("y", event.getPlayer().getY());
+            position.put("z", event.getPlayer().getZ());
+            playerInfo.put("position", position);
+
+            synchronized(pendingPlayerMovesLock) {
+                pendingPlayerMoves.put(uuid, playerInfo);
             }
         };
 
@@ -74,7 +108,15 @@ public class PlayersEndpoint extends BaseEndpoint {
 
         EventManager.get().on(EventType.PLAYER_JOIN, joinListener);
         EventManager.get().on(EventType.PLAYER_LEAVE, leaveListener);
+        EventManager.get().on(EventType.PLAYER_MOVE, moveListener);
         EventManager.get().on(EventType.PLAYER_GAMEMODE_CHANGE, gamemodeChangeListener);
+
+        moveBroadcastScheduler.scheduleWithFixedDelay(
+                this::broadcastPlayerMoves,
+                MOVE_BROADCAST_INTERVAL_MS,
+                MOVE_BROADCAST_INTERVAL_MS,
+                TimeUnit.MILLISECONDS
+        );
     }
 
     @Override
@@ -88,7 +130,25 @@ public class PlayersEndpoint extends BaseEndpoint {
     public void onShutdown() {
         EventManager.get().off(EventType.PLAYER_JOIN, joinListener);
         EventManager.get().off(EventType.PLAYER_LEAVE, leaveListener);
+        EventManager.get().off(EventType.PLAYER_MOVE, moveListener);
         EventManager.get().off(EventType.PLAYER_GAMEMODE_CHANGE, gamemodeChangeListener);
+
+        moveBroadcastScheduler.shutdownNow();
+        synchronized(pendingPlayerMovesLock) {
+            pendingPlayerMoves.clear();
+        }
+    }
+
+    private void broadcastPlayerMoves() {
+        List<HashMap<String, Object>> playerMoves;
+        synchronized(pendingPlayerMovesLock) {
+            if(pendingPlayerMoves.isEmpty()) return;
+
+            playerMoves = new ArrayList<>(pendingPlayerMoves.values());
+            pendingPlayerMoves.clear();
+        }
+
+        broadcast(new PlayersPacket<>(PlayersPacket.MOVE, playerMoves));
     }
 
     private void sendPlayerList(WsContext ctx) {

@@ -8,6 +8,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PaperListener extends BasePaperListener implements Listener {
@@ -25,6 +27,18 @@ public class PaperListener extends BasePaperListener implements Listener {
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
         EventManager.get().emit(EventType.PLAYER_LEAVE, new OPanelPlayerLeaveEvent(new PaperPlayer(plugin, event.getPlayer())));
+    }
+
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        if(!hasPlayerMoved(event)) return;
+
+        EventManager.get().emit(EventType.PLAYER_MOVE, new OPanelPlayerMoveEvent(new PaperPlayer(plugin, event.getPlayer())));
+    }
+
+    @EventHandler
+    public void onPlayerPortal(PlayerPortalEvent event) {
+        onPlayerMove(event);
     }
 
     @EventHandler

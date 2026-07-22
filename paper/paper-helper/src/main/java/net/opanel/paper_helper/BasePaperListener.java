@@ -4,6 +4,7 @@ import net.opanel.event.EventManager;
 import net.opanel.event.EventType;
 import net.opanel.event.OPanelChunkDirtyEvent;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -11,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.world.ChunkPopulateEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 
@@ -97,5 +99,11 @@ public abstract class BasePaperListener implements Listener {
         if(world.getEnvironment() != World.Environment.NORMAL) return;
 
         EventManager.get().emit(EventType.CHUNK_DIRTY, new OPanelChunkDirtyEvent(block.getX() >> 4, block.getZ() >> 4));
+    }
+
+    protected static boolean hasPlayerMoved(PlayerMoveEvent event) {
+        Location from = event.getFrom();
+        Location to = event.getTo();
+        return to != null && (from.getX() != to.getX() || from.getY() != to.getY() || from.getZ() != to.getZ());
     }
 }
