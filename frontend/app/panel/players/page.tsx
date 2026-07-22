@@ -60,12 +60,13 @@ export default function Players() {
 
   const handleExportList = () => {
     const exportPlayers: ExportPlayer[] = players
-      .map(({ name, uuid, isOp, isBanned, gamemode, banReason, isWhitelisted }) => ({
+      .map(({ name, uuid, isOp, isBanned, gamemode, position, banReason, isWhitelisted }) => ({
         name,
         uuid,
         isOp,
         isBanned,
         gamemode,
+        position,
         banReason: banReason ? base64ToString(banReason) : "",
         isWhitelisted
       }));
