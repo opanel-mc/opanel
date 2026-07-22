@@ -178,7 +178,9 @@ export function PlayerSheet({
                             description={$("players.edit.form.ip.alert.description")}
                             onAction={() => handleBanIp()}
                             asChild>
-                            <button className="cursor-pointer mr-1.5 text-destructive">
+                            <button
+                              type="button"
+                              className="cursor-pointer mr-1.5 text-destructive">
                               <Ban size={12}/>
                             </button>
                           </Alert>
@@ -196,6 +198,7 @@ export function PlayerSheet({
                   <FormLabel>{$("players.edit.form.position")}</FormLabel>
                   <span className={cn("text-xs", googleSansCode.className)}>
                     <button
+                      type="button"
                       className="cursor-pointer mr-1.5 text-muted-foreground! hover:bg-transparent! *:size-3!"
                       onClick={() => copyToClipboard(positionStr)}>
                       <Copy size={12}/>
