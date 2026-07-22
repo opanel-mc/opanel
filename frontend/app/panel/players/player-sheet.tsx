@@ -64,6 +64,9 @@ export function PlayerSheet({
   const [onlineTime, setOnlineTime] = useState<number | null>(
     player.joinTime ? Date.now() - player.joinTime : null
   ); // ms
+  const positionStr = (
+    `${player.position.x.toFixed(0)} ${player.position.y.toFixed(0)} ${player.position.z.toFixed(0)}`
+  );
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -163,31 +166,47 @@ export function PlayerSheet({
                 </div>
               </div>
 
-              {player.isOnline && (
-                <div className="flex flex-col gap-3">
-                  {player.ip && (
+              <div className="flex flex-col gap-3">
+                {player.isOnline && (
+                  <>
+                    {player.ip && (
+                      <FormItem className="flex justify-between">
+                        <FormLabel>{$("players.edit.form.ip")}</FormLabel>
+                        <span className={cn("text-xs", googleSansCode.className)}>
+                          <Alert
+                            title={$("players.edit.form.ip.alert.title", player.ip)}
+                            description={$("players.edit.form.ip.alert.description")}
+                            onAction={() => handleBanIp()}
+                            asChild>
+                            <button
+                              type="button"
+                              className="cursor-pointer mr-1.5 text-destructive">
+                              <Ban size={12}/>
+                            </button>
+                          </Alert>
+                          {player.ip}
+                        </span>
+                      </FormItem>
+                    )}
                     <FormItem className="flex justify-between">
-                      <FormLabel>{$("players.edit.form.ip")}</FormLabel>
-                      <span className="text-sm">
-                        <Alert
-                          title={$("players.edit.form.ip.alert.title", player.ip)}
-                          description={$("players.edit.form.ip.alert.description")}
-                          onAction={() => handleBanIp()}
-                          asChild>
-                          <button className="cursor-pointer mr-1.5 text-destructive">
-                            <Ban size={12}/>
-                          </button>
-                        </Alert>
-                        {player.ip}
-                      </span>
+                      <FormLabel>{$("players.edit.form.online-time")}</FormLabel>
+                      <span className="text-sm">{millisToTime(onlineTime ?? 0)}</span>
                     </FormItem>
-                  )}
-                  <FormItem className="flex justify-between">
-                    <FormLabel>{$("players.edit.form.online-time")}</FormLabel>
-                    <span className="text-sm">{millisToTime(onlineTime ?? 0)}</span>
-                  </FormItem>
-                </div>
-              )}
+                  </>
+                )}
+                <FormItem className="flex justify-between">
+                  <FormLabel>{$("players.edit.form.position")}</FormLabel>
+                  <span className={cn("text-xs", googleSansCode.className)}>
+                    <button
+                      type="button"
+                      className="cursor-pointer mr-1.5 text-muted-foreground! hover:bg-transparent! *:size-3!"
+                      onClick={() => copyToClipboard(positionStr)}>
+                      <Copy size={12}/>
+                    </button>
+                    {positionStr}
+                  </span>
+                </FormItem>
+              </div>
               <FormField
                 control={form.control}
                 name="gamemode"

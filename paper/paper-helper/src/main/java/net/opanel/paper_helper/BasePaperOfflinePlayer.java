@@ -20,6 +20,7 @@ public abstract class BasePaperOfflinePlayer implements OPanelPlayer {
     protected final OfflinePlayer player;
     protected final Server server;
     protected final Path playerDataPath;
+    private double[] position;
 
     public BasePaperOfflinePlayer(JavaPlugin plugin, Server server, OfflinePlayer player) {
         this.plugin = plugin;
@@ -57,6 +58,38 @@ public abstract class BasePaperOfflinePlayer implements OPanelPlayer {
     @Override
     public boolean isOnline() {
         return false;
+    }
+
+    private double[] getPosition() {
+        if(position != null) return position;
+
+        try {
+            ReadWriteNBT nbt = NBT.readFile(playerDataPath.toFile());
+            var pos = nbt.getDoubleList("Pos");
+            if(pos.size() >= 3) {
+                position = new double[]{pos.get(0), pos.get(1), pos.get(2)};
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(position == null) position = new double[3];
+        return position;
+    }
+
+    @Override
+    public double getX() {
+        return getPosition()[0];
+    }
+
+    @Override
+    public double getY() {
+        return getPosition()[1];
+    }
+
+    @Override
+    public double getZ() {
+        return getPosition()[2];
     }
 
     @Override

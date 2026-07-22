@@ -304,6 +304,7 @@
   "players.edit.form.ip.alert.title": "確定要封鎖IP {0} 嗎？",
   "players.edit.form.ip.alert.description": "將玩家踢出伺服器並將此IP加入封鎖列表，之後玩家將不可以此IP重新加入伺服器",
   "players.edit.form.online-time": "在線時長",
+  "players.edit.form.position": "位置",
   "players.edit.form.gamemode.label": "遊戲模式",
   "players.edit.form.op.label": "OP 權限",
   "players.edit.form.manage": "管理",

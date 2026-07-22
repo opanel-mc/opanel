@@ -23,6 +23,7 @@ public abstract class BaseNeoOfflinePlayer implements OPanelPlayer {
     protected final Path playerDataPath;
     private final GameProfile profile;
     protected final UUID uuid;
+    private double[] position;
 
     public BaseNeoOfflinePlayer(MinecraftServer server, UUID uuid) {
         playerManager = server.getPlayerList();
@@ -64,6 +65,28 @@ public abstract class BaseNeoOfflinePlayer implements OPanelPlayer {
     @Override
     public boolean isOnline() {
         return false;
+    }
+
+    protected abstract double[] readPosition();
+
+    private double[] getPosition() {
+        if(position == null) position = readPosition();
+        return position;
+    }
+
+    @Override
+    public double getX() {
+        return getPosition()[0];
+    }
+
+    @Override
+    public double getY() {
+        return getPosition()[1];
+    }
+
+    @Override
+    public double getZ() {
+        return getPosition()[2];
     }
 
     @Override

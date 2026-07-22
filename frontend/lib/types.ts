@@ -61,6 +61,11 @@ export interface Player {
   isOp: boolean
   isBanned: boolean
   gamemode: GameMode
+  position: {
+    x: number
+    y: number
+    z: number
+  }
   banReason?: string // base64
   isWhitelisted?: boolean
   ping?: number

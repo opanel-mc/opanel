@@ -2,6 +2,7 @@ package net.opanel.fabric_1_20_3;
 
 import com.mojang.authlib.GameProfile;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtTagSizeTracker;
 import net.minecraft.server.*;
@@ -49,6 +50,18 @@ public class FabricOfflinePlayer extends BaseFabricOfflinePlayer implements OPan
     @Override
     public boolean isBanned() {
         return playerManager.getUserBanList().contains(profile);
+    }
+
+    @Override
+    protected double[] readPosition() {
+        try {
+            NbtCompound nbt = NbtIo.readCompressed(playerDataPath, NbtTagSizeTracker.ofUnlimitedBytes());
+            var pos = nbt.getList("Pos", NbtElement.DOUBLE_TYPE);
+            return new double[]{pos.getDouble(0), pos.getDouble(1), pos.getDouble(2)};
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new double[3];
     }
 
     @Override

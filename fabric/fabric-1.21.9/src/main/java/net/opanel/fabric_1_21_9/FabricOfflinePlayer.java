@@ -43,6 +43,18 @@ public class FabricOfflinePlayer extends BaseFabricOfflinePlayer implements OPan
     }
 
     @Override
+    protected double[] readPosition() {
+        try {
+            NbtCompound nbt = NbtIo.readCompressed(playerDataPath, NbtSizeTracker.ofUnlimitedBytes());
+            var pos = nbt.getListOrEmpty("Pos");
+            return new double[]{pos.getDouble(0, 0), pos.getDouble(1, 0), pos.getDouble(2, 0)};
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new double[3];
+    }
+
+    @Override
     public OPanelGameMode getGameMode() {
         try {
             NbtCompound nbt = NbtIo.readCompressed(playerDataPath, NbtSizeTracker.ofUnlimitedBytes());

@@ -46,6 +46,21 @@ public abstract class BaseNeoPlayer implements OPanelPlayer {
     }
 
     @Override
+    public double getX() {
+        return player.getX();
+    }
+
+    @Override
+    public double getY() {
+        return player.getY();
+    }
+
+    @Override
+    public double getZ() {
+        return player.getZ();
+    }
+
+    @Override
     public boolean isOp() {
         if(player == null) return false;
 

@@ -18,7 +18,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/in
 import { changeSettings, getSettings, type SettingsStorageType } from "@/lib/settings";
 import { BannedIpsDialog } from "./banned-ips-dialog";
 import { $ } from "@/lib/i18n";
-import { PlayersClient } from "@/lib/ws/players";
+import { PlayersClient, type PlayerMoveData } from "@/lib/ws/players";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { useKeydown } from "@/hooks/use-keydown";
 import {
@@ -60,12 +60,13 @@ export default function Players() {
 
   const handleExportList = () => {
     const exportPlayers: ExportPlayer[] = players
-      .map(({ name, uuid, isOp, isBanned, gamemode, banReason, isWhitelisted }) => ({
+      .map(({ name, uuid, isOp, isBanned, gamemode, position, banReason, isWhitelisted }) => ({
         name,
         uuid,
         isOp,
         isBanned,
         gamemode,
+        position,
         banReason: banReason ? base64ToString(banReason) : "",
         isWhitelisted
       }));
@@ -121,6 +122,16 @@ export default function Players() {
 
     client.subscribe("leave", (player: Player) => {
       setPlayers((prev) => prev.map((p) => p.uuid === player.uuid ? player : p));
+    });
+
+    client.subscribe("move", (movedPlayers: PlayerMoveData[]) => {
+      const movedPlayerMap = new Map(movedPlayers.map((player) => [player.uuid, player]));
+      setPlayers((prev) => prev.map((player) => {
+        const movedPlayer = movedPlayerMap.get(player.uuid);
+        if(!movedPlayer) return player;
+
+        return { ...player, name: movedPlayer.name, position: movedPlayer.position };
+      }));
     });
 
     client.subscribe("gamemode-change", (player: Player) => {
