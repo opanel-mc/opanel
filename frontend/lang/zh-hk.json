@@ -360,6 +360,7 @@
   "players.inventory.ws.error.404": "找不到該玩家",
   "players.inventory.interact-forbbiden": "唔可以操作Mod新增嘅物品",
   "players.inventory.nbt-mode.label": "NBT 編輯模式",
+  "players.inventory.ender-chest.title": "終界箱",
   "players.inventory.explorer.search.placeholder": "搜尋物品...",
   "players.inventory.nbt-editor.title": "編輯物品 NBT",
   "players.inventory.nbt-editor.description": "在此編輯物品的NBT標籤數據。",

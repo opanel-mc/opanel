@@ -164,9 +164,7 @@ export default function Inventory() {
         updateItemNBT
       }}>
         {inventory && (
-          <InventoryContent
-            inventory={inventory.main}
-            inventoryType={InventoryType.MAIN}/>
+          <InventoryContent inventory={inventory}/>
         )}
         <ItemExplorer className="flex-1 w-full"/>
         {currentlyHeldItem && (

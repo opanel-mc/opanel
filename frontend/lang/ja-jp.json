@@ -360,6 +360,7 @@
   "players.inventory.ws.error.404": "そのプレイヤーが見つかりません",
   "players.inventory.interact-forbbiden": "Modで追加されたアイテムは操作できません",
   "players.inventory.nbt-mode.label": "NBT 編集モード",
+  "players.inventory.ender-chest.title": "エンダーチェスト",
   "players.inventory.explorer.search.placeholder": "アイテムを検索...",
   "players.inventory.nbt-editor.title": "アイテムのNBTを編集",
   "players.inventory.nbt-editor.description": "ここでアイテムのNBTタグデータを編集します。",

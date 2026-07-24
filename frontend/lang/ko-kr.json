@@ -360,6 +360,7 @@
   "players.inventory.ws.error.404": "플레이어를 찾을 수 없습니다",
   "players.inventory.interact-forbbiden": "작동하지 않는 모드가 아이템을 추가합니다",
   "players.inventory.nbt-mode.label": "NBT 편집 모드",
+  "players.inventory.ender-chest.title": "엔더 상자",
   "players.inventory.explorer.search.placeholder": "아이템 검색...",
   "players.inventory.nbt-editor.title": "아이템 NBT 수정",
   "players.inventory.nbt-editor.description": "여기서 아이템의 NBT 태그를 수정합니다.",
