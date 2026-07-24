@@ -1,11 +1,11 @@
 "use client";
 
 import type { Item } from "minecraft-textures";
+import type { InventoryType, ItemStack, PlayerInventory } from "@/lib/types";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Backpack } from "lucide-react";
-import { InventoryType, type ItemStack, type PlayerInventory } from "@/lib/types";
 import { SubPage } from "../../sub-page";
 import { InventoryContext } from "@/contexts/inventory-context";
 import { InventoryContent } from "./inventory-content";

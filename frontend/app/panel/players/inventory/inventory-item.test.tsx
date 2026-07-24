@@ -41,6 +41,7 @@ vi.mock("@/lib/nbt/components-resolver", () => ({
 function renderInventoryItem(itemStack: ItemStack, options?: {
   held?: boolean,
   inventoryType?: InventoryType,
+  placeholderIcon?: string,
   ctxOverrides?: Partial<ReturnType<typeof createMockInventoryContextValue>>
 }) {
   const ctx = createMockInventoryContextValue(options?.ctxOverrides);
@@ -50,6 +51,7 @@ function renderInventoryItem(itemStack: ItemStack, options?: {
         <InventoryItem
           itemStack={itemStack}
           inventoryType={options?.inventoryType ?? InventoryType.MAIN}
+          placeholderIcon={options?.placeholderIcon}
           held={options?.held}/>
       </InventoryContext.Provider>
     </VersionContext.Provider>
@@ -88,6 +90,29 @@ describe("test inventory item", () => {
       getBeeAmount: () => null,
       getHoneyLevel: () => null
     };
+  });
+
+  it("should render the placeholder icon only when the slot is empty", () => {
+    const placeholderIcon = "/empty-armor-slot-helmet.png";
+    const { rerender, container, ctx } = renderInventoryItem(
+      createItem({ slot: 0, id: AIR, count: 0 }),
+      { placeholderIcon }
+    );
+
+    expect(container.querySelector(`img[src="${placeholderIcon}"]`)).toBeInTheDocument();
+
+    rerender(
+      <VersionContext.Provider value={createMockVersionContext()}>
+        <InventoryContext.Provider value={ctx}>
+          <InventoryItem
+            itemStack={createItem({ slot: 0, id: "minecraft:diamond_helmet", count: 1 })}
+            inventoryType={InventoryType.EQUIPMENTS}
+            placeholderIcon={placeholderIcon}/>
+        </InventoryContext.Provider>
+      </VersionContext.Provider>
+    );
+
+    expect(container.querySelector(`img[src="${placeholderIcon}"]`)).not.toBeInTheDocument();
   });
 
   it("should pick up and remove clicked item when left-clicking a normal slot with empty hand", () => {

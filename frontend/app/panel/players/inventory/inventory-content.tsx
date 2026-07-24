@@ -8,6 +8,18 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { InventoryContext } from "@/contexts/inventory-context";
 import { $ } from "@/lib/i18n";
+import EmptyArmorSlotHelmet from "@/assets/images/inventory/empty-armor-slot-helmet.png";
+import EmptyArmorSlotChestplate from "@/assets/images/inventory/empty-armor-slot-chestplate.png";
+import EmptyArmorSlotLeggings from "@/assets/images/inventory/empty-armor-slot-leggings.png";
+import EmptyArmorSlotBoots from "@/assets/images/inventory/empty-armor-slot-boots.png";
+import EmptyArmorSlotShield from "@/assets/images/inventory/empty-armor-slot-shield.png";
+
+const armorPlaceholderIcons = [
+  EmptyArmorSlotHelmet.src,
+  EmptyArmorSlotChestplate.src,
+  EmptyArmorSlotLeggings.src,
+  EmptyArmorSlotBoots.src,
+];
 
 export function InventoryContent({
   inventory,
@@ -42,13 +54,15 @@ export function InventoryContent({
               <InventoryItem
                 itemStack={item}
                 inventoryType={InventoryType.EQUIPMENTS}
+                placeholderIcon={armorPlaceholderIcons[i]}
                 key={i}/>
             ))}
           </section>
           <section className="w-12 flex!">
             <InventoryItem
               itemStack={inventory.equipments.items[inventory.equipments.items.length - 1]}
-              inventoryType={InventoryType.EQUIPMENTS}/>
+              inventoryType={InventoryType.EQUIPMENTS}
+              placeholderIcon={EmptyArmorSlotShield.src}/>
           </section>
         </div>
 

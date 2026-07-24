@@ -26,7 +26,7 @@ import LeatherHelmetOverlayTexture from "@/assets/images/overlays/leather-helmet
 import LeatherChestplateOverlayTexture from "@/assets/images/overlays/leather-chestplate-overlay.png";
 import LeatherLeggingsOverlayTexture from "@/assets/images/overlays/leather-leggings-overlay.png";
 import LeatherBootsOverlayTexture from "@/assets/images/overlays/leather-boots-overlay.png";
-import MissingTexture from "@/assets/images/missing-texture.png";
+import MissingTexture from "@/assets/images/inventory/missing-texture.png";
 import "@/style/item-effect.css";
 
 export const AIR = "minecraft:air";
@@ -53,12 +53,14 @@ function getLeatherOverlay(id: string): string | null {
 export function InventoryItem({
   itemStack,
   inventoryType,
+  placeholderIcon,
   held = false,
   className,
   ref
 }: {
   itemStack: ItemStack
   inventoryType?: InventoryType
+  placeholderIcon?: string
   held?: boolean
   className?: string
   ref?: RefObject<HTMLDivElement | null>
@@ -246,6 +248,12 @@ export function InventoryItem({
           className="w-full z-0"
           src={textureItem?.texture || MissingTexture.src}
           alt={textureItem?.id || "missing-texture"}/>
+      )}
+      {(itemStack.id === AIR && placeholderIcon) && (
+        <img
+          className="w-full z-0"
+          src={placeholderIcon}
+          alt="placeholder-icon"/>
       )}
       {itemStack.count > 1 && (
         <span className={cn(
