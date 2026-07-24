@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { PlayerInventory } from "@/lib/types";
 import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { toast } from "sonner";
@@ -33,8 +34,8 @@ vi.mock("../../sub-page", () => ({
 }));
 
 vi.mock("./inventory-content", () => ({
-  InventoryContent: ({ inventory }: { inventory: { size: number } }) => (
-    <div data-testid="inventory-content">{inventory.size}</div>
+  InventoryContent: ({ inventory }: { inventory: PlayerInventory }) => (
+    <div data-testid="inventory-content">{inventory.main.size}</div>
   )
 }));
 
