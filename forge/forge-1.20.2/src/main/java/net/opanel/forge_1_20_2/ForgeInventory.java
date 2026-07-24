@@ -1,5 +1,7 @@
 package net.opanel.forge_1_20_2;
 
+import net.opanel.common.OPanelInventoryType;
+
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.TagParser;
@@ -32,13 +34,12 @@ public class ForgeInventory extends BaseForgeInventory {
     }
 
     @Override
-    public List<OPanelItemStack> getItems() {
-        Inventory inventory = player.getInventory();
-        int size = getSize();
+    public List<OPanelItemStack> getItems(OPanelInventoryType inventoryType) {
+        int size = getSize(inventoryType);
         List<OPanelItemStack> items = new ArrayList<>(size);
 
         for(int i = 0; i < size; i++) {
-            ItemStack stack = inventory.getItem(i);
+            ItemStack stack = getItemStack(inventoryType, i);
             if(stack.isEmpty()) {
                 items.add(new OPanelItemStack(i, "minecraft:air", 0, null));
                 continue;

@@ -1,5 +1,7 @@
 package net.opanel.fabric_1_21;
 
+import net.opanel.common.OPanelInventoryType;
+
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
@@ -40,13 +42,12 @@ public class FabricInventory extends BaseFabricInventory {
     }
 
     @Override
-    public List<OPanelItemStack> getItems() {
-        PlayerInventory inventory = player.getInventory();
-        int size = getSize();
+    public List<OPanelItemStack> getItems(OPanelInventoryType inventoryType) {
+        int size = getSize(inventoryType);
         List<OPanelItemStack> items = new ArrayList<>(size);
 
         for(int i = 0; i < size; i++) {
-            ItemStack stack = inventory.getStack(i);
+            ItemStack stack = getItemStack(inventoryType, i);
             if(stack.isEmpty()) {
                 items.add(new OPanelItemStack(i, "minecraft:air", 0, null));
                 continue;

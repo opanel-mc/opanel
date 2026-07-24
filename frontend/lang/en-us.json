@@ -361,6 +361,7 @@
   "players.inventory.ws.error.404": "Player not found",
   "players.inventory.interact-forbbiden": "Cannot operate on mod-added items",
   "players.inventory.nbt-mode.label": "NBT Mode",
+  "players.inventory.ender-chest.title": "Ender Chest",
   "players.inventory.explorer.search.placeholder": "Search items...",
   "players.inventory.nbt-editor.title": "Edit Item NBT",
   "players.inventory.nbt-editor.description": "Edit the NBT tag data of items here.",

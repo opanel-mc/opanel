@@ -1,4 +1,4 @@
-import type { ItemStack } from "@/lib/types";
+import type { InventoryType, ItemStack } from "@/lib/types";
 import type { ItemNBTResolver } from "@/lib/nbt/resolver";
 import {
   type MouseEvent,
@@ -26,7 +26,7 @@ import LeatherHelmetOverlayTexture from "@/assets/images/overlays/leather-helmet
 import LeatherChestplateOverlayTexture from "@/assets/images/overlays/leather-chestplate-overlay.png";
 import LeatherLeggingsOverlayTexture from "@/assets/images/overlays/leather-leggings-overlay.png";
 import LeatherBootsOverlayTexture from "@/assets/images/overlays/leather-boots-overlay.png";
-import MissingTexture from "@/assets/images/missing-texture.png";
+import MissingTexture from "@/assets/images/inventory/missing-texture.png";
 import "@/style/item-effect.css";
 
 export const AIR = "minecraft:air";
@@ -52,11 +52,15 @@ function getLeatherOverlay(id: string): string | null {
 
 export function InventoryItem({
   itemStack,
+  inventoryType,
+  placeholderIcon,
   held = false,
   className,
   ref
 }: {
   itemStack: ItemStack
+  inventoryType?: InventoryType
+  placeholderIcon?: string
   held?: boolean
   className?: string
   ref?: RefObject<HTMLDivElement | null>
@@ -98,7 +102,7 @@ export function InventoryItem({
 
     if(!currentlyHeldItem) { // pick up the item
       setCurrentlyHeldItem(itemStack);
-      !isFromExplorer(itemStack) && removeClickedItem(itemStack);
+      if(!isFromExplorer(itemStack) && inventoryType) removeClickedItem(inventoryType, itemStack);
       return;
     }
 
@@ -118,11 +122,11 @@ export function InventoryItem({
     }
 
     if(itemStack.id === currentlyHeldItem.id && itemStack.snbt === currentlyHeldItem.snbt) {
-      addClickedWithHeldItem(itemStack, currentlyHeldItem.count);
+      if(inventoryType) addClickedWithHeldItem(inventoryType, itemStack, currentlyHeldItem.count);
       return;
     }
 
-    swapClickedWithHeldItem(itemStack);
+    if(inventoryType) swapClickedWithHeldItem(inventoryType, itemStack);
   };
 
   const handleRightClick = (e: MouseEvent) => {
@@ -140,7 +144,7 @@ export function InventoryItem({
 
     if(!currentlyHeldItem) { // pick up half of the item
       setCurrentlyHeldItem({ ...itemStack, count: Math.ceil(itemStack.count / 2) });
-      halfClickedItem(itemStack);
+      if(inventoryType) halfClickedItem(inventoryType, itemStack);
       return;
     }
 
@@ -150,16 +154,22 @@ export function InventoryItem({
     }
 
     if(itemStack.id === currentlyHeldItem.id && itemStack.snbt === currentlyHeldItem.snbt) { // add one by one
-      addClickedWithHeldItem(itemStack, 1);
+      if(inventoryType) addClickedWithHeldItem(inventoryType, itemStack, 1);
       return;
     }
 
     if(itemStack.id === AIR) { // add one to empty slot
-      addClickedWithHeldItem({ ...itemStack, id: currentlyHeldItem.id, snbt: currentlyHeldItem.snbt }, 1);
+      if(inventoryType) {
+        addClickedWithHeldItem(
+          inventoryType,
+          { ...itemStack, id: currentlyHeldItem.id, snbt: currentlyHeldItem.snbt },
+          1
+        );
+      }
       return;
     }
 
-    swapClickedWithHeldItem(itemStack);
+    if(inventoryType) swapClickedWithHeldItem(inventoryType, itemStack);
   };
 
   const handleAuxClick = (e: MouseEvent) => {
@@ -238,6 +248,12 @@ export function InventoryItem({
           className="w-full z-0"
           src={textureItem?.texture || MissingTexture.src}
           alt={textureItem?.id || "missing-texture"}/>
+      )}
+      {(itemStack.id === AIR && placeholderIcon) && (
+        <img
+          className="w-full z-0"
+          src={placeholderIcon}
+          alt="placeholder-icon"/>
       )}
       {itemStack.count > 1 && (
         <span className={cn(
@@ -376,6 +392,7 @@ export function InventoryItem({
   return (
     <ItemDialog
       itemStack={itemStack}
+      inventoryType={inventoryType}
       disabled={!nbtEditMode}
       asChild>
       {itemComponent}

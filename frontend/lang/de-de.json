@@ -361,6 +361,7 @@
   "players.inventory.ws.error.404": "Spieler nicht gefunden",
   "players.inventory.interact-forbbiden": "Von Mods hinzugefügte Gegenstände können nicht bearbeitet werden",
   "players.inventory.nbt-mode.label": "NBT-Bearbeitungsmodus",
+  "players.inventory.ender-chest.title": "Endertruhe",
   "players.inventory.explorer.search.placeholder": "Gegenstand suchen...",
   "players.inventory.nbt-editor.title": "Gegenstands-NBT bearbeiten",
   "players.inventory.nbt-editor.description": "Bearbeiten Sie hier die NBT-Tags des Gegenstands.",

@@ -1,7 +1,7 @@
 "use client";
 
 import type { Item } from "minecraft-textures";
-import type { ItemStack, PlayerInventory } from "@/lib/types";
+import type { InventoryType, ItemStack, PlayerInventory } from "@/lib/types";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
@@ -63,26 +63,32 @@ export default function Inventory() {
     setCurrentlyHeldItem({ ...currentlyHeldItem, count: newCount });
   };
 
-  const swapClickedWithHeldItem = (clickedItem: ItemStack) => {
+  const updateItem = (inventoryType: InventoryType, item: ItemStack) => {
+    client?.send("update", { inventoryType, item });
+  };
+
+  const swapClickedWithHeldItem = (inventoryType: InventoryType, clickedItem: ItemStack) => {
     setCurrentlyHeldItem(clickedItem.id === AIR ? null : clickedItem);
-    client?.send("update", { ...currentlyHeldItem, slot: clickedItem.slot });
+    updateItem(inventoryType, currentlyHeldItem
+      ? { ...currentlyHeldItem, slot: clickedItem.slot }
+      : { id: AIR, count: 0, slot: clickedItem.slot });
   };
 
-  const addClickedWithHeldItem = (clickedItem: ItemStack, count: number) => {
+  const addClickedWithHeldItem = (inventoryType: InventoryType, clickedItem: ItemStack, count: number) => {
     minusHeldItemCount(count);
-    client?.send("update", { ...clickedItem, count: clickedItem.count + count });
+    updateItem(inventoryType, { ...clickedItem, count: clickedItem.count + count });
   };
 
-  const removeClickedItem = ({ slot }: ItemStack) => {
-    client?.send("update", { id: AIR, count: 0, slot, snbt: null });
+  const removeClickedItem = (inventoryType: InventoryType, { slot }: ItemStack) => {
+    updateItem(inventoryType, { id: AIR, count: 0, slot });
   };
 
-  const halfClickedItem = (clickedItem: ItemStack) => {
-    client?.send("update", { ...clickedItem, count: Math.floor(clickedItem.count / 2) });
+  const halfClickedItem = (inventoryType: InventoryType, clickedItem: ItemStack) => {
+    updateItem(inventoryType, { ...clickedItem, count: Math.floor(clickedItem.count / 2) });
   };
 
-  const updateItemNBT = (item: ItemStack, snbt: string) => {
-    client?.send("update", { ...item, snbt });
+  const updateItemNBT = (inventoryType: InventoryType, item: ItemStack, snbt: string) => {
+    updateItem(inventoryType, { ...item, snbt });
   };
 
   useEffect(() => {
@@ -157,7 +163,9 @@ export default function Inventory() {
         halfClickedItem,
         updateItemNBT
       }}>
-        {inventory && <InventoryContent inventory={inventory}/>}
+        {inventory && (
+          <InventoryContent inventory={inventory}/>
+        )}
         <ItemExplorer className="flex-1 w-full"/>
         {currentlyHeldItem && (
           <InventoryItem

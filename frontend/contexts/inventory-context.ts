@@ -1,5 +1,5 @@
 import type { Item } from "minecraft-textures";
-import type { ItemStack, SetState } from "@/lib/types";
+import type { InventoryType, ItemStack, SetState } from "@/lib/types";
 import React from "react";
 
 interface InventoryContextType {
@@ -8,11 +8,11 @@ interface InventoryContextType {
   setCurrentlyHeldItem: SetState<ItemStack | null>
   nbtEditMode: boolean
   setNbtEditMode: SetState<boolean>
-  swapClickedWithHeldItem: (clickedItem: ItemStack) => void
-  addClickedWithHeldItem: (clickedItem: ItemStack, count: number) => void
-  removeClickedItem: (clickedItem: ItemStack) => void
-  halfClickedItem: (clickedItem: ItemStack) => void
-  updateItemNBT: (item: ItemStack, snbt: string) => void
+  swapClickedWithHeldItem: (inventoryType: InventoryType, clickedItem: ItemStack) => void
+  addClickedWithHeldItem: (inventoryType: InventoryType, clickedItem: ItemStack, count: number) => void
+  removeClickedItem: (inventoryType: InventoryType, clickedItem: ItemStack) => void
+  halfClickedItem: (inventoryType: InventoryType, clickedItem: ItemStack) => void
+  updateItemNBT: (inventoryType: InventoryType, item: ItemStack, snbt: string) => void
 }
 
 export const InventoryContext = React.createContext<InventoryContextType>(undefined!);

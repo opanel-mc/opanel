@@ -6,6 +6,7 @@ import de.tr7zw.changeme.nbtapi.handler.NBTHandlers;
 import de.tr7zw.changeme.nbtapi.iface.NBTHandler;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 import net.opanel.common.OPanelInventory;
+import net.opanel.common.OPanelInventoryType;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -30,18 +31,13 @@ public abstract class BasePaperInventory implements OPanelInventory {
     protected abstract String keyOfNBT();
 
     @Override
-    public int getSize() {
-        return player.getInventory().getSize();
-    }
-
-    @Override
-    public List<OPanelItemStack> getItems() {
-        Inventory inventory = player.getInventory();
-        int size = getSize();
+    public List<OPanelItemStack> getItems(OPanelInventoryType inventoryType) {
+        Inventory inventory = getInventory(inventoryType);
+        int size = getSize(inventoryType);
         List<OPanelItemStack> items = new ArrayList<>(size);
 
         for(int i = 0; i < size; i++) {
-            ItemStack stack = inventory.getItem(i);
+            ItemStack stack = getItemStack(inventoryType, inventory, i);
             if(stack == null || stack.getType() == Material.AIR) {
                 items.add(new OPanelItemStack(i, "minecraft:air", 0, null));
                 continue;
@@ -59,14 +55,17 @@ public abstract class BasePaperInventory implements OPanelInventory {
     }
 
     @Override
-    public void setItems(List<OPanelItemStack> items) {
+    public void setItems(OPanelInventoryType inventoryType, List<OPanelItemStack> items) {
         runner.runTask(() -> {
-            Inventory inventory = player.getInventory();
-            inventory.clear();
+            Inventory inventory = getInventory(inventoryType);
+            for(int slot = 0; slot < getSize(inventoryType); slot++) {
+                setItemStack(inventoryType, inventory, slot, null);
+            }
 
             for(OPanelItemStack item : items) {
+                if(item == null || item.slot < 0 || item.slot >= getSize(inventoryType)) continue;
                 try {
-                    inventory.setItem(item.slot, toItemStack(item));
+                    setItemStack(inventoryType, inventory, item.slot, toItemStack(item));
                 } catch (NbtApiException e) {
                     //
                 }
@@ -75,14 +74,34 @@ public abstract class BasePaperInventory implements OPanelInventory {
     }
 
     @Override
-    public void setItem(OPanelItemStack item) throws NbtApiException {
+    public void setItem(OPanelInventoryType inventoryType, OPanelItemStack item) throws NbtApiException {
         runner.runTask(() -> {
             try {
-                player.getInventory().setItem(item.slot, toItemStack(item));
+                Inventory inventory = getInventory(inventoryType);
+                setItemStack(inventoryType, inventory, item.slot, toItemStack(item));
             } catch (NbtApiException e) {
                 //
             }
         });
+    }
+
+    private Inventory getInventory(OPanelInventoryType inventoryType) {
+        return inventoryType == OPanelInventoryType.ENDER_CHEST
+            ? player.getEnderChest()
+            : player.getInventory();
+    }
+
+    private ItemStack getItemStack(OPanelInventoryType inventoryType, Inventory inventory, int slot) {
+        if(inventoryType != OPanelInventoryType.EQUIPMENTS) return inventory.getItem(slot);
+        return inventory.getItem(equipmentSlot(slot));
+    }
+
+    private void setItemStack(OPanelInventoryType inventoryType, Inventory inventory, int slot, ItemStack item) {
+        inventory.setItem(inventoryType == OPanelInventoryType.EQUIPMENTS ? equipmentSlot(slot) : slot, item);
+    }
+
+    private int equipmentSlot(int slot) {
+        return slot == 4 ? 40 : 39 - slot;
     }
 
     protected ItemStack toItemStack(OPanelItemStack item) throws NbtApiException {

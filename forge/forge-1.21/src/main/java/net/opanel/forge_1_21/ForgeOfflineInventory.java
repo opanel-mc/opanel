@@ -1,5 +1,8 @@
 package net.opanel.forge_1_21;
 
+import net.opanel.common.OPanelInventory;
+import net.opanel.common.OPanelInventoryType;
+
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.nbt.*;
 import net.opanel.forge_helper.BaseForgeOfflineInventory;
@@ -13,6 +16,7 @@ import java.util.List;
 public class ForgeOfflineInventory extends BaseForgeOfflineInventory {
     private CompoundTag nbt;
     private ListTag nbtList;
+    private ListTag enderNbtList;
 
     public ForgeOfflineInventory(Path playerDataPath) {
         super(playerDataPath);
@@ -20,6 +24,7 @@ public class ForgeOfflineInventory extends BaseForgeOfflineInventory {
         try {
             nbt = NbtIo.readCompressed(playerDataPath, NbtAccounter.unlimitedHeap());
             nbtList = nbt.getList("Inventory", ListTag.TAG_COMPOUND);
+            enderNbtList = nbt.getList("EnderItems", ListTag.TAG_COMPOUND);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -28,17 +33,15 @@ public class ForgeOfflineInventory extends BaseForgeOfflineInventory {
     @Override
     protected void saveNbt() throws IOException {
         nbt.put("Inventory", nbtList);
+        nbt.put("EnderItems", enderNbtList);
         NbtIo.writeCompressed(nbt, playerDataPath);
     }
 
-    @Override
-    public int getSize() {
-        return nbtList.size();
-    }
 
     @Override
-    public List<OPanelItemStack> getItems() {
+    public List<OPanelItemStack> getItems(OPanelInventoryType inventoryType) {
         List<OPanelItemStack> items = new ArrayList<>();
+        ListTag nbtList = getNbtList(inventoryType);
 
         int nextSlot = 0;
         for(int i = 0; i < nbtList.size(); i++) {
@@ -63,19 +66,22 @@ public class ForgeOfflineInventory extends BaseForgeOfflineInventory {
             }
         }
 
-        return items;
+        return OPanelInventory.normalizeSavedItems(inventoryType, items);
     }
 
     @Override
-    public void setItems(List<OPanelItemStack> items) throws CommandSyntaxException {
-        if(nbtList.isEmpty()) return;
+    public void setItems(OPanelInventoryType inventoryType, List<OPanelItemStack> items) throws CommandSyntaxException {
+        ListTag nbtList = getNbtList(inventoryType);
 
         try {
-            nbtList.clear();
+            for(int i = nbtList.size() - 1; i >= 0; i--) {
+                CompoundTag savedItemNbt = nbtList.getCompound(i);
+                if(inventoryType.fromSavedSlot(savedItemNbt.getByte("Slot")) >= 0) nbtList.remove(i);
+            }
 
             for(OPanelItemStack item : items) {
-                if(item == null || item.isEmpty()) continue;
-                nbtList.add(toNbt(item));
+                if(item == null || item.isEmpty() || item.slot < 0 || item.slot >= inventoryType.getSize()) continue;
+                nbtList.add(toNbt(inventoryType, item));
             }
             saveNbt();
         } catch (IOException e) {
@@ -84,56 +90,25 @@ public class ForgeOfflineInventory extends BaseForgeOfflineInventory {
     }
 
     @Override
-    public void setItem(OPanelItemStack item) throws CommandSyntaxException {
-        try {
-            if(nbtList == null) return;
-
-            // Insert into empty list or to the last
-            if(nbtList.isEmpty() || item.slot > nbtList.getCompound(nbtList.size() - 1).getByte("Slot")) {
-                nbtList.add(toNbt(item));
-                saveNbt();
-                return;
-            }
-
-            for(int i = 0; i < nbtList.size(); i++) {
-                CompoundTag itemNbt = nbtList.getCompound(i);
-                int slot = itemNbt.getByte("Slot");
-
-                // Insert into an empty slot
-                if(slot > item.slot) {
-                    ForgeUtils.addCompoundToNBTList(nbtList, toNbt(item), i);
-                    break;
-                }
-                // Remove the item
-                if(slot == item.slot && item.isEmpty()) {
-                    nbtList.remove(i);
-                    break;
-                }
-                // Update the slot item
-                if(slot == item.slot) {
-                    itemNbt.putString("id", item.id);
-                    itemNbt.putByte("count", (byte) item.count);
-                    if(item.snbt != null) {
-                        itemNbt.put("components", TagParser.parseTag(item.snbt));
-                    }
-                    break;
-                }
-            }
-            saveNbt();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void setItem(OPanelInventoryType inventoryType, OPanelItemStack item) throws CommandSyntaxException {
+        List<OPanelItemStack> items = getItems(inventoryType);
+        items.set(item.slot, item);
+        setItems(inventoryType, items);
     }
 
     @Override
-    protected CompoundTag toNbt(OPanelItemStack item) throws CommandSyntaxException {
+    protected CompoundTag toNbt(OPanelInventoryType inventoryType, OPanelItemStack item) throws CommandSyntaxException {
         CompoundTag itemNbt = new CompoundTag();
-        itemNbt.putByte("Slot", (byte) item.slot);
+        itemNbt.putByte("Slot", (byte) inventoryType.toSavedSlot(item.slot));
         itemNbt.putString("id", item.id);
         itemNbt.putByte("count", (byte) item.count);
         if(item.snbt != null) {
             itemNbt.put("components", TagParser.parseTag(item.snbt));
         }
         return itemNbt;
+    }
+
+    private ListTag getNbtList(OPanelInventoryType inventoryType) {
+        return inventoryType == OPanelInventoryType.ENDER_CHEST ? enderNbtList : nbtList;
     }
 }

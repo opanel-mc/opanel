@@ -18,4 +18,9 @@ public class FoliaOfflineInventory extends BasePaperOfflineInventory {
     protected String keyOfNBT() {
         return "tag";
     }
+
+    @Override
+    protected boolean usesEquipmentTag() {
+        return false;
+    }
 }

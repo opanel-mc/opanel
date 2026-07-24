@@ -1,5 +1,5 @@
 import type { Item } from "minecraft-textures";
-import type { ItemStack, PlayerInventory, SetState } from "@/lib/types";
+import type { InventoryData, InventoryType, ItemStack, PlayerInventory, SetState } from "@/lib/types";
 import { vi } from "vitest";
 
 interface MockInventoryContextValue {
@@ -8,11 +8,11 @@ interface MockInventoryContextValue {
   setCurrentlyHeldItem: SetState<ItemStack | null>
   nbtEditMode: boolean
   setNbtEditMode: SetState<boolean>
-  swapClickedWithHeldItem: (clickedItem: ItemStack) => void
-  addClickedWithHeldItem: (clickedItem: ItemStack, count: number) => void
-  removeClickedItem: (clickedItem: ItemStack) => void
-  halfClickedItem: (clickedItem: ItemStack) => void
-  updateItemNBT: (item: ItemStack, snbt: string) => void
+  swapClickedWithHeldItem: (inventoryType: InventoryType, clickedItem: ItemStack) => void
+  addClickedWithHeldItem: (inventoryType: InventoryType, clickedItem: ItemStack, count: number) => void
+  removeClickedItem: (inventoryType: InventoryType, clickedItem: ItemStack) => void
+  halfClickedItem: (inventoryType: InventoryType, clickedItem: ItemStack) => void
+  updateItemNBT: (inventoryType: InventoryType, item: ItemStack, snbt: string) => void
 }
 
 type Handler = (data: unknown) => void;
@@ -26,11 +26,20 @@ export function createItem(overrides?: Partial<ItemStack>): ItemStack {
   };
 }
 
+export function createInventoryData(size: number, overrides?: Partial<InventoryData>): InventoryData {
+  return {
+    size,
+    items: Array.from({ length: size }).map((_, slot) => createItem({ slot, id: "minecraft:air", count: 0 })),
+    ...overrides
+  };
+}
+
 export function createInventory(overrides?: Partial<PlayerInventory>): PlayerInventory {
   return {
-    size: 45,
     hash: "inventory-hash",
-    items: Array.from({ length: 45 }).map((_, slot) => createItem({ slot, id: "minecraft:air", count: 0 })),
+    main: createInventoryData(36),
+    equipments: createInventoryData(5),
+    enderChest: createInventoryData(27),
     ...overrides
   };
 }

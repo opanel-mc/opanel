@@ -361,6 +361,7 @@
   "players.inventory.ws.error.404": "Joueur introuvable",
   "players.inventory.interact-forbbiden": "Impossible d'interagir avec les objets ajoutés par des mods",
   "players.inventory.nbt-mode.label": "Mode édition NBT",
+  "players.inventory.ender-chest.title": "Coffre de l'Ender",
   "players.inventory.explorer.search.placeholder": "Rechercher un objet...",
   "players.inventory.nbt-editor.title": "Modifier le NBT de l'objet",
   "players.inventory.nbt-editor.description": "Modifiez ici les balises NBT de l'objet.",
