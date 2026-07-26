@@ -17,16 +17,6 @@ allprojects {
     group = project.group
     version = project.version
 
-    repositories {
-        maven {
-            name = "CoZoooo"
-            url = "https://maven.cozozjw.cn/repository/maven-releases/"
-            content {
-                includeGroup "com.cozooo.dlc_manager"
-            }
-        }
-    }
-
     java {
         toolchain {
             languageVersion = JavaLanguageVersion.of(14)

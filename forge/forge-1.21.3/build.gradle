@@ -34,7 +34,7 @@ repositories {
 
 dependencies {
     implementation minecraft.dependency("net.minecraftforge:forge:${minecraft_version}-${forge_version}")
-    shadowImplementation "com.cozooo.dlc_manager:dlc-fileops-helper:1.0.1"
+    shadowImplementation "com.cozooo.dlc_manager:dlc_fileops_helper:1.0.1"
 
     shadowImplementation(project(":core")) {
         // To avoid conflict
