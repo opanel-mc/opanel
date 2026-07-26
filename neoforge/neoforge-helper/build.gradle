@@ -38,7 +38,7 @@ neoForge {
 }
 
 dependencies {
-    implementation "com.cozooo.dlc_manager:dlc-fileops-helper:1.0.1"
+    implementation "com.cozooo.dlc_manager:dlc_fileops_helper:1.0.1"
     compileOnly(project(":core")) {
         // To avoid conflict
         exclude group: 'com.github.oshi', module: 'oshi-core'

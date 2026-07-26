@@ -34,7 +34,7 @@ dependencies {
     compileOnly "org.apache.logging.log4j:log4j-core:2.24.1"
     compileOnly "com.mojang:brigadier:1.0.18"
     shadowImplementation "org.bstats:bstats-bukkit:3.2.1"
-    shadowImplementation "com.cozooo.dlc_manager:dlc-fileops-helper:1.0.1"
+    shadowImplementation "com.cozooo.dlc_manager:dlc_fileops_helper:1.0.1"
 
     shadowImplementation(project(":core")) {
         // To avoid conflict
