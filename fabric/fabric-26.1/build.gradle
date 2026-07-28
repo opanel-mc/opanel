@@ -42,8 +42,8 @@ dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
     implementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     implementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}+${minecraft_version}"
-    include(implementation("space.nocp:configx:2.0.6"))
     shadowImplementation "com.cozooo.dlc_manager:dlc_fileops_helper:1.0.1"
+    shadowImplementation(project(":fabric-config"))
 
     shadowImplementation(project(":core")) {
         // To avoid conflict
@@ -67,18 +67,11 @@ shadowJar {
     relocate 'kotlin', 'net.opanel.deps.kotlin'
     relocate 'com.nimbusds', 'net.opanel.deps.nimbusds'
     relocate 'net.minidev', 'net.opanel.deps.minidev'
-    relocate 'space.nocp.configx', 'net.opanel.deps.configx'
 
     exclude 'META-INF/*.SF'
     exclude 'META-INF/*.DSA'
     exclude 'META-INF/*.RSA'
 }
-
-shadowJar.from(project.files(
-    configurations.detachedConfiguration(
-        dependencies.create("space.nocp:configx:2.0.6")
-    ).files.findAll { it.name.contains('configx') && it.name.endsWith('.jar') }
-))
 
 build {
     dependsOn shadowJar

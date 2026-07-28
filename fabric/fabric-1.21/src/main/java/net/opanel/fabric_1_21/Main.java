@@ -7,14 +7,12 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
 import net.opanel.*;
-import net.opanel.config.OPanelConfiguration;
 import net.opanel.fabric_1_21.command.OPanelCommand;
 import net.opanel.fabric_1_21.terminal.LogListenerManagerImpl;
 import net.opanel.fabric_helper.config.ConfigManagerImpl;
 import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import space.nocp.configx.api.*;
 
 import java.nio.file.Paths;
 
@@ -29,8 +27,7 @@ public class Main implements DedicatedServerModInitializer {
     public void onInitializeServer() {
         FileOpsHelperBootstrap.initialize(Paths.get(""), OPanel.TMP_DIR_PATH);
 
-        Configuration<OPanelConfiguration> configSrc = ConfigManager.get().register(MODID, OPanelConfiguration.defaultConfig, OPanelConfiguration.class);
-        instance = new OPanel(new ConfigManagerImpl(configSrc), new LoggerImpl(LOGGER));
+        instance = new OPanel(new ConfigManagerImpl(), new LoggerImpl(LOGGER));
 
         initLogListenerAppender();
 
