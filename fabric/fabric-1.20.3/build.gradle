@@ -43,8 +43,8 @@ dependencies {
     mappings "net.fabricmc:yarn:${yarn_mappings}:v2"
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}+${minecraft_version}"
-    include(modImplementation("space.nocp:configx:2.0.6"))
     shadowImplementation "com.cozooo.dlc_manager:dlc_fileops_helper:1.0.1"
+    shadowImplementation(project(":fabric-config"))
 
     shadowImplementation(project(":core")) {
         // To avoid conflict

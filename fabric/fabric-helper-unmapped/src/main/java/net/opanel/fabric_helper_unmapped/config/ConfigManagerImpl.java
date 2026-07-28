@@ -2,13 +2,18 @@ package net.opanel.fabric_helper_unmapped.config;
 
 import net.opanel.config.ConfigManager;
 import net.opanel.config.OPanelConfiguration;
-import space.nocp.configx.api.Configuration;
+import net.fabricmc.loader.api.FabricLoader;
+import net.opanel.fabric_config.JsonConfiguration;
 
 public class ConfigManagerImpl implements ConfigManager {
-    private final Configuration<OPanelConfiguration> configSrc;
+    private final JsonConfiguration<OPanelConfiguration> configSrc;
 
-    public ConfigManagerImpl(Configuration<OPanelConfiguration> configSrc) {
-        this.configSrc = configSrc;
+    public ConfigManagerImpl() {
+        this.configSrc = new JsonConfiguration<>(
+                FabricLoader.getInstance().getConfigDir().resolve("opanel.json"),
+                OPanelConfiguration.defaultConfig,
+                OPanelConfiguration.class
+        );
     }
 
     @Override

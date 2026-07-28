@@ -22,6 +22,7 @@
             <option value="$PROJECT_DIR$/fabric/fabric-1.21.5" />
             <option value="$PROJECT_DIR$/fabric/fabric-1.21.9" />
             <option value="$PROJECT_DIR$/fabric/fabric-26.1" />
+            <option value="$PROJECT_DIR$/fabric/fabric-config" />
             <option value="$PROJECT_DIR$/fabric/fabric-helper" />
             <option value="$PROJECT_DIR$/fabric/fabric-helper-unmapped" />
             <option value="$PROJECT_DIR$/forge/forge-1.19.4" />

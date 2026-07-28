@@ -24,6 +24,7 @@ include 'core'
 
 def platformModules = [
     fabric: [
+        'fabric-config',
         'fabric-helper',
         'fabric-1.19',
         'fabric-1.19.4',
