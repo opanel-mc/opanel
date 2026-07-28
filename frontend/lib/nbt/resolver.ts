@@ -1,4 +1,4 @@
-import { parseNbtString, type NbtObject } from "snbt-js";
+import { NbtObject, parseNbtString } from "snbt-js";
 
 // export type Color = "white" | "orange" | "magenta" | "light_blue" | "yellow" | "lime" | "pink" | "gray" | "light_gray" | "cyan" | "purple" | "blue" | "brown" | "green" | "red" | "black";
 export type RgbColor = [number, number, number];
@@ -19,7 +19,12 @@ export abstract class ItemNBTResolver {
   protected nbt: NbtObject;
 
   constructor(protected id: string, snbt: string) {
-    this.nbt = parseNbtString(snbt);
+    try {
+      const nbt = parseNbtString(snbt);
+      this.nbt = nbt instanceof NbtObject ? nbt : new NbtObject();
+    } catch {
+      this.nbt = new NbtObject();
+    }
   }
   
   abstract isEmpty(): boolean;
