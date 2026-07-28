@@ -99,7 +99,7 @@
   "nav.settings": "設定",
   "nav.docs": "文檔",
   "nav.donate": "贊助",
-  
+
   "functional-card.more": "更多",
 
   "dialog.cancel": "取消",
@@ -172,7 +172,7 @@
   "dashboard.favicon.input.label": "上載圖片",
   "dashboard.favicon.input.description": "請選擇一個 64x64 大小的 PNG 格式圖片作為伺服器圖示。",
   "dashboard.favicon.input.error": "圖片尺寸錯誤，應該係 64x64",
-  "dashboard.favicon.motd.title": "編輯 Motd",
+  "dashboard.motd.title": "編輯 Motd",
   "dashboard.motd.description.line": "喺呢度編輯同預覽伺服器 Motd。@s{warning}",
   "dashboard.motd.description.warning": "註：呢個功能喺 Fabric 唔穩定，原因未明。",
   "dashboard.motd.error": "修改 Motd 失敗",
@@ -715,4 +715,3 @@
   "settings.update.download-update": "下載更新",
   "settings.reset": "還原預設"
 }
-
