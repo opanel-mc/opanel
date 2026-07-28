@@ -1,7 +1,7 @@
 import {
-  type NbtBool,
-  type NbtList,
-  type NbtNumber,
+  NbtBool,
+  NbtList,
+  NbtNumber,
   NbtObject,
   NbtString
 } from "snbt-js";
@@ -22,10 +22,17 @@ export class TagResolver extends ItemNBTResolver {
     super(id, snbt);
 
     // Enchantments
-    for(const { childs } of (this.nbt.get<NbtList>("Enchantments")?.childs ?? []) as NbtObject[]) {
-      const id = (childs.id as NbtString).value;
-      const level = (childs.lvl as NbtNumber).value;
-      this.enchantments.set(id, level);
+    const enchantmentsNBT = this.nbt.get("Enchantments");
+    if(enchantmentsNBT instanceof NbtList) {
+      for(const enchantment of enchantmentsNBT.childs) {
+        if(!(enchantment instanceof NbtObject)) continue;
+
+        const enchantmentId = enchantment.get("id");
+        const enchantmentLevel = enchantment.get("lvl");
+        if(enchantmentId instanceof NbtString && enchantmentLevel instanceof NbtNumber) {
+          this.enchantments.set(enchantmentId.value, enchantmentLevel.value);
+        }
+      }
     }
   }
 
@@ -34,12 +41,12 @@ export class TagResolver extends ItemNBTResolver {
   }
 
   override isEmpty() {
-    return !this.nbt || Object.keys(this.nbt).length === 0;
+    return this.nbt.isempty();
   }
 
   override getName() {
-    const displayNBT = this.nbt.get<NbtObject>("display");
-    const customName = displayNBT?.get<NbtObject | NbtString>("Name");
+    const displayNBT = this.nbt.get("display");
+    const customName = displayNBT instanceof NbtObject ? displayNBT.get("Name") : undefined;
     if(customName instanceof NbtString) {
       return customName.value;
     }
@@ -53,12 +60,19 @@ export class TagResolver extends ItemNBTResolver {
   }
 
   override hasCustomName(): boolean {
-    return this.hasTag("display") && this.nbt.get<NbtObject>("display")?.get("Name") !== undefined;
+    const displayNBT = this.nbt.get("display");
+    if(!(displayNBT instanceof NbtObject)) return false;
+
+    const customName = displayNBT.get("Name");
+    return customName instanceof NbtString || customName instanceof NbtObject;
   }
 
   override getLore(): string[] {
-    const loreNBT = this.nbt.get<NbtList>(["display", "Lore"]);
-    if(!loreNBT) return [];
+    const displayNBT = this.nbt.get("display");
+    if(!(displayNBT instanceof NbtObject)) return [];
+
+    const loreNBT = displayNBT.get("Lore");
+    if(!(loreNBT instanceof NbtList)) return [];
 
     const lore: string[] = [];
     for(const item of loreNBT.childs) {
@@ -84,15 +98,20 @@ export class TagResolver extends ItemNBTResolver {
   }
 
   override getDamage() {
-    return this.nbt.get<NbtNumber>("Damage")?.value ?? null;
+    const damage = this.nbt.get("Damage");
+    return damage instanceof NbtNumber ? damage.value : null;
   }
 
   override isUnbreakable() {
-    return this.nbt.get<NbtBool>("Unbreakable")?.value ?? false;
+    const unbreakable = this.nbt.get("Unbreakable");
+    if(unbreakable instanceof NbtBool) return unbreakable.value;
+    return unbreakable instanceof NbtNumber && unbreakable.value !== 0;
   }
 
   override isPotion(): boolean {
-    return (this.hasTag("Potion") || this.hasTag("CustomPotionColor")) && (
+    const potion = this.nbt.get("Potion");
+    const customColor = this.nbt.get("CustomPotionColor");
+    return (potion instanceof NbtString || customColor instanceof NbtNumber) && (
       [
         "minecraft:potion",
         "minecraft:splash_potion",
@@ -102,7 +121,9 @@ export class TagResolver extends ItemNBTResolver {
   }
 
   override isTippedArrow(): boolean {
-    return (this.hasTag("Potion") || this.hasTag("CustomPotionColor")) && (
+    const potion = this.nbt.get("Potion");
+    const customColor = this.nbt.get("CustomPotionColor");
+    return (potion instanceof NbtString || customColor instanceof NbtNumber) && (
       this.id === "minecraft:tipped_arrow"
     );
   }
@@ -110,16 +131,17 @@ export class TagResolver extends ItemNBTResolver {
   override getPotionId(): string | null {
     if(!this.isPotion() && !this.isTippedArrow()) return null;
 
-    const potionId = this.nbt.get<NbtString>("Potion")?.value ?? "minecraft:empty";
+    const potion = this.nbt.get("Potion");
+    const potionId = potion instanceof NbtString ? potion.value : "minecraft:empty";
     return potionId.replace(/long_|strong_/g, "");
   }
 
   override getPotionColor(): RgbColor | null {
     if(!this.isPotion() && !this.isTippedArrow()) return null;
 
-    const customColor = this.nbt.get<NbtNumber>("CustomPotionColor")?.value;
-    if(customColor !== undefined) {
-      const hexStr = customColor.toString(16).padStart(6, "0");
+    const customColor = this.nbt.get("CustomPotionColor");
+    if(customColor instanceof NbtNumber) {
+      const hexStr = customColor.value.toString(16).padStart(6, "0");
       const r = parseInt(hexStr.slice(0, 2), 16);
       const g = parseInt(hexStr.slice(2, 4), 16);
       const b = parseInt(hexStr.slice(4, 6), 16);
@@ -127,7 +149,7 @@ export class TagResolver extends ItemNBTResolver {
     }
     
     const id = this.getPotionId();
-    return id ? potionColors[id] : potionColors["minecraft:water"];
+    return id ? (potionColors[id] ?? potionColors["minecraft:water"]) : potionColors["minecraft:water"];
   }
 
   override getItemModel(): string | null {
@@ -135,13 +157,16 @@ export class TagResolver extends ItemNBTResolver {
   }
 
   override getMapId(): number | null {
-    const mapId = this.nbt.get<NbtNumber>("map")?.value;
-    return mapId !== undefined ? mapId : null;
+    const mapId = this.nbt.get("map");
+    return mapId instanceof NbtNumber ? mapId.value : null;
   }
 
   override getBeeAmount(): number | null {
-    const beeAmount = this.nbt.get<NbtList>(["BlockEntityTag", "Bees"])?.childs.length;
-    return beeAmount !== undefined ? beeAmount : null;
+    const blockEntityTag = this.nbt.get("BlockEntityTag");
+    if(!(blockEntityTag instanceof NbtObject)) return null;
+
+    const bees = blockEntityTag.get("Bees");
+    return bees instanceof NbtList ? bees.childs.length : null;
   }
 
   override getHoneyLevel(): number | null {
@@ -149,8 +174,11 @@ export class TagResolver extends ItemNBTResolver {
   }
 
   override getDyedColor(): RgbColor | null {
-    const dyedColor = this.nbt.get<NbtNumber>(["display", "color"]);
-    if(dyedColor === undefined) return null;
+    const displayNBT = this.nbt.get("display");
+    if(!(displayNBT instanceof NbtObject)) return null;
+
+    const dyedColor = displayNBT.get("color");
+    if(!(dyedColor instanceof NbtNumber)) return null;
 
     const hexStr = dyedColor.value.toString(16).padStart(6, "0");
     const r = parseInt(hexStr.slice(0, 2), 16);

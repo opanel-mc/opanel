@@ -1,6 +1,6 @@
 import {
-  type NbtBool,
   type NbtValue,
+  NbtBool,
   NbtList,
   NbtNumber,
   NbtObject,
@@ -25,7 +25,7 @@ import { textComponentToString } from "../utils";
  * - stone -> minecraft:stone
  */
 export function itemModelToTextureId(model: string | null): string | null {
-  if(!model) return null;
+  if(typeof model !== "string" || !model) return null;
 
   const colon = model.indexOf(":");
   const namespace = colon === -1 ? "minecraft" : model.slice(0, colon);
@@ -43,20 +43,23 @@ export class ComponentsResolver extends ItemNBTResolver {
     super(id, snbt);
 
     // Block State
-    const blockStateNBT = this.nbt.get<NbtObject>("minecraft:block_state");
-    if(blockStateNBT) {
+    const blockStateNBT = this.nbt.get("minecraft:block_state");
+    if(blockStateNBT instanceof NbtObject) {
       for(const [key, value] of Object.entries(blockStateNBT.childs)) {
         this.blockState.set(key, value);
       }
     }
 
     // Enchantments
-    const enchantmentsNBT = (
-      this.nbt.get<NbtObject>(["minecraft:enchantments", "levels"]) ??
-      this.nbt.get<NbtObject>("minecraft:enchantments")
-    );
-    for(const [id, level] of Object.entries(enchantmentsNBT?.childs ?? {})) {
-      this.enchantments.set(id, (level as NbtNumber).value);
+    const enchantmentsComponent = this.nbt.get("minecraft:enchantments");
+    if(enchantmentsComponent instanceof NbtObject) {
+      const levels = enchantmentsComponent.get("levels");
+      const enchantmentsNBT = levels instanceof NbtObject ? levels : enchantmentsComponent;
+      for(const [id, level] of Object.entries(enchantmentsNBT.childs)) {
+        if(level instanceof NbtNumber) {
+          this.enchantments.set(id, level.value);
+        }
+      }
     }
   }
 
@@ -64,10 +67,15 @@ export class ComponentsResolver extends ItemNBTResolver {
     return this.nbt.get(name) !== undefined;
   }
 
-  private getBlockState<T extends NbtValue>(state: string): T | null {
+  private getBlockState(state: string): NbtValue | null {
     const value = this.blockState.get(state);
     if(value === undefined) return null;
-    return value as T;
+    return value;
+  }
+
+  private getPotionContents(): NbtObject | null {
+    const potionContents = this.nbt.get("minecraft:potion_contents");
+    return potionContents instanceof NbtObject ? potionContents : null;
   }
 
   getComponentAmount(): number {
@@ -75,7 +83,7 @@ export class ComponentsResolver extends ItemNBTResolver {
   }
 
   override isEmpty() {
-    return !this.nbt || Object.keys(this.nbt).length === 0;
+    return this.nbt.isempty();
   }
 
   override getName() {
@@ -90,12 +98,13 @@ export class ComponentsResolver extends ItemNBTResolver {
   }
 
   override hasCustomName(): boolean {
-    return this.hasComponent("minecraft:custom_name");
+    const customName = this.nbt.get("minecraft:custom_name");
+    return customName instanceof NbtString || customName instanceof NbtObject;
   }
 
   override getLore(): string[] {
-    const loreNBT = this.nbt.get<NbtList>("minecraft:lore");
-    if(!loreNBT) return [];
+    const loreNBT = this.nbt.get("minecraft:lore");
+    if(!(loreNBT instanceof NbtList)) return [];
 
     const lore: string[] = [];
     for(const item of loreNBT.childs) {
@@ -116,13 +125,19 @@ export class ComponentsResolver extends ItemNBTResolver {
   }
 
   override shouldGlint() {
-    const glintOverride = this.nbt.get<NbtBool>("minecraft:enchantment_glint_override")?.value ?? false;
+    const glintOverrideNBT = this.nbt.get("minecraft:enchantment_glint_override");
+    const glintOverride = (
+      glintOverrideNBT instanceof NbtBool
+      ? glintOverrideNBT.value
+      : glintOverrideNBT instanceof NbtNumber && glintOverrideNBT.value !== 0
+    );
     const isLodestone = this.hasComponent("minecraft:lodestone_tracker");
     return glintItems.includes(this.id) || this.hasEnchantments() || glintOverride || isLodestone;
   }
 
   override getDamage() {
-    return this.nbt.get<NbtNumber>("minecraft:damage")?.value ?? null;
+    const damage = this.nbt.get("minecraft:damage");
+    return damage instanceof NbtNumber ? damage.value : null;
   }
 
   override isUnbreakable() {
@@ -130,7 +145,7 @@ export class ComponentsResolver extends ItemNBTResolver {
   }
 
   override isPotion(): boolean {
-    return this.hasComponent("minecraft:potion_contents") && (
+    return this.getPotionContents() !== null && (
       [
         "minecraft:potion",
         "minecraft:splash_potion",
@@ -140,21 +155,22 @@ export class ComponentsResolver extends ItemNBTResolver {
   }
 
   override isTippedArrow(): boolean {
-    return this.hasComponent("minecraft:potion_contents") && this.id === "minecraft:tipped_arrow";
+    return this.getPotionContents() !== null && this.id === "minecraft:tipped_arrow";
   }
 
   override getPotionId(): string | null {
     if(!this.isPotion() && !this.isTippedArrow()) return null;
 
-    const potionId = this.nbt.get<NbtString>(["minecraft:potion_contents", "potion"])?.value ?? "minecraft:empty";
+    const potion = this.getPotionContents()?.get("potion");
+    const potionId = potion instanceof NbtString ? potion.value : "minecraft:empty";
     return potionId.replace(/long_|strong_/g, "");
   }
 
   override getPotionColor(): RgbColor | null {
     if(!this.isPotion() && !this.isTippedArrow()) return null;
 
-    const customColor = this.nbt.get<NbtNumber>(["minecraft:potion_contents", "custom_color"]);
-    if(customColor !== undefined) {
+    const customColor = this.getPotionContents()?.get("custom_color");
+    if(customColor instanceof NbtNumber) {
       const hexStr = customColor.value.toString(16).padStart(6, "0");
       const r = parseInt(hexStr.slice(0, 2), 16);
       const g = parseInt(hexStr.slice(2, 4), 16);
@@ -163,30 +179,31 @@ export class ComponentsResolver extends ItemNBTResolver {
     }
 
     const id = this.getPotionId();
-    return id ? potionColors[id] : potionColors["minecraft:water"];
+    return id ? (potionColors[id] ?? potionColors["minecraft:water"]) : potionColors["minecraft:water"];
   }
 
   override getItemModel(): string | null {
-    const model = this.nbt.get<NbtString>("minecraft:item_model")?.value;
-    return model ?? null;
+    const model = this.nbt.get("minecraft:item_model");
+    return model instanceof NbtString ? model.value : null;
   }
 
   override getMapId(): number | null {
-    const mapId = this.nbt.get<NbtNumber>("minecraft:map_id")?.value;
-    return mapId !== undefined ? mapId : null;
+    const mapId = this.nbt.get("minecraft:map_id");
+    return mapId instanceof NbtNumber ? mapId.value : null;
   }
 
   override getBeeAmount(): number | null {
-    const beeAmount = this.nbt.get<NbtList>("minecraft:bees")?.childs.length;
-    return beeAmount !== undefined ? beeAmount : null;
+    const bees = this.nbt.get("minecraft:bees");
+    return bees instanceof NbtList ? bees.childs.length : null;
   }
 
   override getHoneyLevel(): number | null {
-    return this.getBlockState<NbtNumber>("honey_level")?.value ?? null;
+    const honeyLevel = this.getBlockState("honey_level");
+    return honeyLevel instanceof NbtNumber ? honeyLevel.value : null;
   }
 
   override getDyedColor(): RgbColor | null {
-    const dyedColor = this.nbt.get<NbtNumber | NbtList>("minecraft:dyed_color");
+    const dyedColor = this.nbt.get("minecraft:dyed_color");
     if(dyedColor instanceof NbtNumber) {
       const hexStr = dyedColor.value.toString(16).padStart(6, "0");
       const r = parseInt(hexStr.slice(0, 2), 16);
@@ -196,9 +213,16 @@ export class ComponentsResolver extends ItemNBTResolver {
     }
     if(dyedColor instanceof NbtList) {
       if(dyedColor.childs.length < 3) return null;
-      const r = Math.min(255, (dyedColor.childs[0] as NbtNumber).value * 255);
-      const g = Math.min(255, (dyedColor.childs[1] as NbtNumber).value * 255);
-      const b = Math.min(255, (dyedColor.childs[2] as NbtNumber).value * 255);
+      const [red, green, blue] = dyedColor.childs;
+      if(
+        !(red instanceof NbtNumber)
+        || !(green instanceof NbtNumber)
+        || !(blue instanceof NbtNumber)
+      ) return null;
+
+      const r = Math.min(255, red.value * 255);
+      const g = Math.min(255, green.value * 255);
+      const b = Math.min(255, blue.value * 255);
       return [r, g, b];
     }
     return null;
