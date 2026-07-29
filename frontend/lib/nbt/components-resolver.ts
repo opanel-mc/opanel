@@ -10,6 +10,7 @@ import { potionColors } from "./potion-colors";
 import {
   type RgbColor,
   type Enchantments,
+  DEFAULT_MAX_STACK_SIZE,
   ItemNBTResolver,
   glintItems,
 } from "./resolver";
@@ -200,6 +201,11 @@ export class ComponentsResolver extends ItemNBTResolver {
   override getHoneyLevel(): number | null {
     const honeyLevel = this.getBlockState("honey_level");
     return honeyLevel instanceof NbtNumber ? honeyLevel.value : null;
+  }
+
+  override getMaxStackSize(): number {
+    const maxStackSize = this.nbt.get("minecraft:max_stack_size");
+    return maxStackSize instanceof NbtNumber ? maxStackSize.value : DEFAULT_MAX_STACK_SIZE;
   }
 
   override getDyedColor(): RgbColor | null {
