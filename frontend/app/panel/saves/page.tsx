@@ -87,20 +87,22 @@ export default function Saves() {
       description={$("saves.description")}
       category={$("sidebar.management")}
       icon={<Earth />}
-      className="relative h-full z-20"
+      className="relative z-0 h-full"
       onDragEnter={() => setUploadVisible(true)}>
       {/* Drag and Drop Area */}
-      <div className={cn("absolute top-0 left-0 right-0 bottom-0 flex flex-col justify-center items-center gap-4", uploadVisible ? "" : "hidden")}>
+      <div className={cn("absolute inset-0 z-10", uploadVisible ? "" : "hidden")}>
         <div
-          className="absolute w-full h-full border-4 rounded-sm border-dashed"
+          className="absolute inset-0 border-4 rounded-sm border-dashed"
           onDrop={(e) => {
             e.preventDefault();
             handleUpload(e.dataTransfer.files[0]);
           }}
           onDragOver={(e) => e.preventDefault()}
           onDragLeave={() => setUploadVisible(false)}/>
-        <Upload size={60} stroke="var(--color-muted-foreground)"/>
-        <span className="text-muted-foreground">{$("saves.dnd.label")}</span>
+        <div className="sticky top-1/2 -translate-y-1/2 pointer-events-none flex flex-col items-center gap-4">
+          <Upload size={60} stroke="var(--color-muted-foreground)"/>
+          <span className="text-muted-foreground">{$("saves.dnd.label")}</span>
+        </div>
       </div>
 
       <div className="flex flex-col gap-4">
