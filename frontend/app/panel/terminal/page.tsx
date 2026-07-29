@@ -244,7 +244,7 @@ export default function Terminal() {
       icon={<SquareTerminal />}
       outerClassName="max-h-[100dvh] overflow-y-hidden"
       className="flex-1 min-h-0 flex gap-3"
-      pageClassName="max-sm:p-0!">
+      pageClassName="min-h-0 max-sm:p-0!">
       <div
         className="flex-4/5 max-lg:flex-3/4 max-md:flex-2/3 min-w-0 min-h-0 bg-background flex flex-col border rounded-sm max-sm:rounded-none max-sm:border-none"
         ref={terminalContainerRef}>

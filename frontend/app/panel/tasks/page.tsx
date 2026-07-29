@@ -57,6 +57,7 @@ export default function Tasks() {
       description={$("tasks.description")}
       category={$("sidebar.config")}
       icon={<ClockFading />}
+      pageClassName="min-h-0"
       className="flex-1 min-h-0">
       <FilesEditor className="min-lg:*:flex-1">
         <FilesEditorSidebar className="h-full min-h-0 block overflow-y-auto o-scrollbar">

@@ -124,7 +124,7 @@ export default function ServerMap() {
     <SubPage
       title={$("map.title")}
       showHeader={false}
-      className="bg-background p-0!">
+      className="-mt-12 min-h-0 bg-background p-0!">
       <div className="relative w-full h-full shadow-[inset_0px_0px_20px_4px_rgba(0,0,0,0.14)]">
         <MapCanvas
           key={save}
