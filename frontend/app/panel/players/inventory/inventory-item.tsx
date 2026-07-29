@@ -30,9 +30,14 @@ import MissingTexture from "@/assets/images/inventory/missing-texture.png";
 import "@/style/item-effect.css";
 
 export const AIR = "minecraft:air";
+const MAX_STACK_COUNT = 64;
 
 function isFromExplorer(itemStack: ItemStack) {
   return itemStack.slot === -1;
+}
+
+function getTransferableCount(targetCount: number, requestedCount: number) {
+  return Math.max(0, Math.min(requestedCount, MAX_STACK_COUNT - targetCount));
 }
 
 function getLeatherOverlay(id: string): string | null {
@@ -112,7 +117,13 @@ export function InventoryItem({
       && itemStack.id === currentlyHeldItem.id
       && itemStack.snbt === currentlyHeldItem.snbt
     ) { // add one to held item from explorer
-      setCurrentlyHeldItem({ ...currentlyHeldItem, count: currentlyHeldItem.count + 1 });
+      const transferableCount = getTransferableCount(currentlyHeldItem.count, 1);
+      if(transferableCount > 0) {
+        setCurrentlyHeldItem({
+          ...currentlyHeldItem,
+          count: currentlyHeldItem.count + transferableCount
+        });
+      }
       return;
     }
 
@@ -122,7 +133,10 @@ export function InventoryItem({
     }
 
     if(itemStack.id === currentlyHeldItem.id && itemStack.snbt === currentlyHeldItem.snbt) {
-      if(inventoryType) addClickedWithHeldItem(inventoryType, itemStack, currentlyHeldItem.count);
+      const transferableCount = getTransferableCount(itemStack.count, currentlyHeldItem.count);
+      if(inventoryType && transferableCount > 0) {
+        addClickedWithHeldItem(inventoryType, itemStack, transferableCount);
+      }
       return;
     }
 
@@ -154,7 +168,10 @@ export function InventoryItem({
     }
 
     if(itemStack.id === currentlyHeldItem.id && itemStack.snbt === currentlyHeldItem.snbt) { // add one by one
-      if(inventoryType) addClickedWithHeldItem(inventoryType, itemStack, 1);
+      const transferableCount = getTransferableCount(itemStack.count, 1);
+      if(inventoryType && transferableCount > 0) {
+        addClickedWithHeldItem(inventoryType, itemStack, transferableCount);
+      }
       return;
     }
 

@@ -177,9 +177,9 @@ describe("test inventory item", () => {
     expect(ctx.addClickedWithHeldItem).not.toHaveBeenCalled();
   });
 
-  it("should still add all held count even when total count is greater than 64", () => {
-    const heldItem = createItem({ slot: 2, id: "minecraft:stone", count: 40, snbt: "{foo:1b}" });
-    const clickedItem = createItem({ slot: 12, id: "minecraft:stone", count: 40, snbt: "{foo:1b}" });
+  it("should only merge enough held items to fill the clicked stack to 64", () => {
+    const heldItem = createItem({ slot: 2, id: "minecraft:stone", count: 50, snbt: "{foo:1b}" });
+    const clickedItem = createItem({ slot: 12, id: "minecraft:stone", count: 50, snbt: "{foo:1b}" });
     const { itemElem, ctx } = renderInventoryItem(clickedItem, {
       ctxOverrides: {
         currentlyHeldItem: heldItem
@@ -188,7 +188,21 @@ describe("test inventory item", () => {
 
     fireEvent.click(itemElem);
 
-    expect(ctx.addClickedWithHeldItem).toHaveBeenCalledWith(InventoryType.MAIN, clickedItem, 40);
+    expect(ctx.addClickedWithHeldItem).toHaveBeenCalledWith(InventoryType.MAIN, clickedItem, 14);
+  });
+
+  it("should not merge held items into a full stack on left click", () => {
+    const heldItem = createItem({ slot: 2, id: "minecraft:stone", count: 50, snbt: "{foo:1b}" });
+    const clickedItem = createItem({ slot: 12, id: "minecraft:stone", count: 64, snbt: "{foo:1b}" });
+    const { itemElem, ctx } = renderInventoryItem(clickedItem, {
+      ctxOverrides: {
+        currentlyHeldItem: heldItem
+      }
+    });
+
+    fireEvent.click(itemElem);
+
+    expect(ctx.addClickedWithHeldItem).not.toHaveBeenCalled();
   });
 
   it("should destroy held item when dropping to explorer with different item type", () => {
@@ -237,6 +251,20 @@ describe("test inventory item", () => {
     fireEvent.contextMenu(itemElem);
 
     expect(ctx.addClickedWithHeldItem).toHaveBeenCalledWith(InventoryType.MAIN, clickedItem, 1);
+  });
+
+  it("should not place an item into a full stack on right-click", () => {
+    const heldItem = createItem({ slot: 2, id: "minecraft:stone", count: 6, snbt: "{foo:1b}" });
+    const clickedItem = createItem({ slot: 4, id: "minecraft:stone", count: 64, snbt: "{foo:1b}" });
+    const { itemElem, ctx } = renderInventoryItem(clickedItem, {
+      ctxOverrides: {
+        currentlyHeldItem: heldItem
+      }
+    });
+
+    fireEvent.contextMenu(itemElem);
+
+    expect(ctx.addClickedWithHeldItem).not.toHaveBeenCalled();
   });
 
   it("should place one item per right click when clicking same item multiple times", () => {
@@ -300,6 +328,20 @@ describe("test inventory item", () => {
     expect(ctx.setCurrentlyHeldItem).toHaveBeenCalledTimes(2);
     expect(ctx.setCurrentlyHeldItem).toHaveBeenNthCalledWith(1, { ...heldItem, count: 8 });
     expect(ctx.setCurrentlyHeldItem).toHaveBeenNthCalledWith(2, { ...heldItem, count: 8 });
+  });
+
+  it("should not increase a full held stack from the explorer", () => {
+    const clickedItem = createItem({ slot: -1, id: "minecraft:stone", count: 1, snbt: "{foo:1b}" });
+    const heldItem = createItem({ slot: -1, id: "minecraft:stone", count: 64, snbt: "{foo:1b}" });
+    const { itemElem, ctx } = renderInventoryItem(clickedItem, {
+      ctxOverrides: {
+        currentlyHeldItem: heldItem
+      }
+    });
+
+    fireEvent.click(itemElem);
+
+    expect(ctx.setCurrentlyHeldItem).not.toHaveBeenCalled();
   });
 
   it("should do nothing when item is held preview", () => {
