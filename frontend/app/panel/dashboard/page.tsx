@@ -73,7 +73,7 @@ export default function Dashboard() {
       title={$("dashboard.title")}
       category={$("sidebar.server")}
       icon={<Gauge />}
-      pageClassName="min-2xl:px-[5%]"
+      pageClassName="min-h-0 min-2xl:px-[5%]"
       className="flex-1 min-h-0 min-xl:h-full max-xl-h:min-h-[600px] flex max-xl:flex-col gap-2">
       {
         !isError

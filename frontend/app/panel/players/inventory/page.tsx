@@ -149,7 +149,7 @@ export default function Inventory() {
       description={$("players.inventory.description")}
       category={$("sidebar.management")}
       icon={<Backpack />}
-      pageClassName="min-xl:px-64!"
+      pageClassName="min-h-0 min-xl:px-64!"
       className="min-h-0 h-full flex gap-4 max-lg:flex-col max-lg:items-center">
       <InventoryContext.Provider value={{
         textures,
