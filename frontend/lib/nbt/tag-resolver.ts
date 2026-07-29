@@ -8,6 +8,7 @@ import {
 import {
   type RgbColor,
   type Enchantments,
+  DEFAULT_MAX_STACK_SIZE,
   ItemNBTResolver,
   glintItems,
 } from "./resolver";
@@ -171,6 +172,10 @@ export class TagResolver extends ItemNBTResolver {
 
   override getHoneyLevel(): number | null {
     return null;
+  }
+
+  override getMaxStackSize(): number {
+    return DEFAULT_MAX_STACK_SIZE;
   }
 
   override getDyedColor(): RgbColor | null {

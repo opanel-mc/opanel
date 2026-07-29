@@ -19,6 +19,10 @@ const { MockComponentsResolver, mockResolverRef } = vi.hoisted(() => {
     getComponentAmount() {
       return this.componentAmount;
     }
+
+    getMaxStackSize() {
+      return 64;
+    }
   }
 
   return {
@@ -88,7 +92,8 @@ describe("test inventory item", () => {
       isUnbreakable: () => false,
       getMapId: () => null,
       getBeeAmount: () => null,
-      getHoneyLevel: () => null
+      getHoneyLevel: () => null,
+      getMaxStackSize: () => 64
     };
   });
 
@@ -177,9 +182,9 @@ describe("test inventory item", () => {
     expect(ctx.addClickedWithHeldItem).not.toHaveBeenCalled();
   });
 
-  it("should still add all held count even when total count is greater than 64", () => {
-    const heldItem = createItem({ slot: 2, id: "minecraft:stone", count: 40, snbt: "{foo:1b}" });
-    const clickedItem = createItem({ slot: 12, id: "minecraft:stone", count: 40, snbt: "{foo:1b}" });
+  it("should only merge enough held items to fill the clicked stack to 64", () => {
+    const heldItem = createItem({ slot: 2, id: "minecraft:stone", count: 50, snbt: "{foo:1b}" });
+    const clickedItem = createItem({ slot: 12, id: "minecraft:stone", count: 50, snbt: "{foo:1b}" });
     const { itemElem, ctx } = renderInventoryItem(clickedItem, {
       ctxOverrides: {
         currentlyHeldItem: heldItem
@@ -188,7 +193,42 @@ describe("test inventory item", () => {
 
     fireEvent.click(itemElem);
 
-    expect(ctx.addClickedWithHeldItem).toHaveBeenCalledWith(InventoryType.MAIN, clickedItem, 40);
+    expect(ctx.addClickedWithHeldItem).toHaveBeenCalledWith(InventoryType.MAIN, clickedItem, 14);
+  });
+
+  it("should use the max stack size resolved from item components when merging", () => {
+    mockResolverRef.current = {
+      ...mockResolverRef.current,
+      getMaxStackSize: () => 16
+    };
+    const heldItem = createItem({ slot: 2, id: "minecraft:ender_pearl", count: 10, snbt: "{foo:1b}" });
+    const clickedItem = createItem({ slot: 12, id: "minecraft:ender_pearl", count: 10, snbt: "{foo:1b}" });
+    const { itemElem, ctx } = renderInventoryItem(clickedItem, {
+      ctxOverrides: {
+        currentlyHeldItem: heldItem,
+        textures: [
+          { id: "minecraft:ender_pearl", readable: "Ender Pearl", texture: "/ender-pearl.png" }
+        ] as any
+      }
+    });
+
+    fireEvent.click(itemElem);
+
+    expect(ctx.addClickedWithHeldItem).toHaveBeenCalledWith(InventoryType.MAIN, clickedItem, 6);
+  });
+
+  it("should not merge held items into a full stack on left click", () => {
+    const heldItem = createItem({ slot: 2, id: "minecraft:stone", count: 50, snbt: "{foo:1b}" });
+    const clickedItem = createItem({ slot: 12, id: "minecraft:stone", count: 64, snbt: "{foo:1b}" });
+    const { itemElem, ctx } = renderInventoryItem(clickedItem, {
+      ctxOverrides: {
+        currentlyHeldItem: heldItem
+      }
+    });
+
+    fireEvent.click(itemElem);
+
+    expect(ctx.addClickedWithHeldItem).not.toHaveBeenCalled();
   });
 
   it("should destroy held item when dropping to explorer with different item type", () => {
@@ -216,13 +256,17 @@ describe("test inventory item", () => {
     expect(ctx.halfClickedItem).toHaveBeenCalledWith(InventoryType.MAIN, item);
   });
 
-  it("should pick up 64 items from explorer on right-click with empty hand", () => {
-    const item = createItem({ slot: -1, id: "minecraft:diamond", count: 1 });
+  it("should pick up a full stack from explorer on right-click with empty hand", () => {
+    mockResolverRef.current = {
+      ...mockResolverRef.current,
+      getMaxStackSize: () => 16
+    };
+    const item = createItem({ slot: -1, id: "minecraft:diamond", count: 1, snbt: "{foo:1b}" });
     const { itemElem, ctx } = renderInventoryItem(item);
 
     fireEvent.contextMenu(itemElem);
 
-    expect(ctx.setCurrentlyHeldItem).toHaveBeenCalledWith({ ...item, count: 64 });
+    expect(ctx.setCurrentlyHeldItem).toHaveBeenCalledWith({ ...item, count: 16 });
   });
 
   it("should place one item into same clicked stack on right-click", () => {
@@ -237,6 +281,20 @@ describe("test inventory item", () => {
     fireEvent.contextMenu(itemElem);
 
     expect(ctx.addClickedWithHeldItem).toHaveBeenCalledWith(InventoryType.MAIN, clickedItem, 1);
+  });
+
+  it("should not place an item into a full stack on right-click", () => {
+    const heldItem = createItem({ slot: 2, id: "minecraft:stone", count: 6, snbt: "{foo:1b}" });
+    const clickedItem = createItem({ slot: 4, id: "minecraft:stone", count: 64, snbt: "{foo:1b}" });
+    const { itemElem, ctx } = renderInventoryItem(clickedItem, {
+      ctxOverrides: {
+        currentlyHeldItem: heldItem
+      }
+    });
+
+    fireEvent.contextMenu(itemElem);
+
+    expect(ctx.addClickedWithHeldItem).not.toHaveBeenCalled();
   });
 
   it("should place one item per right click when clicking same item multiple times", () => {
@@ -276,13 +334,17 @@ describe("test inventory item", () => {
     );
   });
 
-  it("should clone 64 items when middle-clicking normal slot", () => {
-    const item = createItem({ slot: 4, id: "minecraft:diamond", count: 8 });
+  it("should clone a full stack when middle-clicking normal slot", () => {
+    mockResolverRef.current = {
+      ...mockResolverRef.current,
+      getMaxStackSize: () => 16
+    };
+    const item = createItem({ slot: 4, id: "minecraft:diamond", count: 8, snbt: "{foo:1b}" });
     const { itemElem, ctx } = renderInventoryItem(item);
 
     fireMiddleClick(itemElem);
 
-    expect(ctx.setCurrentlyHeldItem).toHaveBeenCalledWith({ ...item, count: 64 });
+    expect(ctx.setCurrentlyHeldItem).toHaveBeenCalledWith({ ...item, count: 16 });
   });
 
   it("should increase held item count by one per left click in explorer when ids and nbt are same", () => {
@@ -300,6 +362,20 @@ describe("test inventory item", () => {
     expect(ctx.setCurrentlyHeldItem).toHaveBeenCalledTimes(2);
     expect(ctx.setCurrentlyHeldItem).toHaveBeenNthCalledWith(1, { ...heldItem, count: 8 });
     expect(ctx.setCurrentlyHeldItem).toHaveBeenNthCalledWith(2, { ...heldItem, count: 8 });
+  });
+
+  it("should not increase a full held stack from the explorer", () => {
+    const clickedItem = createItem({ slot: -1, id: "minecraft:stone", count: 1, snbt: "{foo:1b}" });
+    const heldItem = createItem({ slot: -1, id: "minecraft:stone", count: 64, snbt: "{foo:1b}" });
+    const { itemElem, ctx } = renderInventoryItem(clickedItem, {
+      ctxOverrides: {
+        currentlyHeldItem: heldItem
+      }
+    });
+
+    fireEvent.click(itemElem);
+
+    expect(ctx.setCurrentlyHeldItem).not.toHaveBeenCalled();
   });
 
   it("should do nothing when item is held preview", () => {

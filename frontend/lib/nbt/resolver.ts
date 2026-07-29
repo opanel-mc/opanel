@@ -5,6 +5,8 @@ export type RgbColor = [number, number, number];
 
 export type Enchantments = Map<string, number>;
 
+export const DEFAULT_MAX_STACK_SIZE = 64;
+
 export const glintItems = [
   "minecraft:enchanted_book",
   "minecraft:experience_bottle",
@@ -44,6 +46,7 @@ export abstract class ItemNBTResolver {
   abstract getMapId(): number | null;
   abstract getBeeAmount(): number | null;
   abstract getHoneyLevel(): number | null;
+  abstract getMaxStackSize(): number;
 
   isDyedLeatherArmor(): boolean {
     return !!this.getDyedColor() && [

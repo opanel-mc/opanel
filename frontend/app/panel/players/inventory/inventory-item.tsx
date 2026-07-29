@@ -1,10 +1,8 @@
 import type { InventoryType, ItemStack } from "@/lib/types";
-import type { ItemNBTResolver } from "@/lib/nbt/resolver";
 import {
   type MouseEvent,
   type RefObject,
   useContext,
-  useEffect,
   useMemo,
   useRef,
   useState
@@ -18,6 +16,7 @@ import { $, $mc } from "@/lib/i18n";
 import { VersionContext } from "@/contexts/api-context";
 import { createResolver } from "@/lib/nbt";
 import { ComponentsResolver, itemModelToTextureId } from "@/lib/nbt/components-resolver";
+import { DEFAULT_MAX_STACK_SIZE } from "@/lib/nbt/resolver";
 
 import GlintTexture from "@/assets/images/overlays/enchanted-glint.png";
 import PotionOverlayTexture from "@/assets/images/overlays/potion-overlay.png";
@@ -33,6 +32,10 @@ export const AIR = "minecraft:air";
 
 function isFromExplorer(itemStack: ItemStack) {
   return itemStack.slot === -1;
+}
+
+function getTransferableCount(targetCount: number, requestedCount: number, maxStackSize: number) {
+  return Math.max(0, Math.min(requestedCount, maxStackSize - targetCount));
 }
 
 function getLeatherOverlay(id: string): string | null {
@@ -77,8 +80,12 @@ export function InventoryItem({
     removeClickedItem,
     halfClickedItem
   } = ctx;
-  const [resolvedNBT, setResolvedNBT] = useState<ItemNBTResolver | null>(null);
   const [hovered, setHovered] = useState(false);
+  const resolvedNBT = useMemo(() => {
+    if(!versionCtx || !itemStack.snbt) return null;
+    return createResolver(versionCtx.version, itemStack.id, itemStack.snbt);
+  }, [versionCtx, itemStack.id, itemStack.snbt]);
+  const maxStackSize = resolvedNBT?.getMaxStackSize() ?? DEFAULT_MAX_STACK_SIZE;
   const textureIdFromItemModel = useMemo(
     () => itemModelToTextureId(resolvedNBT?.getItemModel() ?? null),
     [resolvedNBT]
@@ -112,7 +119,13 @@ export function InventoryItem({
       && itemStack.id === currentlyHeldItem.id
       && itemStack.snbt === currentlyHeldItem.snbt
     ) { // add one to held item from explorer
-      setCurrentlyHeldItem({ ...currentlyHeldItem, count: currentlyHeldItem.count + 1 });
+      const transferableCount = getTransferableCount(currentlyHeldItem.count, 1, maxStackSize);
+      if(transferableCount > 0) {
+        setCurrentlyHeldItem({
+          ...currentlyHeldItem,
+          count: currentlyHeldItem.count + transferableCount
+        });
+      }
       return;
     }
 
@@ -122,7 +135,14 @@ export function InventoryItem({
     }
 
     if(itemStack.id === currentlyHeldItem.id && itemStack.snbt === currentlyHeldItem.snbt) {
-      if(inventoryType) addClickedWithHeldItem(inventoryType, itemStack, currentlyHeldItem.count);
+      const transferableCount = getTransferableCount(
+        itemStack.count,
+        currentlyHeldItem.count,
+        maxStackSize
+      );
+      if(inventoryType && transferableCount > 0) {
+        addClickedWithHeldItem(inventoryType, itemStack, transferableCount);
+      }
       return;
     }
 
@@ -137,8 +157,8 @@ export function InventoryItem({
       return;
     }
 
-    if(!currentlyHeldItem && isFromExplorer(itemStack)) { // pick up 64 from explorer
-      setCurrentlyHeldItem({ ...itemStack, count: 64 });
+    if(!currentlyHeldItem && isFromExplorer(itemStack)) { // pick up a full stack from explorer
+      setCurrentlyHeldItem({ ...itemStack, count: maxStackSize });
       return;
     }
 
@@ -154,7 +174,10 @@ export function InventoryItem({
     }
 
     if(itemStack.id === currentlyHeldItem.id && itemStack.snbt === currentlyHeldItem.snbt) { // add one by one
-      if(inventoryType) addClickedWithHeldItem(inventoryType, itemStack, 1);
+      const transferableCount = getTransferableCount(itemStack.count, 1, maxStackSize);
+      if(inventoryType && transferableCount > 0) {
+        addClickedWithHeldItem(inventoryType, itemStack, transferableCount);
+      }
       return;
     }
 
@@ -182,7 +205,7 @@ export function InventoryItem({
     }
 
     if(!isFromExplorer(itemStack)) {
-      setCurrentlyHeldItem({ ...itemStack, count: 64 });
+      setCurrentlyHeldItem({ ...itemStack, count: maxStackSize });
       return;
     }
   };
@@ -212,16 +235,6 @@ export function InventoryItem({
 
     setHovered(false);
   };
-
-  useEffect(() => {
-    if(!versionCtx) return;
-
-    setResolvedNBT(
-      itemStack.snbt
-      ? createResolver(versionCtx.version, itemStack.id, itemStack.snbt)
-      : null
-    );
-  }, [versionCtx, itemStack]);
 
   if(!ctx) return <></>;
 

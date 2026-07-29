@@ -24,6 +24,7 @@ function exerciseResolver(resolver: ItemNBTResolver) {
   resolver.getMapId();
   resolver.getBeeAmount();
   resolver.getHoneyLevel();
+  resolver.getMaxStackSize();
   resolver.isDyedLeatherArmor();
   resolver.getDyedColor();
 }
@@ -71,6 +72,16 @@ describe("ComponentsResolver", () => {
     expect(resolver.getEnchantments()).toEqual(new Map([["minecraft:sharpness", 5]]));
     expect(resolver.getDamage()).toBe(2);
     expect(resolver.shouldGlint()).toBe(true);
+  });
+
+  it("resolves max stack size and falls back to 64 when the component is missing", () => {
+    const resolver = new ComponentsResolver(
+      "minecraft:ender_pearl",
+      `{"minecraft:max_stack_size":16}`
+    );
+
+    expect(resolver.getMaxStackSize()).toBe(16);
+    expect(new ComponentsResolver("minecraft:stone", "{}").getMaxStackSize()).toBe(64);
   });
 
   it("rejects a non-string item model at runtime", () => {
@@ -124,5 +135,11 @@ describe("TagResolver", () => {
     expect(resolver.getName()).toBe("Sword");
     expect(resolver.getLore()).toEqual(["Line"]);
     expect(resolver.isUnbreakable()).toBe(true);
+  });
+
+  it("uses a fixed max stack size of 64 for legacy tags", () => {
+    const resolver = new TagResolver("minecraft:stone", `{max_stack_size:16}`);
+
+    expect(resolver.getMaxStackSize()).toBe(64);
   });
 });
