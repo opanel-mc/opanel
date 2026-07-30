@@ -4,6 +4,7 @@ import { useContext } from "react";
 import { InventoryType, type PlayerInventory } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { InventoryItem } from "./inventory-item";
+import { InventoryTrash } from "./inventory-trash";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { InventoryContext } from "@/contexts/inventory-context";
@@ -98,6 +99,7 @@ export function InventoryContent({
               key={i}/>
           ))}
         </section>
+        <InventoryTrash className="self-end"/>
       </div>
     </div>
   );

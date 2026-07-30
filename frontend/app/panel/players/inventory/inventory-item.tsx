@@ -2,11 +2,14 @@ import type { InventoryType, ItemStack } from "@/lib/types";
 import {
   type MouseEvent,
   type RefObject,
+  useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState
 } from "react";
+import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { InventoryContext } from "@/contexts/inventory-context";
 import { cn } from "@/lib/utils";
@@ -58,6 +61,7 @@ export function InventoryItem({
   inventoryType,
   placeholderIcon,
   held = false,
+  interactionMode = "inventory",
   className,
   ref
 }: {
@@ -65,6 +69,7 @@ export function InventoryItem({
   inventoryType?: InventoryType
   placeholderIcon?: string
   held?: boolean
+  interactionMode?: "inventory" | "container"
   className?: string
   ref?: RefObject<HTMLDivElement | null>
 }) {
@@ -98,11 +103,13 @@ export function InventoryItem({
     return byModel ?? textures.find(({ id }) => id === itemStack.id);
   }, [textures, itemStack.id, textureIdFromItemModel]);
   const isModItem = textureItem === undefined && itemStack.id !== AIR;
+  const isContainerMode = interactionMode === "container";
   const hoveredItemTagRef = useRef<HTMLDivElement | null>(null);
+  const hoveredMousePositionRef = useRef({ x: 0, y: 0 });
 
   const handleLeftClick = () => {
     if(held || !ctx || nbtEditMode) return;
-    if(isModItem) {
+    if(isModItem && !isContainerMode) {
       toast.error($("players.inventory.interact-forbbiden"));
       return;
     }
@@ -152,7 +159,7 @@ export function InventoryItem({
   const handleRightClick = (e: MouseEvent) => {
     e.preventDefault();
     if(held || !ctx || nbtEditMode) return;
-    if(isModItem) {
+    if(isModItem && !isContainerMode) {
       toast.error($("players.inventory.interact-forbbiden"));
       return;
     }
@@ -198,6 +205,7 @@ export function InventoryItem({
   const handleAuxClick = (e: MouseEvent) => {
     e.preventDefault();
     if(e.button !== 1) return;
+    if(isContainerMode) return;
     if(held || !ctx || nbtEditMode) return;
     if(isModItem) {
       toast.error($("players.inventory.interact-forbbiden"));
@@ -210,16 +218,35 @@ export function InventoryItem({
     }
   };
 
-  const setHoveredTagPosition = (x: number, y: number) => {
+  const setHoveredTagPosition = useCallback((x: number, y: number) => {
     if(!hoveredItemTagRef.current) return;
 
-    hoveredItemTagRef.current.style.left = `${x + 15}px`;
-    hoveredItemTagRef.current.style.top = `${y - 20}px`;
-  };
+    const gap = 15;
+    const viewportMargin = 8;
+    const rect = hoveredItemTagRef.current.getBoundingClientRect();
+    let left = x + gap;
+    let top = y - 20;
+
+    if(left + rect.width > window.innerWidth - viewportMargin) {
+      left = x - rect.width - gap;
+    }
+    left = Math.max(
+      viewportMargin,
+      Math.min(left, window.innerWidth - rect.width - viewportMargin)
+    );
+    top = Math.max(
+      viewportMargin,
+      Math.min(top, window.innerHeight - rect.height - viewportMargin)
+    );
+
+    hoveredItemTagRef.current.style.left = `${left}px`;
+    hoveredItemTagRef.current.style.top = `${top}px`;
+  }, []);
 
   const handleMouseEnter = (e: MouseEvent) => {
     if(held) return;
 
+    hoveredMousePositionRef.current = { x: e.clientX, y: e.clientY };
     setHovered(true);
     setHoveredTagPosition(e.clientX, e.clientY);
   };
@@ -227,6 +254,7 @@ export function InventoryItem({
   const handleMouseMove = (e: MouseEvent) => {
     if(held) return;
 
+    hoveredMousePositionRef.current = { x: e.clientX, y: e.clientY };
     setHoveredTagPosition(e.clientX, e.clientY);
   };
 
@@ -236,6 +264,14 @@ export function InventoryItem({
     setHovered(false);
   };
 
+  useEffect(() => {
+    if(!hovered) return;
+    setHoveredTagPosition(
+      hoveredMousePositionRef.current.x,
+      hoveredMousePositionRef.current.y
+    );
+  }, [hovered, setHoveredTagPosition]);
+
   if(!ctx) return <></>;
 
   const itemComponent = (
@@ -243,10 +279,11 @@ export function InventoryItem({
       data-slot="inventory-item"
       data-slot-id={itemStack.slot}
       data-item-id={itemStack.id}
+      data-held={held ? "true" : undefined}
       className={cn(
         "relative h-[48px] max-md:h-[36px] aspect-square p-1 hover:bg-muted select-none image-pixelated",
         held && "pointer-events-none",
-        (nbtEditMode && !isFromExplorer(itemStack)) && "cursor-pointer",
+        ((nbtEditMode && !isFromExplorer(itemStack)) || isContainerMode) && "cursor-pointer",
         className
       )}
       onClick={() => handleLeftClick()}
@@ -327,80 +364,86 @@ export function InventoryItem({
       )}
 
       {/* Item Hovered Tag */}
-      {(itemStack.id !== AIR && !held) && (
-        <div
-          className={cn(
-            "fixed hidden whitespace-nowrap flex-col *:leading-5.5 z-20 cc-root text-white",
-            "bg-[rgba(0,0,0,.95)] outline-2 -outline-offset-4 outline-[rgb(41,5,96)] rounded-sm py-1 px-2",
-            hovered && "flex",
-            minecraftAE.className
-          )}
-          ref={hoveredItemTagRef}>
-          {/* Name / Custom Name */}
-          <span className={cn(
-            resolvedNBT?.hasCustomName() && "italic",
-            resolvedNBT?.hasEnchantments() && "cc-b"
-          )}>
-            {resolvedNBT?.getName() ?? $mc(itemStack.id)}
-          </span>
-          {/* Enchantment List & Lore */}
-          {(resolvedNBT && (resolvedNBT?.hasEnchantments() || resolvedNBT?.getLore().length > 0)) && (
-            <div className="flex flex-col gap-0 mb-4 cc-7">
-              {/* Enchantment List */}
-              {Array.from(resolvedNBT.getEnchantments()).map(([id, level], i) => (
-                <span key={i}>
-                  {$(`enchantment.minecraft.${id.replace("minecraft:", "")}` as any) +" "}
-                  {
-                    level >= 1 && level <= 10
-                    ? $(`enchantment.level.${level}` as any)
-                    : level
-                  }
+      {(itemStack.id !== AIR && !held && typeof document !== "undefined") && (
+        createPortal(
+          (
+            <div
+              data-slot="inventory-item-hover"
+              className={cn(
+                "fixed hidden w-max max-w-[calc(100vw-1rem)] whitespace-normal pointer-events-none flex-col *:leading-5.5 z-[100] cc-root text-white",
+                "bg-[rgba(0,0,0,.95)] outline-2 -outline-offset-4 outline-[rgb(41,5,96)] rounded-sm py-1 px-2",
+                hovered && "flex",
+                minecraftAE.className
+              )}
+              ref={hoveredItemTagRef}>
+              {/* Name / Custom Name */}
+              <span className={cn(
+                resolvedNBT?.hasCustomName() && "italic",
+                resolvedNBT?.hasEnchantments() && "cc-b"
+              )}>
+                {resolvedNBT?.getName() ?? $mc(itemStack.id)}
+              </span>
+              {/* Enchantment List & Lore */}
+              {(resolvedNBT && (resolvedNBT?.hasEnchantments() || resolvedNBT?.getLore().length > 0)) && (
+                <div className="flex flex-col gap-0 mb-4 cc-7">
+                  {/* Enchantment List */}
+                  {Array.from(resolvedNBT.getEnchantments()).map(([id, level], i) => (
+                    <span key={i}>
+                      {$(`enchantment.minecraft.${id.replace("minecraft:", "")}` as any) +" "}
+                      {
+                        level >= 1 && level <= 10
+                        ? $(`enchantment.level.${level}` as any)
+                        : level
+                      }
+                    </span>
+                  ))}
+                  {/* Lore */}
+                  <div className="flex flex-col gap-0 cc-5 italic">
+                    {resolvedNBT.getLore().map((line, i) => (
+                      <span key={i}>{line}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Unbreakable */}
+              {resolvedNBT?.isUnbreakable() && (
+                <span className="cc-9">{$("item.unbreakable")}</span>
+              )}
+              {/* Map ID */}
+              {(resolvedNBT && resolvedNBT.getMapId() !== null) && (
+                <span className="cc-7">
+                  {$("filled_map.id").replace("%s", resolvedNBT.getMapId()?.toString() ?? "")}
                 </span>
-              ))}
-              {/* Lore */}
-              <div className="flex flex-col gap-0 cc-5 italic">
-                {resolvedNBT.getLore().map((line, i) => (
-                  <span key={i}>{line}</span>
-                ))}
-              </div>
+              )}
+              {/* Bee Amount */}
+              {(resolvedNBT && resolvedNBT.getBeeAmount() !== null) && (
+                <span className="cc-7">
+                  {$("container.beehive.bees").replace("%s", resolvedNBT.getBeeAmount()?.toString() ?? "0").replace("%s", "3")}
+                </span>
+              )}
+              {/* Honey Level */}
+              {(resolvedNBT && resolvedNBT.getHoneyLevel() !== null) && (
+                <span className="cc-7">
+                  {$("container.beehive.honey").replace("%s", resolvedNBT.getHoneyLevel()?.toString() ?? "0").replace("%s", "5")}
+                </span>
+              )}
+              {/* Item ID */}
+              <span className="cc-7">{itemStack.id}</span>
+              {/* Component Amount (>=1.20.5) */}
+              {resolvedNBT instanceof ComponentsResolver && (
+                <span className="cc-7">
+                  {$("players.inventory.item-tag.components", resolvedNBT.getComponentAmount())}
+                </span>
+              )}
             </div>
-          )}
-          {/* Unbreakable */}
-          {resolvedNBT?.isUnbreakable() && (
-            <span className="cc-9">{$("item.unbreakable")}</span>
-          )}
-          {/* Map ID */}
-          {(resolvedNBT && resolvedNBT.getMapId() !== null) && (
-            <span className="cc-7">
-              {$("filled_map.id").replace("%s", resolvedNBT.getMapId()?.toString() ?? "")}
-            </span>
-          )}
-          {/* Bee Amount */}
-          {(resolvedNBT && resolvedNBT.getBeeAmount() !== null) && (
-            <span className="cc-7">
-              {$("container.beehive.bees").replace("%s", resolvedNBT.getBeeAmount()?.toString() ?? "0").replace("%s", "3")}
-            </span>
-          )}
-          {/* Honey Level */}
-          {(resolvedNBT && resolvedNBT.getHoneyLevel() !== null) && (
-            <span className="cc-7">
-              {$("container.beehive.honey").replace("%s", resolvedNBT.getHoneyLevel()?.toString() ?? "0").replace("%s", "5")}
-            </span>
-          )}
-          {/* Item ID */}
-          <span className="cc-7">{itemStack.id}</span>
-          {/* Component Amount (>=1.20.5) */}
-          {resolvedNBT instanceof ComponentsResolver && (
-            <span className="cc-7">
-              {$("players.inventory.item-tag.components", resolvedNBT.getComponentAmount())}
-            </span>
-          )}
-        </div>
+          ),
+          document.body
+        )
       )}
     </div>
   );
 
-  if(isFromExplorer(itemStack) || itemStack.id === AIR) return itemComponent;
+  if(isContainerMode || isFromExplorer(itemStack) || itemStack.id === AIR) return itemComponent;
 
   return (
     <ItemDialog

@@ -366,6 +366,7 @@
   "players.inventory.nbt-editor.title": "Modifier le NBT de l'objet",
   "players.inventory.nbt-editor.description": "Modifiez ici les balises NBT de l'objet.",
   "players.inventory.nbt-editor.hint": "Utilisez {0} pour modifier les balises de données.",
+  "players.inventory.container-editor.title": "Contenu du conteneur",
   "players.inventory.item-tag.components": "{0} composants",
 
   "gamerules.title": "Règles de jeu",

@@ -527,8 +527,16 @@ describe("test inventory item", () => {
       expect(screen.getByText("My Custom Item")).toBeInTheDocument();
     });
 
-    expect(container.querySelector(".italic")).toBeInTheDocument();
-    expect(container.querySelector(".cc-b")).toBeInTheDocument();
+    const hoveredTag = document.querySelector(
+      "[data-slot='inventory-item-hover']"
+    ) as HTMLElement;
+    expect(hoveredTag).toBeInTheDocument();
+    expect(container).not.toContainElement(hoveredTag);
+    await waitFor(() => {
+      expect(hoveredTag).toHaveStyle({ left: "25px", top: "8px" });
+    });
+    expect(hoveredTag.querySelector(".italic")).toBeInTheDocument();
+    expect(hoveredTag.querySelector(".cc-b")).toBeInTheDocument();
     expect(screen.getByText("First lore line")).toBeInTheDocument();
     expect(screen.getByText("Second lore line")).toBeInTheDocument();
     expect(screen.getByText("[item.unbreakable]")).toBeInTheDocument();
@@ -538,7 +546,6 @@ describe("test inventory item", () => {
 
     fireEvent.mouseLeave(itemElem);
     await waitFor(() => {
-      const hoveredTag = container.querySelector(".fixed");
       expect(hoveredTag).not.toHaveClass("flex");
     });
   });

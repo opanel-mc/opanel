@@ -34,16 +34,19 @@ vi.mock("@/components/monaco-editor", () => ({
   default: function MockMonacoEditor({
     value,
     theme,
+    options,
     onChange
   }: {
     value?: string
     theme?: string
+    options?: { readOnly?: boolean }
     onChange?: (value?: string) => void
   }) {
     return (
       <textarea
         data-testid="monaco-editor"
         data-theme={theme ?? ""}
+        readOnly={options?.readOnly}
         value={value ?? ""}
         onChange={(e) => onChange?.(e.target.value)}/>
     );

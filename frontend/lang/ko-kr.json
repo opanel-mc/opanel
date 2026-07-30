@@ -366,6 +366,7 @@
   "players.inventory.nbt-editor.title": "아이템 NBT 수정",
   "players.inventory.nbt-editor.description": "여기서 아이템의 NBT 태그를 수정합니다.",
   "players.inventory.nbt-editor.hint": "{0}을(를) 사용하여 데이터 태그를 편집하세요.",
+  "players.inventory.container-editor.title": "컨테이너 내용",
   "players.inventory.item-tag.components": "{0}개 구성 요소",
 
   "gamerules.title": "게임 규칙",

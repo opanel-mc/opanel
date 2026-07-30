@@ -366,6 +366,7 @@
   "players.inventory.nbt-editor.title": "Edit Item NBT",
   "players.inventory.nbt-editor.description": "Edit the NBT tag data of items here.",
   "players.inventory.nbt-editor.hint": "Edit data tags with {0}.",
+  "players.inventory.container-editor.title": "Container Contents",
   "players.inventory.item-tag.components": "{0} Components",
 
   "gamerules.title": "Game Rules",

@@ -366,6 +366,7 @@
   "players.inventory.nbt-editor.title": "アイテムのNBTを編集",
   "players.inventory.nbt-editor.description": "ここでアイテムのNBTタグデータを編集します。",
   "players.inventory.nbt-editor.hint": "{0}を使用してデータラベルを編集します。",
+  "players.inventory.container-editor.title": "コンテナの内容",
   "players.inventory.item-tag.components": "{0}個のコンポーネント",
 
   "gamerules.title": "ゲームのルール",
