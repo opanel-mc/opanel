@@ -63,7 +63,7 @@ export function InventoryContent({
       )}>
         {/** Equipments */}
         <div className="flex justify-between gap-2">
-          <section className="w-[calc(4*48px)] flex!">
+          <section className="w-[calc(4*48px)] max-md:w-[calc(4*36px)] flex!">
             {inventory.equipments.items.slice(0, 4).map((item, i) => (
               <InventoryItem
                 itemStack={item}
@@ -75,7 +75,7 @@ export function InventoryContent({
                 key={i}/>
             ))}
           </section>
-          <section className="w-12 flex!">
+          <section className="w-12 max-md:w-9 flex!">
             <InventoryItem
               itemStack={inventory.equipments.items[inventory.equipments.items.length - 1]}
               inventoryType={InventoryType.EQUIPMENTS}
