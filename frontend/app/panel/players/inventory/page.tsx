@@ -7,12 +7,18 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Backpack } from "lucide-react";
 import { SubPage } from "../../sub-page";
-import { InventoryContext } from "@/contexts/inventory-context";
 import { InventoryContent } from "./inventory-content";
 import { ItemExplorer } from "./item-explorer";
 import { VersionContext } from "@/contexts/api-context";
 import { getTextures } from "@/lib/texture";
-import { AIR, InventoryItem } from "./inventory-item";
+import { InventoryItem } from "./inventory-item";
+import { InventoryTooltipProvider } from "./inventory-item-tooltip";
+import { InventoryTextureContext } from "@/contexts/inventory-texture-context";
+import {
+  replaceInventoryItem,
+  resolveInventoryInteraction,
+  type InventoryInteractionRequest
+} from "./inventory-interaction";
 import { InventoryClient } from "@/lib/ws/inventory";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { emitter } from "@/lib/emitter";
@@ -27,69 +33,70 @@ export default function Inventory() {
   const [inventory, setInventory] = useState<PlayerInventory | null>(null);
   const [currentlyHeldItem, setCurrentlyHeldItem] = useState<ItemStack | null>(null);
   const [nbtEditMode, setNbtEditMode] = useState(false);
+  const currentlyHeldItemRef = useRef<ItemStack | null>(null);
   const heldItemElemRef = useRef<HTMLDivElement | null>(null);
   const mousePositionRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const client = useWebSocket(InventoryClient, uuid ?? "");
 
-  // Get textures by mc version
   useEffect(() => {
     if(!versionCtx) return;
 
     getTextures(versionCtx.version).then(setTextures);
   }, [versionCtx]);
 
-  const positionHeldItemCountainer = () => {
+  const positionHeldItemContainer = useCallback(() => {
     if(!heldItemElemRef.current) return;
 
     const heldItemElem = heldItemElemRef.current;
     const rect = heldItemElem.getBoundingClientRect();
     heldItemElem.style.top = `${mousePositionRef.current.y - rect.height / 2}px`;
     heldItemElem.style.left = `${mousePositionRef.current.x - rect.width / 2}px`;
-  };
-
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    mousePositionRef.current = { x: e.clientX, y: e.clientY };
-    positionHeldItemCountainer();
   }, []);
 
-  const minusHeldItemCount = (count: number) => {
-    if(!currentlyHeldItem) return;
+  const handleMouseMove = useCallback((event: MouseEvent) => {
+    mousePositionRef.current = { x: event.clientX, y: event.clientY };
+    positionHeldItemContainer();
+  }, [positionHeldItemContainer]);
 
-    const newCount = currentlyHeldItem.count - count;
-    if(newCount <= 0) {
-      setCurrentlyHeldItem(null);
-      return;
-    }
-    setCurrentlyHeldItem({ ...currentlyHeldItem, count: newCount });
-  };
+  const updateHeldItem = useCallback((item: ItemStack | null) => {
+    currentlyHeldItemRef.current = item;
+    setCurrentlyHeldItem(item);
+  }, []);
 
-  const updateItem = (inventoryType: InventoryType, item: ItemStack) => {
-    client?.send("update", { inventoryType, item });
-  };
+  const updateItem = useCallback((inventoryType: InventoryType, item: ItemStack) => {
+    if(!client) return false;
 
-  const swapClickedWithHeldItem = (inventoryType: InventoryType, clickedItem: ItemStack) => {
-    setCurrentlyHeldItem(clickedItem.id === AIR ? null : clickedItem);
-    updateItem(inventoryType, currentlyHeldItem
-      ? { ...currentlyHeldItem, slot: clickedItem.slot }
-      : { id: AIR, count: 0, slot: clickedItem.slot });
-  };
+    setInventory(currentInventory => currentInventory
+      ? replaceInventoryItem(currentInventory, inventoryType, item)
+      : currentInventory);
+    client.send("update", { inventoryType, item });
+    return true;
+  }, [client]);
 
-  const addClickedWithHeldItem = (inventoryType: InventoryType, clickedItem: ItemStack, count: number) => {
-    minusHeldItemCount(count);
-    updateItem(inventoryType, { ...clickedItem, count: clickedItem.count + count });
-  };
-
-  const removeClickedItem = (inventoryType: InventoryType, { slot }: ItemStack) => {
-    updateItem(inventoryType, { id: AIR, count: 0, slot });
-  };
-
-  const halfClickedItem = (inventoryType: InventoryType, clickedItem: ItemStack) => {
-    updateItem(inventoryType, { ...clickedItem, count: Math.floor(clickedItem.count / 2) });
-  };
-
-  const updateItemNBT = (inventoryType: InventoryType, item: ItemStack, snbt: string) => {
+  const updateItemNBT = useCallback((
+    inventoryType: InventoryType,
+    item: ItemStack,
+    snbt: string
+  ) => {
     updateItem(inventoryType, { ...item, snbt });
-  };
+  }, [updateItem]);
+
+  const handleInteract = useCallback((request: InventoryInteractionRequest) => {
+    const result = resolveInventoryInteraction({
+      button: request.button,
+      source: request.source,
+      clickedItem: request.clickedItem,
+      heldItem: currentlyHeldItemRef.current,
+      maxStackSize: request.maxStackSize
+    });
+
+    if(request.inventoryType && result.replacementItem) {
+      if(!updateItem(request.inventoryType, result.replacementItem)) return;
+    }
+    updateHeldItem(result.nextHeldItem);
+  }, [updateHeldItem, updateItem]);
+
+  const deleteHeldItem = useCallback(() => updateHeldItem(null), [updateHeldItem]);
 
   useEffect(() => {
     if(!client) return;
@@ -107,8 +114,10 @@ export default function Inventory() {
       switch(err) {
         case 400:
           toast.error($("players.inventory.ws.error.400"));
+          client.send("fetch", null);
           break;
         case 404:
+          updateHeldItem(null);
           toast.error($("players.inventory.ws.error.404"));
           push("/panel/players");
           break;
@@ -120,13 +129,11 @@ export default function Inventory() {
     return () => {
       emitter.removeAllListeners("refresh-data");
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [client, uuid]);
+  }, [client, push, updateHeldItem]);
 
-  // Update held item position as soon as it is picked up
   useEffect(() => {
-    positionHeldItemCountainer();
-  }, [currentlyHeldItem]);
+    positionHeldItemContainer();
+  }, [currentlyHeldItem, positionHeldItemContainer]);
 
   useEffect(() => {
     document.addEventListener("mousemove", handleMouseMove);
@@ -151,30 +158,30 @@ export default function Inventory() {
       icon={<Backpack />}
       pageClassName="min-h-0 min-xl:px-64!"
       className="min-h-0 h-full flex gap-4 max-lg:flex-col max-lg:items-center">
-      <InventoryContext.Provider value={{
-        textures,
-        currentlyHeldItem,
-        setCurrentlyHeldItem,
-        nbtEditMode,
-        setNbtEditMode,
-        swapClickedWithHeldItem,
-        addClickedWithHeldItem,
-        removeClickedItem,
-        halfClickedItem,
-        updateItemNBT
-      }}>
-        {inventory && (
-          <InventoryContent inventory={inventory}/>
-        )}
-        <ItemExplorer className="flex-1 w-full"/>
-        {currentlyHeldItem && (
-          <InventoryItem
-            itemStack={currentlyHeldItem}
-            held
-            className="fixed top-0 left-0 bg-transparent!"
-            ref={heldItemElemRef}/>
-        )}
-      </InventoryContext.Provider>
+      <InventoryTextureContext.Provider value={textures}>
+        <InventoryTooltipProvider>
+          {inventory && (
+            <InventoryContent
+              inventory={inventory}
+              heldItem={currentlyHeldItem}
+              nbtEditMode={nbtEditMode}
+              setNbtEditMode={setNbtEditMode}
+              onInteract={handleInteract}
+              onUpdateItemNBT={updateItemNBT}
+              onDeleteHeldItem={deleteHeldItem}/>
+          )}
+          <ItemExplorer
+            onInteract={handleInteract}
+            className="flex-1 w-full"/>
+          {currentlyHeldItem && (
+            <InventoryItem
+              itemStack={currentlyHeldItem}
+              held
+              className="fixed top-0 left-0 bg-transparent!"
+              ref={heldItemElemRef}/>
+          )}
+        </InventoryTooltipProvider>
+      </InventoryTextureContext.Provider>
     </SubPage>
   );
 }

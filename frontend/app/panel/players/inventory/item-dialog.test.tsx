@@ -7,9 +7,14 @@ import {
   waitFor
 } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { InventoryContext } from "@/contexts/inventory-context";
+import { InventoryTextureContext } from "@/contexts/inventory-texture-context";
+import { InventoryTooltipContext } from "@/contexts/inventory-tooltip-context";
 import { InventoryType } from "@/lib/types";
-import { createItem, createMockInventoryContextValue } from "@/test/inventory-helper";
+import {
+  createItem,
+  createMockInventoryTextures,
+  createMockInventoryTooltipContextValue
+} from "@/test/inventory-helper";
 import { parseContainerNBT } from "@/lib/nbt/container";
 import { ItemDialog } from "./item-dialog";
 
@@ -42,7 +47,8 @@ function renderItemDialog(options?: {
   id?: string
 }) {
   const updateItemNBT = vi.fn();
-  const ctx = createMockInventoryContextValue({ updateItemNBT });
+  const ctx = createMockInventoryTooltipContextValue();
+  const textures = createMockInventoryTextures();
   const itemStack = createItem({
     slot: 5,
     id: options?.id ?? "minecraft:stone",
@@ -50,18 +56,21 @@ function renderItemDialog(options?: {
     snbt: options?.snbt
   });
   const elem = render(
-    <InventoryContext.Provider value={ctx}>
-      <ItemDialog
-        itemStack={itemStack}
-        inventoryType={InventoryType.MAIN}
-        disabled={options?.disabled}
-        asChild>
-        <button>open dialog</button>
-      </ItemDialog>
-    </InventoryContext.Provider>
+    <InventoryTextureContext.Provider value={textures}>
+      <InventoryTooltipContext.Provider value={ctx}>
+        <ItemDialog
+          itemStack={itemStack}
+          inventoryType={InventoryType.MAIN}
+          onUpdateItemNBT={updateItemNBT}
+          disabled={options?.disabled}
+          asChild>
+          <button>open dialog</button>
+        </ItemDialog>
+      </InventoryTooltipContext.Provider>
+    </InventoryTextureContext.Provider>
   );
 
-  return { ...elem, updateItemNBT, itemStack, ctx };
+  return { ...elem, updateItemNBT, itemStack, ctx, textures };
 }
 
 function getContainerGrid(): HTMLElement {
@@ -108,7 +117,12 @@ describe("test item nbt editing dialog", () => {
 
   it("should not update editor value when item snbt changes while dialog is open", async () => {
     const user = userEvent.setup();
-    const { rerender, ctx } = renderItemDialog({ snbt: "{foo:1b}" });
+    const {
+      rerender,
+      ctx,
+      textures,
+      updateItemNBT
+    } = renderItemDialog({ snbt: "{foo:1b}" });
 
     await user.click(screen.getByText("open dialog"));
     expect(screen.getByTestId("monaco-editor")).toHaveValue("{\n  foo: 1b\n}\n");
@@ -120,14 +134,17 @@ describe("test item nbt editing dialog", () => {
       snbt: "{bar:1b}"
     });
     rerender(
-      <InventoryContext.Provider value={ctx}>
-        <ItemDialog
-          itemStack={newItemStack}
-          inventoryType={InventoryType.MAIN}
-          asChild>
-          <button>open dialog</button>
-        </ItemDialog>
-      </InventoryContext.Provider>
+      <InventoryTextureContext.Provider value={textures}>
+        <InventoryTooltipContext.Provider value={ctx}>
+          <ItemDialog
+            itemStack={newItemStack}
+            inventoryType={InventoryType.MAIN}
+            onUpdateItemNBT={updateItemNBT}
+            asChild>
+            <button>open dialog</button>
+          </ItemDialog>
+        </InventoryTooltipContext.Provider>
+      </InventoryTextureContext.Provider>
     );
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();

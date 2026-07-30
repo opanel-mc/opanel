@@ -1,13 +1,17 @@
 "use client";
 
-import { useContext } from "react";
-import { InventoryType, type PlayerInventory } from "@/lib/types";
+import type { InventoryInteractionRequest } from "./inventory-interaction";
+import type { Dispatch, SetStateAction } from "react";
+import {
+  InventoryType,
+  type ItemStack,
+  type PlayerInventory
+} from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { InventoryItem } from "./inventory-item";
 import { InventoryTrash } from "./inventory-trash";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { InventoryContext } from "@/contexts/inventory-context";
 import { $ } from "@/lib/i18n";
 import EmptyArmorSlotHelmet from "@/assets/images/inventory/empty-armor-slot-helmet.png";
 import EmptyArmorSlotChestplate from "@/assets/images/inventory/empty-armor-slot-chestplate.png";
@@ -24,20 +28,29 @@ const armorPlaceholderIcons = [
 
 export function InventoryContent({
   inventory,
+  heldItem,
+  nbtEditMode,
+  setNbtEditMode,
+  onInteract,
+  onUpdateItemNBT,
+  onDeleteHeldItem,
   className
 }: {
-  inventory: PlayerInventory,
+  inventory: PlayerInventory
+  heldItem: ItemStack | null
+  nbtEditMode: boolean
+  setNbtEditMode: Dispatch<SetStateAction<boolean>>
+  onInteract: (request: InventoryInteractionRequest) => void
+  onUpdateItemNBT: (inventoryType: InventoryType, item: ItemStack, snbt: string) => void
+  onDeleteHeldItem: () => void
   className?: string
 }) {
-  const ctx = useContext(InventoryContext);
-  const { currentlyHeldItem, nbtEditMode, setNbtEditMode } = ctx;
-
   return (
     <div className="w-fit">
       <div className="flex justify-end items-center gap-2 mb-4">
         <Label>{$("players.inventory.nbt-mode.label")}</Label>
         <Switch
-          disabled={currentlyHeldItem !== null}
+          disabled={heldItem !== null}
           checked={nbtEditMode}
           onCheckedChange={setNbtEditMode}/>
       </div>
@@ -56,6 +69,9 @@ export function InventoryContent({
                 itemStack={item}
                 inventoryType={InventoryType.EQUIPMENTS}
                 placeholderIcon={armorPlaceholderIcons[i]}
+                nbtEditMode={nbtEditMode}
+                onInteract={onInteract}
+                onUpdateItemNBT={onUpdateItemNBT}
                 key={i}/>
             ))}
           </section>
@@ -63,6 +79,9 @@ export function InventoryContent({
             <InventoryItem
               itemStack={inventory.equipments.items[inventory.equipments.items.length - 1]}
               inventoryType={InventoryType.EQUIPMENTS}
+              nbtEditMode={nbtEditMode}
+              onInteract={onInteract}
+              onUpdateItemNBT={onUpdateItemNBT}
               placeholderIcon={EmptyArmorSlotShield.src}/>
           </section>
         </div>
@@ -70,20 +89,26 @@ export function InventoryContent({
         {/** Main */}
         <section className="flex-3 grid-rows-3 [&_*]:data-[slot=inventory-item]:nth-[n+19]:border-b-0">
           {inventory.main.items.slice(9, 36).map((item, i) => (
-            <InventoryItem
-              itemStack={item}
-              inventoryType={InventoryType.MAIN}
-              key={i}/>
+              <InventoryItem
+                itemStack={item}
+                inventoryType={InventoryType.MAIN}
+                nbtEditMode={nbtEditMode}
+                onInteract={onInteract}
+                onUpdateItemNBT={onUpdateItemNBT}
+                key={i}/>
           ))}
         </section>
 
         {/** Main (Hotbar) */}
         <section className="flex-1 grid-rows-1 [&_*]:data-[slot=inventory-item]:border-b-0">
           {inventory.main.items.slice(0, 9).map((item, i) => (
-            <InventoryItem
-              itemStack={item}
-              inventoryType={InventoryType.MAIN}
-              key={i}/>
+              <InventoryItem
+                itemStack={item}
+                inventoryType={InventoryType.MAIN}
+                nbtEditMode={nbtEditMode}
+                onInteract={onInteract}
+                onUpdateItemNBT={onUpdateItemNBT}
+                key={i}/>
           ))}
         </section>
 
@@ -93,13 +118,19 @@ export function InventoryContent({
         </h2>
         <section className="flex-3 grid-rows-3 [&_*]:data-[slot=inventory-item]:nth-[n+19]:border-b-0">
           {inventory.enderChest.items.map((item, i) => (
-            <InventoryItem
-              itemStack={item}
-              inventoryType={InventoryType.ENDER_CHEST}
-              key={i}/>
+              <InventoryItem
+                itemStack={item}
+                inventoryType={InventoryType.ENDER_CHEST}
+                nbtEditMode={nbtEditMode}
+                onInteract={onInteract}
+                onUpdateItemNBT={onUpdateItemNBT}
+                key={i}/>
           ))}
         </section>
-        <InventoryTrash className="self-end"/>
+        <InventoryTrash
+          canDelete={heldItem !== null}
+          onDelete={onDeleteHeldItem}
+          className="self-end"/>
       </div>
     </div>
   );

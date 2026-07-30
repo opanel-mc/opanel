@@ -1,40 +1,45 @@
 import type { ReactNode } from "react";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import type { Item } from "minecraft-textures";
+import type { InventoryInteractionRequest } from "./inventory-interaction";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { toast } from "sonner";
 import { InventoryType, type ItemStack } from "@/lib/types";
 import { VersionContext } from "@/contexts/api-context";
-import { InventoryContext } from "@/contexts/inventory-context";
+import { InventoryTextureContext } from "@/contexts/inventory-texture-context";
+import { InventoryTooltipContext } from "@/contexts/inventory-tooltip-context";
 import { createMockVersionContext } from "@/test/contexts-helper";
-import { createItem, createMockInventoryContextValue } from "@/test/inventory-helper";
+import {
+  createItem,
+  createMockInventoryTooltipContextValue
+} from "@/test/inventory-helper";
+import { createResolver } from "@/lib/nbt";
 import { AIR, InventoryItem } from "./inventory-item";
+import { InventoryTooltipProvider } from "./inventory-item-tooltip";
 
 vi.mock("./item-dialog", () => ({
   ItemDialog: ({ children }: { children: ReactNode }) => <>{children}</>
 }));
 
-const { MockComponentsResolver, mockResolverRef } = vi.hoisted(() => {
+const { MockComponentsResolver, resolverFactoryRef } = vi.hoisted(() => {
   class HoistedMockComponentsResolver {
-    constructor(private readonly componentAmount: number) {}
+    constructor(private readonly componentAmount = 0) {}
 
     getComponentAmount() {
       return this.componentAmount;
-    }
-
-    getMaxStackSize() {
-      return 64;
     }
   }
 
   return {
     MockComponentsResolver: HoistedMockComponentsResolver,
-    mockResolverRef: {
-      current: null as any
+    resolverFactoryRef: {
+      current: (_id: string) => null as any
     }
   };
 });
 
 vi.mock("@/lib/nbt", () => ({
-  createResolver: vi.fn(() => mockResolverRef.current)
+  createResolver: vi.fn((_version: string, id: string) => resolverFactoryRef.current(id))
 }));
 
 vi.mock("@/lib/nbt/components-resolver", () => ({
@@ -42,511 +47,368 @@ vi.mock("@/lib/nbt/components-resolver", () => ({
   itemModelToTextureId: vi.fn((model: string | null) => model)
 }));
 
+const textures = [
+  { id: "minecraft:stone", readable: "Stone", texture: "/stone.png" },
+  { id: "minecraft:diamond", readable: "Diamond", texture: "/diamond.png" },
+  { id: "minecraft:air", readable: "Air", texture: "/air.png" }
+] as Item[];
+
+function createResolverMock(id: string) {
+  return {
+    getItemModel: () => null,
+    shouldGlint: () => false,
+    isPotion: () => false,
+    isTippedArrow: () => false,
+    isDyedLeatherArmor: () => false,
+    getPotionColor: () => null,
+    getDyedColor: () => null,
+    hasCustomName: () => false,
+    hasEnchantments: () => false,
+    getName: () => id,
+    getEnchantments: () => new Map(),
+    getLore: () => [],
+    isUnbreakable: () => false,
+    getMapId: () => null,
+    getBeeAmount: () => null,
+    getHoneyLevel: () => null,
+    getMaxStackSize: () => 64
+  };
+}
+
 function renderInventoryItem(itemStack: ItemStack, options?: {
-  held?: boolean,
-  inventoryType?: InventoryType,
-  placeholderIcon?: string,
-  ctxOverrides?: Partial<ReturnType<typeof createMockInventoryContextValue>>
+  held?: boolean
+  nbtEditMode?: boolean
+  inventoryType?: InventoryType
+  placeholderIcon?: string
+  textures?: Item[]
+  onInteract?: (request: InventoryInteractionRequest) => void
 }) {
-  const ctx = createMockInventoryContextValue(options?.ctxOverrides);
+  const ctx = createMockInventoryTooltipContextValue();
+  const itemTextures = options?.textures ?? textures;
+  const onInteract = options?.onInteract
+    ?? vi.fn<(request: InventoryInteractionRequest) => void>();
   const elem = render(
     <VersionContext.Provider value={createMockVersionContext()}>
-      <InventoryContext.Provider value={ctx}>
-        <InventoryItem
-          itemStack={itemStack}
-          inventoryType={options?.inventoryType ?? InventoryType.MAIN}
-          placeholderIcon={options?.placeholderIcon}
-          held={options?.held}/>
-      </InventoryContext.Provider>
+      <InventoryTextureContext.Provider value={itemTextures}>
+        <InventoryTooltipContext.Provider value={ctx}>
+          <InventoryItem
+            itemStack={itemStack}
+            inventoryType={options?.inventoryType ?? InventoryType.MAIN}
+            placeholderIcon={options?.placeholderIcon}
+            held={options?.held}
+            nbtEditMode={options?.nbtEditMode}
+            onInteract={onInteract}/>
+        </InventoryTooltipContext.Provider>
+      </InventoryTextureContext.Provider>
     </VersionContext.Provider>
   );
   const itemElem = elem.container.querySelector("[data-slot='inventory-item']") as HTMLElement;
   expect(itemElem).toBeInTheDocument();
 
-  return { ...elem, itemElem, ctx };
+  return { ...elem, itemElem, ctx, onInteract };
 }
 
 function fireMiddleClick(elem: HTMLElement) {
-  fireEvent(elem, new MouseEvent("auxclick", { bubbles: true, cancelable: true, button: 1 }));
+  fireEvent(elem, new MouseEvent("auxclick", {
+    bubbles: true,
+    cancelable: true,
+    button: 1
+  }));
 }
 
 describe("test inventory item", () => {
-  afterEach(() => {
-    cleanup();
-  });
+  afterEach(() => cleanup());
 
   beforeEach(() => {
-    mockResolverRef.current = {
-      getItemModel: () => null,
-      shouldGlint: () => false,
-      isPotion: () => false,
-      isTippedArrow: () => false,
-      isDyedLeatherArmor: () => false,
-      getPotionColor: () => null,
-      getDyedColor: () => null,
-      hasCustomName: () => false,
-      hasEnchantments: () => false,
-      getName: () => "Stone",
-      getEnchantments: () => new Map(),
-      getLore: () => [],
-      isUnbreakable: () => false,
-      getMapId: () => null,
-      getBeeAmount: () => null,
-      getHoneyLevel: () => null,
-      getMaxStackSize: () => 64
-    };
+    resolverFactoryRef.current = createResolverMock;
+    vi.mocked(createResolver).mockClear();
+    vi.mocked(toast.error).mockClear();
   });
 
-  it("should render the placeholder icon only when the slot is empty", () => {
+  it("renders a placeholder only for an empty slot", () => {
     const placeholderIcon = "/empty-armor-slot-helmet.png";
-    const { rerender, container, ctx } = renderInventoryItem(
-      createItem({ slot: 0, id: AIR, count: 0 }),
+    const { container } = renderInventoryItem(
+      createItem({ id: AIR, count: 0 }),
       { placeholderIcon }
     );
 
     expect(container.querySelector(`img[src="${placeholderIcon}"]`)).toBeInTheDocument();
+    expect(container.querySelector("img[src='/stone.png']")).not.toBeInTheDocument();
+  });
 
-    rerender(
+  it("forwards left, right, and middle interaction requests", () => {
+    const item = createItem({ slot: 10, count: 8, snbt: "{}" });
+    const { itemElem, onInteract } = renderInventoryItem(item);
+
+    fireEvent.click(itemElem);
+    fireEvent.contextMenu(itemElem);
+    fireMiddleClick(itemElem);
+
+    expect(onInteract).toHaveBeenNthCalledWith(1, {
+      button: "left",
+      source: "inventory",
+      clickedItem: item,
+      maxStackSize: 64,
+      inventoryType: InventoryType.MAIN
+    });
+    expect(onInteract).toHaveBeenNthCalledWith(2, expect.objectContaining({ button: "right" }));
+    expect(onInteract).toHaveBeenNthCalledWith(3, expect.objectContaining({ button: "middle" }));
+  });
+
+  it("marks slot -1 as an explorer interaction", () => {
+    const item = createItem({ slot: -1 });
+    const { itemElem, onInteract } = renderInventoryItem(item);
+
+    fireEvent.click(itemElem);
+
+    expect(onInteract).toHaveBeenCalledWith(expect.objectContaining({
+      source: "explorer",
+      clickedItem: item
+    }));
+  });
+
+  it("does not interact while held or in NBT edit mode", () => {
+    const held = renderInventoryItem(createItem(), { held: true });
+    fireEvent.click(held.itemElem);
+    expect(held.onInteract).not.toHaveBeenCalled();
+    cleanup();
+
+    const editing = renderInventoryItem(createItem(), { nbtEditMode: true });
+    fireEvent.click(editing.itemElem);
+    expect(editing.onInteract).not.toHaveBeenCalled();
+  });
+
+  it("blocks mod items in the player inventory but permits container drafts", () => {
+    const item = createItem({ id: "mod:custom_item" });
+    const blocked = renderInventoryItem(item);
+    fireEvent.click(blocked.itemElem);
+
+    expect(blocked.onInteract).not.toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalledWith("[players.inventory.interact-forbbiden]");
+    cleanup();
+
+    const ctx = createMockInventoryTooltipContextValue();
+    const onInteract = vi.fn();
+    const container = render(
       <VersionContext.Provider value={createMockVersionContext()}>
-        <InventoryContext.Provider value={ctx}>
-          <InventoryItem
-            itemStack={createItem({ slot: 0, id: "minecraft:diamond_helmet", count: 1 })}
-            inventoryType={InventoryType.EQUIPMENTS}
-            placeholderIcon={placeholderIcon}/>
-        </InventoryContext.Provider>
+        <InventoryTextureContext.Provider value={textures}>
+          <InventoryTooltipContext.Provider value={ctx}>
+            <InventoryItem
+              itemStack={item}
+              interactionMode="container"
+              onInteract={onInteract}/>
+          </InventoryTooltipContext.Provider>
+        </InventoryTextureContext.Provider>
+      </VersionContext.Provider>
+    );
+    fireEvent.click(
+      container.container.querySelector("[data-slot='inventory-item']") as HTMLElement
+    );
+
+    expect(onInteract).toHaveBeenCalledWith(expect.objectContaining({
+      source: "container",
+      clickedItem: item
+    }));
+  });
+
+  it("passes the resolver stack limit to the interaction", () => {
+    resolverFactoryRef.current = (id) => ({
+      ...createResolverMock(id),
+      getMaxStackSize: () => 16
+    });
+    const item = createItem({ snbt: "{}" });
+    const { itemElem, onInteract } = renderInventoryItem(item);
+
+    fireEvent.click(itemElem);
+
+    expect(onInteract).toHaveBeenCalledWith(expect.objectContaining({
+      maxStackSize: 16
+    }));
+  });
+
+  it("uses an item-model texture override when the resolver provides one", () => {
+    resolverFactoryRef.current = (id) => ({
+      ...createResolverMock(id),
+      getItemModel: () => "minecraft:diamond"
+    });
+    const { container } = renderInventoryItem(createItem({ snbt: "{}" }));
+
+    expect(container.querySelector("img")).toHaveAttribute("src", "/diamond.png");
+  });
+
+  it.each([
+    {
+      id: "minecraft:potion",
+      texture: "/potion.png",
+      resolver: { isPotion: () => true, getPotionColor: () => [12, 34, 56] }
+    },
+    {
+      id: "minecraft:tipped_arrow",
+      texture: "/tipped-arrow.png",
+      resolver: { isTippedArrow: () => true, getPotionColor: () => [1, 2, 3] }
+    },
+    {
+      id: "minecraft:leather_helmet",
+      texture: "/leather-helmet.png",
+      resolver: { isDyedLeatherArmor: () => true, getDyedColor: () => [45, 67, 89] }
+    }
+  ])("renders the color overlay for $id", ({ id, texture, resolver }) => {
+    resolverFactoryRef.current = () => ({
+      ...createResolverMock(id),
+      ...resolver
+    });
+    const { container } = renderInventoryItem(
+      createItem({ id, snbt: "{}" }),
+      {
+        textures: [
+          { id, readable: id, texture }
+        ] as Item[]
+      }
+    );
+
+    expect(container.querySelector(".color-overlay")).toBeInTheDocument();
+  });
+
+  it("renders an enchanted glint overlay", () => {
+    resolverFactoryRef.current = (id) => ({
+      ...createResolverMock(id),
+      shouldGlint: () => true
+    });
+    const { container } = renderInventoryItem(createItem({ snbt: "{}" }));
+
+    expect(container.querySelector(".item-glint")).toBeInTheDocument();
+  });
+
+  it("uses the shared tooltip controller", () => {
+    const item = createItem({ snbt: "{}" });
+    const { itemElem, ctx } = renderInventoryItem(item);
+
+    fireEvent.mouseEnter(itemElem, { clientX: 20, clientY: 30 });
+    fireEvent.mouseMove(itemElem, { clientX: 21, clientY: 31 });
+    fireEvent.mouseLeave(itemElem);
+
+    const owner = vi.mocked(ctx.showTooltip).mock.calls[0][0];
+    expect(typeof owner).toBe("symbol");
+    expect(ctx.showTooltip).toHaveBeenCalledWith(
+      owner,
+      expect.objectContaining({ itemStack: item }),
+      20,
+      30
+    );
+    expect(ctx.moveTooltip).toHaveBeenCalledWith(owner, 21, 31);
+    expect(ctx.hideTooltip).toHaveBeenCalledWith(owner);
+  });
+
+  it("keeps a single tooltip portal and switches its content", () => {
+    render(
+      <VersionContext.Provider value={createMockVersionContext()}>
+        <InventoryTextureContext.Provider value={textures}>
+          <InventoryTooltipProvider>
+            <InventoryItem itemStack={createItem({ slot: 0, snbt: "{}" })}/>
+            <InventoryItem itemStack={createItem({
+              slot: 1,
+              id: "minecraft:diamond",
+              snbt: "{}"
+            })}/>
+          </InventoryTooltipProvider>
+        </InventoryTextureContext.Provider>
+      </VersionContext.Provider>
+    );
+    const items = screen.getAllByRole("img").map(image => image.parentElement as HTMLElement);
+
+    fireEvent.mouseEnter(items[0], { clientX: 20, clientY: 30 });
+    expect(document.querySelectorAll("[data-slot='inventory-item-hover']")).toHaveLength(1);
+    expect(document.querySelector("[data-slot='inventory-item-hover']")).toHaveTextContent(
+      "minecraft:stone"
+    );
+
+    fireEvent.mouseEnter(items[1], { clientX: 40, clientY: 50 });
+    expect(document.querySelectorAll("[data-slot='inventory-item-hover']")).toHaveLength(1);
+    expect(document.querySelector("[data-slot='inventory-item-hover']")).toHaveTextContent(
+      "minecraft:diamond"
+    );
+  });
+
+  it("preserves detailed NBT tooltip content in the shared portal", () => {
+    resolverFactoryRef.current = () => Object.assign(
+      new MockComponentsResolver(7),
+      createResolverMock("minecraft:diamond_sword"),
+      {
+        hasCustomName: () => true,
+        hasEnchantments: () => true,
+        getName: () => "My Custom Item",
+        getEnchantments: () => new Map([["minecraft:sharpness", 5]]),
+        getLore: () => ["First lore line", "Second lore line"],
+        isUnbreakable: () => true,
+        getMapId: () => 123,
+        getBeeAmount: () => 2,
+        getHoneyLevel: () => 4
+      }
+    );
+    render(
+      <VersionContext.Provider value={createMockVersionContext()}>
+        <InventoryTextureContext.Provider value={[
+          {
+            id: "minecraft:diamond_sword",
+            readable: "Diamond Sword",
+            texture: "/diamond-sword.png"
+          }
+        ] as Item[]}>
+          <InventoryTooltipProvider>
+            <InventoryItem itemStack={createItem({
+              id: "minecraft:diamond_sword",
+              snbt: "{}"
+            })}/>
+          </InventoryTooltipProvider>
+        </InventoryTextureContext.Provider>
+      </VersionContext.Provider>
+    );
+    const item = screen.getByRole("img").parentElement as HTMLElement;
+
+    fireEvent.mouseEnter(item, { clientX: 10, clientY: 10 });
+
+    const tooltip = document.querySelector(
+      "[data-slot='inventory-item-hover']"
+    ) as HTMLElement;
+    expect(tooltip).toBeInTheDocument();
+    expect(tooltip).toHaveTextContent("My Custom Item");
+    expect(tooltip).toHaveTextContent("First lore line");
+    expect(tooltip).toHaveTextContent("Second lore line");
+    expect(tooltip).toHaveTextContent("minecraft:diamond_sword");
+    expect(tooltip).toHaveTextContent("[players.inventory.item-tag.components](7)");
+    expect(tooltip.querySelector(".italic")).toBeInTheDocument();
+    expect(tooltip.querySelector(".cc-b")).toBeInTheDocument();
+
+    fireEvent.mouseLeave(item);
+    expect(document.querySelector("[data-slot='inventory-item-hover']")).not.toBeInTheDocument();
+  });
+
+  it("does not rerender when a semantically identical item object is passed", () => {
+    const ctx = createMockInventoryTooltipContextValue();
+    const onInteract = vi.fn();
+    const versionCtx = createMockVersionContext();
+    const item = createItem({ snbt: "{}" });
+    const elem = render(
+      <VersionContext.Provider value={versionCtx}>
+        <InventoryTextureContext.Provider value={textures}>
+          <InventoryTooltipContext.Provider value={ctx}>
+            <InventoryItem itemStack={item} onInteract={onInteract}/>
+          </InventoryTooltipContext.Provider>
+        </InventoryTextureContext.Provider>
+      </VersionContext.Provider>
+    );
+    expect(createResolver).toHaveBeenCalledTimes(1);
+
+    elem.rerender(
+      <VersionContext.Provider value={versionCtx}>
+        <InventoryTextureContext.Provider value={textures}>
+          <InventoryTooltipContext.Provider value={ctx}>
+            <InventoryItem itemStack={{ ...item }} onInteract={onInteract}/>
+          </InventoryTooltipContext.Provider>
+        </InventoryTextureContext.Provider>
       </VersionContext.Provider>
     );
 
-    expect(container.querySelector(`img[src="${placeholderIcon}"]`)).not.toBeInTheDocument();
-  });
-
-  it("should pick up and remove clicked item when left-clicking a normal slot with empty hand", () => {
-    const item = createItem({ slot: 10, id: "minecraft:stone", count: 8 });
-    const { itemElem, ctx } = renderInventoryItem(item);
-
-    fireEvent.click(itemElem);
-
-    expect(ctx.setCurrentlyHeldItem).toHaveBeenCalledWith(item);
-    expect(ctx.removeClickedItem).toHaveBeenCalledWith(InventoryType.MAIN, item);
-  });
-
-  it("should pick up clicked item without removing when left-clicking an explorer slot", () => {
-    const item = createItem({ slot: -1, id: "minecraft:stone", count: 1 });
-    const { itemElem, ctx } = renderInventoryItem(item);
-
-    fireEvent.click(itemElem);
-
-    expect(ctx.setCurrentlyHeldItem).toHaveBeenCalledWith(item);
-    expect(ctx.removeClickedItem).not.toHaveBeenCalled();
-  });
-
-  it("should merge held stack into clicked stack when left-clicking same item", () => {
-    const heldItem = createItem({ slot: 2, id: "minecraft:stone", count: 3, snbt: "{foo:1b}" });
-    const clickedItem = createItem({ slot: 12, id: "minecraft:stone", count: 9, snbt: "{foo:1b}" });
-    const { itemElem, ctx } = renderInventoryItem(clickedItem, {
-      ctxOverrides: {
-        currentlyHeldItem: heldItem
-      }
-    });
-
-    fireEvent.click(itemElem);
-
-    expect(ctx.addClickedWithHeldItem).toHaveBeenCalledWith(InventoryType.MAIN, clickedItem, 3);
-  });
-
-  it("should swap held item with clicked item when left-clicking different item", () => {
-    const clickedItem = createItem({ slot: 12, id: "minecraft:diamond", count: 1 });
-    const { itemElem, ctx } = renderInventoryItem(clickedItem, {
-      ctxOverrides: {
-        currentlyHeldItem: createItem({ slot: 2, id: "minecraft:stone", count: 3 })
-      }
-    });
-
-    fireEvent.click(itemElem);
-
-    expect(ctx.swapClickedWithHeldItem).toHaveBeenCalledWith(InventoryType.MAIN, clickedItem);
-  });
-
-  it("should swap held item with clicked item when ids are same but nbt is different", () => {
-    const heldItem = createItem({ slot: 2, id: "minecraft:stone", count: 3, snbt: "{foo:1b}" });
-    const clickedItem = createItem({ slot: 12, id: "minecraft:stone", count: 9, snbt: "{bar:1b}" });
-    const { itemElem, ctx } = renderInventoryItem(clickedItem, {
-      ctxOverrides: {
-        currentlyHeldItem: heldItem
-      }
-    });
-
-    fireEvent.click(itemElem);
-
-    expect(ctx.swapClickedWithHeldItem).toHaveBeenCalledWith(InventoryType.MAIN, clickedItem);
-    expect(ctx.addClickedWithHeldItem).not.toHaveBeenCalled();
-  });
-
-  it("should only merge enough held items to fill the clicked stack to 64", () => {
-    const heldItem = createItem({ slot: 2, id: "minecraft:stone", count: 50, snbt: "{foo:1b}" });
-    const clickedItem = createItem({ slot: 12, id: "minecraft:stone", count: 50, snbt: "{foo:1b}" });
-    const { itemElem, ctx } = renderInventoryItem(clickedItem, {
-      ctxOverrides: {
-        currentlyHeldItem: heldItem
-      }
-    });
-
-    fireEvent.click(itemElem);
-
-    expect(ctx.addClickedWithHeldItem).toHaveBeenCalledWith(InventoryType.MAIN, clickedItem, 14);
-  });
-
-  it("should use the max stack size resolved from item components when merging", () => {
-    mockResolverRef.current = {
-      ...mockResolverRef.current,
-      getMaxStackSize: () => 16
-    };
-    const heldItem = createItem({ slot: 2, id: "minecraft:ender_pearl", count: 10, snbt: "{foo:1b}" });
-    const clickedItem = createItem({ slot: 12, id: "minecraft:ender_pearl", count: 10, snbt: "{foo:1b}" });
-    const { itemElem, ctx } = renderInventoryItem(clickedItem, {
-      ctxOverrides: {
-        currentlyHeldItem: heldItem,
-        textures: [
-          { id: "minecraft:ender_pearl", readable: "Ender Pearl", texture: "/ender-pearl.png" }
-        ] as any
-      }
-    });
-
-    fireEvent.click(itemElem);
-
-    expect(ctx.addClickedWithHeldItem).toHaveBeenCalledWith(InventoryType.MAIN, clickedItem, 6);
-  });
-
-  it("should not merge held items into a full stack on left click", () => {
-    const heldItem = createItem({ slot: 2, id: "minecraft:stone", count: 50, snbt: "{foo:1b}" });
-    const clickedItem = createItem({ slot: 12, id: "minecraft:stone", count: 64, snbt: "{foo:1b}" });
-    const { itemElem, ctx } = renderInventoryItem(clickedItem, {
-      ctxOverrides: {
-        currentlyHeldItem: heldItem
-      }
-    });
-
-    fireEvent.click(itemElem);
-
-    expect(ctx.addClickedWithHeldItem).not.toHaveBeenCalled();
-  });
-
-  it("should destroy held item when dropping to explorer with different item type", () => {
-    const clickedItem = createItem({ slot: -1, id: "minecraft:diamond", count: 1 });
-    const { itemElem, ctx } = renderInventoryItem(clickedItem, {
-      ctxOverrides: {
-        currentlyHeldItem: createItem({ slot: 2, id: "minecraft:stone", count: 3 })
-      }
-    });
-
-    fireEvent.click(itemElem);
-
-    expect(ctx.setCurrentlyHeldItem).toHaveBeenCalledWith(null);
-    expect(ctx.swapClickedWithHeldItem).not.toHaveBeenCalled();
-    expect(ctx.addClickedWithHeldItem).not.toHaveBeenCalled();
-  });
-
-  it("should pick up half and update clicked stack when right-clicking normal slot with empty hand", () => {
-    const item = createItem({ slot: 4, id: "minecraft:stone", count: 9 });
-    const { itemElem, ctx } = renderInventoryItem(item);
-
-    fireEvent.contextMenu(itemElem);
-
-    expect(ctx.setCurrentlyHeldItem).toHaveBeenCalledWith({ ...item, count: 5 });
-    expect(ctx.halfClickedItem).toHaveBeenCalledWith(InventoryType.MAIN, item);
-  });
-
-  it("should pick up a full stack from explorer on right-click with empty hand", () => {
-    mockResolverRef.current = {
-      ...mockResolverRef.current,
-      getMaxStackSize: () => 16
-    };
-    const item = createItem({ slot: -1, id: "minecraft:diamond", count: 1, snbt: "{foo:1b}" });
-    const { itemElem, ctx } = renderInventoryItem(item);
-
-    fireEvent.contextMenu(itemElem);
-
-    expect(ctx.setCurrentlyHeldItem).toHaveBeenCalledWith({ ...item, count: 16 });
-  });
-
-  it("should place one item into same clicked stack on right-click", () => {
-    const heldItem = createItem({ slot: 2, id: "minecraft:stone", count: 6, snbt: "{foo:1b}" });
-    const clickedItem = createItem({ slot: 4, id: "minecraft:stone", count: 12, snbt: "{foo:1b}" });
-    const { itemElem, ctx } = renderInventoryItem(clickedItem, {
-      ctxOverrides: {
-        currentlyHeldItem: heldItem
-      }
-    });
-
-    fireEvent.contextMenu(itemElem);
-
-    expect(ctx.addClickedWithHeldItem).toHaveBeenCalledWith(InventoryType.MAIN, clickedItem, 1);
-  });
-
-  it("should not place an item into a full stack on right-click", () => {
-    const heldItem = createItem({ slot: 2, id: "minecraft:stone", count: 6, snbt: "{foo:1b}" });
-    const clickedItem = createItem({ slot: 4, id: "minecraft:stone", count: 64, snbt: "{foo:1b}" });
-    const { itemElem, ctx } = renderInventoryItem(clickedItem, {
-      ctxOverrides: {
-        currentlyHeldItem: heldItem
-      }
-    });
-
-    fireEvent.contextMenu(itemElem);
-
-    expect(ctx.addClickedWithHeldItem).not.toHaveBeenCalled();
-  });
-
-  it("should place one item per right click when clicking same item multiple times", () => {
-    const heldItem = createItem({ slot: 2, id: "minecraft:stone", count: 6, snbt: "{foo:1b}" });
-    const clickedItem = createItem({ slot: 4, id: "minecraft:stone", count: 12, snbt: "{foo:1b}" });
-    const { itemElem, ctx } = renderInventoryItem(clickedItem, {
-      ctxOverrides: {
-        currentlyHeldItem: heldItem
-      }
-    });
-
-    fireEvent.contextMenu(itemElem);
-    fireEvent.contextMenu(itemElem);
-    fireEvent.contextMenu(itemElem);
-
-    expect(ctx.addClickedWithHeldItem).toHaveBeenCalledTimes(3);
-    expect(ctx.addClickedWithHeldItem).toHaveBeenNthCalledWith(1, InventoryType.MAIN, clickedItem, 1);
-    expect(ctx.addClickedWithHeldItem).toHaveBeenNthCalledWith(2, InventoryType.MAIN, clickedItem, 1);
-    expect(ctx.addClickedWithHeldItem).toHaveBeenNthCalledWith(3, InventoryType.MAIN, clickedItem, 1);
-  });
-
-  it("should place one held item into empty slot on right-click", () => {
-    const heldItem = createItem({ slot: 2, id: "minecraft:diamond", count: 6, snbt: "{foo:1b}" });
-    const clickedItem = createItem({ slot: 4, id: AIR, count: 0 });
-    const { itemElem, ctx } = renderInventoryItem(clickedItem, {
-      ctxOverrides: {
-        currentlyHeldItem: heldItem
-      }
-    });
-
-    fireEvent.contextMenu(itemElem);
-
-    expect(ctx.addClickedWithHeldItem).toHaveBeenCalledWith(
-      InventoryType.MAIN,
-      { ...clickedItem, id: heldItem.id, snbt: heldItem.snbt },
-      1
-    );
-  });
-
-  it("should clone a full stack when middle-clicking normal slot", () => {
-    mockResolverRef.current = {
-      ...mockResolverRef.current,
-      getMaxStackSize: () => 16
-    };
-    const item = createItem({ slot: 4, id: "minecraft:diamond", count: 8, snbt: "{foo:1b}" });
-    const { itemElem, ctx } = renderInventoryItem(item);
-
-    fireMiddleClick(itemElem);
-
-    expect(ctx.setCurrentlyHeldItem).toHaveBeenCalledWith({ ...item, count: 16 });
-  });
-
-  it("should increase held item count by one per left click in explorer when ids and nbt are same", () => {
-    const clickedItem = createItem({ slot: -1, id: "minecraft:stone", count: 1, snbt: "{foo:1b}" });
-    const heldItem = createItem({ slot: -1, id: "minecraft:stone", count: 7, snbt: "{foo:1b}" });
-    const { itemElem, ctx } = renderInventoryItem(clickedItem, {
-      ctxOverrides: {
-        currentlyHeldItem: heldItem
-      }
-    });
-
-    fireEvent.click(itemElem);
-    fireEvent.click(itemElem);
-
-    expect(ctx.setCurrentlyHeldItem).toHaveBeenCalledTimes(2);
-    expect(ctx.setCurrentlyHeldItem).toHaveBeenNthCalledWith(1, { ...heldItem, count: 8 });
-    expect(ctx.setCurrentlyHeldItem).toHaveBeenNthCalledWith(2, { ...heldItem, count: 8 });
-  });
-
-  it("should not increase a full held stack from the explorer", () => {
-    const clickedItem = createItem({ slot: -1, id: "minecraft:stone", count: 1, snbt: "{foo:1b}" });
-    const heldItem = createItem({ slot: -1, id: "minecraft:stone", count: 64, snbt: "{foo:1b}" });
-    const { itemElem, ctx } = renderInventoryItem(clickedItem, {
-      ctxOverrides: {
-        currentlyHeldItem: heldItem
-      }
-    });
-
-    fireEvent.click(itemElem);
-
-    expect(ctx.setCurrentlyHeldItem).not.toHaveBeenCalled();
-  });
-
-  it("should do nothing when item is held preview", () => {
-    const item = createItem({ slot: 4, id: "minecraft:stone", count: 8 });
-    const setCurrentlyHeldItem = vi.fn();
-    const { itemElem, ctx } = renderInventoryItem(item, {
-      held: true,
-      ctxOverrides: {
-        setCurrentlyHeldItem
-      }
-    });
-
-    fireEvent.click(itemElem);
-    fireEvent.contextMenu(itemElem);
-    fireMiddleClick(itemElem);
-
-    expect(setCurrentlyHeldItem).not.toHaveBeenCalled();
-    expect(ctx.removeClickedItem).not.toHaveBeenCalled();
-    expect(ctx.swapClickedWithHeldItem).not.toHaveBeenCalled();
-    expect(ctx.addClickedWithHeldItem).not.toHaveBeenCalled();
-    expect(ctx.halfClickedItem).not.toHaveBeenCalled();
-  });
-
-  it("should do nothing when nbt edit mode is enabled", () => {
-    const item = createItem({ slot: 4, id: "minecraft:stone", count: 8 });
-    const setCurrentlyHeldItem = vi.fn();
-    const { itemElem, ctx } = renderInventoryItem(item, {
-      ctxOverrides: {
-        nbtEditMode: true,
-        setCurrentlyHeldItem
-      }
-    });
-
-    fireEvent.click(itemElem);
-    fireEvent.contextMenu(itemElem);
-    fireMiddleClick(itemElem);
-
-    expect(setCurrentlyHeldItem).not.toHaveBeenCalled();
-    expect(ctx.removeClickedItem).not.toHaveBeenCalled();
-    expect(ctx.swapClickedWithHeldItem).not.toHaveBeenCalled();
-    expect(ctx.addClickedWithHeldItem).not.toHaveBeenCalled();
-    expect(ctx.halfClickedItem).not.toHaveBeenCalled();
-  });
-
-  it("should render glint overlay when resolver says it should glint", async () => {
-    mockResolverRef.current = {
-      ...mockResolverRef.current,
-      shouldGlint: () => true
-    };
-    const item = createItem({ slot: 4, id: "minecraft:stone", count: 1, snbt: "{foo:1b}" });
-    const { container } = renderInventoryItem(item);
-
-    await waitFor(() => {
-      expect(container.querySelector(".item-glint")).toBeInTheDocument();
-    });
-  });
-
-  it("should render potion overlay when resolver marks item as potion", async () => {
-    mockResolverRef.current = {
-      ...mockResolverRef.current,
-      isPotion: () => true,
-      getPotionColor: () => [12, 34, 56]
-    };
-    const item = createItem({ slot: 4, id: "minecraft:potion", count: 1, snbt: "{foo:1b}" });
-    const { container } = renderInventoryItem(item, {
-      ctxOverrides: {
-        textures: [
-          { id: "minecraft:potion", readable: "Potion", texture: "/potion.png" }
-        ] as any
-      }
-    });
-
-    await waitFor(() => {
-      const overlays = container.querySelectorAll(".color-overlay");
-      expect(overlays.length).toBe(1);
-      expect(overlays[0]).toHaveStyle("background-color: rgb(12,34,56)");
-    });
-  });
-
-  it("should render tipped arrow overlay when resolver marks item as tipped arrow", async () => {
-    mockResolverRef.current = {
-      ...mockResolverRef.current,
-      isTippedArrow: () => true,
-      getPotionColor: () => [1, 2, 3]
-    };
-    const item = createItem({ slot: 4, id: "minecraft:tipped_arrow", count: 1, snbt: "{foo:1b}" });
-    const { container } = renderInventoryItem(item, {
-      ctxOverrides: {
-        textures: [
-          { id: "minecraft:tipped_arrow", readable: "Tipped Arrow", texture: "/tipped-arrow.png" }
-        ] as any
-      }
-    });
-
-    await waitFor(() => {
-      const overlays = container.querySelectorAll(".color-overlay");
-      expect(overlays.length).toBe(1);
-      expect(overlays[0]).toHaveStyle("background-color: rgb(1,2,3)");
-    });
-  });
-
-  it("should render leather armor overlay when resolver has dyed armor color", async () => {
-    mockResolverRef.current = {
-      ...mockResolverRef.current,
-      isDyedLeatherArmor: () => true,
-      getDyedColor: () => [45, 67, 89]
-    };
-    const item = createItem({ slot: 4, id: "minecraft:leather_helmet", count: 1, snbt: "{foo:1b}" });
-    const { container } = renderInventoryItem(item, {
-      ctxOverrides: {
-        textures: [
-          { id: "minecraft:leather_helmet", readable: "Leather Helmet", texture: "/leather-helmet.png" }
-        ] as any
-      }
-    });
-
-    await waitFor(() => {
-      const overlays = container.querySelectorAll(".color-overlay");
-      expect(overlays.length).toBe(1);
-      expect(overlays[0]).toHaveStyle("background-color: rgb(45,67,89)");
-    });
-  });
-
-  it("should render hover tag details from nbt resolver comprehensively", async () => {
-    mockResolverRef.current = Object.assign(new MockComponentsResolver(7), {
-      getItemModel: () => null,
-      shouldGlint: () => true,
-      isPotion: () => false,
-      isTippedArrow: () => false,
-      isDyedLeatherArmor: () => false,
-      getPotionColor: () => null,
-      getDyedColor: () => null,
-      hasCustomName: () => true,
-      hasEnchantments: () => true,
-      getName: () => "My Custom Item",
-      getEnchantments: () => new Map([["minecraft:sharpness", 5], ["minecraft:unbreaking", 3]]),
-      getLore: () => ["First lore line", "Second lore line"],
-      isUnbreakable: () => true,
-      getMapId: () => 123,
-      getBeeAmount: () => null,
-      getHoneyLevel: () => null
-    });
-    const item = createItem({ slot: 4, id: "minecraft:diamond_sword", count: 1, snbt: "{foo:1b}" });
-    const { itemElem, container } = renderInventoryItem(item);
-
-    fireEvent.mouseEnter(itemElem, { clientX: 10, clientY: 20 });
-
-    await waitFor(() => {
-      expect(screen.getByText("My Custom Item")).toBeInTheDocument();
-    });
-
-    const hoveredTag = document.querySelector(
-      "[data-slot='inventory-item-hover']"
-    ) as HTMLElement;
-    expect(hoveredTag).toBeInTheDocument();
-    expect(container).not.toContainElement(hoveredTag);
-    await waitFor(() => {
-      expect(hoveredTag).toHaveStyle({ left: "25px", top: "8px" });
-    });
-    expect(hoveredTag.querySelector(".italic")).toBeInTheDocument();
-    expect(hoveredTag.querySelector(".cc-b")).toBeInTheDocument();
-    expect(screen.getByText("First lore line")).toBeInTheDocument();
-    expect(screen.getByText("Second lore line")).toBeInTheDocument();
-    expect(screen.getByText("[item.unbreakable]")).toBeInTheDocument();
-    expect(screen.getByText("[filled_map.id]")).toBeInTheDocument();
-    expect(screen.getByText("minecraft:diamond_sword")).toBeInTheDocument();
-    expect(screen.getByText("[players.inventory.item-tag.components](7)")).toBeInTheDocument();
-
-    fireEvent.mouseLeave(itemElem);
-    await waitFor(() => {
-      expect(hoveredTag).not.toHaveClass("flex");
-    });
+    expect(createResolver).toHaveBeenCalledTimes(1);
   });
 });

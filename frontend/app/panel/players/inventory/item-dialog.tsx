@@ -2,7 +2,6 @@ import type { InventoryType, ItemStack } from "@/lib/types";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
-  useContext,
   useEffect,
   useMemo,
   useState,
@@ -27,7 +26,6 @@ import {
   parseContainerNBT,
   serializeContainerNBT
 } from "@/lib/nbt/container";
-import { InventoryContext } from "@/contexts/inventory-context";
 import { Text } from "@/components/i18n-text";
 import { cn } from "@/lib/utils";
 import { ContainerEditor } from "./container-editor";
@@ -39,15 +37,15 @@ export function ItemDialog({
   inventoryType,
   children,
   disabled = false,
+  onUpdateItemNBT,
   asChild
 }: PropsWithChildren & {
   itemStack: ItemStack
   inventoryType?: InventoryType
   disabled?: boolean
+  onUpdateItemNBT?: (inventoryType: InventoryType, item: ItemStack, snbt: string) => void
   asChild?: boolean
 }) {
-  const ctx = useContext(InventoryContext);
-  const { updateItemNBT } = ctx;
   const [dialogOpen, setDialogOpen] = useState(false);
   const [value, setValue] = useState("");
   const [heldItem, setHeldItem] = useState<ItemStack | null>(null);
@@ -58,7 +56,7 @@ export function ItemDialog({
   );
 
   const handleSave = () => {
-    if(inventoryType && !heldItem) updateItemNBT(inventoryType, itemStack, value);
+    if(inventoryType && !heldItem) onUpdateItemNBT?.(inventoryType, itemStack, value);
   };
 
   useEffect(() => {
@@ -66,8 +64,6 @@ export function ItemDialog({
     setHeldItem(null);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dialogOpen]);
-
-  if(!ctx) return <></>;
 
   return (
     <Dialog

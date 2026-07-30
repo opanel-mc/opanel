@@ -4,24 +4,20 @@ import type { ItemStack } from "@/lib/types";
 import type { ContainerSnapshot } from "@/lib/nbt/container";
 import {
   useCallback,
-  useContext,
   useEffect,
-  useMemo,
   useRef,
   type Dispatch,
   type SetStateAction
 } from "react";
 import { createPortal } from "react-dom";
-import { InventoryType } from "@/lib/types";
-import { InventoryContext } from "@/contexts/inventory-context";
 import { $ } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
-import { AIR, InventoryItem } from "./inventory-item";
+import { InventoryItem } from "./inventory-item";
 import { InventoryTrash } from "./inventory-trash";
-
-function emptyItem(slot: number): ItemStack {
-  return { slot, id: AIR, count: 0 };
-}
+import {
+  resolveInventoryInteraction,
+  type InventoryInteractionRequest
+} from "./inventory-interaction";
 
 export function ContainerEditor({
   container,
@@ -34,76 +30,32 @@ export function ContainerEditor({
   setHeldItem: Dispatch<SetStateAction<ItemStack | null>>
   onItemsChange: (items: ItemStack[]) => void
 }) {
-  const parentContext = useContext(InventoryContext);
   const heldItemElemRef = useRef<HTMLDivElement | null>(null);
   const mousePositionRef = useRef({ x: 0, y: 0 });
+  const heldItemRef = useRef(heldItem);
+  const containerRef = useRef(container);
+  const onItemsChangeRef = useRef(onItemsChange);
+  heldItemRef.current = heldItem;
+  containerRef.current = container;
+  onItemsChangeRef.current = onItemsChange;
 
-  const replaceItem = useCallback((item: ItemStack) => {
-    const items = [...container.items];
-    items[item.slot] = item.id === AIR || item.count <= 0
-      ? emptyItem(item.slot)
-      : item;
-    onItemsChange(items);
-  }, [container.items, onItemsChange]);
+  const updateHeldItem = useCallback((item: ItemStack | null) => {
+    heldItemRef.current = item;
+    setHeldItem(item);
+  }, [setHeldItem]);
 
-  const swapClickedWithHeldItem = useCallback((
-    _inventoryType: InventoryType,
-    clickedItem: ItemStack
-  ) => {
-    if(!heldItem) return;
-    setHeldItem(clickedItem.id === AIR ? null : clickedItem);
-    replaceItem({ ...heldItem, slot: clickedItem.slot });
-  }, [heldItem, replaceItem, setHeldItem]);
+  const handleInteract = useCallback((request: InventoryInteractionRequest) => {
+    const result = resolveInventoryInteraction({
+      ...request,
+      heldItem: heldItemRef.current
+    });
+    updateHeldItem(result.nextHeldItem);
+    if(!result.replacementItem) return;
 
-  const addClickedWithHeldItem = useCallback((
-    _inventoryType: InventoryType,
-    clickedItem: ItemStack,
-    count: number
-  ) => {
-    if(!heldItem) return;
-
-    const heldCount = heldItem.count - count;
-    setHeldItem(heldCount > 0 ? { ...heldItem, count: heldCount } : null);
-    replaceItem({ ...clickedItem, count: clickedItem.count + count });
-  }, [heldItem, replaceItem, setHeldItem]);
-
-  const removeClickedItem = useCallback((
-    _inventoryType: InventoryType,
-    clickedItem: ItemStack
-  ) => {
-    replaceItem(emptyItem(clickedItem.slot));
-  }, [replaceItem]);
-
-  const halfClickedItem = useCallback((
-    _inventoryType: InventoryType,
-    clickedItem: ItemStack
-  ) => {
-    const count = Math.floor(clickedItem.count / 2);
-    replaceItem(count > 0
-      ? { ...clickedItem, count }
-      : emptyItem(clickedItem.slot));
-  }, [replaceItem]);
-
-  const localCtx = useMemo(() => ({
-    textures: parentContext.textures,
-    currentlyHeldItem: heldItem,
-    setCurrentlyHeldItem: setHeldItem,
-    nbtEditMode: false,
-    setNbtEditMode: () => undefined,
-    swapClickedWithHeldItem,
-    addClickedWithHeldItem,
-    removeClickedItem,
-    halfClickedItem,
-    updateItemNBT: () => undefined
-  }), [
-    addClickedWithHeldItem,
-    halfClickedItem,
-    heldItem,
-    parentContext.textures,
-    removeClickedItem,
-    setHeldItem,
-    swapClickedWithHeldItem
-  ]);
+    const items = [...containerRef.current.items];
+    items[result.replacementItem.slot] = result.replacementItem;
+    onItemsChangeRef.current(items);
+  }, [updateHeldItem]);
 
   const positionHeldItem = useCallback(() => {
     if(!heldItemElemRef.current) return;
@@ -124,10 +76,8 @@ export function ContainerEditor({
 
   useEffect(() => positionHeldItem(), [heldItem, positionHeldItem]);
 
-  if(!parentContext) return <></>;
-
   return (
-    <InventoryContext.Provider value={localCtx}>
+    <>
       <section className="min-w-0 flex flex-col gap-2">
         <h3 className="text-sm font-semibold">
           {$("players.inventory.container-editor.title")}
@@ -146,13 +96,16 @@ export function ContainerEditor({
           {container.items.map((item) => (
             <InventoryItem
               itemStack={item}
-              inventoryType={InventoryType.MAIN}
               interactionMode="container"
+              onInteract={handleInteract}
               className="min-w-0 w-full max-md:h-[32px]"
               key={item.slot}/>
           ))}
         </div>
-        <InventoryTrash className="self-end max-md:h-[32px]"/>
+        <InventoryTrash
+          canDelete={heldItem !== null}
+          onDelete={() => updateHeldItem(null)}
+          className="self-end max-md:h-[32px]"/>
       </section>
       {(heldItem && typeof document !== "undefined") && (
         createPortal(
@@ -167,6 +120,6 @@ export function ContainerEditor({
           document.body
         )
       )}
-    </InventoryContext.Provider>
+    </>
   );
 }

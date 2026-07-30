@@ -1,21 +1,22 @@
 "use client";
 
-import { type KeyboardEvent, useContext } from "react";
+import type { KeyboardEvent } from "react";
 import { Trash2 } from "lucide-react";
-import { InventoryContext } from "@/contexts/inventory-context";
 import { cn } from "@/lib/utils";
 
-export function InventoryTrash({ className }: { className?: string }) {
-  const ctx = useContext(InventoryContext);
-
-  if(!ctx) return <></>;
-
-  const canDelete = ctx.currentlyHeldItem !== null;
-
+export function InventoryTrash({
+  canDelete,
+  onDelete,
+  className
+}: {
+  canDelete: boolean
+  onDelete: () => void
+  className?: string
+}) {
   const deleteHeldItem = () => {
     if(!canDelete) return;
 
-    ctx.setCurrentlyHeldItem(null);
+    onDelete();
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
