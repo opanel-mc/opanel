@@ -11,6 +11,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { $ } from "@/lib/i18n";
+import { useInventoryRightDrag } from "@/hooks/use-inventory-right-drag";
 import { cn } from "@/lib/utils";
 import { InventoryItem } from "./inventory-item";
 import { InventoryTrash } from "./inventory-trash";
@@ -35,6 +36,7 @@ export function ContainerEditor({
   const heldItemRef = useRef(heldItem);
   const containerRef = useRef(container);
   const onItemsChangeRef = useRef(onItemsChange);
+  const rightDragState = useInventoryRightDrag(heldItem !== null);
   heldItemRef.current = heldItem;
   containerRef.current = container;
   onItemsChangeRef.current = onItemsChange;
@@ -98,6 +100,7 @@ export function ContainerEditor({
               itemStack={item}
               interactionMode="container"
               onInteract={handleInteract}
+              rightDragState={rightDragState}
               className="min-w-0 w-full max-md:h-[32px]"
               key={item.slot}/>
           ))}

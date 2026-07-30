@@ -15,6 +15,7 @@ export interface InventoryInteractionInput {
   clickedItem: ItemStack
   heldItem: ItemStack | null
   maxStackSize: number
+  dragging?: boolean
 }
 
 export interface InventoryInteractionResult {
@@ -28,6 +29,16 @@ export interface InventoryInteractionRequest {
   clickedItem: ItemStack
   maxStackSize: number
   inventoryType?: InventoryType
+  dragging?: boolean
+}
+
+export interface InventoryRightDragState {
+  enabled: boolean
+  active: boolean
+  dragging: boolean
+  suppressContextMenu: boolean
+  visitedSlots: Set<string>
+  startInteraction: ((dragging: boolean) => void) | null
 }
 
 function emptyItem(slot: number): ItemStack {
@@ -59,7 +70,8 @@ export function resolveInventoryInteraction({
   source,
   clickedItem,
   heldItem,
-  maxStackSize
+  maxStackSize,
+  dragging = false
 }: InventoryInteractionInput): InventoryInteractionResult {
   if(button === "middle") {
     if(source !== "inventory" || clickedItem.id === AIR) {
@@ -105,6 +117,10 @@ export function resolveInventoryInteraction({
     return swapWithHeldItem(clickedItem, heldItem);
   }
 
+  if(dragging && (!heldItem || source === "explorer")) {
+    return { nextHeldItem: heldItem };
+  }
+
   if(!heldItem) {
     if(source === "explorer") {
       return {
@@ -146,6 +162,7 @@ export function resolveInventoryInteraction({
     };
   }
 
+  if(dragging) return { nextHeldItem: heldItem };
   return swapWithHeldItem(clickedItem, heldItem);
 }
 
@@ -187,4 +204,51 @@ export function replaceInventoryItem(
       items
     }
   };
+}
+
+function resetInventoryRightDrag(state: InventoryRightDragState) {
+  state.active = false;
+  state.dragging = false;
+  state.visitedSlots.clear();
+  state.startInteraction = null;
+}
+
+export function beginInventoryRightDrag(
+  state: InventoryRightDragState,
+  slot: string,
+  interact: (dragging: boolean) => void
+) {
+  state.active = true;
+  state.dragging = false;
+  state.suppressContextMenu = false;
+  state.visitedSlots.clear();
+  state.visitedSlots.add(slot);
+  state.startInteraction = interact;
+}
+
+export function visitInventoryRightDrag(
+  state: InventoryRightDragState,
+  slot: string,
+  interact: () => void
+) {
+  if(!state.enabled || !state.active || state.visitedSlots.has(slot)) return;
+
+  state.visitedSlots.add(slot);
+  if(!state.dragging) {
+    state.dragging = true;
+    state.suppressContextMenu = true;
+    state.startInteraction?.(true);
+  }
+  interact();
+}
+
+export function finishInventoryRightDrag(state: InventoryRightDragState) {
+  if(!state.active) return;
+  if(!state.dragging) state.startInteraction?.(false);
+  resetInventoryRightDrag(state);
+}
+
+export function cancelInventoryRightDrag(state: InventoryRightDragState) {
+  resetInventoryRightDrag(state);
+  state.suppressContextMenu = false;
 }

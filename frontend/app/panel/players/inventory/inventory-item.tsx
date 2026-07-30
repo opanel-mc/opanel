@@ -21,9 +21,12 @@ import { itemModelToTextureId } from "@/lib/nbt/components-resolver";
 import { DEFAULT_MAX_STACK_SIZE } from "@/lib/nbt/resolver";
 import {
   AIR,
+  beginInventoryRightDrag,
   type InventoryInteractionButton,
   type InventoryInteractionRequest,
-  type InventoryInteractionSource
+  type InventoryInteractionSource,
+  type InventoryRightDragState,
+  visitInventoryRightDrag
 } from "./inventory-interaction";
 
 import GlintTexture from "@/assets/images/overlays/enchanted-glint.png";
@@ -35,8 +38,6 @@ import LeatherLeggingsOverlayTexture from "@/assets/images/overlays/leather-legg
 import LeatherBootsOverlayTexture from "@/assets/images/overlays/leather-boots-overlay.png";
 import MissingTexture from "@/assets/images/inventory/missing-texture.png";
 import "@/style/item-effect.css";
-
-export { AIR } from "./inventory-interaction";
 
 function getLeatherOverlay(id: string): string | null {
   switch(id) {
@@ -53,19 +54,6 @@ function getLeatherOverlay(id: string): string | null {
   }
 }
 
-export interface InventoryItemProps {
-  itemStack: ItemStack
-  inventoryType?: InventoryType
-  placeholderIcon?: string
-  held?: boolean
-  interactionMode?: "inventory" | "container"
-  nbtEditMode?: boolean
-  onInteract?: (request: InventoryInteractionRequest) => void
-  onUpdateItemNBT?: (inventoryType: InventoryType, item: ItemStack, snbt: string) => void
-  className?: string
-  ref?: RefObject<HTMLDivElement | null>
-}
-
 const noopInteract = () => undefined;
 
 export const InventoryItem = memo(({
@@ -77,9 +65,22 @@ export const InventoryItem = memo(({
   nbtEditMode = false,
   onInteract = noopInteract,
   onUpdateItemNBT,
+  rightDragState,
   className,
   ref
-}: InventoryItemProps) => {
+}: {
+  itemStack: ItemStack
+  inventoryType?: InventoryType
+  placeholderIcon?: string
+  held?: boolean
+  interactionMode?: "inventory" | "container"
+  nbtEditMode?: boolean
+  onInteract?: (request: InventoryInteractionRequest) => void
+  onUpdateItemNBT?: (inventoryType: InventoryType, item: ItemStack, snbt: string) => void
+  rightDragState?: InventoryRightDragState
+  className?: string
+  ref?: RefObject<HTMLDivElement | null>
+}) => {
   const versionCtx = useContext(VersionContext);
   const textures = useContext(InventoryTextureContext);
   const tooltipCtx = useContext(InventoryTooltipContext);
@@ -109,13 +110,14 @@ export const InventoryItem = memo(({
   const tooltipOwnerRef = useRef<symbol>(
     Symbol("inventory-item-tooltip-owner")
   );
+  const suppressContextMenuRef = useRef(false);
   const source: InventoryInteractionSource = isContainerMode
     ? "container"
     : itemStack.slot === -1
       ? "explorer"
       : "inventory";
 
-  const interact = (button: InventoryInteractionButton) => {
+  const interact = (button: InventoryInteractionButton, dragging = false) => {
     if(held || nbtEditMode) return;
     if(isModItem && !isContainerMode) {
       toast.error($("players.inventory.interact-forbbiden"));
@@ -127,13 +129,57 @@ export const InventoryItem = memo(({
       source,
       clickedItem: itemStack,
       maxStackSize,
-      inventoryType
+      inventoryType,
+      ...(dragging ? { dragging: true } : {})
     });
   };
 
   const handleRightClick = (e: MouseEvent) => {
     e.preventDefault();
+    if(rightDragState?.suppressContextMenu) {
+      rightDragState.suppressContextMenu = false;
+      suppressContextMenuRef.current = false;
+      return;
+    }
+    if(rightDragState?.active) {
+      suppressContextMenuRef.current = false;
+      return;
+    }
+    if(suppressContextMenuRef.current) {
+      suppressContextMenuRef.current = false;
+      return;
+    }
     interact("right");
+  };
+
+  const handleMouseDown = (e: MouseEvent) => {
+    if(e.button !== 2 || !rightDragState?.enabled) return;
+
+    e.preventDefault();
+    suppressContextMenuRef.current = true;
+    beginInventoryRightDrag(
+      rightDragState,
+      `${source}:${inventoryType ?? ""}:${itemStack.slot}`,
+      (dragging) => interact("right", dragging)
+    );
+  };
+
+  const handleMouseEnter = (e: MouseEvent) => {
+    if((e.buttons & 2) !== 0 && rightDragState) {
+      visitInventoryRightDrag(
+        rightDragState,
+        `${source}:${inventoryType ?? ""}:${itemStack.slot}`,
+        () => interact("right", true)
+      );
+    }
+
+    if(itemStack.id === AIR || held) return;
+    tooltipCtx?.showTooltip(
+      tooltipOwnerRef.current,
+      { itemStack, resolvedNBT },
+      e.clientX,
+      e.clientY
+    );
   };
 
   const handleAuxClick = (e: MouseEvent) => {
@@ -167,17 +213,10 @@ export const InventoryItem = memo(({
         className
       )}
       onClick={() => interact("left")}
+      onMouseDown={(e) => handleMouseDown(e)}
       onContextMenu={(e) => handleRightClick(e)}
       onAuxClick={(e) => handleAuxClick(e)}
-      onMouseEnter={(e) => {
-        if(itemStack.id === AIR || held) return;
-        tooltipCtx.showTooltip(
-          tooltipOwnerRef.current,
-          { itemStack, resolvedNBT },
-          e.clientX,
-          e.clientY
-        );
-      }}
+      onMouseEnter={(e) => handleMouseEnter(e)}
       onMouseMove={(e) => {
         if(itemStack.id === AIR || held) return;
         tooltipCtx.moveTooltip(tooltipOwnerRef.current, e.clientX, e.clientY);
@@ -253,7 +292,6 @@ export const InventoryItem = memo(({
           )}
         </>
       )}
-
     </div>
   );
 
@@ -281,6 +319,7 @@ export const InventoryItem = memo(({
   && prev.nbtEditMode === next.nbtEditMode
   && prev.onInteract === next.onInteract
   && prev.onUpdateItemNBT === next.onUpdateItemNBT
+  && prev.rightDragState === next.rightDragState
   && prev.className === next.className
   && prev.ref === next.ref
 ));

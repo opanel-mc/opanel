@@ -87,7 +87,8 @@ export default function Inventory() {
       source: request.source,
       clickedItem: request.clickedItem,
       heldItem: currentlyHeldItemRef.current,
-      maxStackSize: request.maxStackSize
+      maxStackSize: request.maxStackSize,
+      dragging: request.dragging
     });
 
     if(request.inventoryType && result.replacementItem) {

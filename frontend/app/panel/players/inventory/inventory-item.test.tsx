@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import type { Item } from "minecraft-textures";
-import type { InventoryInteractionRequest } from "./inventory-interaction";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { toast } from "sonner";
@@ -14,8 +13,14 @@ import {
   createMockInventoryTooltipContextValue
 } from "@/test/inventory-helper";
 import { createResolver } from "@/lib/nbt";
-import { AIR, InventoryItem } from "./inventory-item";
+import { InventoryItem } from "./inventory-item";
 import { InventoryTooltipProvider } from "./inventory-item-tooltip";
+import {
+  AIR,
+  finishInventoryRightDrag,
+  type InventoryInteractionRequest,
+  type InventoryRightDragState
+} from "./inventory-interaction";
 
 vi.mock("./item-dialog", () => ({
   ItemDialog: ({ children }: { children: ReactNode }) => <>{children}</>
@@ -82,6 +87,7 @@ function renderInventoryItem(itemStack: ItemStack, options?: {
   placeholderIcon?: string
   textures?: Item[]
   onInteract?: (request: InventoryInteractionRequest) => void
+  rightDragState?: InventoryRightDragState
 }) {
   const ctx = createMockInventoryTooltipContextValue();
   const itemTextures = options?.textures ?? textures;
@@ -97,6 +103,7 @@ function renderInventoryItem(itemStack: ItemStack, options?: {
             placeholderIcon={options?.placeholderIcon}
             held={options?.held}
             nbtEditMode={options?.nbtEditMode}
+            rightDragState={options?.rightDragState}
             onInteract={onInteract}/>
         </InventoryTooltipContext.Provider>
       </InventoryTextureContext.Provider>
@@ -153,6 +160,73 @@ describe("test inventory item", () => {
     });
     expect(onInteract).toHaveBeenNthCalledWith(2, expect.objectContaining({ button: "right" }));
     expect(onInteract).toHaveBeenNthCalledWith(3, expect.objectContaining({ button: "middle" }));
+  });
+
+  it("right drags over each slot only once", () => {
+    const rightDragState: InventoryRightDragState = {
+      enabled: true,
+      active: false,
+      dragging: false,
+      suppressContextMenu: false,
+      visitedSlots: new Set(),
+      startInteraction: null
+    };
+    const first = renderInventoryItem(
+      createItem({ slot: 0, count: 3 }),
+      { rightDragState }
+    );
+    const second = renderInventoryItem(
+      createItem({ slot: 1, id: AIR, count: 0 }),
+      { rightDragState }
+    );
+
+    fireEvent.mouseDown(first.itemElem, { button: 2, buttons: 2 });
+    fireEvent.mouseEnter(second.itemElem, { buttons: 2 });
+    fireEvent.mouseEnter(first.itemElem, { buttons: 2 });
+
+    expect(first.onInteract).toHaveBeenCalledTimes(1);
+    expect(first.onInteract).toHaveBeenCalledWith(expect.objectContaining({
+      button: "right",
+      dragging: true
+    }));
+    expect(second.onInteract).toHaveBeenCalledTimes(1);
+    expect(second.onInteract).toHaveBeenCalledWith(expect.objectContaining({
+      button: "right",
+      dragging: true
+    }));
+
+    finishInventoryRightDrag(rightDragState);
+    fireEvent.contextMenu(second.itemElem);
+
+    expect(first.onInteract).toHaveBeenCalledTimes(1);
+    expect(second.onInteract).toHaveBeenCalledTimes(1);
+    expect(rightDragState.suppressContextMenu).toBe(false);
+  });
+
+  it("keeps a right press as a normal click when it does not enter another slot", () => {
+    const rightDragState: InventoryRightDragState = {
+      enabled: true,
+      active: false,
+      dragging: false,
+      suppressContextMenu: false,
+      visitedSlots: new Set(),
+      startInteraction: null
+    };
+    const { itemElem, onInteract } = renderInventoryItem(
+      createItem({ slot: 0, count: 3 }),
+      { rightDragState }
+    );
+
+    fireEvent.mouseDown(itemElem, { button: 2, buttons: 2 });
+    finishInventoryRightDrag(rightDragState);
+
+    expect(onInteract).toHaveBeenCalledTimes(1);
+    expect(onInteract).toHaveBeenCalledWith(expect.objectContaining({
+      button: "right"
+    }));
+    expect(onInteract).toHaveBeenCalledWith(expect.not.objectContaining({
+      dragging: true
+    }));
   });
 
   it("marks slot -1 as an explorer interaction", () => {

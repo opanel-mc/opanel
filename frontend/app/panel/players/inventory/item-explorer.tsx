@@ -1,11 +1,11 @@
 "use client";
 
-import type { InventoryInteractionRequest } from "./inventory-interaction";
 import { memo, useContext, useMemo, useState } from "react";
 import { Search } from "lucide-react";
+import { AIR, type InventoryInteractionRequest } from "./inventory-interaction";
 import { InventoryTextureContext } from "@/contexts/inventory-texture-context";
 import { cn } from "@/lib/utils";
-import { AIR, InventoryItem } from "./inventory-item";
+import { InventoryItem } from "./inventory-item";
 import {
   InputGroup,
   InputGroupAddon,
@@ -13,13 +13,13 @@ import {
 } from "@/components/ui/input-group";
 import { $, $mc } from "@/lib/i18n";
 
-function ItemExplorerComponent({
+export const ItemExplorer = memo(({
   onInteract,
   className
 }: {
   onInteract: (request: InventoryInteractionRequest) => void
   className?: string
-}) {
+}) => {
   const textures = useContext(InventoryTextureContext);
   const [searchValue, setSearchValue] = useState("");
   const items = useMemo(() => (
@@ -62,6 +62,4 @@ function ItemExplorerComponent({
       </InputGroup>
     </div>
   );
-}
-
-export const ItemExplorer = memo(ItemExplorerComponent);
+});

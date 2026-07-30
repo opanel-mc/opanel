@@ -113,6 +113,32 @@ describe("resolve inventory interaction", () => {
     });
   });
 
+  it("only places items into compatible slots while right dragging", () => {
+    const heldItem = createItem({ slot: 2, count: 3 });
+
+    expect(interact({
+      button: "right",
+      dragging: true,
+      clickedItem: createItem({ slot: 5, id: AIR, count: 0 }),
+      heldItem
+    })).toEqual({
+      nextHeldItem: createItem({ slot: 2, count: 2 }),
+      replacementItem: createItem({ slot: 5, count: 1 })
+    });
+    expect(interact({
+      button: "right",
+      dragging: true,
+      clickedItem: createItem({ slot: 5, id: "minecraft:diamond", count: 2 }),
+      heldItem
+    })).toEqual({ nextHeldItem: heldItem });
+    expect(interact({
+      button: "right",
+      dragging: true,
+      clickedItem: createItem({ slot: 5, id: "minecraft:diamond", count: 2 }),
+      heldItem: null
+    })).toEqual({ nextHeldItem: null });
+  });
+
   it("swaps different items with right click", () => {
     const clickedItem = createItem({ slot: 5, id: "minecraft:diamond", count: 2 });
     const heldItem = createItem({ slot: 2, count: 3 });

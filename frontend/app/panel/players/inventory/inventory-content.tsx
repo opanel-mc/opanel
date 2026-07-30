@@ -1,12 +1,13 @@
 "use client";
 
-import type { InventoryInteractionRequest } from "./inventory-interaction";
 import type { Dispatch, SetStateAction } from "react";
+import type { InventoryInteractionRequest } from "./inventory-interaction";
 import {
   InventoryType,
   type ItemStack,
   type PlayerInventory
 } from "@/lib/types";
+import { useInventoryRightDrag } from "@/hooks/use-inventory-right-drag";
 import { cn } from "@/lib/utils";
 import { InventoryItem } from "./inventory-item";
 import { InventoryTrash } from "./inventory-trash";
@@ -45,6 +46,8 @@ export function InventoryContent({
   onDeleteHeldItem: () => void
   className?: string
 }) {
+  const rightDragState = useInventoryRightDrag(heldItem !== null && !nbtEditMode);
+
   return (
     <div className="w-fit">
       <div className="flex justify-end items-center gap-2 mb-4">
@@ -72,6 +75,7 @@ export function InventoryContent({
                 nbtEditMode={nbtEditMode}
                 onInteract={onInteract}
                 onUpdateItemNBT={onUpdateItemNBT}
+                rightDragState={rightDragState}
                 key={i}/>
             ))}
           </section>
@@ -82,6 +86,7 @@ export function InventoryContent({
               nbtEditMode={nbtEditMode}
               onInteract={onInteract}
               onUpdateItemNBT={onUpdateItemNBT}
+              rightDragState={rightDragState}
               placeholderIcon={EmptyArmorSlotShield.src}/>
           </section>
         </div>
@@ -95,6 +100,7 @@ export function InventoryContent({
                 nbtEditMode={nbtEditMode}
                 onInteract={onInteract}
                 onUpdateItemNBT={onUpdateItemNBT}
+                rightDragState={rightDragState}
                 key={i}/>
           ))}
         </section>
@@ -108,6 +114,7 @@ export function InventoryContent({
                 nbtEditMode={nbtEditMode}
                 onInteract={onInteract}
                 onUpdateItemNBT={onUpdateItemNBT}
+                rightDragState={rightDragState}
                 key={i}/>
           ))}
         </section>
@@ -124,6 +131,7 @@ export function InventoryContent({
                 nbtEditMode={nbtEditMode}
                 onInteract={onInteract}
                 onUpdateItemNBT={onUpdateItemNBT}
+                rightDragState={rightDragState}
                 key={i}/>
           ))}
         </section>
