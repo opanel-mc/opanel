@@ -10,7 +10,7 @@ interface LogData {
 }
 
 interface MclogsUploadResponse {
-  url: string
+  id: string
 }
 
 export const LOG_ARCHIVE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})-(\d+)\.log\.gz$/;
@@ -58,7 +58,9 @@ export async function uploadLogToMclogs(name: string) {
   if(mclogsWindow) mclogsWindow.opener = null;
 
   try {
-    const { url } = await sendPostRequest<MclogsUploadResponse>(`/api/logs/${name}/upload-mclogs`);
+    const { id } = await sendPostRequest<MclogsUploadResponse>(`/api/logs/${name}/upload-mclogs`);
+    const url = `https://mclo.gs/${id}`;
+
     if(mclogsWindow) {
       mclogsWindow.location.href = url;
     } else if(!window.open(url, "_blank")) {

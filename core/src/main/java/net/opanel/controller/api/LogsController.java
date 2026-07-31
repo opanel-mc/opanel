@@ -164,7 +164,7 @@ public class LogsController extends BaseController {
         final JsonObject responseBody;
         final boolean uploadSucceeded;
         final String uploadError;
-        final String logUrl;
+        final String logId;
         try {
             responseBody = JsonParser.parseString(response.body()).getAsJsonObject();
             uploadSucceeded = (
@@ -176,9 +176,9 @@ public class LogsController extends BaseController {
                     ? responseBody.get("error").getAsString()
                     : null
             );
-            logUrl = (
-                    responseBody.has("url") && !responseBody.get("url").isJsonNull()
-                    ? responseBody.get("url").getAsString()
+            logId = (
+                    responseBody.has("id") && !responseBody.get("id").isJsonNull()
+                    ? responseBody.get("id").getAsString()
                     : null
             );
         } catch (JsonParseException | IllegalStateException | UnsupportedOperationException e) {
@@ -202,13 +202,13 @@ public class LogsController extends BaseController {
             return;
         }
 
-        if(logUrl == null) {
-            sendResponse(ctx, HttpStatus.BAD_GATEWAY, "mclo.gs did not return a log URL.");
+        if(logId == null) {
+            sendResponse(ctx, HttpStatus.BAD_GATEWAY, "mclo.gs did not return a log ID.");
             return;
         }
 
         HashMap<String, Object> obj = new HashMap<>();
-        obj.put("url", logUrl);
+        obj.put("id", logId);
         sendResponse(ctx, obj);
     };
 
