@@ -208,7 +208,7 @@ export const InventoryItem = memo(({
       data-held={held ? "true" : undefined}
       className={cn(
         "relative h-[48px] max-md:h-[36px] aspect-square p-1 hover:bg-muted select-none image-pixelated",
-        held && "pointer-events-none",
+        held && "pointer-events-none z-[90]",
         ((nbtEditMode && itemStack.slot !== -1) || isContainerMode) && "cursor-pointer",
         className
       )}

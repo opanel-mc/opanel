@@ -243,6 +243,7 @@ describe("test inventory item", () => {
 
   it("does not interact while held or in NBT edit mode", () => {
     const held = renderInventoryItem(createItem(), { held: true });
+    expect(held.itemElem).toHaveClass("z-[90]");
     fireEvent.click(held.itemElem);
     expect(held.onInteract).not.toHaveBeenCalled();
     cleanup();
