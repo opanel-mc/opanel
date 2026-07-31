@@ -1,13 +1,17 @@
 import { toast } from "sonner";
-import { apiUrl, sendDeleteRequest, toastError } from "@/lib/api";
+import { apiUrl, sendDeleteRequest, sendPostRequest, toastError } from "@/lib/api";
 import { $ } from "@/lib/i18n";
 
 type LogType = "gzip" | "log";
 
-type LogData = {
-  name: string;
-  type: LogType;
-};
+interface LogData {
+  name: string
+  type: LogType
+}
+
+interface MclogsUploadResponse {
+  id: string
+}
 
 export const LOG_ARCHIVE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})-(\d+)\.log\.gz$/;
 
@@ -47,6 +51,38 @@ export function sortLogs(logs: string[]): LogData[] {
       if(archiveB) return 1;
       return a.name.localeCompare(b.name);
     });
+}
+
+export async function uploadLogToMclogs(name: string) {
+  const mclogsWindow = window.open("", "_blank");
+  if(mclogsWindow) mclogsWindow.opener = null;
+
+  try {
+    const { id } = await sendPostRequest<MclogsUploadResponse>(`/api/logs/${name}/upload-mclogs`);
+    const url = `https://mclo.gs/${id}`;
+
+    if(mclogsWindow) {
+      mclogsWindow.location.href = url;
+    } else if(!window.open(url, "_blank")) {
+      toast.info(url, {
+        action: {
+          label: $("logs.action.upload.open"),
+          onClick: () => {
+            window.location.href = url;
+          }
+        }
+      });
+    }
+  } catch (e: any) {
+    mclogsWindow?.close();
+    toastError(e, $("logs.action.upload.error"), [
+      [400, $("common.error.400")],
+      [401, $("common.error.401")],
+      [404, $("logs.action.upload.error.404")],
+      [500, $("common.error.500")],
+      [502, $("logs.action.upload.error.502")]
+    ]);
+  }
 }
 
 export async function downloadLog(name: string) {
