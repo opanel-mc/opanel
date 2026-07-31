@@ -3,17 +3,18 @@
 import type { EditorRefType } from "@/lib/types";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Download, Trash2 } from "lucide-react";
+import { CloudUpload, Download, Trash2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTheme } from "next-themes";
 import { SubPage } from "@/app/panel/sub-page";
 import { sendGetRequest, toastError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { deleteLog, downloadLog } from "../log-utils";
+import { deleteLog, downloadLog, uploadLogToMclogs } from "../log-utils";
 import { monacoSettingsOptions } from "@/lib/settings";
 import { $ } from "@/lib/i18n";
 import { Text } from "@/components/i18n-text";
 import { emitter } from "@/lib/emitter";
+import { Alert } from "@/components/alert";
 
 const MonacoEditor = dynamic(() => import("@/components/monaco-editor"), { ssr: false });
 
@@ -63,7 +64,7 @@ export default function LogView() {
       category={$("sidebar.management")}
       pageClassName="min-h-0"
       className="flex-1 min-h-0 flex flex-col">
-      <div className="mb-3 shrink-0 flex justify-between items-center">
+      <div className="mb-3 shrink-0 flex justify-between items-center gap-3 max-md:flex-col max-md:items-start">
         <Text
           id="logs.view.hint"
           args={[
@@ -74,7 +75,22 @@ export default function LogView() {
             )
           ]}
           className="text-sm text-muted-foreground"/>
-        <div className="[&>*]:cursor-pointer">
+        <div className="[&>*]:cursor-pointer max-md:self-end">
+          {log && (
+            <Alert
+              title={$("logs.action.upload.confirm.title")}
+              description={$("logs.action.upload.confirm.description")}
+              onAction={() => uploadLogToMclogs(log)}
+              asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mr-2">
+                <CloudUpload />
+                {$("logs.action.upload")}
+              </Button>
+            </Alert>
+          )}
           <Button
             variant="ghost"
             size="icon"

@@ -199,6 +199,7 @@ public class WebServer {
                 get("{fileName}/download", logsController.downloadLog);
                 delete("/", logsController.clearLogs);
                 delete("{fileName}", logsController.deleteLog);
+                post("{fileName}/upload-mclogs", logsController.uploadLogToMclogs);
             });
             path("map", () -> {
                 get("/", mapController.getMapEnabled);
