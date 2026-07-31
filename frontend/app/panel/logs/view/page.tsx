@@ -57,8 +57,13 @@ export default function LogView() {
   }, [fetchLogContent]);
 
   return (
-    <SubPage title={$("logs.title")} subTitle={log ?? ""} category={$("sidebar.management")}>
-      <div className="mb-3 flex justify-between items-center">
+    <SubPage
+      title={$("logs.title")}
+      subTitle={log ?? ""}
+      category={$("sidebar.management")}
+      pageClassName="min-h-0"
+      className="flex-1 min-h-0 flex flex-col">
+      <div className="mb-3 shrink-0 flex justify-between items-center">
         <Text
           id="logs.view.hint"
           args={[
@@ -91,7 +96,7 @@ export default function LogView() {
         </div>
       </div>
       <MonacoEditor
-        height="550px"
+        height="100%"
         defaultLanguage="server-log"
         defaultValue={content}
         theme={theme === "dark" ? "server-log-theme-dark" : "server-log-theme"}
@@ -103,7 +108,7 @@ export default function LogView() {
           contextmenu: false,
           ...monacoSettingsOptions
         }}
-        className="border rounded-md overflow-hidden"
+        className="flex-1 min-h-96 border rounded-md overflow-hidden"
         onMount={(editor) => editorRef.current = editor}/>
     </SubPage>
   );

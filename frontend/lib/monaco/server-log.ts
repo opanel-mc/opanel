@@ -20,7 +20,7 @@ monaco.languages.setMonarchTokensProvider("server-log", {
   }
 });
 monaco.languages.setLanguageConfiguration("server-log", {
-  brackets: [["(", ")"]]
+  brackets: [["(", ")"], ["[", "]"]]
 });
 monaco.editor.defineTheme("server-log-theme", {
   base: "vs",
