@@ -484,6 +484,7 @@
   "logs.action.delete.error.403": "Le log actuel en cours d'utilisation ne peut pas être supprimé",
   "logs.action.delete.error.404": "Fichier log introuvable",
   "logs.action.upload": "Envoyer vers mclo.gs",
+  "logs.action.upload.open": "Ouvrir",
   "logs.action.upload.confirm.title": "Envoyer le log vers mclo.gs ?",
   "logs.action.upload.confirm.description": "L'envoi du log vers mclo.gs facilite son partage avec les développeurs. Soyez prudent si le log contient des informations sensibles.",
   "logs.action.upload.error": "Impossible d'envoyer le log",

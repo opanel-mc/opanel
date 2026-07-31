@@ -61,8 +61,15 @@ export async function uploadLogToMclogs(name: string) {
     const { url } = await sendPostRequest<MclogsUploadResponse>(`/api/logs/${name}/upload-mclogs`);
     if(mclogsWindow) {
       mclogsWindow.location.href = url;
-    } else {
-      window.open(url, "_blank");
+    } else if(!window.open(url, "_blank")) {
+      toast.info(url, {
+        action: {
+          label: $("logs.action.upload.open"),
+          onClick: () => {
+            window.location.href = url;
+          }
+        }
+      });
     }
   } catch (e: any) {
     mclogsWindow?.close();

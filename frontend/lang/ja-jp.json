@@ -484,6 +484,7 @@
   "logs.action.delete.error.403": "現在のログは削除できません",
   "logs.action.delete.error.404": "そのログが見つかりません",
   "logs.action.upload": "mclo.gs にアップロード",
+  "logs.action.upload.open": "開く",
   "logs.action.upload.confirm.title": "ログを mclo.gs にアップロードしますか？",
   "logs.action.upload.confirm.description": "mclo.gs にログをアップロードすると、開発者との共有が容易になります。ログに機密情報が含まれている場合は注意してください。",
   "logs.action.upload.error": "ログをアップロードできません",

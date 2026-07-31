@@ -484,6 +484,7 @@
   "logs.action.delete.error.403": "当前日志不可删除",
   "logs.action.delete.error.404": "找不到该日志",
   "logs.action.upload": "上传至 mclo.gs",
+  "logs.action.upload.open": "打开",
   "logs.action.upload.confirm.title": "确定要上传至 mclo.gs 吗？",
   "logs.action.upload.confirm.description": "将日志上传至 mclo.gs 可以更高效地与开发者分享日志；如果日志中包含敏感信息，请谨慎操作。",
   "logs.action.upload.error": "无法上传日志",

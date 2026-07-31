@@ -484,6 +484,7 @@
   "logs.action.delete.error.403": "현재 사용 중인 활성 로그 파일은 삭제할 수 없습니다",
   "logs.action.delete.error.404": "로그 파일을 찾을 수 없습니다",
   "logs.action.upload": "mclo.gs에 업로드",
+  "logs.action.upload.open": "열기",
   "logs.action.upload.confirm.title": "로그를 mclo.gs에 업로드할까요?",
   "logs.action.upload.confirm.description": "mclo.gs에 로그를 업로드하면 개발자와 더 쉽게 공유할 수 있습니다. 로그에 민감한 정보가 포함되어 있다면 주의하세요.",
   "logs.action.upload.error": "로그를 업로드하지 못했습니다",
