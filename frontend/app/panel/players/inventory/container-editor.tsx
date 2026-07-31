@@ -56,6 +56,7 @@ export function ContainerEditor({
 
     const items = [...containerRef.current.items];
     items[result.replacementItem.slot] = result.replacementItem;
+    containerRef.current = { ...containerRef.current, items };
     onItemsChangeRef.current(items);
   }, [updateHeldItem]);
 

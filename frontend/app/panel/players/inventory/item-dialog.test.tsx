@@ -361,6 +361,26 @@ describe("test item nbt editing dialog", () => {
     expect(screen.getByRole("button", { name: /(\[dialog\.save\]|保存)/ })).toBeEnabled();
   });
 
+  it("should accumulate synchronous placements while right dragging", async () => {
+    const user = userEvent.setup();
+    renderItemDialog({
+      snbt: String.raw`{"minecraft:container":[{slot:0,item:{id:"minecraft:stone",count:4}}]}`,
+      id: "minecraft:shulker_box"
+    });
+    await user.click(screen.getByText("open dialog"));
+    await waitFor(() => expect(getContainerSlot(0)).toHaveAttribute("data-item-id", "minecraft:stone"));
+
+    fireEvent.contextMenu(getContainerSlot(0));
+    fireEvent.mouseDown(getContainerSlot(1), { button: 2, buttons: 2 });
+    fireEvent.mouseEnter(getContainerSlot(2), { buttons: 2 });
+    fireEvent.mouseUp(document, { button: 2 });
+
+    const container = getEditorContainer("minecraft:shulker_box");
+    expect(container.items[1]).toMatchObject({ id: "minecraft:stone", count: 1 });
+    expect(container.items[2]).toMatchObject({ id: "minecraft:stone", count: 1 });
+    expect(document.querySelector("[data-held='true']")).not.toBeInTheDocument();
+  });
+
   it("should swap items and delete the explicitly held item", async () => {
     const user = userEvent.setup();
     renderItemDialog({
