@@ -366,6 +366,7 @@
   "players.inventory.nbt-editor.title": "Gegenstands-NBT bearbeiten",
   "players.inventory.nbt-editor.description": "Bearbeiten Sie hier die NBT-Tags des Gegenstands.",
   "players.inventory.nbt-editor.hint": "Verwenden Sie {0}, um die Datentags zu bearbeiten.",
+  "players.inventory.container-editor.title": "Behälterinhalt",
   "players.inventory.item-tag.components": "{0} Komponenten",
 
   "gamerules.title": "Spielregeln",

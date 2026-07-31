@@ -3,20 +3,31 @@ import {
   type MouseEvent,
   type RefObject,
   useContext,
+  useEffect,
   useMemo,
   useRef,
-  useState
+  memo
 } from "react";
 import { toast } from "sonner";
-import { InventoryContext } from "@/contexts/inventory-context";
+import { InventoryTextureContext } from "@/contexts/inventory-texture-context";
+import { InventoryTooltipContext } from "@/contexts/inventory-tooltip-context";
 import { cn } from "@/lib/utils";
 import { minecraftAE } from "@/lib/fonts";
 import { ItemDialog } from "./item-dialog";
-import { $, $mc } from "@/lib/i18n";
+import { $ } from "@/lib/i18n";
 import { VersionContext } from "@/contexts/api-context";
 import { createResolver } from "@/lib/nbt";
-import { ComponentsResolver, itemModelToTextureId } from "@/lib/nbt/components-resolver";
+import { itemModelToTextureId } from "@/lib/nbt/components-resolver";
 import { DEFAULT_MAX_STACK_SIZE } from "@/lib/nbt/resolver";
+import {
+  AIR,
+  beginInventoryRightDrag,
+  type InventoryInteractionButton,
+  type InventoryInteractionRequest,
+  type InventoryInteractionSource,
+  type InventoryRightDragState,
+  visitInventoryRightDrag
+} from "./inventory-interaction";
 
 import GlintTexture from "@/assets/images/overlays/enchanted-glint.png";
 import PotionOverlayTexture from "@/assets/images/overlays/potion-overlay.png";
@@ -27,16 +38,6 @@ import LeatherLeggingsOverlayTexture from "@/assets/images/overlays/leather-legg
 import LeatherBootsOverlayTexture from "@/assets/images/overlays/leather-boots-overlay.png";
 import MissingTexture from "@/assets/images/inventory/missing-texture.png";
 import "@/style/item-effect.css";
-
-export const AIR = "minecraft:air";
-
-function isFromExplorer(itemStack: ItemStack) {
-  return itemStack.slot === -1;
-}
-
-function getTransferableCount(targetCount: number, requestedCount: number, maxStackSize: number) {
-  return Math.max(0, Math.min(requestedCount, maxStackSize - targetCount));
-}
 
 function getLeatherOverlay(id: string): string | null {
   switch(id) {
@@ -53,11 +54,18 @@ function getLeatherOverlay(id: string): string | null {
   }
 }
 
-export function InventoryItem({
+const noopInteract = () => undefined;
+
+export const InventoryItem = memo(({
   itemStack,
   inventoryType,
   placeholderIcon,
   held = false,
+  interactionMode = "inventory",
+  nbtEditMode = false,
+  onInteract = noopInteract,
+  onUpdateItemNBT,
+  rightDragState,
   className,
   ref
 }: {
@@ -65,22 +73,17 @@ export function InventoryItem({
   inventoryType?: InventoryType
   placeholderIcon?: string
   held?: boolean
+  interactionMode?: "inventory" | "container"
+  nbtEditMode?: boolean
+  onInteract?: (request: InventoryInteractionRequest) => void
+  onUpdateItemNBT?: (inventoryType: InventoryType, item: ItemStack, snbt: string) => void
+  rightDragState?: InventoryRightDragState
   className?: string
   ref?: RefObject<HTMLDivElement | null>
-}) {
+}) => {
   const versionCtx = useContext(VersionContext);
-  const ctx = useContext(InventoryContext);
-  const {
-    textures,
-    currentlyHeldItem,
-    setCurrentlyHeldItem,
-    nbtEditMode,
-    swapClickedWithHeldItem,
-    addClickedWithHeldItem,
-    removeClickedItem,
-    halfClickedItem
-  } = ctx;
-  const [hovered, setHovered] = useState(false);
+  const textures = useContext(InventoryTextureContext);
+  const tooltipCtx = useContext(InventoryTooltipContext);
   const resolvedNBT = useMemo(() => {
     if(!versionCtx || !itemStack.snbt) return null;
     return createResolver(versionCtx.version, itemStack.id, itemStack.snbt);
@@ -91,176 +94,140 @@ export function InventoryItem({
     [resolvedNBT]
   );
 
-  const textureItem = useMemo(() => {
-    const byModel = textureIdFromItemModel
-      ? textures.find(({ id }) => id === textureIdFromItemModel)
-      : null;
-    return byModel ?? textures.find(({ id }) => id === itemStack.id);
-  }, [textures, itemStack.id, textureIdFromItemModel]);
-  const isModItem = textureItem === undefined && itemStack.id !== AIR;
-  const hoveredItemTagRef = useRef<HTMLDivElement | null>(null);
+  const itemTexture = useMemo(() => {
+    if(!textures) return undefined;
 
-  const handleLeftClick = () => {
-    if(held || !ctx || nbtEditMode) return;
-    if(isModItem) {
+    const byModel = (
+      textureIdFromItemModel
+      ? textures.find(({ id }) => id === textureIdFromItemModel)
+      : null
+    );
+    return byModel ?? textures.find(({ id }) => id === itemStack.id);
+  }, [itemStack.id, textureIdFromItemModel, textures]);
+
+  const isModItem = itemTexture === undefined && itemStack.id !== AIR;
+  const isContainerMode = interactionMode === "container";
+  const tooltipOwnerRef = useRef<symbol>(
+    Symbol("inventory-item-tooltip-owner")
+  );
+  const suppressContextMenuRef = useRef(false);
+  const source: InventoryInteractionSource = isContainerMode
+    ? "container"
+    : itemStack.slot === -1
+      ? "explorer"
+      : "inventory";
+
+  const interact = (button: InventoryInteractionButton, dragging = false) => {
+    if(held || nbtEditMode) return;
+    if(isModItem && !isContainerMode) {
       toast.error($("players.inventory.interact-forbbiden"));
       return;
     }
-
-    if(!currentlyHeldItem) { // pick up the item
-      setCurrentlyHeldItem(itemStack);
-      if(!isFromExplorer(itemStack) && inventoryType) removeClickedItem(inventoryType, itemStack);
-      return;
-    }
-
-    if(
-      isFromExplorer(itemStack)
-      && isFromExplorer(currentlyHeldItem)
-      && itemStack.id === currentlyHeldItem.id
-      && itemStack.snbt === currentlyHeldItem.snbt
-    ) { // add one to held item from explorer
-      const transferableCount = getTransferableCount(currentlyHeldItem.count, 1, maxStackSize);
-      if(transferableCount > 0) {
-        setCurrentlyHeldItem({
-          ...currentlyHeldItem,
-          count: currentlyHeldItem.count + transferableCount
-        });
-      }
-      return;
-    }
-
-    if(isFromExplorer(itemStack)) { // just throw away the held item
-      setCurrentlyHeldItem(null);
-      return;
-    }
-
-    if(itemStack.id === currentlyHeldItem.id && itemStack.snbt === currentlyHeldItem.snbt) {
-      const transferableCount = getTransferableCount(
-        itemStack.count,
-        currentlyHeldItem.count,
-        maxStackSize
-      );
-      if(inventoryType && transferableCount > 0) {
-        addClickedWithHeldItem(inventoryType, itemStack, transferableCount);
-      }
-      return;
-    }
-
-    if(inventoryType) swapClickedWithHeldItem(inventoryType, itemStack);
+    
+    onInteract({
+      button,
+      source,
+      clickedItem: itemStack,
+      maxStackSize,
+      inventoryType,
+      ...(dragging ? { dragging: true } : {})
+    });
   };
 
   const handleRightClick = (e: MouseEvent) => {
     e.preventDefault();
-    if(held || !ctx || nbtEditMode) return;
-    if(isModItem) {
-      toast.error($("players.inventory.interact-forbbiden"));
+    if(rightDragState?.suppressContextMenu) {
+      rightDragState.suppressContextMenu = false;
+      suppressContextMenuRef.current = false;
       return;
     }
-
-    if(!currentlyHeldItem && isFromExplorer(itemStack)) { // pick up a full stack from explorer
-      setCurrentlyHeldItem({ ...itemStack, count: maxStackSize });
+    if(rightDragState?.active) {
+      suppressContextMenuRef.current = false;
       return;
     }
-
-    if(!currentlyHeldItem) { // pick up half of the item
-      setCurrentlyHeldItem({ ...itemStack, count: Math.ceil(itemStack.count / 2) });
-      if(inventoryType) halfClickedItem(inventoryType, itemStack);
+    if(suppressContextMenuRef.current) {
+      suppressContextMenuRef.current = false;
       return;
     }
+    interact("right");
+  };
 
-    if(isFromExplorer(itemStack)) { // just throw away the held item
-      setCurrentlyHeldItem(null);
-      return;
+  const handleMouseDown = (e: MouseEvent) => {
+    if(e.button !== 2 || !rightDragState?.enabled) return;
+
+    e.preventDefault();
+    suppressContextMenuRef.current = true;
+    beginInventoryRightDrag(
+      rightDragState,
+      `${source}:${inventoryType ?? ""}:${itemStack.slot}`,
+      (dragging) => interact("right", dragging)
+    );
+  };
+
+  const handleMouseEnter = (e: MouseEvent) => {
+    if((e.buttons & 2) !== 0 && rightDragState) {
+      visitInventoryRightDrag(
+        rightDragState,
+        `${source}:${inventoryType ?? ""}:${itemStack.slot}`,
+        () => interact("right", true)
+      );
     }
 
-    if(itemStack.id === currentlyHeldItem.id && itemStack.snbt === currentlyHeldItem.snbt) { // add one by one
-      const transferableCount = getTransferableCount(itemStack.count, 1, maxStackSize);
-      if(inventoryType && transferableCount > 0) {
-        addClickedWithHeldItem(inventoryType, itemStack, transferableCount);
-      }
-      return;
-    }
-
-    if(itemStack.id === AIR) { // add one to empty slot
-      if(inventoryType) {
-        addClickedWithHeldItem(
-          inventoryType,
-          { ...itemStack, id: currentlyHeldItem.id, snbt: currentlyHeldItem.snbt },
-          1
-        );
-      }
-      return;
-    }
-
-    if(inventoryType) swapClickedWithHeldItem(inventoryType, itemStack);
+    if(itemStack.id === AIR || held) return;
+    tooltipCtx?.showTooltip(
+      tooltipOwnerRef.current,
+      { itemStack, resolvedNBT },
+      e.clientX,
+      e.clientY
+    );
   };
 
   const handleAuxClick = (e: MouseEvent) => {
     e.preventDefault();
     if(e.button !== 1) return;
-    if(held || !ctx || nbtEditMode) return;
-    if(isModItem) {
-      toast.error($("players.inventory.interact-forbbiden"));
-      return;
-    }
-
-    if(!isFromExplorer(itemStack)) {
-      setCurrentlyHeldItem({ ...itemStack, count: maxStackSize });
-      return;
-    }
+    interact("middle");
   };
 
-  const setHoveredTagPosition = (x: number, y: number) => {
-    if(!hoveredItemTagRef.current) return;
+  useEffect(() => () => {
+    tooltipCtx?.hideTooltip(tooltipOwnerRef.current);
+  }, [
+    itemStack.count,
+    itemStack.id,
+    itemStack.slot,
+    itemStack.snbt,
+    tooltipCtx
+  ]);
 
-    hoveredItemTagRef.current.style.left = `${x + 15}px`;
-    hoveredItemTagRef.current.style.top = `${y - 20}px`;
-  };
-
-  const handleMouseEnter = (e: MouseEvent) => {
-    if(held) return;
-
-    setHovered(true);
-    setHoveredTagPosition(e.clientX, e.clientY);
-  };
-
-  const handleMouseMove = (e: MouseEvent) => {
-    if(held) return;
-
-    setHoveredTagPosition(e.clientX, e.clientY);
-  };
-
-  const handleMouseLeave = () => {
-    if(held) return;
-
-    setHovered(false);
-  };
-
-  if(!ctx) return <></>;
+  if(!textures || !tooltipCtx) return <></>;
 
   const itemComponent = (
     <div
       data-slot="inventory-item"
       data-slot-id={itemStack.slot}
       data-item-id={itemStack.id}
+      data-held={held ? "true" : undefined}
       className={cn(
         "relative h-[48px] max-md:h-[36px] aspect-square p-1 hover:bg-muted select-none image-pixelated",
-        held && "pointer-events-none",
-        (nbtEditMode && !isFromExplorer(itemStack)) && "cursor-pointer",
+        held && "pointer-events-none z-[90]",
+        ((nbtEditMode && itemStack.slot !== -1) || isContainerMode) && "cursor-pointer",
         className
       )}
-      onClick={() => handleLeftClick()}
+      onClick={() => interact("left")}
+      onMouseDown={(e) => handleMouseDown(e)}
       onContextMenu={(e) => handleRightClick(e)}
       onAuxClick={(e) => handleAuxClick(e)}
       onMouseEnter={(e) => handleMouseEnter(e)}
-      onMouseMove={(e) => handleMouseMove(e)}
-      onMouseLeave={() => handleMouseLeave()}
+      onMouseMove={(e) => {
+        if(itemStack.id === AIR || held) return;
+        tooltipCtx.moveTooltip(tooltipOwnerRef.current, e.clientX, e.clientY);
+      }}
+      onMouseLeave={() => tooltipCtx.hideTooltip(tooltipOwnerRef.current)}
       ref={ref}>
       {itemStack.id !== AIR && (
         <img
           className="w-full z-0"
-          src={textureItem?.texture || MissingTexture.src}
-          alt={textureItem?.id || "missing-texture"}/>
+          src={itemTexture?.texture || MissingTexture.src}
+          alt={itemTexture?.id || "missing-texture"}/>
       )}
       {(itemStack.id === AIR && placeholderIcon) && (
         <img
@@ -278,7 +245,7 @@ export function InventoryItem({
         </span>
       )}
 
-      {(textureItem && resolvedNBT) && (
+      {(itemTexture && resolvedNBT) && (
         <>
           {/* Enchanted Glint Effect */}
           {resolvedNBT.shouldGlint() && (
@@ -286,8 +253,8 @@ export function InventoryItem({
               className="item-glint"
               style={{
                 backgroundImage: `url(${GlintTexture.src})`,
-                maskImage: `url(${textureItem ? textureItem.texture : ""})`,
-                WebkitMaskImage: `url(${textureItem ? textureItem.texture : ""})`
+                maskImage: `url(${itemTexture ? itemTexture.texture : ""})`,
+                WebkitMaskImage: `url(${itemTexture ? itemTexture.texture : ""})`
               }}/>
           )}
           {/* Potion Color Overlay */}
@@ -325,90 +292,34 @@ export function InventoryItem({
           )}
         </>
       )}
-
-      {/* Item Hovered Tag */}
-      {(itemStack.id !== AIR && !held) && (
-        <div
-          className={cn(
-            "fixed hidden whitespace-nowrap flex-col *:leading-5.5 z-20 cc-root text-white",
-            "bg-[rgba(0,0,0,.95)] outline-2 -outline-offset-4 outline-[rgb(41,5,96)] rounded-sm py-1 px-2",
-            hovered && "flex",
-            minecraftAE.className
-          )}
-          ref={hoveredItemTagRef}>
-          {/* Name / Custom Name */}
-          <span className={cn(
-            resolvedNBT?.hasCustomName() && "italic",
-            resolvedNBT?.hasEnchantments() && "cc-b"
-          )}>
-            {resolvedNBT?.getName() ?? $mc(itemStack.id)}
-          </span>
-          {/* Enchantment List & Lore */}
-          {(resolvedNBT && (resolvedNBT?.hasEnchantments() || resolvedNBT?.getLore().length > 0)) && (
-            <div className="flex flex-col gap-0 mb-4 cc-7">
-              {/* Enchantment List */}
-              {Array.from(resolvedNBT.getEnchantments()).map(([id, level], i) => (
-                <span key={i}>
-                  {$(`enchantment.minecraft.${id.replace("minecraft:", "")}` as any) +" "}
-                  {
-                    level >= 1 && level <= 10
-                    ? $(`enchantment.level.${level}` as any)
-                    : level
-                  }
-                </span>
-              ))}
-              {/* Lore */}
-              <div className="flex flex-col gap-0 cc-5 italic">
-                {resolvedNBT.getLore().map((line, i) => (
-                  <span key={i}>{line}</span>
-                ))}
-              </div>
-            </div>
-          )}
-          {/* Unbreakable */}
-          {resolvedNBT?.isUnbreakable() && (
-            <span className="cc-9">{$("item.unbreakable")}</span>
-          )}
-          {/* Map ID */}
-          {(resolvedNBT && resolvedNBT.getMapId() !== null) && (
-            <span className="cc-7">
-              {$("filled_map.id").replace("%s", resolvedNBT.getMapId()?.toString() ?? "")}
-            </span>
-          )}
-          {/* Bee Amount */}
-          {(resolvedNBT && resolvedNBT.getBeeAmount() !== null) && (
-            <span className="cc-7">
-              {$("container.beehive.bees").replace("%s", resolvedNBT.getBeeAmount()?.toString() ?? "0").replace("%s", "3")}
-            </span>
-          )}
-          {/* Honey Level */}
-          {(resolvedNBT && resolvedNBT.getHoneyLevel() !== null) && (
-            <span className="cc-7">
-              {$("container.beehive.honey").replace("%s", resolvedNBT.getHoneyLevel()?.toString() ?? "0").replace("%s", "5")}
-            </span>
-          )}
-          {/* Item ID */}
-          <span className="cc-7">{itemStack.id}</span>
-          {/* Component Amount (>=1.20.5) */}
-          {resolvedNBT instanceof ComponentsResolver && (
-            <span className="cc-7">
-              {$("players.inventory.item-tag.components", resolvedNBT.getComponentAmount())}
-            </span>
-          )}
-        </div>
-      )}
     </div>
   );
 
-  if(isFromExplorer(itemStack) || itemStack.id === AIR) return itemComponent;
+  if(isContainerMode || itemStack.slot === -1 || itemStack.id === AIR) return itemComponent;
 
   return (
     <ItemDialog
       itemStack={itemStack}
       inventoryType={inventoryType}
       disabled={!nbtEditMode}
+      onUpdateItemNBT={onUpdateItemNBT}
       asChild>
       {itemComponent}
     </ItemDialog>
   );
-}
+}, (prev, next) => (
+  prev.itemStack.slot === next.itemStack.slot
+  && prev.itemStack.id === next.itemStack.id
+  && prev.itemStack.count === next.itemStack.count
+  && prev.itemStack.snbt === next.itemStack.snbt
+  && prev.inventoryType === next.inventoryType
+  && prev.placeholderIcon === next.placeholderIcon
+  && prev.held === next.held
+  && prev.interactionMode === next.interactionMode
+  && prev.nbtEditMode === next.nbtEditMode
+  && prev.onInteract === next.onInteract
+  && prev.onUpdateItemNBT === next.onUpdateItemNBT
+  && prev.rightDragState === next.rightDragState
+  && prev.className === next.className
+  && prev.ref === next.ref
+));

@@ -366,6 +366,7 @@
   "players.inventory.nbt-editor.title": "编辑物品 NBT",
   "players.inventory.nbt-editor.description": "在此编辑物品的NBT标签数据。",
   "players.inventory.nbt-editor.hint": "使用{0}进行数据标签编辑。",
+  "players.inventory.container-editor.title": "容器内容",
   "players.inventory.item-tag.components": "{0}个组件",
 
   "gamerules.title": "游戏规则",

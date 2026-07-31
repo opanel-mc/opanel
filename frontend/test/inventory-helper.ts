@@ -1,19 +1,7 @@
 import type { Item } from "minecraft-textures";
-import type { InventoryData, InventoryType, ItemStack, PlayerInventory, SetState } from "@/lib/types";
+import type { InventoryTooltipContextType } from "@/contexts/inventory-tooltip-context";
+import type { InventoryData, ItemStack, PlayerInventory } from "@/lib/types";
 import { vi } from "vitest";
-
-interface MockInventoryContextValue {
-  textures: Item[]
-  currentlyHeldItem: ItemStack | null
-  setCurrentlyHeldItem: SetState<ItemStack | null>
-  nbtEditMode: boolean
-  setNbtEditMode: SetState<boolean>
-  swapClickedWithHeldItem: (inventoryType: InventoryType, clickedItem: ItemStack) => void
-  addClickedWithHeldItem: (inventoryType: InventoryType, clickedItem: ItemStack, count: number) => void
-  removeClickedItem: (inventoryType: InventoryType, clickedItem: ItemStack) => void
-  halfClickedItem: (inventoryType: InventoryType, clickedItem: ItemStack) => void
-  updateItemNBT: (inventoryType: InventoryType, item: ItemStack, snbt: string) => void
-}
 
 type Handler = (data: unknown) => void;
 
@@ -44,22 +32,21 @@ export function createInventory(overrides?: Partial<PlayerInventory>): PlayerInv
   };
 }
 
-export function createMockInventoryContextValue(overrides?: Partial<MockInventoryContextValue>): MockInventoryContextValue {
+export function createMockInventoryTextures(): Item[] {
+  return [
+    { id: "minecraft:stone", readable: "Stone", texture: "/stone.png" },
+    { id: "minecraft:diamond", readable: "Diamond", texture: "/diamond.png" },
+    { id: "minecraft:air", readable: "Air", texture: "/air.png" }
+  ] as Item[];
+}
+
+export function createMockInventoryTooltipContextValue(
+  overrides?: Partial<InventoryTooltipContextType>
+): InventoryTooltipContextType {
   return {
-    textures: [
-      { id: "minecraft:stone", readable: "Stone", texture: "/stone.png" },
-      { id: "minecraft:diamond", readable: "Diamond", texture: "/diamond.png" },
-      { id: "minecraft:air", readable: "Air", texture: "/air.png" }
-    ] as Item[],
-    currentlyHeldItem: null,
-    setCurrentlyHeldItem: vi.fn() as unknown as SetState<ItemStack | null>,
-    nbtEditMode: false,
-    setNbtEditMode: vi.fn() as unknown as SetState<boolean>,
-    swapClickedWithHeldItem: vi.fn(),
-    addClickedWithHeldItem: vi.fn(),
-    removeClickedItem: vi.fn(),
-    halfClickedItem: vi.fn(),
-    updateItemNBT: vi.fn(),
+    showTooltip: vi.fn(),
+    moveTooltip: vi.fn(),
+    hideTooltip: vi.fn(),
     ...overrides
   };
 }
