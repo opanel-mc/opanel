@@ -1,30 +1,56 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
 import { globalIgnores } from "eslint/config";
+import next from "@next/eslint-plugin-next";
+import typescriptEslint from "@typescript-eslint/eslint-plugin";
+import typescriptParser from "@typescript-eslint/parser";
+import importPlugin from "eslint-plugin-import";
 import react from "eslint-plugin-react";
+import reactHooks from "eslint-plugin-react-hooks";
 import stylistic from "@stylistic/eslint-plugin";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+import globals from "globals";
 
 const eslintConfig = [
   globalIgnores([
     "scripts/**",
     "build/**",
+    "dist/**",
+    ".next/**",
+    ".vinext/**",
     "components/ui/**",
+    "wasm-lib/pkg/**",
+    "wasm-lib/target/**",
   ]),
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
+    files: ["**/*.{js,mjs,ts,tsx}"],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
+      parser: typescriptParser,
+      parserOptions: {
+        ecmaFeatures: { jsx: true },
+        ecmaVersion: "latest",
+        sourceType: "module",
+      },
+    },
+    settings: {
+      react: { version: "detect" },
+    },
     plugins: {
+      "@next/next": next,
+      "@typescript-eslint": typescriptEslint,
       react,
+      "react-hooks": reactHooks,
+      import: importPlugin,
       "@stylistic": stylistic,
     },
     rules: {
+      ...typescriptEslint.configs.recommended.rules,
+      ...react.configs.recommended.rules,
+      ...react.configs["jsx-runtime"].rules,
+      ...reactHooks.configs.recommended.rules,
+      ...next.configs.recommended.rules,
+      ...next.configs["core-web-vitals"].rules,
       "@typescript-eslint/no-explicit-any": "off",
       "@next/next/no-img-element": "off",
       "@typescript-eslint/no-unused-expressions": "off",

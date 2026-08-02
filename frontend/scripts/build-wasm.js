@@ -1,12 +1,12 @@
-const fs = require("fs");
-const path = require("path");
-const { spawnSync } = require("child_process");
+import { spawnSync } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
 
 const argv = process.argv.slice(2);
 const FORCE = argv.includes("--force") || argv.includes("-f");
 const RUN_DIRECTLY = argv.includes("--run");
 
-const root = path.resolve(__dirname, "..");
+const root = path.resolve(import.meta.dirname, "..");
 const crateDir = path.join(root, "wasm-lib");
 const wasmOut = path.join(crateDir, "pkg", "wasm_lib_bg.wasm");
 
@@ -56,4 +56,4 @@ if(RUN_DIRECTLY) {
   buildWasm();
 }
 
-module.exports = { buildWasm };
+export { buildWasm };

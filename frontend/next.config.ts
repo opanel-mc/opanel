@@ -1,29 +1,22 @@
 import type { NextConfig } from "next";
-import path from "path";
+import { randomUUID } from "node:crypto";
 
-// `minecraft-textures` only exports individual `*.json` files via its `exports` field,
-// not the containing directory. Aliasing it lets the bundler enumerate the folder for
-// the dynamic `import()` in `lib/texture.ts` without hitting the exports restriction.
-const texturesJsonDir = path.join(
-  process.cwd(),
-  "node_modules/minecraft-textures/dist/textures/json"
-);
+function createDeploymentId() {
+  let id = randomUUID();
+  while(/ad/i.test(id)) id = randomUUID();
+  return id;
+}
+
+const deploymentId = createDeploymentId();
 
 const nextConfig: NextConfig = {
-  distDir: "build",
+  deploymentId,
+  generateBuildId: async () => deploymentId,
   output: "export",
-  trailingSlash: true,
-  skipTrailingSlashRedirect: true,
-  reactStrictMode: false,
-  webpack: (config) => {
-    config.resolve.alias["minecraft-textures-json"] = texturesJsonDir;
-    return config;
-  },
-  turbopack: {
-    resolveAlias: {
-      "minecraft-textures-json": texturesJsonDir
-    }
-  }
+  // vinext beta currently follows its own trailing-slash redirect as a
+  // dynamic response while prerendering. The bundle step restores the
+  // route/index.html layout expected by Javalin.
+  trailingSlash: false,
 };
 
 export default nextConfig;

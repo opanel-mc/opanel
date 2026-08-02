@@ -1,7 +1,7 @@
-const fs = require("fs");
-const path = require("path");
-const axios = require("axios");
-const yauzl = require("yauzl");
+import fs from "node:fs";
+import path from "node:path";
+import axios from "axios";
+import yauzl from "yauzl";
 
 const versionManifestUrl = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
 
@@ -186,4 +186,4 @@ if(RUN_DIRECTLY) {
   execute();
 }
 
-module.exports = { execute };
+export { execute };

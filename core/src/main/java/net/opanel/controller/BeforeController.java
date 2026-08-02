@@ -9,15 +9,44 @@ import net.opanel.storage.Storage;
 import net.opanel.storage.StorageKey;
 import net.opanel.web.JwtManager;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
+
 public class BeforeController extends BaseController {
-    private static final String DEFAULT_RSC_FILE = "index.txt";
+    private static final String RSC_COMPATIBILITY_ID_RESOURCE = "vinext-rsc-compatibility-id";
+    private String rscCompatibilityId;
 
     public BeforeController(OPanel plugin) {
         super(plugin);
+
+        rscCompatibilityId = loadRscCompatibilityId();
+        if(rscCompatibilityId == null) {
+            plugin.logger.warn("Cannot find vinext RSC compatibility ID. Client-side page navigation may fall back to full page reloads.");
+        }
+    }
+
+    /**
+     * Loads the build-specific vinext RSC compatibility ID written to Java resources by the frontend bundler.
+     * It must match the ID embedded in the client bundle, otherwise vinext falls back to a full page reload.
+     */
+    private String loadRscCompatibilityId() {
+        try(InputStream is = getClass().getClassLoader().getResourceAsStream(RSC_COMPATIBILITY_ID_RESOURCE)) {
+            if(is == null) return null;
+
+            String compatibilityId = new String(is.readAllBytes(), StandardCharsets.UTF_8).trim();
+            return compatibilityId.isEmpty() ? null : compatibilityId;
+        } catch(IOException e) {
+            plugin.logger.warn("Failed to read vinext RSC compatibility ID: "+ e.getMessage());
+            return null;
+        }
     }
 
     public Handler beforeAll = ctx -> {
         ctx.header("X-Powered-By", "OPanel");
+        ctx.header("x-nextjs-deployment-id", rscCompatibilityId);
     };
 
     public Handler authToken = ctx -> {
@@ -60,23 +89,21 @@ public class BeforeController extends BaseController {
         }
     };
 
-    /** @see <a href="https://github.com/vercel/next.js/discussions/59394">https://github.com/vercel/next.js/discussions/59394</a> */
     public Handler handleRsc = ctx -> {
         String reqPath = ctx.path();
-        if(!reqPath.contains(".txt") || reqPath.contains(DEFAULT_RSC_FILE)) return;
-
-        // Request robots.txt file
-        if(reqPath.equals("/robots.txt") || reqPath.equals("/llms.txt")) return;
-
-        // Maybe a next.js bug, which will lead user to <page_name>.txt file without _rsc param
-        // just redirect it to the correct page
-        if(ctx.queryParam("_rsc") == null) {
-            ctx.redirect(reqPath.replaceAll("\\.txt/?$", "") +"?"+ ctx.queryString());
+        Map<String, List<String>> queryParamMap = ctx.queryParamMap();
+        if(reqPath.endsWith(".rsc")) {
+            if(rscCompatibilityId != null) {
+                ctx.header("X-Vinext-RSC-Compatibility-Id", rscCompatibilityId);
+            }
             return;
         }
+        if(!queryParamMap.containsKey("_rsc") || queryParamMap.size() > 1) return;
 
-        // Rsc file request
-        ctx.redirect(reqPath.replaceAll("\\.txt$", "/"+ DEFAULT_RSC_FILE) +"?"+ ctx.queryString());
+        if(reqPath.endsWith("/")) {
+            reqPath = reqPath.substring(0, reqPath.length() - 1);
+        }
+        ctx.redirect((reqPath.isEmpty() ? "index" : reqPath) +".rsc?"+ ctx.queryString());
     };
 
     public Handler handleFonts = ctx -> {

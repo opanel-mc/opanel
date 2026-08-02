@@ -10,6 +10,8 @@ import {
   type PointerEvent,
   type WheelEvent,
 } from "react";
+import MapTileWorker from "@/lib/map/tile-worker?worker";
+import wasmUrl from "@/wasm-lib/pkg/wasm_lib_bg.wasm?url";
 import { MAX_ZOOM, MIN_ZOOM, useMapTiles } from "@/hooks/use-map-tiles";
 import { useLatestRef } from "@/hooks/use-latest-ref";
 import { useWebSocket } from "@/hooks/use-websocket";
@@ -148,7 +150,6 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
     // up a throwaway worker and consume the canvas's one-shot transfer.
     if(workerRef.current || !canvasRef.current || !save) return;
 
-    const wasmUrl = new URL("../../../wasm-lib/pkg/wasm_lib_bg.wasm", import.meta.url);
     const wasmResp = await fetch(wasmUrl);
     const wasmBuffer = await wasmResp.arrayBuffer();
     // return early if one of workerRef and canvasRef is changed while awaiting
@@ -156,10 +157,7 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
 
     const offscreen = canvasRef.current.transferControlToOffscreen();
 
-    const worker = new Worker(
-      new URL("../../../lib/map/tile-worker.ts", import.meta.url),
-      { type: "module" },
-    );
+    const worker = new MapTileWorker({ type: "module" });
     workerRef.current = worker;
 
     worker.onmessage = (e: MessageEvent<WorkerToMain>) => {

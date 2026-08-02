@@ -3,6 +3,7 @@ package net.opanel.web;
 import com.google.gson.Gson;
 import io.javalin.Javalin;
 import io.javalin.config.SizeUnit;
+import io.javalin.http.ContentType;
 import io.javalin.http.HttpStatus;
 import io.javalin.jetty.JettyServer;
 import io.javalin.json.JavalinGson;
@@ -89,6 +90,7 @@ public class WebServer {
             config.staticFiles.add(staticFiles -> {
                 staticFiles.hostedPath = "/";
                 staticFiles.directory = "/"+ ROOT_PATH;
+                staticFiles.mimeTypes.add("text/x-component", "rsc");
             });
         });
 

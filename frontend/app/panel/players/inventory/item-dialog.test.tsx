@@ -102,7 +102,7 @@ describe("test item nbt editing dialog", () => {
     await user.click(screen.getByText("open dialog"));
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByTestId("monaco-editor")).toBeInTheDocument();
+    expect(await screen.findByTestId("monaco-editor")).toBeInTheDocument();
   });
 
   it("should initialize editor value from formatted snbt", async () => {
