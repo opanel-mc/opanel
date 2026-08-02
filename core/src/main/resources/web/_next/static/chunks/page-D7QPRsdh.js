@@ -1,1 +1,0 @@
-import{i as e}from"./framework-yL2HdSBb.js";import{r as t}from"./index-DbqjXjND.js";import{t as n}from"./use-check-auth-t-MWrOjl.js";var r=e();function i(){let{push:e}=t();return n(()=>e(`/panel/dashboard`)),(0,r.jsx)(r.Fragment,{})}export{i as default};
