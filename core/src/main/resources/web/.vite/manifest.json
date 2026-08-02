@@ -1,0 +1,2529 @@
+{
+  "_SiModelcontextprotocol-DBuwhIq8.js": {
+    "file": "_next/static/chunks/SiModelcontextprotocol-DBuwhIq8.js",
+    "name": "SiModelcontextprotocol",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js"
+    ]
+  },
+  "_activity-ZWaJel4n.js": {
+    "file": "_next/static/chunks/activity-ZWaJel4n.js",
+    "name": "activity",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_alert-CWoUHMQz.js": {
+    "file": "_next/static/chunks/alert-CWoUHMQz.js",
+    "name": "alert",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_separator-CHK9ZChI.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js"
+    ]
+  },
+  "_api-6zoqYMRD.js": {
+    "file": "_next/static/chunks/api-6zoqYMRD.js",
+    "name": "api",
+    "imports": [
+      "_utils-BUlGYr7A.js",
+      "_dist-Bp7utytF.js",
+      "_axios-MhzH0vB9.js"
+    ]
+  },
+  "_api-context-Cj4BUhpS.js": {
+    "file": "_next/static/chunks/api-context-Cj4BUhpS.js",
+    "name": "api-context",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js"
+    ]
+  },
+  "_app-elements-Oh3fCgxG.js": {
+    "file": "_next/static/chunks/app-elements-Oh3fCgxG.js",
+    "name": "app-elements",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_record-BGze3w87.js",
+      "_hash-B9TVtkv9.js",
+      "_framework-yL2HdSBb.js"
+    ]
+  },
+  "_app-rsc-cache-busting-4VMAklnY.js": {
+    "file": "_next/static/chunks/app-rsc-cache-busting-4VMAklnY.js",
+    "name": "app-rsc-cache-busting",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_headers-BWqgmq_4.js",
+      "_hash-B9TVtkv9.js",
+      "_app-rsc-render-mode-De7xZVLL.js",
+      "_deployment-id-CxQNa4rS.js"
+    ]
+  },
+  "_app-rsc-render-mode-De7xZVLL.js": {
+    "file": "_next/static/chunks/app-rsc-render-mode-De7xZVLL.js",
+    "name": "app-rsc-render-mode",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js"
+    ]
+  },
+  "_axios-MhzH0vB9.js": {
+    "file": "_next/static/chunks/axios-MhzH0vB9.js",
+    "name": "axios",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js"
+    ]
+  },
+  "_backpack-CgdC4T4C.js": {
+    "file": "_next/static/chunks/backpack-CgdC4T4C.js",
+    "name": "backpack",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_blocks-DVbiAujL.js": {
+    "file": "_next/static/chunks/blocks-DVbiAujL.js",
+    "name": "blocks",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_button-D1-st6zO.js": {
+    "file": "_next/static/chunks/button-D1-st6zO.js",
+    "name": "button",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_record-BGze3w87.js",
+      "_protocol-headers-De2985Ry.js",
+      "_framework-yL2HdSBb.js",
+      "_deployment-id-CxQNa4rS.js",
+      "virtual:vinext-app-browser-entry",
+      "_query-DugiHe4Q.js",
+      "_utils-BUlGYr7A.js"
+    ],
+    "dynamicImports": [
+      "node_modules/vinext/dist/shims/internal/hybrid-client-route-owner.js",
+      "virtual:vinext-app-browser-entry",
+      "_app-elements-Oh3fCgxG.js",
+      "_app-rsc-cache-busting-4VMAklnY.js",
+      "_app-rsc-render-mode-De7xZVLL.js",
+      "_headers-BWqgmq_4.js"
+    ]
+  },
+  "_button-group-BRZ7JPNY.js": {
+    "file": "_next/static/chunks/button-group-BRZ7JPNY.js",
+    "name": "button-group",
+    "imports": [
+      "_framework-yL2HdSBb.js",
+      "_separator-CHK9ZChI.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js"
+    ]
+  },
+  "_card-DRhaxuzw.js": {
+    "file": "_next/static/chunks/card-DRhaxuzw.js",
+    "name": "card",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_utils-BUlGYr7A.js"
+    ]
+  },
+  "_chevron-left-D2FWfLs1.js": {
+    "file": "_next/static/chunks/chevron-left-D2FWfLs1.js",
+    "name": "chevron-left",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_clock-fading-BHiu10Ba.js": {
+    "file": "_next/static/chunks/clock-fading-BHiu10Ba.js",
+    "name": "clock-fading",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_config-item-BfHuAwRM.js": {
+    "file": "_next/static/chunks/config-item-BfHuAwRM.js",
+    "name": "config-item",
+    "imports": [
+      "_framework-yL2HdSBb.js"
+    ]
+  },
+  "_copy-B1sFR46R.js": {
+    "file": "_next/static/chunks/copy-B1sFR46R.js",
+    "name": "copy",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_createLucideIcon-BQs5LmJ4.js": {
+    "file": "_next/static/chunks/createLucideIcon-BQs5LmJ4.js",
+    "name": "createLucideIcon",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js"
+    ]
+  },
+  "_data-table-Bli0x6IV.js": {
+    "file": "_next/static/chunks/data-table-Bli0x6IV.js",
+    "name": "data-table",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "virtual:vinext-app-browser-entry",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_sub-page-Dx23W4Rt.js",
+      "_chevron-left-D2FWfLs1.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_table-DtId2yt_.js",
+      "_button-group-BRZ7JPNY.js"
+    ]
+  },
+  "_deployment-id-CxQNa4rS.js": {
+    "file": "_next/static/chunks/deployment-id-CxQNa4rS.js",
+    "name": "deployment-id"
+  },
+  "_dialog-DRfS4UMD.js": {
+    "file": "_next/static/chunks/dialog-DRfS4UMD.js",
+    "name": "dialog",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_separator-CHK9ZChI.js",
+      "_utils-BUlGYr7A.js"
+    ]
+  },
+  "_dist-Bp7utytF.js": {
+    "file": "_next/static/chunks/dist-Bp7utytF.js",
+    "name": "dist",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js"
+    ]
+  },
+  "_dist-CkYIF5MF.js": {
+    "file": "_next/static/chunks/dist-CkYIF5MF.js",
+    "name": "dist",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js"
+    ]
+  },
+  "_download-D_kdPoQ2.js": {
+    "file": "_next/static/chunks/download-D_kdPoQ2.js",
+    "name": "download",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_download-Dk0EeYgU.js": {
+    "file": "_next/static/chunks/download-Dk0EeYgU.js",
+    "name": "download",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_dynamic-VAoNU5iZ.js": {
+    "file": "_next/static/chunks/dynamic-VAoNU5iZ.js",
+    "name": "dynamic",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_deployment-id-CxQNa4rS.js"
+    ]
+  },
+  "_earth-BdXPkZD1.js": {
+    "file": "_next/static/chunks/earth-BdXPkZD1.js",
+    "name": "earth",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_editor.BTnyCxaz.css": {
+    "file": "_next/static/css/editor.BTnyCxaz.css",
+    "src": "_editor.BTnyCxaz.css"
+  },
+  "_editor.api-BU4ZnR-y.js": {
+    "file": "_next/static/chunks/editor.api-BU4ZnR-y.js",
+    "name": "editor.api",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js"
+    ],
+    "css": [
+      "_next/static/css/editor.BTnyCxaz.css"
+    ]
+  },
+  "_emitter-z7c4Wyh8.js": {
+    "file": "_next/static/chunks/emitter-z7c4Wyh8.js",
+    "name": "emitter",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js"
+    ]
+  },
+  "_empty-DzzraAZm.js": {
+    "file": "_next/static/chunks/empty-DzzraAZm.js",
+    "name": "empty",
+    "imports": [
+      "_framework-yL2HdSBb.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js"
+    ]
+  },
+  "_field-C09F6xCd.js": {
+    "file": "_next/static/chunks/field-C09F6xCd.js",
+    "name": "field",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_dialog-DRfS4UMD.js",
+      "_separator-CHK9ZChI.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js"
+    ]
+  },
+  "_files-editor-BVeA_-_o.js": {
+    "file": "_next/static/chunks/files-editor-BVeA_-_o.js",
+    "name": "files-editor",
+    "imports": [
+      "_framework-yL2HdSBb.js",
+      "_utils-BUlGYr7A.js"
+    ]
+  },
+  "_fonts-Hk4BdFGA.js": {
+    "file": "_next/static/chunks/fonts-Hk4BdFGA.js",
+    "name": "fonts",
+    "imports": [
+      "_hash-B9TVtkv9.js"
+    ],
+    "assets": [
+      "_next/static/media/NotoSansSC-VariableFont_wght.BogYvAC6.ttf",
+      "_next/static/media/NotoSansTC-VariableFont_wght.CE_G14mU.ttf",
+      "_next/static/media/NotoSansHK-VariableFont_wght.BxvgoAbj.ttf",
+      "_next/static/media/NotoSansJP-VariableFont_wght.C-lBCNQK.ttf",
+      "_next/static/media/NotoSansKR-VariableFont_wght.DHvIjNY2.ttf",
+      "_next/static/media/NotoColorEmoji-Regular.Tdk8XWYe.ttf",
+      "_next/static/media/GoogleSansCode-VariableFont_wght.a41q3NA0.ttf",
+      "_next/static/media/GoogleSansCode-Italic-VariableFont_wght.DFTZbo6x.ttf",
+      "_next/static/media/unifont-16.0.04.BV44lrbT.otf",
+      "_next/static/media/Mojangles-Regular.Lz-C8nWS.otf",
+      "_next/static/media/Mojangles-Bold.DywrKSOC.otf",
+      "_next/static/media/Mojangles-Italic.CcewOx4y.otf",
+      "_next/static/media/Mojangles-BoldItalic.CjxLpLUn.otf",
+      "_next/static/media/MinecraftAE.N80wAdIl.ttf"
+    ]
+  },
+  "_form-DH4ajeJ7.js": {
+    "file": "_next/static/chunks/form-DH4ajeJ7.js",
+    "name": "form",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_dialog-DRfS4UMD.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js"
+    ]
+  },
+  "_framework-yL2HdSBb.js": {
+    "file": "_next/static/chunks/framework-yL2HdSBb.js",
+    "name": "framework",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js"
+    ]
+  },
+  "_gauge-CuSqEIyg.js": {
+    "file": "_next/static/chunks/gauge-CuSqEIyg.js",
+    "name": "gauge",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_hand-coins-ehjDWuE8.js": {
+    "file": "_next/static/chunks/hand-coins-ehjDWuE8.js",
+    "name": "hand-coins",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_hash-B9TVtkv9.js": {
+    "file": "_next/static/chunks/hash-B9TVtkv9.js",
+    "name": "hash"
+  },
+  "_headers-BWqgmq_4.js": {
+    "file": "_next/static/chunks/headers-BWqgmq_4.js",
+    "name": "headers",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_protocol-headers-De2985Ry.js"
+    ]
+  },
+  "_heart-handshake-B9S_KDPj.js": {
+    "file": "_next/static/chunks/heart-handshake-B9S_KDPj.js",
+    "name": "heart-handshake",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_house-BD74vz8d.js": {
+    "file": "_next/static/chunks/house-BD74vz8d.js",
+    "name": "house",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_i18n-text-BOVDXXi1.js": {
+    "file": "_next/static/chunks/i18n-text-BOVDXXi1.js",
+    "name": "i18n-text",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_utils-BUlGYr7A.js"
+    ]
+  },
+  "_input-group-CJz2cf59.js": {
+    "file": "_next/static/chunks/input-group-CJz2cf59.js",
+    "name": "input-group",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_separator-CHK9ZChI.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_textarea-DsZyqDu6.js"
+    ]
+  },
+  "_item-qllXduGs.js": {
+    "file": "_next/static/chunks/item-qllXduGs.js",
+    "name": "item",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_separator-CHK9ZChI.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js"
+    ]
+  },
+  "_key-round-CKfidqtt.js": {
+    "file": "_next/static/chunks/key-round-CKfidqtt.js",
+    "name": "key-round",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_log-utils-BWJdVfsV.js": {
+    "file": "_next/static/chunks/log-utils-BWJdVfsV.js",
+    "name": "log-utils",
+    "imports": [
+      "_utils-BUlGYr7A.js",
+      "_dist-Bp7utytF.js",
+      "_api-6zoqYMRD.js"
+    ]
+  },
+  "_logo-Cq0TzGSs.js": {
+    "file": "_next/static/chunks/logo-Cq0TzGSs.js",
+    "name": "logo",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_utils-BUlGYr7A.js",
+      "_dist-CkYIF5MF.js"
+    ]
+  },
+  "_mc-text-B5DDhrOu.js": {
+    "file": "_next/static/chunks/mc-text-B5DDhrOu.js",
+    "name": "mc-text",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_utils-BUlGYr7A.js",
+      "_fonts-Hk4BdFGA.js",
+      "_text-DyvnSkf-.js"
+    ]
+  },
+  "_monaco.contribution-CNaEcdtc.js": {
+    "file": "_next/static/chunks/monaco.contribution-CNaEcdtc.js",
+    "name": "monaco.contribution",
+    "imports": [
+      "virtual:vinext-app-browser-entry",
+      "_editor.api-BU4ZnR-y.js"
+    ],
+    "dynamicImports": [
+      "node_modules/monaco-editor/esm/vs/language/typescript/tsMode.js"
+    ]
+  },
+  "_navigation-errors-Be2EH7f_.js": {
+    "file": "_next/static/chunks/navigation-errors-Be2EH7f_.js",
+    "name": "navigation-errors",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js"
+    ]
+  },
+  "_pack-C3hF5URF.js": {
+    "file": "_next/static/chunks/pack-C3hF5URF.js",
+    "name": "pack",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_paint-bucket-DgCdSNY5.js": {
+    "file": "_next/static/chunks/paint-bucket-DgCdSNY5.js",
+    "name": "paint-bucket",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_password-input-B2S1KCRh.js": {
+    "file": "_next/static/chunks/password-input-B2S1KCRh.js",
+    "name": "password-input",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_input-group-CJz2cf59.js"
+    ]
+  },
+  "_pencil-ruler-Bn8RVeqd.js": {
+    "file": "_next/static/chunks/pencil-ruler-Bn8RVeqd.js",
+    "name": "pencil-ruler",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_players-DLCTzjMc.js": {
+    "file": "_next/static/chunks/players-DLCTzjMc.js",
+    "name": "players",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "virtual:vinext-app-browser-entry",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_sidebar-DuxOZq6A.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_dist-Bp7utytF.js",
+      "_dist-CkYIF5MF.js",
+      "_i18n-text-BOVDXXi1.js",
+      "_api-6zoqYMRD.js",
+      "_dynamic-VAoNU5iZ.js",
+      "_ws-BKW17UnT.js"
+    ],
+    "dynamicImports": [
+      "components/monaco-editor.tsx"
+    ]
+  },
+  "_plus-Bcp0CH-t.js": {
+    "file": "_next/static/chunks/plus-Bcp0CH-t.js",
+    "name": "plus",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_progress-t6OYvdoy.js": {
+    "file": "_next/static/chunks/progress-t6OYvdoy.js",
+    "name": "progress",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_separator-CHK9ZChI.js",
+      "_utils-BUlGYr7A.js"
+    ]
+  },
+  "_protocol-headers-De2985Ry.js": {
+    "file": "_next/static/chunks/protocol-headers-De2985Ry.js",
+    "name": "protocol-headers"
+  },
+  "_query-DugiHe4Q.js": {
+    "file": "_next/static/chunks/query-DugiHe4Q.js",
+    "name": "query"
+  },
+  "_react-dom-server-DEkUpofr.js": {
+    "file": "_next/static/chunks/react-dom-server-DEkUpofr.js",
+    "name": "react-dom-server",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js"
+    ]
+  },
+  "_record-BGze3w87.js": {
+    "file": "_next/static/chunks/record-BGze3w87.js",
+    "name": "record"
+  },
+  "_restart-alert-10KNaAwG.js": {
+    "file": "_next/static/chunks/restart-alert-10KNaAwG.js",
+    "name": "restart-alert",
+    "imports": [
+      "_framework-yL2HdSBb.js",
+      "_utils-BUlGYr7A.js",
+      "_dist-Bp7utytF.js",
+      "_api-6zoqYMRD.js",
+      "_alert-CWoUHMQz.js"
+    ]
+  },
+  "_rolldown-runtime-B0Z9INg1.js": {
+    "file": "_next/static/chunks/rolldown-runtime-B0Z9INg1.js",
+    "name": "rolldown-runtime"
+  },
+  "_scroll-text-DhdiqzmD.js": {
+    "file": "_next/static/chunks/scroll-text-DhdiqzmD.js",
+    "name": "scroll-text",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_search-1jdJPTnl.js": {
+    "file": "_next/static/chunks/search-1jdJPTnl.js",
+    "name": "search",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_select-MGXB7uE6.js": {
+    "file": "_next/static/chunks/select-MGXB7uE6.js",
+    "name": "select",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_sub-page-Dx23W4Rt.js",
+      "_sidebar-DuxOZq6A.js",
+      "_separator-CHK9ZChI.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js"
+    ]
+  },
+  "_semver-B1IfwgIH.js": {
+    "file": "_next/static/chunks/semver-B1IfwgIH.js",
+    "name": "semver",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js"
+    ]
+  },
+  "_separator-CHK9ZChI.js": {
+    "file": "_next/static/chunks/separator-CHK9ZChI.js",
+    "name": "separator",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_logo-Cq0TzGSs.js"
+    ]
+  },
+  "_server-Bnr1Pgo2.js": {
+    "file": "_next/static/chunks/server-Bnr1Pgo2.js",
+    "name": "server",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_shield-check-CG5X_fA8.js": {
+    "file": "_next/static/chunks/shield-check-CG5X_fA8.js",
+    "name": "shield-check",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_sidebar-DuxOZq6A.js": {
+    "file": "_next/static/chunks/sidebar-DuxOZq6A.js",
+    "name": "sidebar",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_separator-CHK9ZChI.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js"
+    ]
+  },
+  "_square-terminal-Da-lPPJc.js": {
+    "file": "_next/static/chunks/square-terminal-Da-lPPJc.js",
+    "name": "square-terminal",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_sub-page-Dx23W4Rt.js": {
+    "file": "_next/static/chunks/sub-page-Dx23W4Rt.js",
+    "name": "sub-page",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_hand-coins-ehjDWuE8.js",
+      "_dialog-DRfS4UMD.js",
+      "_sidebar-DuxOZq6A.js",
+      "_separator-CHK9ZChI.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_fonts-Hk4BdFGA.js",
+      "_dist-CkYIF5MF.js",
+      "_logo-Cq0TzGSs.js",
+      "_update-L-OHeHdh.js",
+      "_api-6zoqYMRD.js"
+    ]
+  },
+  "_table-DtId2yt_.js": {
+    "file": "_next/static/chunks/table-DtId2yt_.js",
+    "name": "table",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_utils-BUlGYr7A.js"
+    ]
+  },
+  "_tabs-ScYAKUlt.js": {
+    "file": "_next/static/chunks/tabs-ScYAKUlt.js",
+    "name": "tabs",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_sub-page-Dx23W4Rt.js",
+      "_separator-CHK9ZChI.js",
+      "_utils-BUlGYr7A.js"
+    ]
+  },
+  "_terminal-dQeiPIm0.js": {
+    "file": "_next/static/chunks/terminal-dQeiPIm0.js",
+    "name": "terminal",
+    "imports": [
+      "_utils-BUlGYr7A.js",
+      "_dist-Bp7utytF.js",
+      "_ws-BKW17UnT.js"
+    ]
+  },
+  "_terminal-viewer-TJemFV0K.js": {
+    "file": "_next/static/chunks/terminal-viewer-TJemFV0K.js",
+    "name": "terminal-viewer",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_utils-BUlGYr7A.js",
+      "_fonts-Hk4BdFGA.js",
+      "_text-DyvnSkf-.js"
+    ]
+  },
+  "_text-DyvnSkf-.js": {
+    "file": "_next/static/chunks/text-DyvnSkf-.js",
+    "name": "text"
+  },
+  "_text-copy-DJ-rfBCt.js": {
+    "file": "_next/static/chunks/text-copy-DJ-rfBCt.js",
+    "name": "text-copy",
+    "imports": [
+      "_framework-yL2HdSBb.js",
+      "_sidebar-DuxOZq6A.js",
+      "_separator-CHK9ZChI.js",
+      "_utils-BUlGYr7A.js"
+    ]
+  },
+  "_textarea-DsZyqDu6.js": {
+    "file": "_next/static/chunks/textarea-DsZyqDu6.js",
+    "name": "textarea",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_utils-BUlGYr7A.js"
+    ]
+  },
+  "_trash-2-CAhm8Phy.js": {
+    "file": "_next/static/chunks/trash-2-CAhm8Phy.js",
+    "name": "trash-2",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_trash-Bu6ziDM5.js": {
+    "file": "_next/static/chunks/trash-Bu6ziDM5.js",
+    "name": "trash",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_unplug-D4MthCRl.js": {
+    "file": "_next/static/chunks/unplug-D4MthCRl.js",
+    "name": "unplug",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_update-L-OHeHdh.js": {
+    "file": "_next/static/chunks/update-L-OHeHdh.js",
+    "name": "update",
+    "imports": [
+      "_utils-BUlGYr7A.js",
+      "_axios-MhzH0vB9.js",
+      "_semver-B1IfwgIH.js"
+    ]
+  },
+  "_use-check-auth-t-MWrOjl.js": {
+    "file": "_next/static/chunks/use-check-auth-t-MWrOjl.js",
+    "name": "use-check-auth",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "virtual:vinext-app-browser-entry",
+      "_api-6zoqYMRD.js"
+    ]
+  },
+  "_use-keydown-DYlRJUlF.js": {
+    "file": "_next/static/chunks/use-keydown-DYlRJUlF.js",
+    "name": "use-keydown",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js"
+    ]
+  },
+  "_use-loading-done-DeRNNkju.js": {
+    "file": "_next/static/chunks/use-loading-done-DeRNNkju.js",
+    "name": "use-loading-done",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_emitter-z7c4Wyh8.js"
+    ]
+  },
+  "_use-map-tiles-BRJVOaUy.js": {
+    "file": "_next/static/chunks/use-map-tiles-BRJVOaUy.js",
+    "name": "use-map-tiles",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js"
+    ]
+  },
+  "_use-monitor-Ck12lIVO.js": {
+    "file": "_next/static/chunks/use-monitor-Ck12lIVO.js",
+    "name": "use-monitor",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_utils-BUlGYr7A.js",
+      "_dist-Bp7utytF.js",
+      "_fonts-Hk4BdFGA.js",
+      "_ws-BKW17UnT.js"
+    ]
+  },
+  "_use-websocket-C1iM2I5X.js": {
+    "file": "_next/static/chunks/use-websocket-C1iM2I5X.js",
+    "name": "use-websocket",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js"
+    ]
+  },
+  "_users-BbkoOQOT.js": {
+    "file": "_next/static/chunks/users-BbkoOQOT.js",
+    "name": "users",
+    "imports": [
+      "_createLucideIcon-BQs5LmJ4.js"
+    ]
+  },
+  "_utils-BUlGYr7A.js": {
+    "file": "_next/static/chunks/utils-BUlGYr7A.js",
+    "name": "utils",
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_dist-Bp7utytF.js",
+      "_react-dom-server-DEkUpofr.js"
+    ]
+  },
+  "_ws-BKW17UnT.js": {
+    "file": "_next/static/chunks/ws-BKW17UnT.js",
+    "name": "ws",
+    "imports": [
+      "_dist-Bp7utytF.js",
+      "_api-6zoqYMRD.js"
+    ]
+  },
+  "app/about/page.tsx": {
+    "file": "_next/static/chunks/page-BAhUrrwh.js",
+    "name": "page",
+    "src": "app/about/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_framework-yL2HdSBb.js",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_hand-coins-ehjDWuE8.js",
+      "_chevron-left-D2FWfLs1.js",
+      "_earth-BdXPkZD1.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_card-DRhaxuzw.js",
+      "_table-DtId2yt_.js",
+      "_fonts-Hk4BdFGA.js",
+      "_logo-Cq0TzGSs.js",
+      "_use-loading-done-DeRNNkju.js"
+    ]
+  },
+  "app/about/thanks/page.tsx": {
+    "file": "_next/static/chunks/page-DYcpJlRp.js",
+    "name": "page",
+    "src": "app/about/thanks/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_framework-yL2HdSBb.js",
+      "_chevron-left-D2FWfLs1.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_card-DRhaxuzw.js",
+      "_table-DtId2yt_.js",
+      "_fonts-Hk4BdFGA.js",
+      "_use-loading-done-DeRNNkju.js",
+      "_i18n-text-BOVDXXi1.js"
+    ]
+  },
+  "app/browser-init.tsx": {
+    "file": "_next/static/chunks/browser-init-CqJ-8xz8.js",
+    "name": "browser-init",
+    "src": "app/browser-init.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_utils-BUlGYr7A.js",
+      "_fonts-Hk4BdFGA.js",
+      "_update-L-OHeHdh.js"
+    ]
+  },
+  "app/login/page.tsx": {
+    "file": "_next/static/chunks/page-DGsAuIW9.js",
+    "name": "page",
+    "src": "app/login/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "virtual:vinext-app-browser-entry",
+      "_password-input-B2S1KCRh.js",
+      "_dialog-DRfS4UMD.js",
+      "_key-round-CKfidqtt.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_card-DRhaxuzw.js",
+      "_logo-Cq0TzGSs.js",
+      "_emitter-z7c4Wyh8.js",
+      "_i18n-text-BOVDXXi1.js",
+      "_update-L-OHeHdh.js",
+      "_form-DH4ajeJ7.js",
+      "_api-6zoqYMRD.js",
+      "_alert-CWoUHMQz.js",
+      "_use-keydown-DYlRJUlF.js",
+      "_use-check-auth-t-MWrOjl.js",
+      "_field-C09F6xCd.js"
+    ]
+  },
+  "app/not-found.tsx": {
+    "file": "_next/static/chunks/not-found-jZypo56A.js",
+    "name": "not-found",
+    "src": "app/not-found.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_framework-yL2HdSBb.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_fonts-Hk4BdFGA.js",
+      "_use-loading-done-DeRNNkju.js"
+    ]
+  },
+  "app/page.tsx": {
+    "file": "_next/static/chunks/page-D7QPRsdh.js",
+    "name": "page",
+    "src": "app/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_framework-yL2HdSBb.js",
+      "virtual:vinext-app-browser-entry",
+      "_use-check-auth-t-MWrOjl.js"
+    ]
+  },
+  "app/panel/code-of-conduct/page.tsx": {
+    "file": "_next/static/chunks/page-C1rJTDXT.js",
+    "name": "page",
+    "src": "app/panel/code-of-conduct/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "virtual:vinext-app-browser-entry",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_sub-page-Dx23W4Rt.js",
+      "_heart-handshake-B9S_KDPj.js",
+      "_dialog-DRfS4UMD.js",
+      "_plus-Bcp0CH-t.js",
+      "_trash-Bu6ziDM5.js",
+      "_separator-CHK9ZChI.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_dist-Bp7utytF.js",
+      "_dist-CkYIF5MF.js",
+      "_emitter-z7c4Wyh8.js",
+      "_i18n-text-BOVDXXi1.js",
+      "_semver-B1IfwgIH.js",
+      "_api-6zoqYMRD.js",
+      "_alert-CWoUHMQz.js",
+      "_field-C09F6xCd.js",
+      "_dynamic-VAoNU5iZ.js",
+      "_api-context-Cj4BUhpS.js",
+      "_empty-DzzraAZm.js",
+      "_files-editor-BVeA_-_o.js",
+      "_restart-alert-10KNaAwG.js"
+    ],
+    "dynamicImports": [
+      "components/monaco-editor.tsx"
+    ]
+  },
+  "app/panel/dashboard/page.tsx": {
+    "file": "_next/static/chunks/page-Cod3CI19.js",
+    "name": "page",
+    "src": "app/panel/dashboard/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "virtual:vinext-app-browser-entry",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_activity-ZWaJel4n.js",
+      "_sub-page-Dx23W4Rt.js",
+      "_item-qllXduGs.js",
+      "_players-DLCTzjMc.js",
+      "_earth-BdXPkZD1.js",
+      "_server-Bnr1Pgo2.js",
+      "_gauge-CuSqEIyg.js",
+      "_heart-handshake-B9S_KDPj.js",
+      "_dialog-DRfS4UMD.js",
+      "_key-round-CKfidqtt.js",
+      "_pack-C3hF5URF.js",
+      "_mc-text-B5DDhrOu.js",
+      "_sidebar-DuxOZq6A.js",
+      "_shield-check-CG5X_fA8.js",
+      "_square-terminal-Da-lPPJc.js",
+      "_users-BbkoOQOT.js",
+      "_separator-CHK9ZChI.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_dist-Bp7utytF.js",
+      "_card-DRhaxuzw.js",
+      "_table-DtId2yt_.js",
+      "_fonts-Hk4BdFGA.js",
+      "_emitter-z7c4Wyh8.js",
+      "_i18n-text-BOVDXXi1.js",
+      "_form-DH4ajeJ7.js",
+      "_api-6zoqYMRD.js",
+      "_textarea-DsZyqDu6.js",
+      "_alert-CWoUHMQz.js",
+      "_field-C09F6xCd.js",
+      "_api-context-Cj4BUhpS.js",
+      "_use-monitor-Ck12lIVO.js",
+      "_empty-DzzraAZm.js",
+      "_restart-alert-10KNaAwG.js",
+      "_text-DyvnSkf-.js",
+      "_button-group-BRZ7JPNY.js",
+      "_use-websocket-C1iM2I5X.js",
+      "_terminal-viewer-TJemFV0K.js",
+      "_terminal-dQeiPIm0.js"
+    ]
+  },
+  "app/panel/gamerules/page.tsx": {
+    "file": "_next/static/chunks/page-DIb-B_Ng.js",
+    "name": "page",
+    "src": "app/panel/gamerules/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "virtual:vinext-app-browser-entry",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_hand-coins-ehjDWuE8.js",
+      "_sub-page-Dx23W4Rt.js",
+      "_select-MGXB7uE6.js",
+      "_clock-fading-BHiu10Ba.js",
+      "_item-qllXduGs.js",
+      "_gauge-CuSqEIyg.js",
+      "_sidebar-DuxOZq6A.js",
+      "_pencil-ruler-Bn8RVeqd.js",
+      "_search-1jdJPTnl.js",
+      "_shield-check-CG5X_fA8.js",
+      "_separator-CHK9ZChI.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_dist-Bp7utytF.js",
+      "_emitter-z7c4Wyh8.js",
+      "_i18n-text-BOVDXXi1.js",
+      "_semver-B1IfwgIH.js",
+      "_form-DH4ajeJ7.js",
+      "_api-6zoqYMRD.js",
+      "_input-group-CJz2cf59.js",
+      "_use-keydown-DYlRJUlF.js",
+      "_api-context-Cj4BUhpS.js"
+    ]
+  },
+  "app/panel/layout.tsx": {
+    "file": "_next/static/chunks/layout-D036nOvc.js",
+    "name": "layout",
+    "src": "app/panel/layout.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "virtual:vinext-app-browser-entry",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_activity-ZWaJel4n.js",
+      "_blocks-DVbiAujL.js",
+      "_clock-fading-BHiu10Ba.js",
+      "_earth-BdXPkZD1.js",
+      "_gauge-CuSqEIyg.js",
+      "_heart-handshake-B9S_KDPj.js",
+      "_paint-bucket-DgCdSNY5.js",
+      "_sidebar-DuxOZq6A.js",
+      "_pencil-ruler-Bn8RVeqd.js",
+      "_scroll-text-DhdiqzmD.js",
+      "_square-terminal-Da-lPPJc.js",
+      "_unplug-D4MthCRl.js",
+      "_users-BbkoOQOT.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_fonts-Hk4BdFGA.js",
+      "_logo-Cq0TzGSs.js",
+      "_semver-B1IfwgIH.js",
+      "_api-6zoqYMRD.js",
+      "_use-keydown-DYlRJUlF.js",
+      "_use-check-auth-t-MWrOjl.js",
+      "_api-context-Cj4BUhpS.js",
+      "_SiModelcontextprotocol-DBuwhIq8.js"
+    ]
+  },
+  "app/panel/logs/page.tsx": {
+    "file": "_next/static/chunks/page-BIHqHOhj.js",
+    "name": "page",
+    "src": "app/panel/logs/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_sub-page-Dx23W4Rt.js",
+      "_select-MGXB7uE6.js",
+      "_data-table-Bli0x6IV.js",
+      "_download-Dk0EeYgU.js",
+      "_scroll-text-DhdiqzmD.js",
+      "_search-1jdJPTnl.js",
+      "_trash-2-CAhm8Phy.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_dist-Bp7utytF.js",
+      "_emitter-z7c4Wyh8.js",
+      "_api-6zoqYMRD.js",
+      "_input-group-CJz2cf59.js",
+      "_alert-CWoUHMQz.js",
+      "_log-utils-BWJdVfsV.js"
+    ]
+  },
+  "app/panel/logs/view/page.tsx": {
+    "file": "_next/static/chunks/page-MUJ3oZNT.js",
+    "name": "page",
+    "src": "app/panel/logs/view/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "virtual:vinext-app-browser-entry",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_sub-page-Dx23W4Rt.js",
+      "_download-Dk0EeYgU.js",
+      "_trash-2-CAhm8Phy.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_dist-CkYIF5MF.js",
+      "_emitter-z7c4Wyh8.js",
+      "_i18n-text-BOVDXXi1.js",
+      "_api-6zoqYMRD.js",
+      "_alert-CWoUHMQz.js",
+      "_dynamic-VAoNU5iZ.js",
+      "_log-utils-BWJdVfsV.js"
+    ],
+    "dynamicImports": [
+      "components/monaco-editor.tsx"
+    ]
+  },
+  "app/panel/map/map-canvas.tsx": {
+    "file": "_next/static/chunks/map-canvas-DccA9-V4.js",
+    "name": "map-canvas",
+    "src": "app/panel/map/map-canvas.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_use-websocket-C1iM2I5X.js",
+      "_ws-BKW17UnT.js",
+      "_use-map-tiles-BRJVOaUy.js"
+    ],
+    "assets": [
+      "_next/static/media/wasm_lib_bg.Bow7pyE8.wasm"
+    ]
+  },
+  "app/panel/map/page.tsx": {
+    "file": "_next/static/chunks/page-B3o1r8j-2.js",
+    "name": "page",
+    "src": "app/panel/map/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "virtual:vinext-app-browser-entry",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_sub-page-Dx23W4Rt.js",
+      "_select-MGXB7uE6.js",
+      "_house-BD74vz8d.js",
+      "_dialog-DRfS4UMD.js",
+      "_sidebar-DuxOZq6A.js",
+      "_plus-Bcp0CH-t.js",
+      "_separator-CHK9ZChI.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_fonts-Hk4BdFGA.js",
+      "_emitter-z7c4Wyh8.js",
+      "_api-6zoqYMRD.js",
+      "_field-C09F6xCd.js",
+      "_dynamic-VAoNU5iZ.js",
+      "_button-group-BRZ7JPNY.js",
+      "_use-map-tiles-BRJVOaUy.js"
+    ],
+    "dynamicImports": [
+      "app/panel/map/map-canvas.tsx"
+    ]
+  },
+  "app/panel/mcp/page.tsx": {
+    "file": "_next/static/chunks/page-gQBLO5aB.js",
+    "name": "page",
+    "src": "app/panel/mcp/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "virtual:vinext-app-browser-entry",
+      "_sub-page-Dx23W4Rt.js",
+      "_copy-B1sFR46R.js",
+      "_dialog-DRfS4UMD.js",
+      "_separator-CHK9ZChI.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_fonts-Hk4BdFGA.js",
+      "_dist-CkYIF5MF.js",
+      "_emitter-z7c4Wyh8.js",
+      "_use-loading-done-DeRNNkju.js",
+      "_api-6zoqYMRD.js",
+      "_dynamic-VAoNU5iZ.js",
+      "_SiModelcontextprotocol-DBuwhIq8.js",
+      "_text-copy-DJ-rfBCt.js",
+      "_config-item-BfHuAwRM.js"
+    ],
+    "dynamicImports": [
+      "components/monaco-editor.tsx"
+    ]
+  },
+  "app/panel/monitor/page.tsx": {
+    "file": "_next/static/chunks/page-Ckt4r9O5.js",
+    "name": "page",
+    "src": "app/panel/monitor/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_activity-ZWaJel4n.js",
+      "_sub-page-Dx23W4Rt.js",
+      "_utils-BUlGYr7A.js",
+      "_fonts-Hk4BdFGA.js",
+      "_emitter-z7c4Wyh8.js",
+      "_api-6zoqYMRD.js",
+      "_api-context-Cj4BUhpS.js",
+      "_use-monitor-Ck12lIVO.js"
+    ]
+  },
+  "app/panel/oidc/page.tsx": {
+    "file": "_next/static/chunks/page-BzvM7MoJ.js",
+    "name": "page",
+    "src": "app/panel/oidc/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_sub-page-Dx23W4Rt.js",
+      "_plus-Bcp0CH-t.js",
+      "_shield-check-CG5X_fA8.js",
+      "_trash-2-CAhm8Phy.js",
+      "_separator-CHK9ZChI.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_dist-Bp7utytF.js",
+      "_fonts-Hk4BdFGA.js",
+      "_emitter-z7c4Wyh8.js",
+      "_api-6zoqYMRD.js",
+      "_empty-DzzraAZm.js",
+      "_config-item-BfHuAwRM.js"
+    ]
+  },
+  "app/panel/open-api/page.tsx": {
+    "file": "_next/static/chunks/page-9Lfh9ur1.js",
+    "name": "page",
+    "src": "app/panel/open-api/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "virtual:vinext-app-browser-entry",
+      "_blocks-DVbiAujL.js",
+      "_sub-page-Dx23W4Rt.js",
+      "_gauge-CuSqEIyg.js",
+      "_dialog-DRfS4UMD.js",
+      "_scroll-text-DhdiqzmD.js",
+      "_unplug-D4MthCRl.js",
+      "_users-BbkoOQOT.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_fonts-Hk4BdFGA.js",
+      "_dist-CkYIF5MF.js",
+      "_use-loading-done-DeRNNkju.js",
+      "_i18n-text-BOVDXXi1.js",
+      "_api-6zoqYMRD.js",
+      "_dynamic-VAoNU5iZ.js",
+      "_text-copy-DJ-rfBCt.js",
+      "_config-item-BfHuAwRM.js"
+    ],
+    "dynamicImports": [
+      "components/monaco-editor.tsx"
+    ]
+  },
+  "app/panel/page.tsx": {
+    "file": "_next/static/chunks/page-DNeZXXFi.js",
+    "name": "page",
+    "src": "app/panel/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_framework-yL2HdSBb.js",
+      "virtual:vinext-app-browser-entry",
+      "_use-check-auth-t-MWrOjl.js"
+    ]
+  },
+  "app/panel/paper-config/page.tsx": {
+    "file": "_next/static/chunks/page-D4Nvhjgu.js",
+    "name": "page",
+    "src": "app/panel/paper-config/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "virtual:vinext-app-browser-entry",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_sub-page-Dx23W4Rt.js",
+      "_dialog-DRfS4UMD.js",
+      "_paint-bucket-DgCdSNY5.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_dist-CkYIF5MF.js",
+      "_emitter-z7c4Wyh8.js",
+      "_api-6zoqYMRD.js",
+      "_use-keydown-DYlRJUlF.js",
+      "_dynamic-VAoNU5iZ.js",
+      "_api-context-Cj4BUhpS.js",
+      "_files-editor-BVeA_-_o.js",
+      "_restart-alert-10KNaAwG.js"
+    ],
+    "dynamicImports": [
+      "components/monaco-editor.tsx"
+    ]
+  },
+  "app/panel/players/inventory/page.tsx": {
+    "file": "_next/static/chunks/page-D8aEWVRP.js",
+    "name": "page",
+    "src": "app/panel/players/inventory/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "virtual:vinext-app-browser-entry",
+      "_backpack-CgdC4T4C.js",
+      "_sub-page-Dx23W4Rt.js",
+      "_dialog-DRfS4UMD.js",
+      "_search-1jdJPTnl.js",
+      "_trash-2-CAhm8Phy.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_dist-Bp7utytF.js",
+      "_fonts-Hk4BdFGA.js",
+      "_dist-CkYIF5MF.js",
+      "_emitter-z7c4Wyh8.js",
+      "_i18n-text-BOVDXXi1.js",
+      "_semver-B1IfwgIH.js",
+      "_input-group-CJz2cf59.js",
+      "_dynamic-VAoNU5iZ.js",
+      "_api-context-Cj4BUhpS.js",
+      "_use-websocket-C1iM2I5X.js",
+      "_ws-BKW17UnT.js"
+    ],
+    "dynamicImports": [
+      "components/monaco-editor.tsx",
+      "node_modules/minecraft-textures/dist/textures/json/1.16.json",
+      "node_modules/minecraft-textures/dist/textures/json/1.19.json",
+      "node_modules/minecraft-textures/dist/textures/json/1.20.json",
+      "node_modules/minecraft-textures/dist/textures/json/1.21.11.json",
+      "node_modules/minecraft-textures/dist/textures/json/1.21.2.json",
+      "node_modules/minecraft-textures/dist/textures/json/1.21.4.json",
+      "node_modules/minecraft-textures/dist/textures/json/1.21.5.json",
+      "node_modules/minecraft-textures/dist/textures/json/1.21.6.json",
+      "node_modules/minecraft-textures/dist/textures/json/1.21.7.json",
+      "node_modules/minecraft-textures/dist/textures/json/1.21.9.json",
+      "node_modules/minecraft-textures/dist/textures/json/1.21.json",
+      "node_modules/minecraft-textures/dist/textures/json/26.1.json",
+      "node_modules/minecraft-textures/dist/textures/json/26.2.json"
+    ],
+    "css": [
+      "_next/static/css/page.D675sIu4.css"
+    ]
+  },
+  "app/panel/players/page.tsx": {
+    "file": "_next/static/chunks/page-75FcCKps2.js",
+    "name": "page",
+    "src": "app/panel/players/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_backpack-CgdC4T4C.js",
+      "_download-D_kdPoQ2.js",
+      "_sub-page-Dx23W4Rt.js",
+      "_select-MGXB7uE6.js",
+      "_data-table-Bli0x6IV.js",
+      "_players-DLCTzjMc.js",
+      "_copy-B1sFR46R.js",
+      "_download-Dk0EeYgU.js",
+      "_dialog-DRfS4UMD.js",
+      "_sidebar-DuxOZq6A.js",
+      "_plus-Bcp0CH-t.js",
+      "_search-1jdJPTnl.js",
+      "_trash-Bu6ziDM5.js",
+      "_users-BbkoOQOT.js",
+      "_separator-CHK9ZChI.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_dist-Bp7utytF.js",
+      "_table-DtId2yt_.js",
+      "_fonts-Hk4BdFGA.js",
+      "_emitter-z7c4Wyh8.js",
+      "_axios-MhzH0vB9.js",
+      "_form-DH4ajeJ7.js",
+      "_api-6zoqYMRD.js",
+      "_input-group-CJz2cf59.js",
+      "_alert-CWoUHMQz.js",
+      "_use-keydown-DYlRJUlF.js",
+      "_tabs-ScYAKUlt.js",
+      "_use-websocket-C1iM2I5X.js"
+    ]
+  },
+  "app/panel/plugins/page.tsx": {
+    "file": "_next/static/chunks/page-asKY34Zv.js",
+    "name": "page",
+    "src": "app/panel/plugins/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_download-D_kdPoQ2.js",
+      "_blocks-DVbiAujL.js",
+      "_sub-page-Dx23W4Rt.js",
+      "_data-table-Bli0x6IV.js",
+      "_download-Dk0EeYgU.js",
+      "_house-BD74vz8d.js",
+      "_dialog-DRfS4UMD.js",
+      "_pack-C3hF5URF.js",
+      "_sidebar-DuxOZq6A.js",
+      "_search-1jdJPTnl.js",
+      "_trash-2-CAhm8Phy.js",
+      "_progress-t6OYvdoy.js",
+      "_separator-CHK9ZChI.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_dist-Bp7utytF.js",
+      "_fonts-Hk4BdFGA.js",
+      "_emitter-z7c4Wyh8.js",
+      "_api-6zoqYMRD.js",
+      "_input-group-CJz2cf59.js",
+      "_alert-CWoUHMQz.js",
+      "_use-keydown-DYlRJUlF.js",
+      "_api-context-Cj4BUhpS.js",
+      "_tabs-ScYAKUlt.js",
+      "_restart-alert-10KNaAwG.js"
+    ]
+  },
+  "app/panel/saves/page.tsx": {
+    "file": "_next/static/chunks/page-Bx6p6YdH.js",
+    "name": "page",
+    "src": "app/panel/saves/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_sub-page-Dx23W4Rt.js",
+      "_select-MGXB7uE6.js",
+      "_download-Dk0EeYgU.js",
+      "_earth-BdXPkZD1.js",
+      "_dialog-DRfS4UMD.js",
+      "_mc-text-B5DDhrOu.js",
+      "_sidebar-DuxOZq6A.js",
+      "_trash-2-CAhm8Phy.js",
+      "_progress-t6OYvdoy.js",
+      "_separator-CHK9ZChI.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_dist-Bp7utytF.js",
+      "_card-DRhaxuzw.js",
+      "_fonts-Hk4BdFGA.js",
+      "_emitter-z7c4Wyh8.js",
+      "_i18n-text-BOVDXXi1.js",
+      "_form-DH4ajeJ7.js",
+      "_api-6zoqYMRD.js",
+      "_alert-CWoUHMQz.js",
+      "_restart-alert-10KNaAwG.js"
+    ]
+  },
+  "app/panel/settings/page.tsx": {
+    "file": "_next/static/chunks/page-CkQ9Lx1E.js",
+    "name": "page",
+    "src": "app/panel/settings/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "virtual:vinext-app-browser-entry",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_sub-page-Dx23W4Rt.js",
+      "_select-MGXB7uE6.js",
+      "_password-input-B2S1KCRh.js",
+      "_server-Bnr1Pgo2.js",
+      "_dialog-DRfS4UMD.js",
+      "_sidebar-DuxOZq6A.js",
+      "_square-terminal-Da-lPPJc.js",
+      "_separator-CHK9ZChI.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_dist-Bp7utytF.js",
+      "_fonts-Hk4BdFGA.js",
+      "_dist-CkYIF5MF.js",
+      "_logo-Cq0TzGSs.js",
+      "_emitter-z7c4Wyh8.js",
+      "_use-loading-done-DeRNNkju.js",
+      "_form-DH4ajeJ7.js",
+      "_api-6zoqYMRD.js",
+      "_field-C09F6xCd.js",
+      "_dynamic-VAoNU5iZ.js",
+      "_tabs-ScYAKUlt.js",
+      "_restart-alert-10KNaAwG.js",
+      "_terminal-dQeiPIm0.js"
+    ],
+    "dynamicImports": [
+      "components/monaco-editor.tsx"
+    ]
+  },
+  "app/panel/tasks/page.tsx": {
+    "file": "_next/static/chunks/page-LAYPcq9z.js",
+    "name": "page",
+    "src": "app/panel/tasks/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "virtual:vinext-app-browser-entry",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_sub-page-Dx23W4Rt.js",
+      "_select-MGXB7uE6.js",
+      "_clock-fading-BHiu10Ba.js",
+      "_dialog-DRfS4UMD.js",
+      "_sidebar-DuxOZq6A.js",
+      "_plus-Bcp0CH-t.js",
+      "_trash-Bu6ziDM5.js",
+      "_separator-CHK9ZChI.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_dist-Bp7utytF.js",
+      "_fonts-Hk4BdFGA.js",
+      "_dist-CkYIF5MF.js",
+      "_emitter-z7c4Wyh8.js",
+      "_i18n-text-BOVDXXi1.js",
+      "_form-DH4ajeJ7.js",
+      "_api-6zoqYMRD.js",
+      "_dynamic-VAoNU5iZ.js",
+      "_tabs-ScYAKUlt.js",
+      "_files-editor-BVeA_-_o.js"
+    ],
+    "dynamicImports": [
+      "components/monaco-editor.tsx"
+    ]
+  },
+  "app/panel/terminal/page.tsx": {
+    "file": "_next/static/chunks/page-FhNyCbqX.js",
+    "name": "page",
+    "src": "app/panel/terminal/page.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_createLucideIcon-BQs5LmJ4.js",
+      "_sub-page-Dx23W4Rt.js",
+      "_dialog-DRfS4UMD.js",
+      "_sidebar-DuxOZq6A.js",
+      "_plus-Bcp0CH-t.js",
+      "_square-terminal-Da-lPPJc.js",
+      "_trash-2-CAhm8Phy.js",
+      "_separator-CHK9ZChI.js",
+      "_button-D1-st6zO.js",
+      "_utils-BUlGYr7A.js",
+      "_dist-Bp7utytF.js",
+      "_card-DRhaxuzw.js",
+      "_fonts-Hk4BdFGA.js",
+      "_emitter-z7c4Wyh8.js",
+      "_form-DH4ajeJ7.js",
+      "_input-group-CJz2cf59.js",
+      "_use-keydown-DYlRJUlF.js",
+      "_api-context-Cj4BUhpS.js",
+      "_use-websocket-C1iM2I5X.js",
+      "_terminal-viewer-TJemFV0K.js",
+      "_terminal-dQeiPIm0.js"
+    ]
+  },
+  "assets/fonts/GoogleSansCode-Italic-VariableFont_wght.ttf": {
+    "file": "_next/static/media/GoogleSansCode-Italic-VariableFont_wght.DFTZbo6x.ttf",
+    "src": "assets/fonts/GoogleSansCode-Italic-VariableFont_wght.ttf"
+  },
+  "assets/fonts/GoogleSansCode-VariableFont_wght.ttf": {
+    "file": "_next/static/media/GoogleSansCode-VariableFont_wght.a41q3NA0.ttf",
+    "src": "assets/fonts/GoogleSansCode-VariableFont_wght.ttf"
+  },
+  "assets/fonts/MinecraftAE.ttf": {
+    "file": "_next/static/media/MinecraftAE.N80wAdIl.ttf",
+    "src": "assets/fonts/MinecraftAE.ttf"
+  },
+  "assets/fonts/Mojangles-Bold.otf": {
+    "file": "_next/static/media/Mojangles-Bold.DywrKSOC.otf",
+    "src": "assets/fonts/Mojangles-Bold.otf"
+  },
+  "assets/fonts/Mojangles-BoldItalic.otf": {
+    "file": "_next/static/media/Mojangles-BoldItalic.CjxLpLUn.otf",
+    "src": "assets/fonts/Mojangles-BoldItalic.otf"
+  },
+  "assets/fonts/Mojangles-Italic.otf": {
+    "file": "_next/static/media/Mojangles-Italic.CcewOx4y.otf",
+    "src": "assets/fonts/Mojangles-Italic.otf"
+  },
+  "assets/fonts/Mojangles-Regular.otf": {
+    "file": "_next/static/media/Mojangles-Regular.Lz-C8nWS.otf",
+    "src": "assets/fonts/Mojangles-Regular.otf"
+  },
+  "assets/fonts/NotoColorEmoji-Regular.ttf": {
+    "file": "_next/static/media/NotoColorEmoji-Regular.Tdk8XWYe.ttf",
+    "src": "assets/fonts/NotoColorEmoji-Regular.ttf"
+  },
+  "assets/fonts/NotoSansHK-VariableFont_wght.ttf": {
+    "file": "_next/static/media/NotoSansHK-VariableFont_wght.BxvgoAbj.ttf",
+    "src": "assets/fonts/NotoSansHK-VariableFont_wght.ttf"
+  },
+  "assets/fonts/NotoSansJP-VariableFont_wght.ttf": {
+    "file": "_next/static/media/NotoSansJP-VariableFont_wght.C-lBCNQK.ttf",
+    "src": "assets/fonts/NotoSansJP-VariableFont_wght.ttf"
+  },
+  "assets/fonts/NotoSansKR-VariableFont_wght.ttf": {
+    "file": "_next/static/media/NotoSansKR-VariableFont_wght.DHvIjNY2.ttf",
+    "src": "assets/fonts/NotoSansKR-VariableFont_wght.ttf"
+  },
+  "assets/fonts/NotoSansSC-VariableFont_wght.ttf": {
+    "file": "_next/static/media/NotoSansSC-VariableFont_wght.BogYvAC6.ttf",
+    "src": "assets/fonts/NotoSansSC-VariableFont_wght.ttf"
+  },
+  "assets/fonts/NotoSansTC-VariableFont_wght.ttf": {
+    "file": "_next/static/media/NotoSansTC-VariableFont_wght.CE_G14mU.ttf",
+    "src": "assets/fonts/NotoSansTC-VariableFont_wght.ttf"
+  },
+  "assets/fonts/unifont-16.0.04.otf": {
+    "file": "_next/static/media/unifont-16.0.04.BV44lrbT.otf",
+    "src": "assets/fonts/unifont-16.0.04.otf"
+  },
+  "components/loading-bar.tsx": {
+    "file": "_next/static/chunks/loading-bar-BZ2Ba3bM.js",
+    "name": "loading-bar",
+    "src": "components/loading-bar.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "virtual:vinext-app-browser-entry",
+      "_utils-BUlGYr7A.js",
+      "_emitter-z7c4Wyh8.js"
+    ]
+  },
+  "components/monaco-editor.tsx": {
+    "file": "_next/static/chunks/monaco-editor-D74rwR3C.js",
+    "name": "monaco-editor",
+    "src": "components/monaco-editor.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "virtual:vinext-app-browser-entry",
+      "_editor.api-BU4ZnR-y.js",
+      "_monaco.contribution-CNaEcdtc.js"
+    ],
+    "dynamicImports": [
+      "node_modules/monaco-editor/esm/vs/basic-languages/abap/abap.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/apex/apex.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/azcli/azcli.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/bat/bat.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/bicep/bicep.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/cameligo/cameligo.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/clojure/clojure.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/coffee/coffee.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/cpp/cpp.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/csharp/csharp.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/csp/csp.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/css/css.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/cypher/cypher.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/dart/dart.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/dockerfile/dockerfile.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/ecl/ecl.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/elixir/elixir.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/flow9/flow9.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/fsharp/fsharp.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/freemarker2/freemarker2.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/go/go.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/graphql/graphql.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/handlebars/handlebars.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/hcl/hcl.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/html/html.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/ini/ini.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/java/java.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/javascript/javascript.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/julia/julia.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/kotlin/kotlin.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/less/less.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/lexon/lexon.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/lua/lua.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/liquid/liquid.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/m3/m3.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/markdown/markdown.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/mdx/mdx.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/mips/mips.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/msdax/msdax.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/mysql/mysql.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/objective-c/objective-c.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/pascal/pascal.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/pascaligo/pascaligo.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/perl/perl.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/pgsql/pgsql.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/php/php.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/pla/pla.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/postiats/postiats.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/powerquery/powerquery.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/powershell/powershell.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/protobuf/protobuf.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/pug/pug.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/python/python.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/qsharp/qsharp.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/r/r.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/razor/razor.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/redis/redis.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/redshift/redshift.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/restructuredtext/restructuredtext.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/ruby/ruby.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/rust/rust.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/sb/sb.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/scala/scala.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/scheme/scheme.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/scss/scss.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/shell/shell.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/solidity/solidity.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/sophia/sophia.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/sparql/sparql.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/sql/sql.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/st/st.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/swift/swift.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/systemverilog/systemverilog.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/tcl/tcl.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/twig/twig.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/typescript/typescript.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/typespec/typespec.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/vb/vb.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/wgsl/wgsl.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/xml/xml.js",
+      "node_modules/monaco-editor/esm/vs/basic-languages/yaml/yaml.js",
+      "node_modules/monaco-editor/esm/vs/language/css/cssMode.js",
+      "node_modules/monaco-editor/esm/vs/language/html/htmlMode.js",
+      "node_modules/monaco-editor/esm/vs/language/json/jsonMode.js"
+    ],
+    "css": [
+      "_next/static/css/monaco-editor.BWeeG06n.css"
+    ],
+    "assets": [
+      "_next/static/media/codicon.CgENjH2v.ttf"
+    ]
+  },
+  "components/theme-provider.tsx": {
+    "file": "_next/static/chunks/theme-provider-DxswOGsc.js",
+    "name": "theme-provider",
+    "src": "components/theme-provider.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_dist-CkYIF5MF.js"
+    ]
+  },
+  "components/ui/sonner.tsx": {
+    "file": "_next/static/chunks/sonner-DUiTsZoH.js",
+    "name": "sonner",
+    "src": "components/ui/sonner.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_framework-yL2HdSBb.js",
+      "_dist-Bp7utytF.js",
+      "_dist-CkYIF5MF.js"
+    ]
+  },
+  "node_modules/minecraft-textures/dist/textures/json/1.16.json": {
+    "file": "_next/static/chunks/1.16-BiScTNpp.js",
+    "name": "1.16",
+    "src": "node_modules/minecraft-textures/dist/textures/json/1.16.json",
+    "isDynamicEntry": true
+  },
+  "node_modules/minecraft-textures/dist/textures/json/1.19.json": {
+    "file": "_next/static/chunks/1.19-boEuenXY.js",
+    "name": "1.19",
+    "src": "node_modules/minecraft-textures/dist/textures/json/1.19.json",
+    "isDynamicEntry": true
+  },
+  "node_modules/minecraft-textures/dist/textures/json/1.20.json": {
+    "file": "_next/static/chunks/1.20-DHZL4N3F.js",
+    "name": "1.20",
+    "src": "node_modules/minecraft-textures/dist/textures/json/1.20.json",
+    "isDynamicEntry": true
+  },
+  "node_modules/minecraft-textures/dist/textures/json/1.21.11.json": {
+    "file": "_next/static/chunks/1.21.11-Ceb3ziBk.js",
+    "name": "1.21.11",
+    "src": "node_modules/minecraft-textures/dist/textures/json/1.21.11.json",
+    "isDynamicEntry": true
+  },
+  "node_modules/minecraft-textures/dist/textures/json/1.21.2.json": {
+    "file": "_next/static/chunks/1.21.2-BqEkAz4U.js",
+    "name": "1.21.2",
+    "src": "node_modules/minecraft-textures/dist/textures/json/1.21.2.json",
+    "isDynamicEntry": true
+  },
+  "node_modules/minecraft-textures/dist/textures/json/1.21.4.json": {
+    "file": "_next/static/chunks/1.21.4-CJFNSrH8.js",
+    "name": "1.21.4",
+    "src": "node_modules/minecraft-textures/dist/textures/json/1.21.4.json",
+    "isDynamicEntry": true
+  },
+  "node_modules/minecraft-textures/dist/textures/json/1.21.5.json": {
+    "file": "_next/static/chunks/1.21.5-CrDZnJ-d.js",
+    "name": "1.21.5",
+    "src": "node_modules/minecraft-textures/dist/textures/json/1.21.5.json",
+    "isDynamicEntry": true
+  },
+  "node_modules/minecraft-textures/dist/textures/json/1.21.6.json": {
+    "file": "_next/static/chunks/1.21.6-D8H5smZl.js",
+    "name": "1.21.6",
+    "src": "node_modules/minecraft-textures/dist/textures/json/1.21.6.json",
+    "isDynamicEntry": true
+  },
+  "node_modules/minecraft-textures/dist/textures/json/1.21.7.json": {
+    "file": "_next/static/chunks/1.21.7-C9PYoeuj.js",
+    "name": "1.21.7",
+    "src": "node_modules/minecraft-textures/dist/textures/json/1.21.7.json",
+    "isDynamicEntry": true
+  },
+  "node_modules/minecraft-textures/dist/textures/json/1.21.9.json": {
+    "file": "_next/static/chunks/1.21.9-C5mjVybp.js",
+    "name": "1.21.9",
+    "src": "node_modules/minecraft-textures/dist/textures/json/1.21.9.json",
+    "isDynamicEntry": true
+  },
+  "node_modules/minecraft-textures/dist/textures/json/1.21.json": {
+    "file": "_next/static/chunks/1.21-zFfs2XLD.js",
+    "name": "1.21",
+    "src": "node_modules/minecraft-textures/dist/textures/json/1.21.json",
+    "isDynamicEntry": true
+  },
+  "node_modules/minecraft-textures/dist/textures/json/26.1.json": {
+    "file": "_next/static/chunks/26.1-D43-PA11.js",
+    "name": "26.1",
+    "src": "node_modules/minecraft-textures/dist/textures/json/26.1.json",
+    "isDynamicEntry": true
+  },
+  "node_modules/minecraft-textures/dist/textures/json/26.2.json": {
+    "file": "_next/static/chunks/26.2-DhaaBYYq.js",
+    "name": "26.2",
+    "src": "node_modules/minecraft-textures/dist/textures/json/26.2.json",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/base/browser/ui/codicons/codicon/codicon.ttf": {
+    "file": "_next/static/media/codicon.CgENjH2v.ttf",
+    "src": "node_modules/monaco-editor/esm/vs/base/browser/ui/codicons/codicon/codicon.ttf"
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/abap/abap.js": {
+    "file": "_next/static/chunks/abap-08VXUWAP.js",
+    "name": "abap",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/abap/abap.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/apex/apex.js": {
+    "file": "_next/static/chunks/apex-BWPQTe0t.js",
+    "name": "apex",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/apex/apex.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/azcli/azcli.js": {
+    "file": "_next/static/chunks/azcli-Bc_sGQ0U.js",
+    "name": "azcli",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/azcli/azcli.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/bat/bat.js": {
+    "file": "_next/static/chunks/bat-i0X4ZdIN.js",
+    "name": "bat",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/bat/bat.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/bicep/bicep.js": {
+    "file": "_next/static/chunks/bicep-B5-_aFwp.js",
+    "name": "bicep",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/bicep/bicep.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/cameligo/cameligo.js": {
+    "file": "_next/static/chunks/cameligo-DMUM7wLl.js",
+    "name": "cameligo",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/cameligo/cameligo.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/clojure/clojure.js": {
+    "file": "_next/static/chunks/clojure-Cm7r79vr.js",
+    "name": "clojure",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/clojure/clojure.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/coffee/coffee.js": {
+    "file": "_next/static/chunks/coffee-Ba7i2nA0.js",
+    "name": "coffee",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/coffee/coffee.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/cpp/cpp.js": {
+    "file": "_next/static/chunks/cpp-C7h46wYY.js",
+    "name": "cpp",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/cpp/cpp.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/csharp/csharp.js": {
+    "file": "_next/static/chunks/csharp-BKxtCVv1.js",
+    "name": "csharp",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/csharp/csharp.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/csp/csp.js": {
+    "file": "_next/static/chunks/csp-bTuwJoIa.js",
+    "name": "csp",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/csp/csp.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/css/css.js": {
+    "file": "_next/static/chunks/css-DIMkf-bt.js",
+    "name": "css",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/css/css.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/cypher/cypher.js": {
+    "file": "_next/static/chunks/cypher-CVaqCwHa.js",
+    "name": "cypher",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/cypher/cypher.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/dart/dart.js": {
+    "file": "_next/static/chunks/dart-onAF5SnQ.js",
+    "name": "dart",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/dart/dart.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/dockerfile/dockerfile.js": {
+    "file": "_next/static/chunks/dockerfile-DZFCIeNp.js",
+    "name": "dockerfile",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/dockerfile/dockerfile.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/ecl/ecl.js": {
+    "file": "_next/static/chunks/ecl-D05T4iGw.js",
+    "name": "ecl",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/ecl/ecl.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/elixir/elixir.js": {
+    "file": "_next/static/chunks/elixir-6RTg0lbw.js",
+    "name": "elixir",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/elixir/elixir.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/flow9/flow9.js": {
+    "file": "_next/static/chunks/flow9-C5_-GSwl.js",
+    "name": "flow9",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/flow9/flow9.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/freemarker2/freemarker2.js": {
+    "file": "_next/static/chunks/freemarker2-CoeYMHny.js",
+    "name": "freemarker2",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/freemarker2/freemarker2.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_editor.api-BU4ZnR-y.js"
+    ]
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/fsharp/fsharp.js": {
+    "file": "_next/static/chunks/fsharp-C8Ef5oNN.js",
+    "name": "fsharp",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/fsharp/fsharp.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/go/go.js": {
+    "file": "_next/static/chunks/go-C-y9NEjX.js",
+    "name": "go",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/go/go.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/graphql/graphql.js": {
+    "file": "_next/static/chunks/graphql-fmXr3nnJ.js",
+    "name": "graphql",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/graphql/graphql.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/handlebars/handlebars.js": {
+    "file": "_next/static/chunks/handlebars-DFonByVs.js",
+    "name": "handlebars",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/handlebars/handlebars.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_editor.api-BU4ZnR-y.js"
+    ]
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/hcl/hcl.js": {
+    "file": "_next/static/chunks/hcl-CpzslTdj.js",
+    "name": "hcl",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/hcl/hcl.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/html/html.js": {
+    "file": "_next/static/chunks/html-CWqnH1Gg.js",
+    "name": "html",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/html/html.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_editor.api-BU4ZnR-y.js"
+    ]
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/ini/ini.js": {
+    "file": "_next/static/chunks/ini-sBoK_t0W.js",
+    "name": "ini",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/ini/ini.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/java/java.js": {
+    "file": "_next/static/chunks/java-BEtHBSE6.js",
+    "name": "java",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/java/java.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/javascript/javascript.js": {
+    "file": "_next/static/chunks/javascript-C_xNeJ_J.js",
+    "name": "javascript",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/javascript/javascript.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "node_modules/monaco-editor/esm/vs/basic-languages/typescript/typescript.js"
+    ]
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/julia/julia.js": {
+    "file": "_next/static/chunks/julia-Bri6UV-V.js",
+    "name": "julia",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/julia/julia.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/kotlin/kotlin.js": {
+    "file": "_next/static/chunks/kotlin-B0qVs-E9.js",
+    "name": "kotlin",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/kotlin/kotlin.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/less/less.js": {
+    "file": "_next/static/chunks/less-B9JPFI3C.js",
+    "name": "less",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/less/less.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/lexon/lexon.js": {
+    "file": "_next/static/chunks/lexon-CfSJPG6W.js",
+    "name": "lexon",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/lexon/lexon.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/liquid/liquid.js": {
+    "file": "_next/static/chunks/liquid-4w-sPLqy.js",
+    "name": "liquid",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/liquid/liquid.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_editor.api-BU4ZnR-y.js"
+    ]
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/lua/lua.js": {
+    "file": "_next/static/chunks/lua-CsQS60Ue.js",
+    "name": "lua",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/lua/lua.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/m3/m3.js": {
+    "file": "_next/static/chunks/m3-D-oSqn_W.js",
+    "name": "m3",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/m3/m3.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/markdown/markdown.js": {
+    "file": "_next/static/chunks/markdown-Cimd5fb3.js",
+    "name": "markdown",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/markdown/markdown.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/mdx/mdx.js": {
+    "file": "_next/static/chunks/mdx-C1oOmcn0.js",
+    "name": "mdx",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/mdx/mdx.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_editor.api-BU4ZnR-y.js"
+    ]
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/mips/mips.js": {
+    "file": "_next/static/chunks/mips-CIPQ_RoX.js",
+    "name": "mips",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/mips/mips.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/msdax/msdax.js": {
+    "file": "_next/static/chunks/msdax-DauUninz.js",
+    "name": "msdax",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/msdax/msdax.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/mysql/mysql.js": {
+    "file": "_next/static/chunks/mysql-SOo6toE5.js",
+    "name": "mysql",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/mysql/mysql.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/objective-c/objective-c.js": {
+    "file": "_next/static/chunks/objective-c-FvmIjYaQ.js",
+    "name": "objective-c",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/objective-c/objective-c.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/pascal/pascal.js": {
+    "file": "_next/static/chunks/pascal-DrH0SRf2.js",
+    "name": "pascal",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/pascal/pascal.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/pascaligo/pascaligo.js": {
+    "file": "_next/static/chunks/pascaligo-D-ptJ9y-.js",
+    "name": "pascaligo",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/pascaligo/pascaligo.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/perl/perl.js": {
+    "file": "_next/static/chunks/perl-oz_6vUea.js",
+    "name": "perl",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/perl/perl.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/pgsql/pgsql.js": {
+    "file": "_next/static/chunks/pgsql-DTj74zXo.js",
+    "name": "pgsql",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/pgsql/pgsql.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/php/php.js": {
+    "file": "_next/static/chunks/php-nr791fC2.js",
+    "name": "php",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/php/php.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/pla/pla.js": {
+    "file": "_next/static/chunks/pla-CopQ2nXW.js",
+    "name": "pla",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/pla/pla.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/postiats/postiats.js": {
+    "file": "_next/static/chunks/postiats-43DmfD33.js",
+    "name": "postiats",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/postiats/postiats.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/powerquery/powerquery.js": {
+    "file": "_next/static/chunks/powerquery-D3hlyOfw.js",
+    "name": "powerquery",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/powerquery/powerquery.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/powershell/powershell.js": {
+    "file": "_next/static/chunks/powershell-DmHpPYUd.js",
+    "name": "powershell",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/powershell/powershell.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/protobuf/protobuf.js": {
+    "file": "_next/static/chunks/protobuf-C531GsRP.js",
+    "name": "protobuf",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/protobuf/protobuf.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/pug/pug.js": {
+    "file": "_next/static/chunks/pug-Z5eAx3Zn.js",
+    "name": "pug",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/pug/pug.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/python/python.js": {
+    "file": "_next/static/chunks/python-B87Jx-1m.js",
+    "name": "python",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/python/python.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_editor.api-BU4ZnR-y.js"
+    ]
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/qsharp/qsharp.js": {
+    "file": "_next/static/chunks/qsharp-DkqhCAOL.js",
+    "name": "qsharp",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/qsharp/qsharp.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/r/r.js": {
+    "file": "_next/static/chunks/r-BwWrilGY.js",
+    "name": "r",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/r/r.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/razor/razor.js": {
+    "file": "_next/static/chunks/razor-D_urbL6l.js",
+    "name": "razor",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/razor/razor.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_editor.api-BU4ZnR-y.js"
+    ]
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/redis/redis.js": {
+    "file": "_next/static/chunks/redis-ClamHrr6.js",
+    "name": "redis",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/redis/redis.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/redshift/redshift.js": {
+    "file": "_next/static/chunks/redshift-DT7zqm-g.js",
+    "name": "redshift",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/redshift/redshift.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/restructuredtext/restructuredtext.js": {
+    "file": "_next/static/chunks/restructuredtext-BYgofb2h.js",
+    "name": "restructuredtext",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/restructuredtext/restructuredtext.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/ruby/ruby.js": {
+    "file": "_next/static/chunks/ruby-DezsRK8O.js",
+    "name": "ruby",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/ruby/ruby.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/rust/rust.js": {
+    "file": "_next/static/chunks/rust-DdL9SqIa.js",
+    "name": "rust",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/rust/rust.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/sb/sb.js": {
+    "file": "_next/static/chunks/sb-CcwsVR0C.js",
+    "name": "sb",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/sb/sb.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/scala/scala.js": {
+    "file": "_next/static/chunks/scala-DHpiXF5c.js",
+    "name": "scala",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/scala/scala.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/scheme/scheme.js": {
+    "file": "_next/static/chunks/scheme-BeGwcela.js",
+    "name": "scheme",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/scheme/scheme.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/scss/scss.js": {
+    "file": "_next/static/chunks/scss-gp-XZpBa.js",
+    "name": "scss",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/scss/scss.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/shell/shell.js": {
+    "file": "_next/static/chunks/shell-CC2rA5mh.js",
+    "name": "shell",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/shell/shell.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/solidity/solidity.js": {
+    "file": "_next/static/chunks/solidity-BEEn4gHE.js",
+    "name": "solidity",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/solidity/solidity.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/sophia/sophia.js": {
+    "file": "_next/static/chunks/sophia-CRfGWb83.js",
+    "name": "sophia",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/sophia/sophia.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/sparql/sparql.js": {
+    "file": "_next/static/chunks/sparql-D_Lu-MrJ.js",
+    "name": "sparql",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/sparql/sparql.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/sql/sql.js": {
+    "file": "_next/static/chunks/sql-NEE52Syq.js",
+    "name": "sql",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/sql/sql.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/st/st.js": {
+    "file": "_next/static/chunks/st-DbInun42.js",
+    "name": "st",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/st/st.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/swift/swift.js": {
+    "file": "_next/static/chunks/swift-Bxkupp3x.js",
+    "name": "swift",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/swift/swift.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/systemverilog/systemverilog.js": {
+    "file": "_next/static/chunks/systemverilog-Bz4Y3fRF.js",
+    "name": "systemverilog",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/systemverilog/systemverilog.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/tcl/tcl.js": {
+    "file": "_next/static/chunks/tcl-DISqw1ZD.js",
+    "name": "tcl",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/tcl/tcl.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/twig/twig.js": {
+    "file": "_next/static/chunks/twig-De2hgUGE.js",
+    "name": "twig",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/twig/twig.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/typescript/typescript.js": {
+    "file": "_next/static/chunks/typescript-DScj7Oo0.js",
+    "name": "typescript",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/typescript/typescript.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_editor.api-BU4ZnR-y.js"
+    ]
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/typespec/typespec.js": {
+    "file": "_next/static/chunks/typespec-B8J7ngcE.js",
+    "name": "typespec",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/typespec/typespec.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/vb/vb.js": {
+    "file": "_next/static/chunks/vb-DV3o63ZY.js",
+    "name": "vb",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/vb/vb.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/wgsl/wgsl.js": {
+    "file": "_next/static/chunks/wgsl-DpFanUEy.js",
+    "name": "wgsl",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/wgsl/wgsl.js",
+    "isDynamicEntry": true
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/xml/xml.js": {
+    "file": "_next/static/chunks/xml-B24qkPXp.js",
+    "name": "xml",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/xml/xml.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_editor.api-BU4ZnR-y.js"
+    ]
+  },
+  "node_modules/monaco-editor/esm/vs/basic-languages/yaml/yaml.js": {
+    "file": "_next/static/chunks/yaml-BEoxvSuS.js",
+    "name": "yaml",
+    "src": "node_modules/monaco-editor/esm/vs/basic-languages/yaml/yaml.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_editor.api-BU4ZnR-y.js"
+    ]
+  },
+  "node_modules/monaco-editor/esm/vs/language/css/cssMode.js": {
+    "file": "_next/static/chunks/cssMode-BTQF7qyf.js",
+    "name": "cssMode",
+    "src": "node_modules/monaco-editor/esm/vs/language/css/cssMode.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_editor.api-BU4ZnR-y.js"
+    ]
+  },
+  "node_modules/monaco-editor/esm/vs/language/html/htmlMode.js": {
+    "file": "_next/static/chunks/htmlMode-C_BdHy3n.js",
+    "name": "htmlMode",
+    "src": "node_modules/monaco-editor/esm/vs/language/html/htmlMode.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_editor.api-BU4ZnR-y.js"
+    ]
+  },
+  "node_modules/monaco-editor/esm/vs/language/json/jsonMode.js": {
+    "file": "_next/static/chunks/jsonMode-BbMtEyh-.js",
+    "name": "jsonMode",
+    "src": "node_modules/monaco-editor/esm/vs/language/json/jsonMode.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_editor.api-BU4ZnR-y.js"
+    ]
+  },
+  "node_modules/monaco-editor/esm/vs/language/typescript/tsMode.js": {
+    "file": "_next/static/chunks/tsMode-DSYUrW7o.js",
+    "name": "tsMode",
+    "src": "node_modules/monaco-editor/esm/vs/language/typescript/tsMode.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_editor.api-BU4ZnR-y.js",
+      "_monaco.contribution-CNaEcdtc.js"
+    ]
+  },
+  "node_modules/vinext/dist/shims/internal/hybrid-client-route-owner.js": {
+    "file": "_next/static/chunks/hybrid-client-route-owner-CmR5PTDV.js",
+    "name": "hybrid-client-route-owner",
+    "src": "node_modules/vinext/dist/shims/internal/hybrid-client-route-owner.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_protocol-headers-De2985Ry.js",
+      "virtual:vinext-app-browser-entry",
+      "_query-DugiHe4Q.js"
+    ]
+  },
+  "node_modules/vinext/dist/shims/layout-segment-context.js": {
+    "file": "_next/static/chunks/layout-segment-context-EU5KRQtq.js",
+    "name": "layout-segment-context",
+    "src": "node_modules/vinext/dist/shims/layout-segment-context.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js",
+      "_navigation-errors-Be2EH7f_.js",
+      "virtual:vinext-app-browser-entry"
+    ]
+  },
+  "node_modules/vinext/dist/shims/streamed-icons.js": {
+    "file": "_next/static/chunks/streamed-icons-BPxjGssX.js",
+    "name": "streamed-icons",
+    "src": "node_modules/vinext/dist/shims/streamed-icons.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_framework-yL2HdSBb.js"
+    ]
+  },
+  "virtual:vinext-app-browser-entry": {
+    "file": "_next/static/chunks/index-DbqjXjND.js",
+    "name": "index",
+    "src": "virtual:vinext-app-browser-entry",
+    "isEntry": true,
+    "imports": [
+      "_rolldown-runtime-B0Z9INg1.js",
+      "_record-BGze3w87.js",
+      "_headers-BWqgmq_4.js",
+      "_app-elements-Oh3fCgxG.js",
+      "_hash-B9TVtkv9.js",
+      "_framework-yL2HdSBb.js",
+      "_navigation-errors-Be2EH7f_.js",
+      "_app-rsc-cache-busting-4VMAklnY.js"
+    ],
+    "dynamicImports": [
+      "node_modules/vinext/dist/shims/internal/hybrid-client-route-owner.js",
+      "app/about/page.tsx",
+      "app/panel/tasks/page.tsx",
+      "virtual:vinext-app-browser-entry",
+      "app/panel/layout.tsx",
+      "node_modules/vinext/dist/shims/layout-segment-context.js",
+      "app/browser-init.tsx",
+      "app/panel/open-api/page.tsx",
+      "app/panel/players/page.tsx",
+      "app/panel/settings/page.tsx",
+      "app/about/thanks/page.tsx",
+      "components/theme-provider.tsx",
+      "app/panel/paper-config/page.tsx",
+      "app/panel/code-of-conduct/page.tsx",
+      "app/page.tsx",
+      "app/panel/monitor/page.tsx",
+      "app/panel/plugins/page.tsx",
+      "app/panel/oidc/page.tsx",
+      "node_modules/vinext/dist/shims/streamed-icons.js",
+      "_dist-Bp7utytF.js",
+      "app/panel/logs/view/page.tsx",
+      "components/loading-bar.tsx",
+      "app/login/page.tsx",
+      "app/panel/saves/page.tsx",
+      "app/panel/logs/page.tsx",
+      "app/panel/map/page.tsx",
+      "app/panel/terminal/page.tsx",
+      "app/panel/mcp/page.tsx",
+      "app/panel/dashboard/page.tsx",
+      "app/panel/players/inventory/page.tsx",
+      "components/ui/sonner.tsx",
+      "app/panel/page.tsx",
+      "_utils-BUlGYr7A.js",
+      "app/panel/gamerules/page.tsx",
+      "app/not-found.tsx"
+    ]
+  },
+  "wasm-lib/pkg/wasm_lib_bg.wasm": {
+    "file": "_next/static/media/wasm_lib_bg.Bow7pyE8.wasm",
+    "src": "wasm-lib/pkg/wasm_lib_bg.wasm"
+  }
+}
