@@ -98,7 +98,7 @@ public class BeforeController extends BaseController {
             }
             return;
         }
-        if(!queryParamMap.containsKey("_rsc") || queryParamMap.size() > 1) return;
+        if(!queryParamMap.containsKey("_rsc")) return;
 
         if(reqPath.endsWith("/")) {
             reqPath = reqPath.substring(0, reqPath.length() - 1);
