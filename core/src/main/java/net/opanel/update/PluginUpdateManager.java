@@ -9,6 +9,7 @@ import net.opanel.common.OPanelPlugin;
 import net.opanel.common.OPanelServer;
 import net.opanel.common.ServerType;
 import net.opanel.exception.ActLaterException;
+import net.opanel.exception.PluginUpdateConflictException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -212,9 +213,6 @@ public class PluginUpdateManager {
         Map<String, JsonArray> versionLists = fetchVersionLists(projectIds);
 
         final String mcVersion = extractMcVersion(serverVersion);
-        final String mcPatchless = mcVersion != null && mcVersion.split("\\.").length == 3
-            ? mcVersion.substring(0, mcVersion.lastIndexOf("."))
-            : null;
 
         for(Map.Entry<String, JsonObject> entry : installedVersions.entrySet()) {
             final String fileName = entry.getKey();
@@ -227,7 +225,7 @@ public class PluginUpdateManager {
                 : fileName.replaceAll("\\.jar(\\"+ OPanelPlugin.DISABLED_SUFFIX +")?$", "");
             if(name == null || name.isEmpty()) name = fileName;
 
-            JsonObject target = pickTarget(versionLists.get(projectId), mcVersion, mcPatchless, serverType, installed);
+            JsonObject target = pickTarget(versionLists.get(projectId), mcVersion, serverType, installed);
             if(target == null) continue;
 
             final String currentVersion = installed.get("version_number").getAsString();
@@ -336,7 +334,6 @@ public class PluginUpdateManager {
     static JsonObject pickTarget(
         JsonArray versions,
         String mcVersion,
-        String mcPatchless,
         ServerType serverType,
         JsonObject installedVersion
     ) {
@@ -359,7 +356,7 @@ public class PluginUpdateManager {
         for(JsonObject version : list) {
             String type = version.has("version_type") ? version.get("version_type").getAsString() : "release";
             if(!isAllowedChannel(installedChannel, type)) continue;
-            if(!matchesGameVersion(version, mcVersion, mcPatchless)) continue;
+            if(!matchesGameVersion(version, mcVersion)) continue;
             if(!matchesLoader(version, serverType)) continue;
             return version;
         }
@@ -403,11 +400,12 @@ public class PluginUpdateManager {
         return false;
     }
 
-    private static boolean matchesGameVersion(JsonObject version, String mcVersion, String mcPatchless) {
-        if(mcVersion == null || !version.has("game_versions")) return true;
+    private static boolean matchesGameVersion(JsonObject version, String mcVersion) {
+        if(mcVersion == null) return true;
+        if(!version.has("game_versions") || !version.get("game_versions").isJsonArray()) return false;
         for(JsonElement element : version.getAsJsonArray("game_versions")) {
             String gameVersion = element.getAsString();
-            if(gameVersion.equals(mcVersion) || (mcPatchless != null && gameVersion.equals(mcPatchless))) return true;
+            if(gameVersion.equals(mcVersion)) return true;
         }
         return false;
     }

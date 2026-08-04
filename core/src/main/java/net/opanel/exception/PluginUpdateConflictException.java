@@ -1,4 +1,4 @@
-package net.opanel.update;
+package net.opanel.exception;
 
 import java.io.IOException;
 

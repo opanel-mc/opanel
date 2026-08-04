@@ -9,8 +9,8 @@ import net.opanel.OPanel;
 import net.opanel.common.OPanelPlugin;
 import net.opanel.controller.BaseController;
 import net.opanel.exception.ActLaterException;
+import net.opanel.exception.PluginUpdateConflictException;
 import net.opanel.update.PluginUpdate;
-import net.opanel.update.PluginUpdateConflictException;
 import net.opanel.update.PluginUpdateManager;
 import net.opanel.utils.Callback;
 import net.opanel.utils.Utils;
@@ -226,7 +226,7 @@ public class PluginsController extends BaseController {
             final boolean force = "1".equals(ctx.queryParam("force"));
             final List<PluginUpdate> updates = pluginUpdateManager.check(
                 server.getPluginsPath(),
-                server.getPlugins(),
+                getPluginsWithoutPendingOperations(),
                 server.getVersion(),
                 server.getServerType(),
                 force
@@ -276,7 +276,7 @@ public class PluginsController extends BaseController {
         try {
             final List<PluginUpdate> updates = pluginUpdateManager.check(
                 server.getPluginsPath(),
-                server.getPlugins(),
+                getPluginsWithoutPendingOperations(),
                 server.getVersion(),
                 server.getServerType(),
                 false
@@ -301,6 +301,8 @@ public class PluginsController extends BaseController {
             sendResponse(ctx, HttpStatus.CONFLICT, e.getMessage());
         } catch (NoSuchFileException e) {
             sendResponse(ctx, HttpStatus.NOT_FOUND, "Cannot find the plugin.");
+        } catch (IllegalStateException e) {
+            sendResponse(ctx, HttpStatus.FORBIDDEN, "Cannot update a loaded plugin.");
         } catch (IOException e) {
             e.printStackTrace();
             sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
@@ -310,5 +312,17 @@ public class PluginsController extends BaseController {
     private boolean isValidPluginFileName(String fileName) {
         return Utils.isSafeFileName(fileName)
                 && (fileName.endsWith(".jar") || fileName.endsWith(".jar"+ OPanelPlugin.DISABLED_SUFFIX));
+    }
+
+    private List<OPanelPlugin> getPluginsWithoutPendingOperations() {
+        List<OPanelPlugin> candidates = new ArrayList<>();
+        for(OPanelPlugin plugin : server.getPlugins()) {
+            // The file can still exist on disk while an enable / disable / delete
+            // operation is deferred until restart. Exclude it from both update
+            // discovery and update execution to avoid competing file operations.
+            if(pendingOperationMap.containsKey(plugin.getFileName())) continue;
+            candidates.add(plugin);
+        }
+        return candidates;
     }
 }
