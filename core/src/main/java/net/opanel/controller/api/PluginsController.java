@@ -1,10 +1,17 @@
 package net.opanel.controller.api;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import io.javalin.http.*;
 import net.opanel.OPanel;
 import net.opanel.common.OPanelPlugin;
 import net.opanel.controller.BaseController;
 import net.opanel.exception.ActLaterException;
+import net.opanel.update.PluginUpdate;
+import net.opanel.update.PluginUpdateConflictException;
+import net.opanel.update.PluginUpdateManager;
 import net.opanel.utils.Callback;
 import net.opanel.utils.Utils;
 
@@ -16,12 +23,15 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PluginsController extends BaseController {
     private final DownloadController downloadController = getControllerInstance(DownloadController.class);
+    private final PluginUpdateManager pluginUpdateManager = new PluginUpdateManager();
     private final ConcurrentHashMap<String, PendingOperation> pendingOperationMap = new ConcurrentHashMap<>();
 
     enum PendingOperation {
@@ -123,6 +133,7 @@ public class PluginsController extends BaseController {
                 Files.copy(is, targetPath, StandardCopyOption.REPLACE_EXISTING);
             }
 
+            pluginUpdateManager.invalidateCache();
             sendResponse(ctx, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
@@ -145,9 +156,11 @@ public class PluginsController extends BaseController {
 
         try {
             server.togglePlugin(fileName, enabled.equals("1"));
+            pluginUpdateManager.invalidateCache();
             sendResponse(ctx, HttpStatus.OK);
         } catch (ActLaterException e) {
             pendingOperationMap.put(fileName, enabled.equals("1") ? PendingOperation.ENABLED : PendingOperation.DISABLED);
+            pluginUpdateManager.invalidateCache();
             sendResponse(ctx, HttpStatus.ACCEPTED);
         } catch (NoSuchFileException e) {
             sendResponse(ctx, HttpStatus.NOT_FOUND, "Cannot find the plugin.");
@@ -168,9 +181,11 @@ public class PluginsController extends BaseController {
 
         try {
             server.deletePlugin(fileName);
+            pluginUpdateManager.invalidateCache();
             sendResponse(ctx, HttpStatus.OK);
         } catch (ActLaterException e) {
             pendingOperationMap.put(fileName, PendingOperation.DELETED);
+            pluginUpdateManager.invalidateCache();
             sendResponse(ctx, HttpStatus.ACCEPTED);
         } catch (NoSuchFileException e) {
             sendResponse(ctx, HttpStatus.NOT_FOUND, "Cannot find the plugin.");
@@ -204,6 +219,92 @@ public class PluginsController extends BaseController {
 
         final String downloadId = downloadController.registerPath(filePath);
         ctx.redirect("/file/"+ downloadId +"/"+ fileName.replaceAll("\\"+ OPanelPlugin.DISABLED_SUFFIX +"$", ""));
+    };
+
+    public Handler checkPluginUpdates = ctx -> {
+        try {
+            final boolean force = "1".equals(ctx.queryParam("force"));
+            final List<PluginUpdate> updates = pluginUpdateManager.check(
+                server.getPluginsPath(),
+                server.getPlugins(),
+                server.getVersion(),
+                server.getServerType(),
+                force
+            );
+
+            HashMap<String, Object> obj = new HashMap<>();
+            List<HashMap<String, Object>> updateList = new ArrayList<>();
+            for(PluginUpdate update : updates) {
+                HashMap<String, Object> updateInfo = new HashMap<>();
+                updateInfo.put("fileName", Utils.stringToBase64(update.getFileName()));
+                updateInfo.put("name", update.getName());
+                updateInfo.put("currentVersion", update.getCurrentVersion());
+                updateInfo.put("latestVersion", update.getLatestVersion());
+                updateInfo.put("downloadUrl", update.getDownloadUrl());
+                updateInfo.put("projectUrl", update.getProjectUrl());
+                updateList.add(updateInfo);
+            }
+            obj.put("updates", updateList);
+            sendResponse(ctx, obj);
+        } catch (IOException e) {
+            e.printStackTrace();
+            sendResponse(ctx, HttpStatus.BAD_GATEWAY, "Failed to check plugin updates.");
+        }
+    };
+
+    public Handler updatePlugins = ctx -> {
+        final Set<String> fileNames = new LinkedHashSet<>();
+        try {
+            final JsonArray body = JsonParser.parseString(ctx.body()).getAsJsonArray();
+            for(JsonElement element : body) {
+                final String fileName = element.getAsString();
+                if(!isValidPluginFileName(fileName)) {
+                    sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal file name.");
+                    return;
+                }
+                fileNames.add(fileName);
+            }
+            if(fileNames.isEmpty()) {
+                sendResponse(ctx, HttpStatus.BAD_REQUEST, "File name is missing.");
+                return;
+            }
+        } catch (JsonParseException | IllegalStateException | UnsupportedOperationException e) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal request body.");
+            return;
+        }
+
+        try {
+            final List<PluginUpdate> updates = pluginUpdateManager.check(
+                server.getPluginsPath(),
+                server.getPlugins(),
+                server.getVersion(),
+                server.getServerType(),
+                false
+            );
+
+            final List<PluginUpdate> toUpdate = new ArrayList<>();
+            for(PluginUpdate update : updates) {
+                if(fileNames.contains(update.getFileName())) {
+                    toUpdate.add(update);
+                }
+            }
+            if(toUpdate.size() != fileNames.size()) {
+                sendResponse(ctx, HttpStatus.NOT_FOUND, "Cannot find the update info of the plugin.");
+                return;
+            }
+
+            pluginUpdateManager.update(server, toUpdate);
+            sendResponse(ctx, HttpStatus.ACCEPTED);
+        } catch (ActLaterException e) {
+            sendResponse(ctx, HttpStatus.ACCEPTED);
+        } catch (PluginUpdateConflictException e) {
+            sendResponse(ctx, HttpStatus.CONFLICT, e.getMessage());
+        } catch (NoSuchFileException e) {
+            sendResponse(ctx, HttpStatus.NOT_FOUND, "Cannot find the plugin.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     };
 
     private boolean isValidPluginFileName(String fileName) {

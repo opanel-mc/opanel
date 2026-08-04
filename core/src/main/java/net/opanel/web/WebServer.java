@@ -235,6 +235,8 @@ public class WebServer {
                 get("/", pluginsController.getPlugins);
                 get("/icon/{fileName}", pluginsController.getPluginIcon);
                 post("/", pluginsController.uploadPlugin);
+                post("check-updates", pluginsController.checkPluginUpdates);
+                post("update", pluginsController.updatePlugins);
                 get("{fileName}", pluginsController.downloadPlugin);
                 post("{fileName}", pluginsController.togglePlugin);
                 delete("{fileName}", pluginsController.deletePlugin);

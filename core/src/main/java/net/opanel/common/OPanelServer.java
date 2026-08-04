@@ -1,16 +1,20 @@
 package net.opanel.common;
 
 import net.opanel.OPanel;
+import net.opanel.exception.ActLaterException;
 import net.opanel.storage.Storage;
 import net.opanel.storage.StorageKey;
+import net.opanel.update.DeferredFileReplacer;
 import net.opanel.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 public interface OPanelServer {
@@ -106,6 +110,36 @@ public interface OPanelServer {
     List<OPanelPlugin> getPlugins();
     void togglePlugin(String fileName, boolean enabled) throws IOException;
     void deletePlugin(String fileName) throws IOException;
+
+    /**
+     * Replaces the plugin / mod file with a newly downloaded one.
+     * The original file will be overwritten if possible; otherwise the
+     * replacement is deferred until the server restarts.
+     */
+    default void updatePlugin(String fileName, Path newPluginFile) throws IOException, ActLaterException {
+        Path pluginsPath = getPluginsPath();
+        Path targetPath = pluginsPath.resolve(fileName);
+        if(!Files.exists(targetPath)) {
+            targetPath = pluginsPath.resolve(fileName + OPanelPlugin.DISABLED_SUFFIX);
+        }
+        if(!Files.exists(targetPath)) {
+            throw new NoSuchFileException("Plugin file not found: " + fileName);
+        }
+
+        try {
+            Files.move(newPluginFile, targetPath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            Path deferredPath = pluginsPath.resolve(fileName + ".update");
+            try {
+                Files.move(newPluginFile, deferredPath, StandardCopyOption.REPLACE_EXISTING);
+                DeferredFileReplacer.scheduleMove(deferredPath, targetPath);
+            } catch (IOException stagingError) {
+                throw new IOException("Cannot stage the plugin update.", stagingError);
+            }
+            throw new ActLaterException();
+        }
+    }
+
     OPanelChunkAccessor getChunkAccessor();
 
     static String getPropertiesContent() throws IOException {

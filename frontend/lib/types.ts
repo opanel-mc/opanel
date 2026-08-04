@@ -125,6 +125,15 @@ export interface Plugin {
   loaded: boolean
 }
 
+export interface PluginUpdate {
+  fileName: string // base64
+  name: string
+  currentVersion: string
+  latestVersion: string
+  downloadUrl: string
+  projectUrl: string
+}
+
 export interface ScheduledTask {
   id: string
   name: string // base64
@@ -257,6 +266,11 @@ export interface BannedIpsResponse {
 export interface PluginsResponse {
   plugins: Plugin[]
   folderPath: string
+}
+
+/** `/api/plugins/check-updates` */
+export interface PluginUpdatesResponse {
+  updates: PluginUpdate[]
 }
 
 /** `/api/tasks` */
