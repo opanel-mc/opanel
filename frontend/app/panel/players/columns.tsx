@@ -93,7 +93,7 @@ export const playerColumns: ColumnDef<Player>[] = [
     header: () => <div className="text-center">{$("players.player-list.columns.is-whitelisted")}</div>,
     cell: ({ row, column }) => {
       /* Fuck you react */
-      // eslint-disable-next-line react-hooks/rules-of-hooks
+      // oxlint-disable-next-line react/rules-of-hooks
       useEffect(() => {
         // this is actually a setState call
         column.toggleVisibility(row.original.isWhitelisted !== undefined);

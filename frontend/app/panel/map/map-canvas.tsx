@@ -219,7 +219,7 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
 
   useEffect(() => {
     onZoomChangeRef.current?.(viewportRef.current.zoom);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // oxlint-disable-next-line react/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -230,7 +230,7 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
 
       workerRef.current?.postMessage({ type: "chunksFlush", flushedChunks } satisfies MainToWorker);
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // oxlint-disable-next-line react/exhaustive-deps
   }, [client]);
 
   useEffect(() => {

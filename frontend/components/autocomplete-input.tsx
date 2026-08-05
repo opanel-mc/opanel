@@ -164,7 +164,7 @@ export function AutocompleteInput({
     
     // Select the first item by default
     setSelected(advised.length > 0 ? 0 : null);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // oxlint-disable-next-line react/exhaustive-deps
   }, [value, hasPrefix, itemList, prefix, inputRef]);
 
   // Set the position of autocomplete container when `advisedList` being updated

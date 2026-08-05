@@ -12,7 +12,7 @@ export function useWebSocket<M extends string, C extends WebSocketClient<M>>(cli
       ws.close();
       setClient(null);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // oxlint-disable-next-line react/exhaustive-deps
   }, [clientClass]);
 
   return client;

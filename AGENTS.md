@@ -98,7 +98,7 @@ OPanel
 
 ### 代码规范
 
-- 对于前端部分，请查看`/frontend/eslint.config.mjs`
+- 对于前端部分，请查看`/frontend/.oxlintrc.json`
 - 对于后端与游戏具体实现部分，与前后代码风格一致即可
 
 ### i18n 国际化文案
@@ -149,4 +149,4 @@ afterEach(() => cleanup());
 
 由于文件加载顺序的问题，i18n方面的mock（见`/frontend/test/setup.ts`中对`@/lib/i18n`的mock）并不是100%生效。一般情况下，测试中还是直接使用`[i18n_id]`（mock过）的写法，如果因为组件在i18n被mock前被加载导致mock不生效，以致测试不通过，再改成正则表达式同时匹配`[i18n_id]`和实际中文文本的写法。可参考：`/frontend/app/panel/players/inventory/item-dialog.test.tsx`。
 
-改完前端代码后，跑ESLint和TS类型检查即可，不需要全量构建；改完后端代码后不需要执行Gradle构建。
+改完前端代码后，跑Oxlint和TS类型检查即可，不需要全量构建；改完后端代码后不需要执行Gradle构建。

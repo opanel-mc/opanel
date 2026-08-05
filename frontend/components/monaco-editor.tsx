@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Editor, type EditorProps } from "@monaco-editor/react";
-import { loader } from "@monaco-editor/react";
+import { Editor, type EditorProps, loader } from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
 
 import EditorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";

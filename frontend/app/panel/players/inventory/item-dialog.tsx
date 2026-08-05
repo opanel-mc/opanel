@@ -62,7 +62,7 @@ export function ItemDialog({
   useEffect(() => {
     setValue(itemStack.snbt ? prettyFormatNBT(itemStack.snbt) : "{}");
     setHeldItem(null);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // oxlint-disable-next-line react/exhaustive-deps
   }, [dialogOpen]);
 
   return (

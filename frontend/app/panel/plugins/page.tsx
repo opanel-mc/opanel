@@ -152,7 +152,7 @@ export default function Plugins() {
     return () => {
       emitter.removeAllListeners("refresh-data");
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // oxlint-disable-next-line react/exhaustive-deps
   }, [versionCtx]);
 
   useKeydown("ArrowRight", { ctrl: true }, () => setCurrentTab("enabled-list"));
