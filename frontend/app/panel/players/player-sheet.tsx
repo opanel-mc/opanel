@@ -338,7 +338,7 @@ export function PlayerSheet({
                     )
                   }
                   <Alert
-                    title={$("players.action.remove.alert.title", name)}
+                    title={$("players.action.remove.alert.title", player.name)}
                     description={
                       !player.isOnline
                       ? $("players.action.remove.alert.description1")
