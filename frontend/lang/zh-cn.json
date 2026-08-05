@@ -584,7 +584,8 @@
   "mcp.dialog.status.error": "访问令牌生成失败",
 
   "oidc.description": "管理OIDC单点登录设置",
-  "oidc.not-enabled": "OIDC未启用，请先在服务端配置文件中配置OIDC。",
+  "oidc.empty.title": "未启用OIDC",
+  "oidc.empty.description": "请先在服务端配置文件中配置OIDC，方可开始使用OIDC单点登录功能。",
   "oidc.fetch.error": "获取允许用户列表失败",
   "oidc.add": "添加",
   "oidc.add.success": "用户ID已添加",

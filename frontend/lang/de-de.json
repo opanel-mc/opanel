@@ -584,7 +584,8 @@
   "mcp.dialog.status.error": "Zugriffstoken konnte nicht generiert werden",
 
   "oidc.description": "OIDC Single Sign-On Einstellungen verwalten",
-  "oidc.not-enabled": "OIDC ist nicht aktiviert. Bitte konfigurieren Sie OIDC zuerst in der Serverkonfigurationsdatei.",
+  "oidc.empty.title": "OIDC ist nicht aktiviert",
+  "oidc.empty.description": "Konfigurieren Sie zuerst OIDC in der Serverkonfigurationsdatei, bevor Sie OIDC Single Sign-On verwenden.",
   "oidc.fetch.error": "Zulässige Benutzer konnten nicht geladen werden",
   "oidc.add": "Hinzufügen",
   "oidc.add.success": "Benutzer-ID hinzugefügt",

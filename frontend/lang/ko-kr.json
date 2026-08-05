@@ -584,7 +584,8 @@
   "mcp.dialog.status.error": "액세스 토큰 생성 실패",
 
   "oidc.description": "OIDC 싱글사인온 설정 관리",
-  "oidc.not-enabled": "OIDC가 활성화되지 않았습니다. 서버 설정 파일에서 OIDC를 먼저 설정해 주세요.",
+  "oidc.empty.title": "OIDC가 활성화되지 않았습니다",
+  "oidc.empty.description": "OIDC 싱글 사인온 기능을 사용하려면 먼저 서버 설정 파일에서 OIDC를 구성해 주세요.",
   "oidc.fetch.error": "허용 사용자 목록을 가져오지 못했습니다",
   "oidc.add": "추가",
   "oidc.add.success": "사용자ID가 추가되었습니다",

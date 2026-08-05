@@ -584,7 +584,8 @@
   "mcp.dialog.status.error": "存取令牌產生失敗",
 
   "oidc.description": "管理OIDC單一登入設定",
-  "oidc.not-enabled": "OIDC未啟用，請先在伺服器設定檔中設定OIDC。",
+  "oidc.empty.title": "OIDC未啟用",
+  "oidc.empty.description": "請先在伺服器設定檔中設定OIDC，才能開始使用OIDC單一登入功能。",
   "oidc.fetch.error": "取得允許使用者清單失敗",
   "oidc.add": "新增",
   "oidc.add.success": "使用者ID已新增",

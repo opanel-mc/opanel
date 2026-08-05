@@ -73,15 +73,15 @@ export default function Dashboard() {
       title={$("dashboard.title")}
       category={$("sidebar.server")}
       icon={<Gauge />}
-      pageClassName="min-h-0 min-2xl:px-[5%]"
-      className="flex-1 min-h-0 min-xl:h-full max-xl-h:min-h-[600px] flex max-xl:flex-col gap-2">
+      pageClassName="min-h-0 min-2xl:px-[5%] max-xl:flex-none max-xl-h:flex-none"
+      className="flex-1 min-h-0 min-xl:h-full max-xl:flex-none max-xl-h:min-h-[600px] flex max-xl:flex-col gap-2">
       {
         !isError
         ? (
           <InfoContext.Provider value={info}>
             <MonitorContext.Provider value={monitorDataList}>
               {/* Left side */}
-              <div className="flex-2 flex flex-col gap-2">
+              <div className="flex-2 max-xl:flex-none flex flex-col gap-2">
                 {/* Upper */}
                 {
                   info && versionCtx
@@ -90,7 +90,7 @@ export default function Dashboard() {
                 }
 
                 {/* Center */}
-                <div className="flex-1 min-h-0 flex max-lg:flex-col gap-2 *:flex-1">
+                <div className="flex-1 min-h-0 max-xl:flex-none flex max-lg:flex-col gap-2 *:flex-1 max-lg:*:flex-none">
                   {
                     info
                     ? <PlayersCard className="row-span-3"/>
@@ -119,7 +119,7 @@ export default function Dashboard() {
               </div>
 
               {/* Right side */}
-              <div className="flex-1 min-w-0 min-h-0 flex flex-col gap-2 min-xl:overflow-hidden">
+              <div className="flex-1 min-w-0 min-h-0 max-xl:flex-none flex flex-col gap-2 min-xl:overflow-hidden">
                 {
                   info
                   ? <SystemCard />
