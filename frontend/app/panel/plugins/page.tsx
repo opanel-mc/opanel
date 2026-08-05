@@ -1,6 +1,7 @@
 "use client";
 
 import type { Plugin, PluginsResponse } from "@/lib/types";
+import Link from "next/link";
 import { type DragEvent, useContext, useEffect, useRef, useState } from "react";
 import { Blocks, Download, PackageCheck, PackageX, RotateCw, Search, SearchCheck, Upload } from "lucide-react";
 import { toast } from "sonner";
@@ -18,7 +19,6 @@ import { VersionContext } from "@/contexts/api-context";
 import { DataTable } from "@/components/data-table";
 import { disabledPluginColumns, enabledPluginColumns } from "./columns";
 import { base64ToString, cn } from "@/lib/utils";
-import { checkPluginUpdates, markPluginUpdateDialogDismissed, shouldAutoCheckPluginUpdates } from "./plugin-utils";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -31,7 +31,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { PluginUpdateDialog } from "./update-dialog";
 
 const DISABLED_SUFFIX = ".disabled";
 
@@ -78,8 +77,6 @@ export default function Plugins() {
   const [uploadName, setUploadName] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
-  const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
-  const [updateForceCheck, setUpdateForceCheck] = useState(false);
   const dragDepthRef = useRef(0);
 
   const hasDraggedFiles = (event: DragEvent<HTMLElement>) => Array.from(event.dataTransfer.types).includes("Files");
@@ -159,30 +156,6 @@ export default function Plugins() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [versionCtx]);
 
-  useEffect(() => {
-    if(!shouldAutoCheckPluginUpdates()) return;
-
-    // Auto check for updates when the page is loaded, and ask the user if any are available
-    (async () => {
-      try {
-        const updates = await checkPluginUpdates();
-        if(updates.length > 0) {
-          setUpdateForceCheck(false);
-          setUpdateDialogOpen(true);
-        }
-      } catch (e) {
-        // Ignore network / service errors during the auto check
-      }
-    })();
-  }, [versionCtx]);
-
-  const handleUpdateDialogOpenChange = (open: boolean) => {
-    setUpdateDialogOpen(open);
-    if(!open) {
-      markPluginUpdateDialogDismissed();
-    }
-  };
-
   useKeydown("ArrowRight", { ctrl: true }, () => setCurrentTab("enabled-list"));
   useKeydown("ArrowLeft", { ctrl: true }, () => setCurrentTab("disabled-list"));
   
@@ -254,11 +227,10 @@ export default function Plugins() {
               <Button
                 variant="ghost"
                 title={$("plugins.action.check-update")}
-                onClick={() => {
-                  setUpdateForceCheck(true);
-                  setUpdateDialogOpen(true);
-                }}>
-                <SearchCheck />
+                asChild>
+                <Link href="/panel/updates">
+                  <SearchCheck />
+                </Link>
               </Button>
               <Button
                 variant="outline"
@@ -306,11 +278,10 @@ export default function Plugins() {
               <Button
                 variant="ghost"
                 title={$("plugins.action.check-update")}
-                onClick={() => {
-                  setUpdateForceCheck(true);
-                  setUpdateDialogOpen(true);
-                }}>
-                <SearchCheck />
+                asChild>
+                <Link href="/panel/updates">
+                  <SearchCheck />
+                </Link>
               </Button>
               <InputGroup>
                 <InputGroupAddon>
@@ -374,11 +345,6 @@ export default function Plugins() {
         open={uploadDialogOpen}
         onOpenChange={setUploadDialogOpen}
         onInputFile={handleInputPluginFile}/>
-
-      <PluginUpdateDialog
-        open={updateDialogOpen}
-        onOpenChange={handleUpdateDialogOpenChange}
-        force={updateForceCheck}/>
     </SubPage>
   );
 }

@@ -21,6 +21,11 @@ public class Config {
     public static final ModConfigSpec.ConfigValue<String> OIDC_CLIENT_ID = BUILDER.define("oidcClientId", OPanelConfiguration.defaultConfig.oidcClientId);
     public static final ModConfigSpec.ConfigValue<String> OIDC_CLIENT_SECRET = BUILDER.define("oidcClientSecret", OPanelConfiguration.defaultConfig.oidcClientSecret);
     public static final ModConfigSpec.ConfigValue<String> OIDC_DISPLAY_NAME = BUILDER.define("oidcDisplayName", OPanelConfiguration.defaultConfig.oidcDisplayName);
+    public static final ModConfigSpec.BooleanValue AUTO_CHECK_PLUGIN_UPDATES = BUILDER.define("autoCheckPluginUpdates", OPanelConfiguration.defaultConfig.autoCheckPluginUpdates);
+    public static final ModConfigSpec.IntValue PLUGIN_UPDATE_CHECK_INTERVAL = BUILDER.defineInRange("pluginUpdateCheckInterval", OPanelConfiguration.defaultConfig.pluginUpdateCheckInterval, 1, Integer.MAX_VALUE);
+    public static final ModConfigSpec.BooleanValue AUTO_APPLY_PLUGIN_UPDATES = BUILDER.define("autoApplyPluginUpdates", OPanelConfiguration.defaultConfig.autoApplyPluginUpdates);
+    public static final ModConfigSpec.ConfigValue<String> PLUGIN_UPDATE_RESTART_STRATEGY = BUILDER.define("pluginUpdateRestartStrategy", OPanelConfiguration.defaultConfig.pluginUpdateRestartStrategy);
+    public static final ModConfigSpec.ConfigValue<String> CURSEFORGE_API_KEY = BUILDER.define("curseForgeApiKey", OPanelConfiguration.defaultConfig.curseForgeApiKey);
 
     public static final ModConfigSpec SPEC = BUILDER.build();
 }

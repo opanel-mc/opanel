@@ -105,7 +105,6 @@ public interface OPanelServer {
     long getIngameTime();
     Path getPluginsPath();
     List<OPanelPlugin> getPlugins();
-
     void togglePlugin(String fileName, boolean enabled) throws IOException;
     void deletePlugin(String fileName) throws IOException;
     void updatePlugin(String fileName, Path newPluginFile) throws IOException, ActLaterException;

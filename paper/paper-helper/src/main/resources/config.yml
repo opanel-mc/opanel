@@ -15,3 +15,8 @@ oidcDiscoveryUrl: ""
 oidcClientId: ""
 oidcClientSecret: ""
 oidcDisplayName: "OIDC"
+autoCheckPluginUpdates: true
+pluginUpdateCheckInterval: 43200
+autoApplyPluginUpdates: false
+pluginUpdateRestartStrategy: "defer"
+curseForgeApiKey: ""

@@ -31,7 +31,12 @@ public class ConfigManagerImpl implements ConfigManager {
                 configSrc.getString("oidcDiscoveryUrl"),
                 configSrc.getString("oidcClientId"),
                 configSrc.getString("oidcClientSecret"),
-                configSrc.getString("oidcDisplayName")
+                configSrc.getString("oidcDisplayName"),
+                configSrc.getBoolean("autoCheckPluginUpdates", OPanelConfiguration.defaultConfig.autoCheckPluginUpdates),
+                configSrc.getInt("pluginUpdateCheckInterval", OPanelConfiguration.defaultConfig.pluginUpdateCheckInterval),
+                configSrc.getBoolean("autoApplyPluginUpdates", OPanelConfiguration.defaultConfig.autoApplyPluginUpdates),
+                configSrc.getString("pluginUpdateRestartStrategy", OPanelConfiguration.defaultConfig.pluginUpdateRestartStrategy),
+                configSrc.getString("curseForgeApiKey", OPanelConfiguration.defaultConfig.curseForgeApiKey)
         );
     }
 
@@ -52,6 +57,11 @@ public class ConfigManagerImpl implements ConfigManager {
         configSrc.set("oidcClientId", config.oidcClientId);
         configSrc.set("oidcClientSecret", config.oidcClientSecret);
         configSrc.set("oidcDisplayName", config.oidcDisplayName);
+        configSrc.set("autoCheckPluginUpdates", config.autoCheckPluginUpdates);
+        configSrc.set("pluginUpdateCheckInterval", config.pluginUpdateCheckInterval);
+        configSrc.set("autoApplyPluginUpdates", config.autoApplyPluginUpdates);
+        configSrc.set("pluginUpdateRestartStrategy", config.pluginUpdateRestartStrategy);
+        configSrc.set("curseForgeApiKey", config.curseForgeApiKey);
         plugin.saveConfig();
     }
 }

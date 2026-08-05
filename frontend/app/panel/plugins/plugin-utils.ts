@@ -1,11 +1,10 @@
-import type { PluginUpdate, PluginUpdatesResponse } from "@/lib/types";
+import type { PluginUpdate, PluginUpdateBinding, PluginUpdateBindingsResponse, PluginUpdateSettings, PluginUpdatesResponse } from "@/lib/types";
 import { toastRestartAlert } from "@/components/restart-alert";
-import { apiUrl, sendDeleteRequest, sendPostRequest, toastError } from "@/lib/api";
+import { apiUrl, sendDeleteRequest, sendGetRequest, sendPostRequest, toastError } from "@/lib/api";
 import { emitter } from "@/lib/emitter";
 import { $ } from "@/lib/i18n";
-import { getLocalStorage } from "@/lib/utils";
+import { changeSettings, getSettings } from "@/lib/settings";
 
-const AUTO_CHECK_STORAGE_KEY = "opanel.plugins.auto-check";
 const AUTO_CHECK_INTERVAL = 12 * 60 * 60 * 1000; // 12 hours
 
 export async function downloadPlugin(fileName: string) {
@@ -48,6 +47,7 @@ export async function deletePlugin(fileName: string) {
 
 export async function checkPluginUpdates(force = false): Promise<PluginUpdate[]> {
   const { updates } = await sendPostRequest<PluginUpdatesResponse>(`/api/plugins/check-updates${force ? "?force=1" : ""}`);
+  emitter.emit("refresh-data");
   return updates;
 }
 
@@ -61,7 +61,7 @@ export async function updatePlugins(fileNames: string[]) {
 
 export function shouldAutoCheckPluginUpdates(): boolean {
   try {
-    const dismissedAt = parseInt(getLocalStorage().getItem(AUTO_CHECK_STORAGE_KEY) ?? "0", 10);
+    const dismissedAt = getSettings("state.plugins.auto-check") ?? 0;
     return Date.now() - dismissedAt > AUTO_CHECK_INTERVAL;
   } catch {
     return true;
@@ -70,8 +70,29 @@ export function shouldAutoCheckPluginUpdates(): boolean {
 
 export function markPluginUpdateDialogDismissed() {
   try {
-    getLocalStorage().setItem(AUTO_CHECK_STORAGE_KEY, String(Date.now()));
+    changeSettings("state.plugins.auto-check", Date.now());
   } catch {
     //
   }
+}
+
+export async function fetchPluginUpdateBindings(): Promise<PluginUpdateBinding[]> {
+  const { bindings } = await sendGetRequest<PluginUpdateBindingsResponse>("/api/plugins/update-bindings");
+  return bindings;
+}
+
+export async function savePluginUpdateBinding(
+  binding: Omit<PluginUpdateBinding, "fileName"> & { fileName: string }
+) {
+  await sendPostRequest("/api/plugins/update-bindings", JSON.stringify(binding));
+  emitter.emit("refresh-data");
+}
+
+export async function removePluginUpdateBinding(fileName: string) {
+  await sendDeleteRequest(`/api/plugins/update-bindings?fileName=${fileName}`);
+  emitter.emit("refresh-data");
+}
+
+export async function savePluginUpdateSettings(settings: PluginUpdateSettings) {
+  await sendPostRequest("/api/plugins/update-settings", JSON.stringify(settings));
 }

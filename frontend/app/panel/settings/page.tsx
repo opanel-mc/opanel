@@ -1,12 +1,11 @@
 "use client";
 
-import type { PropsWithChildren } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ChevronDown, Cog, FilePen, Server, SettingsIcon, SquareTerminal } from "lucide-react";
-import { changeSettings, getSettings, resetSettings, type SettingsStorageType } from "@/lib/settings";
+import { Blocks, ChevronDown, Cog, FilePen, Server, SettingsIcon, SquareTerminal } from "lucide-react";
+import { changeSettings, getSettings, resetSettings } from "@/lib/settings";
 import { SubPage } from "../sub-page";
 import {
   Select,
@@ -16,7 +15,8 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { controlWidth, SettingsFontSizeSlider, SettingsNumberInput, SettingsSlider, SettingsSwitch } from "./settings-control";
+import { Section, SectionGroup, SettingsItem, controlWidth, SettingsFontSizeSlider, SettingsNumberInput, SettingsSlider, SettingsSwitch } from "./settings-control";
+import { PluginUpdateSection } from "./plugin-update-section";
 import { Button } from "@/components/ui/button";
 import { LoginBannerDialog } from "./login-banner-dialog";
 import { LaunchCommandDialog } from "./launch-command-dialog";
@@ -40,51 +40,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { getLogLevels } from "@/lib/ws/terminal";
 
-const SETTINGS_TAB_VALUES = ["general", "server", "terminal", "editor"] as const;
-
-function Section({ className, children }: PropsWithChildren & {
-  className?: string
-}) {
-  return (
-    <div className={cn("bg-background dark:bg-transparent border rounded-md flex flex-col", className)}>{children}</div>
-  );
-}
-
-function SectionGroup({
-  title,
-  children
-}: PropsWithChildren & {
-  title: string
-}) {
-  return (
-    <div className="mb-4 flex flex-col gap-3">
-      <h3 className="mx-1 font-semibold">{title}</h3>
-      {children}
-    </div>
-  );
-}
-
-function SettingsItem<K extends keyof SettingsStorageType>({
-  name,
-  description,
-  control,
-  id
-}: {
-  id: K
-  name: string
-  description?: string
-  control: React.ReactNode
-}) {
-  return (
-    <div id={id} className="flex justify-between items-center flex-wrap gap-2 px-4 py-3 border-b last:border-b-0">
-      <div className="flex flex-col gap-1">
-        <span className="text-sm">{name}</span>
-        <span className="text-xs text-muted-foreground whitespace-pre-line">{description}</span>
-      </div>
-      {control}
-    </div>
-  );
-}
+const SETTINGS_TAB_VALUES = ["general", "server", "terminal", "editor", "plugins"] as const;
 
 export default function Settings() {
   const { replace } = useRouter();
@@ -196,6 +152,10 @@ export default function Settings() {
             <TabsTrigger value="editor">
               <FilePen />
               {$("settings.editor.title")}
+            </TabsTrigger>
+            <TabsTrigger value="plugins">
+              <Blocks />
+              {$("settings.plugins.title")}
             </TabsTrigger>
           </TabsList>
           <div className="pb-2 border-b max-sm:hidden">
@@ -455,6 +415,11 @@ export default function Settings() {
                 description={$("settings.monaco.font-size.description")}
                 control={<SettingsFontSizeSlider id="monaco.font-size"/>}/>
             </Section>
+          </SectionGroup>
+        </TabsContent>
+        <TabsContent value="plugins">
+          <SectionGroup title={$("settings.plugins.update-strategy")}>
+            <PluginUpdateSection/>
           </SectionGroup>
         </TabsContent>
       </Tabs>

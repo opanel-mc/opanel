@@ -123,6 +123,7 @@ export interface Plugin {
   size: number
   enabled: boolean
   loaded: boolean
+  source?: string
 }
 
 export interface PluginUpdate {
@@ -132,6 +133,13 @@ export interface PluginUpdate {
   latestVersion: string
   downloadUrl: string
   projectUrl: string
+  source?: string
+  projectId?: string
+  requiresBinding?: boolean
+  requiresRestart?: boolean
+  channel?: string
+  digestAlgorithm?: string
+  digestValue?: string
 }
 
 export interface ScheduledTask {
@@ -271,6 +279,37 @@ export interface PluginsResponse {
 /** `/api/plugins/check-updates` */
 export interface PluginUpdatesResponse {
   updates: PluginUpdate[]
+}
+
+export interface PluginUpdateBinding {
+  fileName: string // base64
+  source: string
+  projectId?: string | null
+  owner?: string | null
+  repo?: string | null
+  assetPattern?: string | null
+  channels: string[]
+}
+
+export interface PluginUpdateBindingsResponse {
+  bindings: PluginUpdateBinding[]
+}
+
+export interface PluginUpdateStatusResponse {
+  autoCheckPluginUpdates: boolean
+  autoApplyPluginUpdates: boolean
+  pluginUpdateRestartStrategy: string
+  pluginUpdateCheckInterval: number
+  lastCheckedAt: number
+  pendingUpdateCount: number
+}
+
+/** Body for `POST /api/plugins/update-settings` (all fields optional). */
+export interface PluginUpdateSettings {
+  autoCheckPluginUpdates?: boolean
+  autoApplyPluginUpdates?: boolean
+  pluginUpdateRestartStrategy?: string
+  pluginUpdateCheckInterval?: number
 }
 
 /** `/api/tasks` */

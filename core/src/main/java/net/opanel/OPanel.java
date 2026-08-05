@@ -9,6 +9,8 @@ import net.opanel.event.OPanelPlayerInventoryChangeEvent;
 import net.opanel.map.MapRenderManager;
 import net.opanel.task.ScheduledTaskManager;
 import net.opanel.terminal.LogListenerManager;
+import net.opanel.update.PluginAutoUpdateService;
+import net.opanel.update.PluginUpdateManager;
 import net.opanel.common.OPanelServer;
 import net.opanel.logger.Loggable;
 import net.opanel.time.Uptimer;
@@ -20,6 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class OPanel {
     public static final String VERSION;
@@ -43,9 +47,12 @@ public class OPanel {
     private final MapRenderManager mapRenderManager;
     private final MonitorManager monitorManager;
     private final ActivityManager activityManager;
+    private final PluginUpdateManager pluginUpdateManager;
+    private final PluginAutoUpdateService pluginAutoUpdateService;
     private final WebServer webServer;
     private OPanelServer server;
     private LogListenerManager logListenerManager;
+    private final Set<String> pendingPluginOperations = ConcurrentHashMap.newKeySet();
 
     public OPanel(ConfigManager configManager, Loggable logger) {
         this.configManager = configManager;
@@ -71,6 +78,14 @@ public class OPanel {
 
         // Initialize activity recorder
         activityManager = new ActivityManager(this);
+
+        // Initialize plugin update manager
+        pluginUpdateManager = new PluginUpdateManager(
+            configManager.get().pluginUpdateCheckInterval,
+            configManager.get().curseForgeApiKey
+        );
+        pluginAutoUpdateService = new PluginAutoUpdateService(this);
+        pluginAutoUpdateService.start();
 
         // Initialize inventory poller
         OPanelPlayerInventoryChangeEvent.registerPoller(this);
@@ -165,6 +180,14 @@ public class OPanel {
         return activityManager;
     }
 
+    public PluginUpdateManager getPluginUpdateManager() {
+        return pluginUpdateManager;
+    }
+
+    public PluginAutoUpdateService getPluginAutoUpdateService() {
+        return pluginAutoUpdateService;
+    }
+
     public WebServer getWebServer() {
         return webServer;
     }
@@ -185,6 +208,10 @@ public class OPanel {
         return logListenerManager;
     }
 
+    public Set<String> getPendingPluginOperations() {
+        return pendingPluginOperations;
+    }
+
     public void stop() {
         if(scheduledTaskManager != null) {
             scheduledTaskManager.shutdown();
@@ -203,6 +230,11 @@ public class OPanel {
         }
 
         OPanelPlayerInventoryChangeEvent.shutdown();
+        pendingPluginOperations.clear();
+
+        if(pluginAutoUpdateService != null) {
+            pluginAutoUpdateService.shutdown();
+        }
 
         if(webServer != null) {
             try {

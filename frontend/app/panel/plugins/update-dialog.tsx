@@ -12,12 +12,14 @@ import {
   DialogTitle
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { toastError } from "@/lib/api";
 import { $ } from "@/lib/i18n";
 import { base64ToString, cn } from "@/lib/utils";
 import { googleSansCode } from "@/lib/fonts";
 import { checkPluginUpdates, updatePlugins } from "./plugin-utils";
+import { PluginSourceBadge } from "./columns";
 
 export function PluginUpdateDialog({
   open,
@@ -124,6 +126,19 @@ export function PluginUpdateDialog({
                             <p className={cn("text-xs text-muted-foreground", googleSansCode.className)}>
                               {$("plugins.update.version", update.currentVersion, update.latestVersion)}
                             </p>
+                            <div className="mt-1 flex items-center gap-1.5">
+                              <PluginSourceBadge source={update.source}/>
+                              {update.channel && (
+                                <Badge variant="outline" className="bg-muted/40 text-muted-foreground border-border">
+                                  {$(`plugins.update.channel.${update.channel}` as never)}
+                                </Badge>
+                              )}
+                              {update.requiresRestart && (
+                                <span className="text-xs text-amber-600 dark:text-amber-400">
+                                  {$("plugins.update.restart")}
+                                </span>
+                              )}
+                            </div>
                           </div>
                           {update.projectUrl && (
                             <Button

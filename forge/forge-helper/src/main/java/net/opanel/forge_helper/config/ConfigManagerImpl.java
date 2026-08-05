@@ -21,7 +21,12 @@ public class ConfigManagerImpl implements ConfigManager {
                 Config.OIDC_DISCOVERY_URL.get(),
                 Config.OIDC_CLIENT_ID.get(),
                 Config.OIDC_CLIENT_SECRET.get(),
-                Config.OIDC_DISPLAY_NAME.get()
+                Config.OIDC_DISPLAY_NAME.get(),
+                Config.AUTO_CHECK_PLUGIN_UPDATES.get(),
+                Config.PLUGIN_UPDATE_CHECK_INTERVAL.get(),
+                Config.AUTO_APPLY_PLUGIN_UPDATES.get(),
+                Config.PLUGIN_UPDATE_RESTART_STRATEGY.get(),
+                Config.CURSEFORGE_API_KEY.get()
         );
     }
 
@@ -42,5 +47,10 @@ public class ConfigManagerImpl implements ConfigManager {
         Config.OIDC_CLIENT_ID.set(config.oidcClientId);
         Config.OIDC_CLIENT_SECRET.set(config.oidcClientSecret);
         Config.OIDC_DISPLAY_NAME.set(config.oidcDisplayName);
+        Config.AUTO_CHECK_PLUGIN_UPDATES.set(config.autoCheckPluginUpdates);
+        Config.PLUGIN_UPDATE_CHECK_INTERVAL.set(config.pluginUpdateCheckInterval);
+        Config.AUTO_APPLY_PLUGIN_UPDATES.set(config.autoApplyPluginUpdates);
+        Config.PLUGIN_UPDATE_RESTART_STRATEGY.set(config.pluginUpdateRestartStrategy);
+        Config.CURSEFORGE_API_KEY.set(config.curseForgeApiKey);
     }
 }

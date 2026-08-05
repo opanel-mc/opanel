@@ -138,15 +138,4 @@ i18n 键名使用 **kebab-case**，遵循以下格式：
 - 编写对话框dialog时，必须单独新建xxx-dialog.tsx文件
 - 使用DataTable组件，编写columns定义时，必须单独新建columns.tsx文件
 
-## 前端单元测试
-
-前端为单元测试提供了一些定制工具，参见`/frontend/test/test-helper.tsx`，在有需要的时候可以直接使用，而不是编写重复的冗余代码。
-
-如果测试中包含对React组件的测试，那么需要在一开始就声明：
-```ts
-afterEach(() => cleanup());
-```
-
-由于文件加载顺序的问题，i18n方面的mock（见`/frontend/test/setup.ts`中对`@/lib/i18n`的mock）并不是100%生效。一般情况下，测试中还是直接使用`[i18n_id]`（mock过）的写法，如果因为组件在i18n被mock前被加载导致mock不生效，以致测试不通过，再改成正则表达式同时匹配`[i18n_id]`和实际中文文本的写法。可参考：`/frontend/app/panel/players/inventory/item-dialog.test.tsx`。
-
 改完前端代码后，跑ESLint和TS类型检查即可，不需要全量构建；改完后端代码后不需要执行Gradle构建。

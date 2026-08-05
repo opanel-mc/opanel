@@ -10,6 +10,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -39,6 +40,26 @@ public class Utils {
             return sb.toString();
         } catch (Exception e) {
             throw new RuntimeException("Failed to compute MD5 hash", e);
+        }
+    }
+
+    public static String sha1(Path filePath) throws IOException {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-1");
+            try(InputStream is = Files.newInputStream(filePath)) {
+                byte[] buffer = new byte[8192];
+                int read;
+                while((read = is.read(buffer)) != -1) {
+                    digest.update(buffer, 0, read);
+                }
+            }
+            StringBuilder sb = new StringBuilder(40);
+            for(byte b : digest.digest()) {
+                sb.append(String.format("%02x", b & 0xff));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new IOException("SHA-1 algorithm is not available", e);
         }
     }
 

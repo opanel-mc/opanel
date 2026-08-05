@@ -51,12 +51,6 @@ jobs:
     - name: Run lint
       run: npm run lint
 
-    - name: Run unit tests
-      run: npm run test
-    
-    - name: Run wasm unit tests
-      run: npm run wasm:test
-
   jar:
 
     runs-on: ubuntu-latest

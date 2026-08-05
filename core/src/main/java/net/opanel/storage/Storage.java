@@ -8,6 +8,7 @@ import net.opanel.config.OpenAPIConfiguration;
 import net.opanel.monitor.ActivityData;
 import net.opanel.task.ScheduledTask;
 import net.opanel.task.ScheduledTaskManager;
+import net.opanel.update.PluginUpdateConfig;
 
 import java.util.ArrayList;
 import java.io.IOException;
@@ -53,6 +54,11 @@ public class Storage {
             "activity.json",
             new TypeToken<List<ActivityData>>() {}.getType(),
             new ArrayList<ActivityData>()
+        ));
+        registeredStorageFiles.put(StorageKey.PLUGIN_UPDATE_CONFIG, new StorageFile<>(
+            "plugin-update-config.json",
+            PluginUpdateConfig.class,
+            new PluginUpdateConfig()
         ));
     }
 

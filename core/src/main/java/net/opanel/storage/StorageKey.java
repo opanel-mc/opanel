@@ -7,7 +7,8 @@ public enum StorageKey {
     LAUNCH_COMMAND("launch-command"),
     MAP_CONFIG("map-config"),
     OIDC_CONFIG("oidc-config"),
-    ACTIVITY("activity");
+    ACTIVITY("activity"),
+    PLUGIN_UPDATE_CONFIG("plugin-update-config");
 
     private final String id;
 

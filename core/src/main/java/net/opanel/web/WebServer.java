@@ -237,6 +237,11 @@ public class WebServer {
                 post("/", pluginsController.uploadPlugin);
                 post("check-updates", pluginsController.checkPluginUpdates);
                 post("update", pluginsController.updatePlugins);
+                get("update-bindings", pluginsController.getPluginUpdateBindings);
+                post("update-bindings", pluginsController.setPluginUpdateBinding);
+                delete("update-bindings", pluginsController.removePluginUpdateBinding);
+                get("update-status", pluginsController.getPluginUpdateStatus);
+                post("update-settings", pluginsController.updatePluginSettings);
                 get("{fileName}", pluginsController.downloadPlugin);
                 post("{fileName}", pluginsController.togglePlugin);
                 delete("{fileName}", pluginsController.deletePlugin);

@@ -2,15 +2,18 @@ package net.opanel.controller.api;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import io.javalin.http.*;
 import net.opanel.OPanel;
 import net.opanel.common.OPanelPlugin;
+import net.opanel.config.OPanelConfiguration;
 import net.opanel.controller.BaseController;
 import net.opanel.exception.ActLaterException;
 import net.opanel.exception.PluginUpdateConflictException;
 import net.opanel.update.PluginUpdate;
+import net.opanel.update.PluginUpdateBinding;
 import net.opanel.update.PluginUpdateManager;
 import net.opanel.utils.Callback;
 import net.opanel.utils.Utils;
@@ -25,13 +28,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PluginsController extends BaseController {
     private final DownloadController downloadController = getControllerInstance(DownloadController.class);
-    private final PluginUpdateManager pluginUpdateManager = new PluginUpdateManager();
     private final ConcurrentHashMap<String, PendingOperation> pendingOperationMap = new ConcurrentHashMap<>();
 
     enum PendingOperation {
@@ -46,6 +49,10 @@ public class PluginsController extends BaseController {
 
     public Handler getPlugins = ctx -> {
         HashMap<String, Object> obj = new HashMap<>();
+        Map<String, PluginUpdate> cachedUpdates = new HashMap<>();
+        for(PluginUpdate update : plugin.getPluginUpdateManager().getCoordinator().getCachedUpdates()) {
+            cachedUpdates.putIfAbsent(update.getFileName(), update);
+        }
 
         List<HashMap<String, Object>> plugins = new ArrayList<>();
         for(OPanelPlugin p : server.getPlugins()) {
@@ -65,6 +72,9 @@ public class PluginsController extends BaseController {
             pluginInfo.put("size", p.getFileSize());
             pluginInfo.put("enabled", futureStatus != null ? futureStatus.isEnabled() : p.isEnabled());
             pluginInfo.put("loaded", p.isLoaded());
+            PluginUpdateBinding binding = plugin.getPluginUpdateManager().getCoordinator().getBinding(p.getFileName());
+            PluginUpdate cachedUpdate = cachedUpdates.get(p.getFileName());
+            pluginInfo.put("source", toDisplaySource(binding != null ? binding.getSource() : cachedUpdate == null ? null : cachedUpdate.getSource()));
             plugins.add(pluginInfo);
         }
         obj.put("plugins", plugins);
@@ -133,7 +143,7 @@ public class PluginsController extends BaseController {
                 Files.copy(is, targetPath, StandardCopyOption.REPLACE_EXISTING);
             }
 
-            pluginUpdateManager.invalidateCache();
+            plugin.getPluginUpdateManager().invalidateCache();
             sendResponse(ctx, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
@@ -156,11 +166,12 @@ public class PluginsController extends BaseController {
 
         try {
             server.togglePlugin(fileName, enabled.equals("1"));
-            pluginUpdateManager.invalidateCache();
+            plugin.getPluginUpdateManager().invalidateCache();
             sendResponse(ctx, HttpStatus.OK);
         } catch (ActLaterException e) {
             pendingOperationMap.put(fileName, enabled.equals("1") ? PendingOperation.ENABLED : PendingOperation.DISABLED);
-            pluginUpdateManager.invalidateCache();
+            plugin.getPendingPluginOperations().add(fileName);
+            plugin.getPluginUpdateManager().invalidateCache();
             sendResponse(ctx, HttpStatus.ACCEPTED);
         } catch (NoSuchFileException e) {
             sendResponse(ctx, HttpStatus.NOT_FOUND, "Cannot find the plugin.");
@@ -181,11 +192,12 @@ public class PluginsController extends BaseController {
 
         try {
             server.deletePlugin(fileName);
-            pluginUpdateManager.invalidateCache();
+            plugin.getPluginUpdateManager().invalidateCache();
             sendResponse(ctx, HttpStatus.OK);
         } catch (ActLaterException e) {
             pendingOperationMap.put(fileName, PendingOperation.DELETED);
-            pluginUpdateManager.invalidateCache();
+            plugin.getPendingPluginOperations().add(fileName);
+            plugin.getPluginUpdateManager().invalidateCache();
             sendResponse(ctx, HttpStatus.ACCEPTED);
         } catch (NoSuchFileException e) {
             sendResponse(ctx, HttpStatus.NOT_FOUND, "Cannot find the plugin.");
@@ -224,7 +236,17 @@ public class PluginsController extends BaseController {
     public Handler checkPluginUpdates = ctx -> {
         try {
             final boolean force = "1".equals(ctx.queryParam("force"));
-            final List<PluginUpdate> updates = pluginUpdateManager.check(
+
+            // The auto check can be disabled by the configuration, while the manual
+            // check (force) always works
+            if(!force && !plugin.getConfig().autoCheckPluginUpdates) {
+                HashMap<String, Object> obj = new HashMap<>();
+                obj.put("updates", new ArrayList<>());
+                sendResponse(ctx, obj);
+                return;
+            }
+
+            final List<PluginUpdate> updates = plugin.getPluginUpdateManager().check(
                 server.getPluginsPath(),
                 getPluginsWithoutPendingOperations(),
                 server.getVersion(),
@@ -242,6 +264,13 @@ public class PluginsController extends BaseController {
                 updateInfo.put("latestVersion", update.getLatestVersion());
                 updateInfo.put("downloadUrl", update.getDownloadUrl());
                 updateInfo.put("projectUrl", update.getProjectUrl());
+                updateInfo.put("source", toDisplaySource(update.getSource()));
+                updateInfo.put("projectId", update.getProjectId());
+                updateInfo.put("requiresBinding", update.isRequiresBinding());
+                updateInfo.put("requiresRestart", update.isRequiresRestart());
+                updateInfo.put("channel", update.getChannel());
+                updateInfo.put("digestAlgorithm", update.getDigestAlgorithm());
+                updateInfo.put("digestValue", update.getDigestValue());
                 updateList.add(updateInfo);
             }
             obj.put("updates", updateList);
@@ -249,6 +278,133 @@ public class PluginsController extends BaseController {
         } catch (IOException e) {
             e.printStackTrace();
             sendResponse(ctx, HttpStatus.BAD_GATEWAY, "Failed to check plugin updates.");
+        }
+    };
+
+    public Handler getPluginUpdateBindings = ctx -> {
+        HashMap<String, Object> obj = new HashMap<>();
+        List<Map<String, Object>> bindings = new ArrayList<>();
+        for(PluginUpdateBinding binding : plugin.getPluginUpdateManager().getCoordinator().getBindingsSnapshot().values()) {
+            Map<String, Object> bindingInfo = new HashMap<>();
+            bindingInfo.put("fileName", Utils.stringToBase64(binding.getFileName()));
+            bindingInfo.put("source", binding.getSource());
+            bindingInfo.put("projectId", binding.getProjectId());
+            bindingInfo.put("owner", binding.getOwner());
+            bindingInfo.put("repo", binding.getRepo());
+            bindingInfo.put("assetPattern", binding.getAssetPattern());
+            bindingInfo.put("channels", binding.getChannels() == null ? List.of() : binding.getChannels());
+            bindings.add(bindingInfo);
+        }
+        obj.put("bindings", bindings);
+        sendResponse(ctx, obj);
+    };
+
+    public Handler setPluginUpdateBinding = ctx -> {
+        try {
+            final JsonObject body = JsonParser.parseString(ctx.body()).getAsJsonObject();
+            final String fileName = body.has("fileName") && !body.get("fileName").isJsonNull()
+                ? body.get("fileName").getAsString()
+                : null;
+            if(fileName == null || !isValidPluginFileName(fileName)) {
+                sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal file name.");
+                return;
+            }
+
+            final String source = body.has("source") && !body.get("source").isJsonNull()
+                ? body.get("source").getAsString()
+                : null;
+            if(source == null || source.isBlank()) {
+                sendResponse(ctx, HttpStatus.BAD_REQUEST, "Source is required.");
+                return;
+            }
+
+            final String projectId = body.has("projectId") && !body.get("projectId").isJsonNull()
+                ? body.get("projectId").getAsString()
+                : null;
+            final String owner = body.has("owner") && !body.get("owner").isJsonNull()
+                ? body.get("owner").getAsString()
+                : null;
+            final String repo = body.has("repo") && !body.get("repo").isJsonNull()
+                ? body.get("repo").getAsString()
+                : null;
+            final String assetPattern = body.has("assetPattern") && !body.get("assetPattern").isJsonNull()
+                ? body.get("assetPattern").getAsString()
+                : null;
+
+            List<String> channels = null;
+            if(body.has("channels") && body.get("channels").isJsonArray()) {
+                channels = new ArrayList<>();
+                for(JsonElement element : body.getAsJsonArray("channels")) {
+                    channels.add(element.getAsString());
+                }
+            }
+
+            plugin.getPluginUpdateManager().getCoordinator().setBinding(new PluginUpdateBinding(
+                fileName,
+                source,
+                projectId,
+                owner,
+                repo,
+                assetPattern,
+                channels
+            ));
+            plugin.getPluginUpdateManager().invalidateCache();
+            getPluginUpdateBindings.handle(ctx);
+        } catch (JsonParseException | IllegalStateException | UnsupportedOperationException e) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal request body.");
+        }
+    };
+
+    public Handler removePluginUpdateBinding = ctx -> {
+        final String fileName = ctx.queryParam("fileName");
+        if(fileName == null || !isValidPluginFileName(fileName)) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal file name.");
+            return;
+        }
+
+        plugin.getPluginUpdateManager().getCoordinator().removeBinding(fileName);
+        plugin.getPluginUpdateManager().invalidateCache();
+        getPluginUpdateBindings.handle(ctx);
+    };
+
+    public Handler getPluginUpdateStatus = ctx -> {
+        HashMap<String, Object> obj = new HashMap<>();
+        obj.put("autoCheckPluginUpdates", plugin.getConfig().autoCheckPluginUpdates);
+        obj.put("autoApplyPluginUpdates", plugin.getConfig().autoApplyPluginUpdates);
+        obj.put("pluginUpdateRestartStrategy", plugin.getConfig().pluginUpdateRestartStrategy);
+        obj.put("pluginUpdateCheckInterval", plugin.getConfig().pluginUpdateCheckInterval);
+        obj.put("lastCheckedAt", plugin.getPluginUpdateManager().getCoordinator().getLastCheckedAt());
+        obj.put("pendingUpdateCount", plugin.getPluginUpdateManager().getCoordinator().getCachedUpdates().size());
+        sendResponse(ctx, obj);
+    };
+
+    public Handler updatePluginSettings = ctx -> {
+        try {
+            final JsonObject body = JsonParser.parseString(ctx.body()).getAsJsonObject();
+
+            final OPanelConfiguration config = plugin.getConfig();
+            if(body.has("autoCheckPluginUpdates") && body.get("autoCheckPluginUpdates").isJsonPrimitive()) {
+                config.autoCheckPluginUpdates = body.get("autoCheckPluginUpdates").getAsBoolean();
+            }
+            if(body.has("autoApplyPluginUpdates") && body.get("autoApplyPluginUpdates").isJsonPrimitive()) {
+                config.autoApplyPluginUpdates = body.get("autoApplyPluginUpdates").getAsBoolean();
+            }
+            if(body.has("pluginUpdateRestartStrategy") && body.get("pluginUpdateRestartStrategy").isJsonPrimitive()
+                && !body.get("pluginUpdateRestartStrategy").getAsString().isBlank()) {
+                config.pluginUpdateRestartStrategy = body.get("pluginUpdateRestartStrategy").getAsString();
+            }
+            if(body.has("pluginUpdateCheckInterval") && body.get("pluginUpdateCheckInterval").isJsonPrimitive()) {
+                final int interval = body.get("pluginUpdateCheckInterval").getAsInt();
+                if(interval >= 60) {
+                    config.pluginUpdateCheckInterval = interval;
+                }
+            }
+
+            plugin.setConfig(config);
+            plugin.getPluginUpdateManager().invalidateCache();
+            getPluginUpdateStatus.handle(ctx);
+        } catch (JsonParseException | UnsupportedOperationException e) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal request body.");
         }
     };
 
@@ -274,7 +430,7 @@ public class PluginsController extends BaseController {
         }
 
         try {
-            final List<PluginUpdate> updates = pluginUpdateManager.check(
+            final List<PluginUpdate> updates = plugin.getPluginUpdateManager().check(
                 server.getPluginsPath(),
                 getPluginsWithoutPendingOperations(),
                 server.getVersion(),
@@ -293,7 +449,7 @@ public class PluginsController extends BaseController {
                 return;
             }
 
-            pluginUpdateManager.update(server, toUpdate);
+            plugin.getPluginUpdateManager().update(server, toUpdate);
             sendResponse(ctx, HttpStatus.ACCEPTED);
         } catch (ActLaterException e) {
             sendResponse(ctx, HttpStatus.ACCEPTED);
@@ -312,6 +468,14 @@ public class PluginsController extends BaseController {
     private boolean isValidPluginFileName(String fileName) {
         return Utils.isSafeFileName(fileName)
                 && (fileName.endsWith(".jar") || fileName.endsWith(".jar"+ OPanelPlugin.DISABLED_SUFFIX));
+    }
+
+    private static String toDisplaySource(String source) {
+        if(source == null || source.isBlank()) return "unbound";
+        if("modrinth".equals(source) || "curseforge".equals(source) || "mcim".equals(source)) {
+            return "mcim";
+        }
+        return source;
     }
 
     private List<OPanelPlugin> getPluginsWithoutPendingOperations() {

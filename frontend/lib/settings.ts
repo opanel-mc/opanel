@@ -43,6 +43,7 @@ export type SettingsStorageType = {
   "state.sidebar.open": boolean
   "state.players.tab": "player-list" | "banned-list"
   "state.plugins.tab": "enabled-list" | "disabled-list"
+  "state.plugins.auto-check": number
   "state.terminal.history": string[]
   "state.code-of-conduct.current-editing"?: string
   "state.paper-config.current-editing": ConfigFile
@@ -82,6 +83,7 @@ const defaultSettings: SettingsStorageType = {
   "state.sidebar.open": true,
   "state.players.tab": "player-list",
   "state.plugins.tab": "enabled-list",
+  "state.plugins.auto-check": 0,
   "state.terminal.history": [],
   "state.code-of-conduct.current-editing": undefined,
   "state.paper-config.current-editing": "bukkit"

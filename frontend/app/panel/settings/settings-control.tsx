@@ -1,12 +1,57 @@
-import type { ChangeEvent } from "react";
+import type { ChangeEvent, PropsWithChildren } from "react";
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { changeSettings, getSettings, type SettingsStorageType } from "@/lib/settings";
 import { Slider } from "@/components/ui/slider";
+import { cn } from "@/lib/utils";
 import { $ } from "@/lib/i18n";
 
 export const controlWidth = "w-36";
+
+export function Section({ className, children }: PropsWithChildren & {
+  className?: string
+}) {
+  return (
+    <div className={cn("bg-background dark:bg-transparent border rounded-md flex flex-col", className)}>{children}</div>
+  );
+}
+
+export function SectionGroup({
+  title,
+  children
+}: PropsWithChildren & {
+  title: string
+}) {
+  return (
+    <div className="mb-4 flex flex-col gap-3">
+      <h3 className="mx-1 font-semibold">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+export function SettingsItem({
+  name,
+  description,
+  control,
+  id
+}: {
+  id: string
+  name: string
+  description?: string
+  control: React.ReactNode
+}) {
+  return (
+    <div id={id} className="flex justify-between items-center flex-wrap gap-2 px-4 py-3 border-b last:border-b-0">
+      <div className="flex flex-col gap-1">
+        <span className="text-sm">{name}</span>
+        <span className="text-xs text-muted-foreground whitespace-pre-line">{description}</span>
+      </div>
+      {control}
+    </div>
+  );
+}
 
 export function SettingsInput<K extends keyof SettingsStorageType>({
   id,

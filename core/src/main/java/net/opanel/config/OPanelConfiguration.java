@@ -17,7 +17,12 @@ public class OPanelConfiguration {
             "",
             "",
             "",
-            "OIDC"
+            "OIDC",
+            true,
+            43200,
+            false,
+            "defer",
+            ""
     );
 
     public String accessKey;
@@ -35,6 +40,11 @@ public class OPanelConfiguration {
     public String oidcClientId;
     public String oidcClientSecret;
     public String oidcDisplayName;
+    public boolean autoCheckPluginUpdates;
+    public int pluginUpdateCheckInterval;
+    public boolean autoApplyPluginUpdates;
+    public String pluginUpdateRestartStrategy;
+    public String curseForgeApiKey;
 
     public OPanelConfiguration(
             String accessKey,
@@ -51,7 +61,12 @@ public class OPanelConfiguration {
             String oidcDiscoveryUrl,
             String oidcClientId,
             String oidcClientSecret,
-            String oidcDisplayName
+            String oidcDisplayName,
+            boolean autoCheckPluginUpdates,
+            int pluginUpdateCheckInterval,
+            boolean autoApplyPluginUpdates,
+            String pluginUpdateRestartStrategy,
+            String curseForgeApiKey
     ) {
         this.accessKey = accessKey;
         this.salt = salt;
@@ -68,5 +83,10 @@ public class OPanelConfiguration {
         this.oidcClientId = oidcClientId;
         this.oidcClientSecret = oidcClientSecret;
         this.oidcDisplayName = oidcDisplayName;
+        this.autoCheckPluginUpdates = autoCheckPluginUpdates;
+        this.pluginUpdateCheckInterval = pluginUpdateCheckInterval;
+        this.autoApplyPluginUpdates = autoApplyPluginUpdates;
+        this.pluginUpdateRestartStrategy = pluginUpdateRestartStrategy;
+        this.curseForgeApiKey = curseForgeApiKey;
     }
 }
