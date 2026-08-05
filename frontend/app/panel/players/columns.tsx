@@ -1,24 +1,21 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Player } from "@/lib/types";
-import { useEffect } from "react";
 import Link from "next/link";
-import { Backpack, Ban, BrushCleaning, Check, ShieldOff, Trash, UserMinus, UserPlus } from "lucide-react";
-import { base64ToString, gameModeToString, sleep } from "@/lib/utils";
+import { Backpack, Ban, BrushCleaning, Check, ShieldOff, UserMinus, UserStar } from "lucide-react";
+import { base64ToString, gameModeToString } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Prompt } from "@/components/prompt";
 import { OnlineBadge } from "@/components/online-badge";
 import {
-  addToWhitelist,
   ban,
+  giveOp,
+  depriveOp,
   kick,
   pardon,
-  removeFromWhitelist,
-  removePlayerData
 } from "./player-utils";
 import { PlayerSheet } from "./player-sheet";
 import { emitter } from "@/lib/emitter";
-import { Alert } from "@/components/alert";
 import { getSettings } from "@/lib/settings";
 import { $ } from "@/lib/i18n";
 
@@ -91,24 +88,15 @@ export const playerColumns: ColumnDef<Player>[] = [
   {
     accessorKey: "isWhitelisted",
     header: () => <div className="text-center">{$("players.player-list.columns.is-whitelisted")}</div>,
-    cell: ({ row, column }) => {
-      /* Fuck you react */
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      useEffect(() => {
-        // this is actually a setState call
-        column.toggleVisibility(row.original.isWhitelisted !== undefined);
-      }, [row, column]);
-
-      return (
-        <div className="flex justify-center">
-          {
-            row.original.isWhitelisted
-            ? <Check size={18} color="var(--color-muted-foreground)"/>
-            : <></>
-          }
-        </div>
-      );
-    },
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        {
+          row.original.isWhitelisted
+          ? <Check size={18} color="var(--color-muted-foreground)"/>
+          : <></>
+        }
+      </div>
+    ),
   },
   {
     accessorKey: "isOp",
@@ -126,18 +114,18 @@ export const playerColumns: ColumnDef<Player>[] = [
   {
     header: " ",
     cell: ({ row }) => {
-      const { name, uuid, isOnline, isWhitelisted } = row.original;
+      const { uuid, isOnline, isOp } = row.original;
       return (
         <div className="flex justify-end [&>*]:h-4 [&>*]:cursor-pointer [&>*]:hover:!bg-transparent">
-          {isWhitelisted !== undefined && (
-            isWhitelisted
+          {
+            isOp
             ? (
               <Button
                 variant="ghost"
                 size="icon"
-                title={$("players.action.remove-from-whitelist")}
+                title={$("players.action.deop")}
                 onClick={async () => {
-                  await removeFromWhitelist(name, uuid);
+                  await depriveOp(uuid);
                   emitter.emit("refresh-data");
                 }}>
                 <UserMinus />
@@ -147,15 +135,15 @@ export const playerColumns: ColumnDef<Player>[] = [
               <Button
                 variant="ghost"
                 size="icon"
-                title={$("players.action.add-to-whitelist")}
+                title={$("players.action.op")}
                 onClick={async () => {
-                  await addToWhitelist(name, uuid);
+                  await giveOp(uuid);
                   emitter.emit("refresh-data");
                 }}>
-                <UserPlus />
+                <UserStar />
               </Button>
             )
-          )}
+          }
           <Button
             variant="ghost"
             size="icon"
@@ -200,29 +188,6 @@ export const playerColumns: ColumnDef<Player>[] = [
               <Ban className="stroke-red-400"/>
             </Button>
           </Prompt>
-          <Alert
-            title={$("players.action.remove.alert.title", name)}
-            description={
-              !isOnline
-              ? $("players.action.remove.alert.description1")
-              : $("players.action.remove.alert.description2")
-            }
-            onAction={async () => {
-              if(isOnline) {
-                await kick(uuid, $("players.action.remove.kick-reason"), false);
-                await sleep(100);
-              }
-              await removePlayerData(uuid);
-              emitter.emit("refresh-data");
-            }}
-            asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              title={$("players.action.remove")}>
-              <Trash className="stroke-red-400"/>
-            </Button>
-          </Alert>
         </div>
       );
     }

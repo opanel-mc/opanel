@@ -74,7 +74,7 @@ export default function Players() {
   };
 
   const handleEnableWhitelist = async () => {
-    await setWhitelistEnabled(true);
+    await setWhitelistEnabled(true, false);
     await fetchPlayerList();
     /**
      * We need to set the state manually here
@@ -294,6 +294,7 @@ export default function Players() {
         <TabsContent value="player-list">
           <DataTable
             columns={playerColumns}
+            columnVisibility={{ isWhitelisted: isWhitelistEnabled }}
             data={[
               ...nonBannedPlayers.filter(({ name, isOnline }) => name.toLowerCase().includes(searchString.toLowerCase()) && isOnline),
               ...nonBannedPlayers.filter(({ name, isOnline, isOp }) => name.toLowerCase().includes(searchString.toLowerCase()) && !isOnline && isOp),
