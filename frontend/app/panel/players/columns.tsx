@@ -1,9 +1,9 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Player } from "@/lib/types";
 import Link from "next/link";
-import { Backpack, Ban, BrushCleaning, Check, ShieldOff, UserMinus, UserStar } from "lucide-react";
-import { base64ToString, gameModeToString } from "@/lib/utils";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Backpack, Ban, BrushCleaning, Check, ShieldHalf, ShieldOff, UserMinus, UserStar } from "lucide-react";
+import { base64ToString, cn, gameModeToString } from "@/lib/utils";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Button } from "@/components/ui/button";
 import { Prompt } from "@/components/prompt";
 import { OnlineBadge } from "@/components/online-badge";
@@ -21,41 +21,77 @@ import { $ } from "@/lib/i18n";
 
 import SteveAvatar from "@/assets/images/steve-avatar.png";
 
+function PlayerAvatar({
+  name,
+  className
+}: {
+  name: string
+  className?: string
+}) {
+  return (
+    <img
+      src={getSettings("players.avatar-provider") + name}
+      alt={name}
+      width={17}
+      height={17}
+      className={cn("image-pixelated", className)}
+      onError={(e) => {
+        (e.target as HTMLImageElement).src = SteveAvatar.src;
+      }}/>
+  );
+}
+
+function PlayerHoverInfo({
+  name,
+  uuid,
+  isOp
+}: Player) {
+  return (
+    <div className="flex gap-3" onClick={(e) => e.stopPropagation()}>
+      <PlayerAvatar
+        name={name}
+        className="w-14 h-14 aspect-square"/>
+      <div className="flex flex-col gap-2">
+        <span className="font-semibold flex items-center gap-1.5">
+          {name}
+          {isOp && <ShieldHalf size={13} className="stroke-muted-foreground"/>}
+        </span>
+        <span className="text-sm text-muted-foreground">{uuid}</span>
+      </div>
+    </div>
+  );
+}
+
 export const playerColumns: ColumnDef<Player>[] = [
   {
     accessorKey: "name",
     header: $("players.player-list.columns.name"),
     cell: ({ row }) => {
-      const { name, uuid } = row.original;
+      const { name } = row.original;
       return (
-        <Tooltip>
-          <TooltipTrigger>
-            <PlayerSheet player={row.original} asChild>
-              {
-                name
-                ? (
-                  <div className="flex items-center gap-2 cursor-pointer">
-                    <img
-                      src={getSettings("players.avatar-provider") + name}
-                      alt={name}
-                      width={17}
-                      height={17}
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = SteveAvatar.src;
-                      }}/>
-                    <span className="font-semibold">{name}</span>
-                  </div>
-                )
-                : (
-                  <span className="text-muted-foreground italic cursor-pointer">
-                    &lt;{$("players.unnamed")}&gt;
-                  </span>
-                )
-              }
-            </PlayerSheet>
-          </TooltipTrigger>
-          <TooltipContent>{uuid}</TooltipContent>
-        </Tooltip>
+        <PlayerSheet player={row.original} asChild>
+          {
+            name
+            ? (
+              <div className="flex items-center gap-2 cursor-pointer">
+                <HoverCard closeDelay={100}>
+                  <HoverCardTrigger>
+                    <PlayerAvatar name={name}/>
+                  </HoverCardTrigger>
+                  <HoverCardContent side="top">
+                    <PlayerHoverInfo {...row.original}/>
+                  </HoverCardContent>
+                </HoverCard>
+                <span className="font-semibold">{name}</span>
+              </div>
+            )
+            : (
+              <span className="text-muted-foreground italic cursor-pointer">
+                &lt;{$("players.unnamed")}&gt;
+              </span>
+            )
+          }
+        </PlayerSheet>
       );
     }
   },
@@ -199,26 +235,21 @@ export const bannedColumns: ColumnDef<Player>[] = [
     accessorKey: "name",
     header: $("players.banned-list.columns.name"),
     cell: ({ row }) => {
-      const { name, uuid } = row.original;
+      const { name } = row.original;
       return (
-        <Tooltip>
-          <TooltipTrigger>
-            <PlayerSheet player={row.original} asChild>
-              <div className="flex items-center gap-2 cursor-pointer">
-                <img
-                  src={getSettings("players.avatar-provider") + uuid}
-                  alt={name}
-                  width={17}
-                  height={17}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = SteveAvatar.src;
-                  }}/>
-                <span className="font-semibold">{name}</span>
-              </div>
-            </PlayerSheet>
-          </TooltipTrigger>
-          <TooltipContent>{uuid}</TooltipContent>
-        </Tooltip>
+        <PlayerSheet player={row.original} asChild>
+          <div className="flex items-center gap-2 cursor-pointer">
+            <HoverCard closeDelay={100}>
+              <HoverCardTrigger>
+                <PlayerAvatar name={name}/>
+              </HoverCardTrigger>
+              <HoverCardContent side="top">
+                <PlayerHoverInfo {...row.original}/>
+              </HoverCardContent>
+            </HoverCard>
+            <span className="font-semibold">{name}</span>
+          </div>
+        </PlayerSheet>
       );
     }
   },
