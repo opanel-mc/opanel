@@ -1,6 +1,5 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Player } from "@/lib/types";
-import { useEffect } from "react";
 import Link from "next/link";
 import { Backpack, Ban, BrushCleaning, Check, ShieldOff, UserMinus, UserStar } from "lucide-react";
 import { base64ToString, gameModeToString } from "@/lib/utils";
@@ -89,24 +88,15 @@ export const playerColumns: ColumnDef<Player>[] = [
   {
     accessorKey: "isWhitelisted",
     header: () => <div className="text-center">{$("players.player-list.columns.is-whitelisted")}</div>,
-    cell: ({ row, column }) => {
-      /* Fuck you react */
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      useEffect(() => {
-        // this is actually a setState call
-        column.toggleVisibility(row.original.isWhitelisted !== undefined);
-      }, [row, column]);
-
-      return (
-        <div className="flex justify-center">
-          {
-            row.original.isWhitelisted
-            ? <Check size={18} color="var(--color-muted-foreground)"/>
-            : <></>
-          }
-        </div>
-      );
-    },
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        {
+          row.original.isWhitelisted
+          ? <Check size={18} color="var(--color-muted-foreground)"/>
+          : <></>
+        }
+      </div>
+    ),
   },
   {
     accessorKey: "isOp",
