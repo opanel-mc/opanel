@@ -584,7 +584,8 @@
   "mcp.dialog.status.error": "アクセス トークンの生成に失敗しました",
 
   "oidc.description": "OIDCシングルサインオンの設定を管理する",
-  "oidc.not-enabled": "OIDCが有効になっていません。サーバーの設定ファイルでOIDCを設定してください。",
+  "oidc.empty.title": "OIDCが有効になっていません",
+  "oidc.empty.description": "OIDCシングルサインオン機能を使用するには、先にサーバー設定ファイルでOIDCを設定してください。",
   "oidc.fetch.error": "許可ユーザー一覧の取得に失敗しました",
   "oidc.add": "追加",
   "oidc.add.success": "ユーザーIDを追加しました",

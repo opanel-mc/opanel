@@ -584,7 +584,8 @@
   "mcp.dialog.status.error": "存取權杖產生失敗",
 
   "oidc.description": "管理 OIDC 單一登入配置與允許用戶",
-  "oidc.not-enabled": "OIDC 未啟用，請先喺伺服器設定檔中設定 OIDC。",
+  "oidc.empty.title": "OIDC 未啟用",
+  "oidc.empty.description": "請先喺伺服器設定檔中設定 OIDC，先可以使用 OIDC 單一登入功能。",
   "oidc.fetch.error": "獲取允許用戶列表失敗",
   "oidc.add": "新增",
   "oidc.add.success": "用戶 ID 已新增",

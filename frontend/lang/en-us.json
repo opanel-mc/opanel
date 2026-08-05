@@ -584,7 +584,8 @@
   "mcp.dialog.status.error": "Failed to generate access token",
 
   "oidc.description": "Manage OIDC single sign-on settings",
-  "oidc.not-enabled": "OIDC is not enabled. Please configure OIDC in the server configuration file first.",
+  "oidc.empty.title": "OIDC Not Enabled",
+  "oidc.empty.description": "Configure OIDC in the server configuration file before using OIDC single sign-on.",
   "oidc.fetch.error": "Failed to get allowed users",
   "oidc.add": "Add",
   "oidc.add.success": "User ID added",
