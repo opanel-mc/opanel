@@ -4,7 +4,7 @@ import {
   NbtNumber,
   NbtObject,
   NbtString
-} from "snbt-js";
+} from "@/lib/snbt";
 import {
   type RgbColor,
   type Enchantments,
@@ -25,7 +25,7 @@ export class TagResolver extends ItemNBTResolver {
     // Enchantments
     const enchantmentsNBT = this.nbt.get("Enchantments");
     if(enchantmentsNBT instanceof NbtList) {
-      for(const enchantment of enchantmentsNBT.childs) {
+      for(const enchantment of enchantmentsNBT.children) {
         if(!(enchantment instanceof NbtObject)) continue;
 
         const enchantmentId = enchantment.get("id");
@@ -42,7 +42,7 @@ export class TagResolver extends ItemNBTResolver {
   }
 
   override isEmpty() {
-    return this.nbt.isempty();
+    return this.nbt.isEmpty();
   }
 
   override getName() {
@@ -76,7 +76,7 @@ export class TagResolver extends ItemNBTResolver {
     if(!(loreNBT instanceof NbtList)) return [];
 
     const lore: string[] = [];
-    for(const item of loreNBT.childs) {
+    for(const item of loreNBT.children) {
       const loreStr = textComponentToString(item as NbtObject | NbtString);
       if(loreStr !== null) {
         lore.push(loreStr);
@@ -167,7 +167,7 @@ export class TagResolver extends ItemNBTResolver {
     if(!(blockEntityTag instanceof NbtObject)) return null;
 
     const bees = blockEntityTag.get("Bees");
-    return bees instanceof NbtList ? bees.childs.length : null;
+    return bees instanceof NbtList ? bees.children.length : null;
   }
 
   override getHoneyLevel(): number | null {

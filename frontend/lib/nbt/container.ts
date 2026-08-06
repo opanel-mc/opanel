@@ -6,7 +6,7 @@ import {
   NbtString,
   type NbtValue,
   parseNbtString
-} from "snbt-js";
+} from "@/lib/snbt";
 import { prettyFormatNBT } from "./snbt-format";
 
 export type ContainerFormat = "components" | "tag";
@@ -54,18 +54,21 @@ function stringifyKey(key: string): string {
 
 export function stringifyNBT(value: NbtValue): string {
   if(value instanceof NbtObject) {
-    return `{${Object.entries(value.childs)
+    return `{${Object.entries(value.children)
       .map(([key, child]) => `${stringifyKey(key)}:${stringifyNBT(child)}`)
       .join(",")}}`;
   }
   if(value instanceof NbtList) {
-    return `[${value.childs.map(stringifyNBT).join(",")}]`;
+    return `[${value.children.map(stringifyNBT).join(",")}]`;
   }
   return value.text();
 }
 
 function getInteger(value: NbtValue | undefined): number | null {
-  if(!(value instanceof NbtNumber) || !Number.isInteger(value.value)) return null;
+  if(
+    !(value instanceof NbtNumber)
+    || !Number.isInteger(value.value)
+  ) return null;
   return value.value;
 }
 
@@ -80,7 +83,7 @@ function parseObject(value: string | undefined): NbtObject | null {
 }
 
 function itemDataToSNBT(value: NbtValue | undefined): string | undefined {
-  if(!(value instanceof NbtObject) || value.isempty()) return undefined;
+  if(!(value instanceof NbtObject) || value.isEmpty()) return undefined;
   return stringifyNBT(value);
 }
 
@@ -112,10 +115,10 @@ function createEmptyItems(size: number): ItemStack[] {
 }
 
 function parseModernItems(container: NbtList): ItemStack[] | null {
-  if(container.childs.length > MAX_CONTAINER_SIZE) return null;
+  if(container.children.length > MAX_CONTAINER_SIZE) return null;
 
   const items: ItemStack[] = [];
-  for(const entry of container.childs) {
+  for(const entry of container.children) {
     if(!(entry instanceof NbtObject)) return null;
 
     const slot = getInteger(entry.get("slot"));
@@ -148,10 +151,10 @@ function parseModernItems(container: NbtList): ItemStack[] | null {
 }
 
 function parseLegacyItems(container: NbtList): ItemStack[] | null {
-  if(container.childs.length > MAX_CONTAINER_SIZE) return null;
+  if(container.children.length > MAX_CONTAINER_SIZE) return null;
 
   const items: ItemStack[] = [];
-  for(const item of container.childs) {
+  for(const item of container.children) {
     if(!(item instanceof NbtObject)) return null;
 
     const slot = getInteger(item.get("Slot"));
@@ -235,7 +238,7 @@ function createModernContainerItem(item: ItemStack): NbtObject {
     count: new NbtNumber(item.count)
   });
   const components = parseItemSNBT(item.snbt);
-  if(components && !components.isempty()) itemTag.addChild("components", components);
+  if(components && !components.isEmpty()) itemTag.addChild("components", components);
 
   return new NbtObject({
     slot: new NbtNumber(item.slot),
@@ -250,7 +253,7 @@ function createLegacyContainerItem(item: ItemStack): NbtObject {
     Count: new NbtNumber(item.count, "b")
   });
   const tag = parseItemSNBT(item.snbt);
-  if(tag && !tag.isempty()) itemTag.addChild("tag", tag);
+  if(tag && !tag.isEmpty()) itemTag.addChild("tag", tag);
   return itemTag;
 }
 
