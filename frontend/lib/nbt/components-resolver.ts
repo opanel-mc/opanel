@@ -5,7 +5,7 @@ import {
   NbtNumber,
   NbtObject,
   NbtString
-} from "snbt-js";
+} from "@/lib/snbt";
 import { potionColors } from "./potion-colors";
 import {
   type RgbColor,
@@ -46,7 +46,7 @@ export class ComponentsResolver extends ItemNBTResolver {
     // Block State
     const blockStateNBT = this.nbt.get("minecraft:block_state");
     if(blockStateNBT instanceof NbtObject) {
-      for(const [key, value] of Object.entries(blockStateNBT.childs)) {
+      for(const [key, value] of Object.entries(blockStateNBT.children)) {
         this.blockState.set(key, value);
       }
     }
@@ -56,7 +56,7 @@ export class ComponentsResolver extends ItemNBTResolver {
     if(enchantmentsComponent instanceof NbtObject) {
       const levels = enchantmentsComponent.get("levels");
       const enchantmentsNBT = levels instanceof NbtObject ? levels : enchantmentsComponent;
-      for(const [id, level] of Object.entries(enchantmentsNBT.childs)) {
+      for(const [id, level] of Object.entries(enchantmentsNBT.children)) {
         if(level instanceof NbtNumber) {
           this.enchantments.set(id, level.value);
         }
@@ -80,11 +80,11 @@ export class ComponentsResolver extends ItemNBTResolver {
   }
 
   getComponentAmount(): number {
-    return Object.keys(this.nbt.childs).length;
+    return Object.keys(this.nbt.children).length;
   }
 
   override isEmpty() {
-    return this.nbt.isempty();
+    return this.nbt.isEmpty();
   }
 
   override getName() {
@@ -108,7 +108,7 @@ export class ComponentsResolver extends ItemNBTResolver {
     if(!(loreNBT instanceof NbtList)) return [];
 
     const lore: string[] = [];
-    for(const item of loreNBT.childs) {
+    for(const item of loreNBT.children) {
       const loreStr = textComponentToString(item as NbtObject | NbtString);
       if(loreStr !== null) {
         lore.push(loreStr);
@@ -195,7 +195,7 @@ export class ComponentsResolver extends ItemNBTResolver {
 
   override getBeeAmount(): number | null {
     const bees = this.nbt.get("minecraft:bees");
-    return bees instanceof NbtList ? bees.childs.length : null;
+    return bees instanceof NbtList ? bees.children.length : null;
   }
 
   override getHoneyLevel(): number | null {
@@ -218,8 +218,8 @@ export class ComponentsResolver extends ItemNBTResolver {
       return [r, g, b];
     }
     if(dyedColor instanceof NbtList) {
-      if(dyedColor.childs.length < 3) return null;
-      const [red, green, blue] = dyedColor.childs;
+      if(dyedColor.children.length < 3) return null;
+      const [red, green, blue] = dyedColor.children;
       if(
         !(red instanceof NbtNumber)
         || !(green instanceof NbtNumber)

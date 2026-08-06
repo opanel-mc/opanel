@@ -1,4 +1,4 @@
-import { NbtObject, parseNbtString } from "snbt-js";
+import { NbtObject, parseNbtString } from "@/lib/snbt";
 
 // export type Color = "white" | "orange" | "magenta" | "light_blue" | "yellow" | "lime" | "pink" | "gray" | "light_gray" | "cyan" | "purple" | "blue" | "brown" | "green" | "red" | "black";
 export type RgbColor = [number, number, number];

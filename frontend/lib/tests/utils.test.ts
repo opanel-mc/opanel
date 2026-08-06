@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { NbtBool, NbtList, NbtObject, NbtString } from "snbt-js";
+import { NbtBool, NbtList, NbtObject, NbtString } from "../snbt";
 import { base64ToString, formatDataSize, gameModeToString, getCurrentArgumentIndex, getInputtedArgumentStr, isNumeric, stringToBase64, textComponentToString } from "../utils";
 import { GameMode } from "../types";
 
