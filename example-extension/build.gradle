@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+}
+
+base {
+    archivesName = "example-extension"
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly(project(":api"))
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(14)
+    }
+}

@@ -3,6 +3,7 @@ package net.opanel;
 import net.opanel.common.Constants;
 import net.opanel.config.ConfigManager;
 import net.opanel.config.OPanelConfiguration;
+import net.opanel.extension.ExtensionManager;
 import net.opanel.monitor.ActivityManager;
 import net.opanel.monitor.MonitorManager;
 import net.opanel.event.OPanelPlayerInventoryChangeEvent;
@@ -26,6 +27,7 @@ public class OPanel {
     public static final String JAVALIN_VERSION;
     public static final Path OPANEL_DIR_PATH = Paths.get("").resolve("opanel");
     public static final Path TMP_DIR_PATH = OPANEL_DIR_PATH.resolve(".tmp");
+    public static final Path EXTENSIONS_DIR_PATH = OPANEL_DIR_PATH.resolve("extensions");
     public static final Path MAP_DATA_PATH = OPANEL_DIR_PATH.resolve("mapdata");
     public static final Path INITIAL_ACCESS_KEY_PATH = OPANEL_DIR_PATH.resolve("INITIAL_ACCESS_KEY.txt");
     public static final Path MCDR_BRIDGE_FLAG_PATH = OPANEL_DIR_PATH.resolve(".mcdr_bridge_active");
@@ -43,6 +45,7 @@ public class OPanel {
     private final MapRenderManager mapRenderManager;
     private final MonitorManager monitorManager;
     private final ActivityManager activityManager;
+    private final ExtensionManager extensionManager;
     private final WebServer webServer;
     private OPanelServer server;
     private LogListenerManager logListenerManager;
@@ -75,6 +78,9 @@ public class OPanel {
         // Initialize inventory poller
         OPanelPlayerInventoryChangeEvent.registerPoller(this);
 
+        // Initialize extensions
+        extensionManager = new ExtensionManager(this);
+
         // Setup web server
         webServer = new WebServer(this);
     }
@@ -92,6 +98,10 @@ public class OPanel {
         }
         if(tmpDir.list().length > 0) {
             Utils.clearDirectoryRecursively(tmpDir.toPath());
+        }
+        File extensionsDir = EXTENSIONS_DIR_PATH.toFile();
+        if(!extensionsDir.exists() && !extensionsDir.mkdir()) {
+            throw new IOException("Cannot initialize opanel/extensions directory.");
         }
         File mapDataDir = MAP_DATA_PATH.toFile();
         if(!mapDataDir.exists() && !mapDataDir.mkdir()) {
@@ -169,8 +179,13 @@ public class OPanel {
         return webServer;
     }
 
+    public ExtensionManager getExtensionManager() {
+        return extensionManager;
+    }
+
     public void setServer(OPanelServer server) {
         this.server = server;
+        extensionManager.loadExtensions();
     }
 
     public OPanelServer getServer() {
@@ -186,6 +201,18 @@ public class OPanel {
     }
 
     public void stop() {
+        if(webServer != null) {
+            try {
+                webServer.stop();
+            } catch (Exception e) {
+                logger.error("Failed to stop web server: " + e.getMessage());
+            }
+        }
+
+        if(extensionManager != null) {
+            extensionManager.unloadExtensions();
+        }
+
         if(scheduledTaskManager != null) {
             scheduledTaskManager.shutdown();
         }
@@ -203,14 +230,6 @@ public class OPanel {
         }
 
         OPanelPlayerInventoryChangeEvent.shutdown();
-
-        if(webServer != null) {
-            try {
-                webServer.stop();
-            } catch (Exception e) {
-                logger.error("Failed to stop web server: " + e.getMessage());
-            }
-        }
     }
 
     public String getStatus() {

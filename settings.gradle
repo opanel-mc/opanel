@@ -21,6 +21,7 @@ plugins {
 rootProject.name = 'opanel'
 
 include 'core'
+include 'api'
 
 def platformModules = [
     fabric: [
@@ -83,3 +84,5 @@ platformModules.each { platform, modules ->
         project(":${m}").projectDir = file("${platform}/${m}")
     }
 }
+
+include 'example-extension'

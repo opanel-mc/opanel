@@ -12,6 +12,7 @@ import net.opanel.config.OPanelConfiguration;
 import net.opanel.controller.BaseController;
 import net.opanel.controller.BeforeController;
 import net.opanel.controller.ErrorController;
+import net.opanel.controller.ExtensionPageController;
 import net.opanel.controller.api.*;
 import net.opanel.controller.openapi.*;
 import net.opanel.endpoint.InventoryEndpoint;
@@ -89,6 +90,10 @@ public class WebServer {
             config.staticFiles.add(staticFiles -> {
                 staticFiles.hostedPath = "/";
                 staticFiles.directory = "/"+ ROOT_PATH;
+                staticFiles.skipFileFunction = request -> (
+                    request.getRequestURI().equals("/panel/ext")
+                    || request.getRequestURI().startsWith("/panel/ext/")
+                );
             });
         });
 
@@ -125,11 +130,17 @@ public class WebServer {
         TasksController tasksController = new TasksController(plugin);
         McpController mcpController = new McpController(plugin);
         OpenAPIController openAPIController = new OpenAPIController(plugin);
+        ExtensionsController extensionsController = new ExtensionsController(plugin);
+        ExtensionPageController extensionPageController = new ExtensionPageController(plugin);
 
         // API Routes
         app.before("/*", beforeController.beforeAll);
         app.before("/*", beforeController.handleRsc);
         app.before("/*", beforeController.handleFonts);
+        app.get("/panel/ext", ctx -> ctx.status(HttpStatus.NOT_FOUND));
+        app.get("/panel/ext/", ctx -> ctx.status(HttpStatus.NOT_FOUND));
+        app.get("/panel/ext/{extId}", extensionPageController::getExtensionPage);
+        app.get("/panel/ext/{extId}/", extensionPageController::getExtensionPage);
         app.routes(() -> path("assets", () -> {
             before("/upload/*", beforeController.authToken);
             get("/{name}", assetsController.getAsset);
@@ -271,6 +282,11 @@ public class WebServer {
                 post("/", openAPIController.toggleOpenAPI);
                 get("/{interfaceName}", openAPIController.getInterfaceEnabled);
                 post("/{interfaceName}", openAPIController.toggleInterface);
+            });
+            path("extension-res", () -> {
+                get("{extId}", extensionsController::getResource);
+                get("{extId}/", extensionsController::getResource);
+                get("{extId}/{resource}*", extensionsController::getResource);
             });
         }));
 

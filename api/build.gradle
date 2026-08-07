@@ -1,0 +1,17 @@
+plugins {
+    id 'java-library'
+}
+
+base {
+    archivesName = "${rootProject.name}-api"
+}
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(14)
+    }
+}
