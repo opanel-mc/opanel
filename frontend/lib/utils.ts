@@ -1,8 +1,8 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import locale from "locale-codes";
-import { NbtObject, NbtString } from "snbt-js";
 import { toast } from "sonner";
+import { NbtObject, NbtString } from "@/lib/snbt";
 import { Dimension, type GameMode, type ServerType, type SetState } from "./types";
 import { $ } from "./i18n";
 

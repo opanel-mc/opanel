@@ -25,6 +25,15 @@ const columns: ColumnDef<Row, unknown>[] = [
   }
 ];
 
+const columnsWithStatus: ColumnDef<Row, unknown>[] = [
+  ...columns,
+  {
+    id: "status",
+    header: "status",
+    cell: () => "visible status"
+  }
+];
+
 const createRows = (size: number): Row[] => (
   Array.from({ length: size }, (_, index) => ({ id: index + 1 }))
 );
@@ -89,5 +98,27 @@ describe("test data table", () => {
     await user.click(elem.getByText("[table.next]"));
 
     expect(mockReplace).toHaveBeenCalledWith("/panel/test?page=2", { scroll: false });
+  });
+
+  it("should update controlled column visibility", () => {
+    const elem = render(
+      <DataTable
+        columns={columnsWithStatus}
+        columnVisibility={{ status: false }}
+        data={createRows(1)}/>
+    );
+
+    expect(elem.queryByText("status")).not.toBeInTheDocument();
+    expect(elem.queryByText("visible status")).not.toBeInTheDocument();
+
+    elem.rerender(
+      <DataTable
+        columns={columnsWithStatus}
+        columnVisibility={{ status: true }}
+        data={createRows(1)}/>
+    );
+
+    expect(elem.getByText("status")).toBeInTheDocument();
+    expect(elem.getByText("visible status")).toBeInTheDocument();
   });
 });
