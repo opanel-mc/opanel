@@ -23,39 +23,39 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ModrinthUpdateSourceProvider implements UpdateSourceProvider {
-    private static final String API_BASE_URL = "https://mod.mcimirror.top/modrinth/v2";
+    private static final String MCIM_API_BASE_URL = "https://mod.mcimirror.top/modrinth/v2";
+    private static final String MODRINTH_API_BASE_URL = "https://api.modrinth.com/v2";
     private static final int MAX_HASHES_PER_REQUEST = 100;
     private static final Duration TIMEOUT = Duration.ofSeconds(15);
 
     private static final Pattern MC_VERSION_PATTERN = Pattern.compile("\\d+\\.\\d+(?:\\.\\d+)?");
 
     private final HttpClient httpClient;
-    private final String apiBaseUrl;
-    private final ExecutorService executor = Executors.newFixedThreadPool(8, runnable -> {
-        Thread thread = new Thread(runnable, "opanel-mcim-modrinth-update-checker");
-        thread.setDaemon(true);
-        return thread;
-    });
+    private final List<String> apiBaseUrls;
 
     public ModrinthUpdateSourceProvider() {
-        this(API_BASE_URL);
+        this(List.of(MCIM_API_BASE_URL, MODRINTH_API_BASE_URL));
     }
 
     ModrinthUpdateSourceProvider(String apiBaseUrl) {
-        this.apiBaseUrl = apiBaseUrl;
+        this(List.of(apiBaseUrl));
+    }
+
+    private ModrinthUpdateSourceProvider(List<String> apiBaseUrls) {
+        List<String> normalizedApiBaseUrls = new ArrayList<>();
+        for(String url : apiBaseUrls) {
+            if(url == null || url.isBlank()) continue;
+            normalizedApiBaseUrls.add(url.endsWith("/")
+                ? url.substring(0, url.length() - 1)
+                : url);
+        }
+        this.apiBaseUrls = List.copyOf(normalizedApiBaseUrls);
         this.httpClient = HttpClient.newBuilder()
             .connectTimeout(TIMEOUT)
             .followRedirects(HttpClient.Redirect.NORMAL)
@@ -86,59 +86,73 @@ public class ModrinthUpdateSourceProvider implements UpdateSourceProvider {
         ServerType serverType,
         PluginUpdateConfig config
     ) throws IOException {
-        return checkNow(fileHashes, serverVersion, serverType);
+        return checkNow(fileHashes, plugins, serverVersion, serverType);
     }
 
     private List<PluginUpdate> checkNow(
         Map<String, String> fileHashes,
+        List<OPanelPlugin> plugins,
         String serverVersion,
         ServerType serverType
     ) throws IOException {
         List<PluginUpdate> result = new ArrayList<>();
         if(fileHashes.isEmpty()) return result;
 
-        List<JsonObject> matchedVersions = matchVersionsByHashes(fileHashes.values());
-        if(matchedVersions.isEmpty()) return result;
+        final String mcVersion = extractMcVersion(serverVersion);
+        List<JsonObject> installedMatches = matchVersionsByHashes(fileHashes.values());
+        List<JsonObject> latestMatches = matchLatestVersionsByHashes(fileHashes.values(), mcVersion, serverType);
 
         Map<String, JsonObject> installedVersions = new LinkedHashMap<>();
+        Map<String, JsonObject> latestVersions = new LinkedHashMap<>();
         Set<String> projectIds = new LinkedHashSet<>();
         int index = 0;
         for(String fileName : fileHashes.keySet()) {
-            JsonObject version = matchedVersions.get(index++);
-            if(version == null) continue;
-            installedVersions.put(fileName, version);
-            projectIds.add(version.get("project_id").getAsString());
+            JsonObject installed = installedMatches.get(index);
+            JsonObject latest = latestMatches.get(index++);
+            if(installed == null || latest == null || !isPublishedAfter(installed, latest)) continue;
+            if(!isAllowedChannel(
+                getString(installed, "version_type", "release"),
+                getString(latest, "version_type", "release")
+            )) continue;
+
+            installedVersions.put(fileName, installed);
+            latestVersions.put(fileName, latest);
+            projectIds.add(getString(installed, "project_id", ""));
         }
         if(installedVersions.isEmpty()) return result;
 
-        Map<String, JsonObject> projects = fetchProjects(projectIds);
-        Map<String, JsonArray> versionLists = fetchVersionLists(projectIds);
-
-        final String mcVersion = extractMcVersion(serverVersion);
+        projectIds.remove("");
+        Map<String, JsonObject> projectsById = fetchProjects(projectIds);
+        Map<String, OPanelPlugin> pluginsByName = new HashMap<>();
+        for(OPanelPlugin plugin : plugins) pluginsByName.put(plugin.getFileName(), plugin);
 
         for(Map.Entry<String, JsonObject> entry : installedVersions.entrySet()) {
             final String fileName = entry.getKey();
             final JsonObject installed = entry.getValue();
-            final String projectId = installed.get("project_id").getAsString();
+            final JsonObject target = latestVersions.get(fileName);
+            final String projectId = getString(installed, "project_id", "");
 
-            JsonObject project = projects.get(projectId);
+            JsonObject project = projectsById.get(projectId);
             String name = project != null && project.has("title") && !project.get("title").isJsonNull()
                 ? project.get("title").getAsString()
-                : fileName.replaceAll("\\.jar(\\"+ OPanelPlugin.DISABLED_SUFFIX +")?$", "");
+                : getString(target, "name", fileName.replaceAll("\\.jar(\\"+ OPanelPlugin.DISABLED_SUFFIX +")?$", ""));
             if(name == null || name.isEmpty()) name = fileName;
 
-            JsonObject target = pickTarget(versionLists.get(projectId), mcVersion, serverType, installed);
-            if(target == null) continue;
-
-            final String currentVersion = installed.get("version_number").getAsString();
-            final String latestVersion = target.get("version_number").getAsString();
-            if(!isPublishedAfter(installed, target)) continue;
+            OPanelPlugin plugin = pluginsByName.get(fileName);
+            final String currentVersion = getString(
+                installed,
+                "version_number",
+                plugin == null || plugin.getVersion() == null ? "" : plugin.getVersion()
+            );
+            final String latestVersion = getString(target, "version_number", "");
 
             final String downloadUrl = getPrimaryFileUrl(target);
             if(downloadUrl == null) continue;
             final String downloadSha1 = getPrimaryFileSha1(target);
             if(downloadSha1 == null || downloadSha1.isEmpty()) {
-                throw new IOException("Modrinth did not provide a SHA-1 hash for " + name);
+                // Cannot safely auto-apply without a checksum; skip this plugin
+                // rather than aborting detection for every other plugin.
+                continue;
             }
 
             String projectUrl = null;
@@ -177,9 +191,28 @@ public class ModrinthUpdateSourceProvider implements UpdateSourceProvider {
         List<JsonObject> results = new ArrayList<>();
         for(int start = 0; start < hashList.size(); start += MAX_HASHES_PER_REQUEST) {
             int end = Math.min(start + MAX_HASHES_PER_REQUEST, hashList.size());
-            JsonObject body = buildVersionFilesRequest(hashList.subList(start, end));
-            JsonObject response = postJson(apiBaseUrl +"/version_files", body).getAsJsonObject();
-            results.addAll(mapVersionsByHash(hashList.subList(start, end), response));
+            List<String> batch = hashList.subList(start, end);
+            results.addAll(mapVersionsByHash(batch, postVersionFiles(batch)));
+        }
+        return results;
+    }
+
+    private List<JsonObject> matchLatestVersionsByHashes(
+        Iterable<String> hashes,
+        String mcVersion,
+        ServerType serverType
+    ) throws IOException {
+        List<String> hashList = new ArrayList<>();
+        for(String hash : hashes) hashList.add(hash);
+
+        List<JsonObject> results = new ArrayList<>();
+        for(int start = 0; start < hashList.size(); start += MAX_HASHES_PER_REQUEST) {
+            int end = Math.min(start + MAX_HASHES_PER_REQUEST, hashList.size());
+            List<String> batch = hashList.subList(start, end);
+            results.addAll(mapVersionsByHash(
+                batch,
+                postLatestVersionFiles(batch, mcVersion, serverType)
+            ));
         }
         return results;
     }
@@ -194,6 +227,22 @@ public class ModrinthUpdateSourceProvider implements UpdateSourceProvider {
         return body;
     }
 
+    private static JsonObject buildLatestVersionFilesRequest(
+        List<String> hashes,
+        String mcVersion,
+        ServerType serverType
+    ) {
+        JsonObject body = buildVersionFilesRequest(hashes);
+        JsonArray loaders = new JsonArray();
+        for(String loader : modrinthLoaders(serverType)) loaders.add(loader);
+        body.add("loaders", loaders);
+
+        JsonArray gameVersions = new JsonArray();
+        if(mcVersion != null && !mcVersion.isBlank()) gameVersions.add(mcVersion);
+        body.add("game_versions", gameVersions);
+        return body;
+    }
+
     private static List<JsonObject> mapVersionsByHash(List<String> hashes, JsonObject response) {
         List<JsonObject> result = new ArrayList<>();
         for(String hash : hashes) {
@@ -203,75 +252,26 @@ public class ModrinthUpdateSourceProvider implements UpdateSourceProvider {
         return result;
     }
 
-    private Map<String, JsonObject> fetchProjects(Collection<String> projectIds) throws IOException {
+    private Map<String, JsonObject> fetchProjects(Collection<String> projectIds) {
         Map<String, JsonObject> result = new HashMap<>();
         if(projectIds.isEmpty()) return result;
 
         JsonArray body = new JsonArray();
         for(String projectId : projectIds) body.add(projectId);
         String encoded = URLEncoder.encode(body.toString(), StandardCharsets.UTF_8);
-        JsonArray projects = getJson(apiBaseUrl +"/projects?ids="+ encoded).getAsJsonArray();
-        for(JsonElement element : projects) {
-            JsonObject project = element.getAsJsonObject();
-            result.put(project.get("id").getAsString(), project);
-        }
-        return result;
-    }
-
-    private Map<String, JsonArray> fetchVersionLists(Collection<String> projectIds) throws IOException {
-        Map<String, JsonArray> result = new ConcurrentHashMap<>();
-        Queue<IOException> errors = new ConcurrentLinkedQueue<>();
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for(String projectId : projectIds) {
-            futures.add(CompletableFuture.runAsync(() -> {
-                try {
-                    JsonElement response = getJson(apiBaseUrl +"/project/"+ projectId +"/version");
-                    if(response.isJsonArray()) {
-                        result.put(projectId, response.getAsJsonArray());
-                    }
-                } catch (IOException e) {
-                    errors.add(e);
+        try {
+            JsonArray projects = getJson("/projects?ids="+ encoded).getAsJsonArray();
+            for(JsonElement element : projects) {
+                JsonObject project = element.getAsJsonObject();
+                if(project.has("id") && !project.get("id").isJsonNull()) {
+                    result.put(project.get("id").getAsString(), project);
                 }
-            }, executor));
-        }
-        for(CompletableFuture<Void> future : futures) {
-            future.join();
-        }
-        if(!errors.isEmpty()) {
-            throw errors.remove();
+            }
+        } catch (IOException | RuntimeException ignored) {
+            // Project metadata only affects the display name and project link.
+            // Update detection can continue using the plugin file name.
         }
         return result;
-    }
-
-    private static JsonObject pickTarget(
-        JsonArray versions,
-        String mcVersion,
-        ServerType serverType,
-        JsonObject installedVersion
-    ) {
-        if(versions == null) return null;
-
-        List<JsonObject> list = new ArrayList<>();
-        for(JsonElement element : versions) {
-            list.add(element.getAsJsonObject());
-        }
-        list.sort((a, b) -> {
-            String dateA = a.has("date_published") ? a.get("date_published").getAsString() : "";
-            String dateB = b.has("date_published") ? b.get("date_published").getAsString() : "";
-            return dateB.compareTo(dateA);
-        });
-
-        final String installedChannel = installedVersion.has("version_type")
-            ? installedVersion.get("version_type").getAsString()
-            : "release";
-        for(JsonObject version : list) {
-            String type = version.has("version_type") ? version.get("version_type").getAsString() : "release";
-            if(!isAllowedChannel(installedChannel, type)) continue;
-            if(!matchesGameVersion(version, mcVersion)) continue;
-            if(!matchesLoader(version, serverType)) continue;
-            return version;
-        }
-        return null;
     }
 
     private static boolean isAllowedChannel(String installedChannel, String candidateChannel) {
@@ -280,45 +280,25 @@ public class ModrinthUpdateSourceProvider implements UpdateSourceProvider {
         return true;
     }
 
-    private static boolean matchesLoader(JsonObject version, ServerType serverType) {
-        if(!version.has("loaders") || !version.get("loaders").isJsonArray()) return false;
-
-        final Set<String> allowedLoaders;
+    private static List<String> modrinthLoaders(ServerType serverType) {
+        if(serverType == null) {
+            return List.of("fabric", "forge", "neoforge", "quilt", "paper", "purpur", "spigot", "bukkit", "folia");
+        }
         switch(serverType) {
             case FABRIC:
-                allowedLoaders = Set.of("fabric");
-                break;
+                return List.of("fabric");
             case FORGE:
-                allowedLoaders = Set.of("forge");
-                break;
+                return List.of("forge");
             case NEOFORGE:
-                allowedLoaders = Set.of("neoforge");
-                break;
+                return List.of("neoforge");
             case FOLIA:
-                allowedLoaders = Set.of("folia");
-                break;
+                return List.of("folia", "paper", "purpur", "spigot", "bukkit");
             case PAPER:
             case LEAVES:
-                allowedLoaders = Set.of("paper", "purpur", "spigot", "bukkit");
-                break;
+                return List.of("paper", "purpur", "spigot", "bukkit");
             default:
-                return false;
+                return List.of();
         }
-
-        for(JsonElement element : version.getAsJsonArray("loaders")) {
-            if(allowedLoaders.contains(element.getAsString().toLowerCase(Locale.ROOT))) return true;
-        }
-        return false;
-    }
-
-    private static boolean matchesGameVersion(JsonObject version, String mcVersion) {
-        if(mcVersion == null) return true;
-        if(!version.has("game_versions") || !version.get("game_versions").isJsonArray()) return false;
-        for(JsonElement element : version.getAsJsonArray("game_versions")) {
-            String gameVersion = element.getAsString();
-            if(gameVersion.equals(mcVersion)) return true;
-        }
-        return false;
     }
 
     private JsonObject getPrimaryFile(JsonObject version) {
@@ -350,30 +330,66 @@ public class ModrinthUpdateSourceProvider implements UpdateSourceProvider {
         return null;
     }
 
-    private JsonElement getJson(String url) throws IOException {
-        HttpRequest request = HttpRequest.newBuilder(URI.create(url))
-            .timeout(TIMEOUT)
-            .header("User-Agent", "OPanel/"+ OPanel.VERSION +" (github.com/opanel-mc/opanel)")
-            .GET()
-            .build();
-        return send(request);
+    private JsonElement getJson(String endpoint) throws IOException {
+        IOException lastError = null;
+        for(String apiBaseUrl : apiBaseUrls) {
+            try {
+                HttpRequest request = HttpRequest.newBuilder(URI.create(apiBaseUrl + endpoint))
+                    .timeout(TIMEOUT)
+                    .header("User-Agent", "OPanel/"+ OPanel.VERSION +" (github.com/opanel-mc/opanel)")
+                    .GET()
+                    .build();
+                return send(request);
+            } catch (IOException | RuntimeException e) {
+                lastError = e instanceof IOException
+                    ? (IOException)e
+                    : new IOException("Invalid response from Modrinth API", e);
+            }
+        }
+        throw lastError == null ? new IOException("No Modrinth API endpoint is configured") : lastError;
     }
 
-    private JsonElement postJson(String url, JsonElement body) throws IOException {
-        HttpRequest request = HttpRequest.newBuilder(URI.create(url))
-            .timeout(TIMEOUT)
-            .header("User-Agent", "OPanel/"+ OPanel.VERSION +" (github.com/opanel-mc/opanel)")
-            .header("Content-Type", "application/json")
-            .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
-            .build();
-        return send(request);
+    private JsonObject postVersionFiles(List<String> hashes) throws IOException {
+        return postJson("/version_files", buildVersionFilesRequest(hashes));
+    }
+
+    private JsonObject postLatestVersionFiles(
+        List<String> hashes,
+        String mcVersion,
+        ServerType serverType
+    ) throws IOException {
+        return postJson(
+            "/version_files/update",
+            buildLatestVersionFilesRequest(hashes, mcVersion, serverType)
+        );
+    }
+
+    private JsonObject postJson(String endpoint, JsonObject body) throws IOException {
+        IOException lastError = null;
+        for(String apiBaseUrl : apiBaseUrls) {
+            try {
+                HttpRequest request = HttpRequest.newBuilder(URI.create(apiBaseUrl + endpoint))
+                    .timeout(TIMEOUT)
+                    .header("User-Agent", "OPanel/"+ OPanel.VERSION +" (github.com/opanel-mc/opanel)")
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
+                    .build();
+                JsonElement response = send(request);
+                return response.isJsonObject() ? response.getAsJsonObject() : new JsonObject();
+            } catch (IOException | RuntimeException e) {
+                lastError = e instanceof IOException
+                    ? (IOException)e
+                    : new IOException("Invalid response from Modrinth API", e);
+            }
+        }
+        throw lastError == null ? new IOException("No Modrinth API endpoint is configured") : lastError;
     }
 
     private JsonElement send(HttpRequest request) throws IOException {
         try {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             if(response.statusCode() != 200) {
-                throw new IOException("MCIM Modrinth mirror returned HTTP " + response.statusCode());
+                throw new IOException("Modrinth API returned HTTP " + response.statusCode());
             }
             return JsonParser.parseString(response.body());
         } catch (InterruptedException e) {
@@ -391,6 +407,13 @@ public class ModrinthUpdateSourceProvider implements UpdateSourceProvider {
         if(serverVersion == null || serverVersion.isEmpty()) return null;
         Matcher matcher = MC_VERSION_PATTERN.matcher(serverVersion);
         return matcher.find() ? matcher.group() : null;
+    }
+
+    private static String getString(JsonObject object, String key, String fallback) {
+        if(object != null && object.has(key) && !object.get(key).isJsonNull()) {
+            return object.get(key).getAsString();
+        }
+        return fallback;
     }
 
     private static boolean isPublishedAfter(JsonObject installed, JsonObject target) {

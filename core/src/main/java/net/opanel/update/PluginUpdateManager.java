@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Facade kept for existing call sites. The multi-source logic now lives in
- * {@link PluginUpdateCoordinator}; add providers to this manager over time.
+ * Facade kept for existing call sites. The coordinator isolates failures from
+ * individual providers so one unavailable source cannot abort the whole pass.
  */
 public class PluginUpdateManager {
     private final PluginUpdateCoordinator coordinator;

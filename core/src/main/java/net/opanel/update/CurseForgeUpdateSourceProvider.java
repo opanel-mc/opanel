@@ -24,11 +24,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;import java.util.Queue;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -114,7 +112,6 @@ public class CurseForgeUpdateSourceProvider implements UpdateSourceProvider {
         final boolean paperSeries = isPaperSeries(serverType);
 
         final List<PluginUpdate> result = new ArrayList<>();
-        final Queue<IOException> errors = new ConcurrentLinkedQueue<>();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for(InstalledFile entry : installed) {
             futures.add(CompletableFuture.runAsync(() -> {
@@ -133,16 +130,14 @@ public class CurseForgeUpdateSourceProvider implements UpdateSourceProvider {
                             result.add(update);
                         }
                     }
-                } catch (IOException e) {
-                    errors.add(e);
+                } catch (IOException | RuntimeException ignored) {
+                    // Skip a single failed project without discarding updates
+                    // already found for every other installed plugin.
                 }
             }, executor));
         }
         for(CompletableFuture<Void> future : futures) {
             future.join();
-        }
-        if(!errors.isEmpty()) {
-            throw errors.remove();
         }
         return result;
     }
@@ -167,9 +162,6 @@ public class CurseForgeUpdateSourceProvider implements UpdateSourceProvider {
             ? installedFile.get("releaseType").getAsInt()
             : 1;
 
-        final JsonObject mod = getDataObject("mods/" + modId);
-        final String name = mod != null ? firstNonBlank(getString(mod, "name", null), getString(installedFile, "displayName", null)) : getString(installedFile, "displayName", null);
-
         final JsonArray candidates = fetchCandidateFiles(modId, mcVersion, loaderTypeId);
         final JsonObject target = pickTarget(
             candidates,
@@ -182,6 +174,10 @@ public class CurseForgeUpdateSourceProvider implements UpdateSourceProvider {
         );
         if(target == null) return null;
 
+        // Project metadata is only needed when an update was actually found.
+        // Fetching it earlier doubles the request count for up-to-date plugins.
+        final JsonObject mod = getDataObject("mods/" + modId);
+        final String name = mod != null ? firstNonBlank(getString(mod, "name", null), getString(installedFile, "displayName", null)) : getString(installedFile, "displayName", null);
         final String projectUrl = projectUrl(mod);
         final String sha1 = extractSha1(target);
         final OPanelPlugin plugin = pluginsByName.get(entry.fileName);

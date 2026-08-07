@@ -22,9 +22,22 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PluginUpdateCoordinator {
     private static final Duration TIMEOUT = Duration.ofSeconds(15);
+    private static final long PROVIDER_TIMEOUT_SECONDS = 45;
+    private static final Logger LOGGER = Logger.getLogger(PluginUpdateCoordinator.class.getName());
+    private static final ExecutorService CHECK_EXECUTOR = Executors.newFixedThreadPool(4, runnable -> {
+        Thread thread = new Thread(runnable, "opanel-plugin-update-source-checker");
+        thread.setDaemon(true);
+        return thread;
+    });
 
     private final List<UpdateSourceProvider> providers;
     private final PluginUpdateConfigStore configStore;
@@ -62,17 +75,18 @@ public class PluginUpdateCoordinator {
 
         final LinkedHashMap<String, PluginUpdate> updateMap = new LinkedHashMap<>();
         final PluginUpdateConfig config = configStore.getConfig();
+        List<CompletableFuture<List<PluginUpdate>>> checks = new ArrayList<>();
         for(UpdateSourceProvider provider : providers) {
-            List<PluginUpdate> providerUpdates = provider.check(
-                pluginsPath,
-                plugins,
-                fileHashes,
-                serverVersion,
-                serverType,
-                config
-            );
-            if(providerUpdates == null) continue;
-            for(PluginUpdate update : providerUpdates) {
+            checks.add(CompletableFuture.supplyAsync(
+                () -> checkProvider(provider, pluginsPath, plugins, fileHashes, serverVersion, serverType, config),
+                CHECK_EXECUTOR
+            ).orTimeout(PROVIDER_TIMEOUT_SECONDS, TimeUnit.SECONDS).exceptionally(error -> {
+                LOGGER.log(Level.WARNING, "Update source [" + provider.getSource() + "] timed out; skipping it", error);
+                return List.of();
+            }));
+        }
+        for(CompletableFuture<List<PluginUpdate>> check : checks) {
+            for(PluginUpdate update : check.join()) {
                 updateMap.putIfAbsent(update.getFileName(), update);
             }
         }
@@ -84,6 +98,33 @@ public class PluginUpdateCoordinator {
         cachedServerVersion = serverVersion;
         cachedServerType = serverType;
         return updates;
+    }
+
+    private static List<PluginUpdate> checkProvider(
+        UpdateSourceProvider provider,
+        Path pluginsPath,
+        List<OPanelPlugin> plugins,
+        Map<String, String> fileHashes,
+        String serverVersion,
+        ServerType serverType,
+        PluginUpdateConfig config
+    ) {
+        try {
+            List<PluginUpdate> updates = provider.check(
+                pluginsPath,
+                plugins,
+                fileHashes,
+                serverVersion,
+                serverType,
+                config
+            );
+            return updates == null ? List.of() : updates;
+        } catch (IOException | RuntimeException e) {
+            // A single failed source must never abort the whole update pass:
+            // other providers may still resolve updates for the same plugins.
+            LOGGER.log(Level.WARNING, "Update source [" + provider.getSource() + "] failed; skipping it", e);
+            return List.of();
+        }
     }
 
     public synchronized void invalidateCache() {

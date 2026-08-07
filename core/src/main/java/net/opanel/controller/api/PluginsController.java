@@ -475,7 +475,8 @@ public class PluginsController extends BaseController {
         if("modrinth".equals(source) || "curseforge".equals(source) || "mcim".equals(source)) {
             return "mcim";
         }
-        return source;
+        if("hangar".equals(source) || "github".equals(source)) return source;
+        return "unbound";
     }
 
     private List<OPanelPlugin> getPluginsWithoutPendingOperations() {
