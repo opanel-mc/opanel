@@ -27,7 +27,7 @@ The features of OPanel include:
 - Saves manager that helps you easily upload, download, delete or enable your saves through a simple interface.
 - Players manager that helps you manage players, banned players and whitelist, and perform actions like kick, ban or changing permissions.
 - Gamerules editor that assists you to toggle gamerules without entering any command.
-- Plugin manager that allows you to enable / disable plugins or mods and view detailed plugin information.
+- Plugin manager that allows you to enable / disable plugins or mods, view detailed plugin information, and check for the latest updates of installed plugins.
 - Server terminal that can directly send messages or execute commands from the web panel.
 - Builtin real-time map viewer.
 - Server logs manager and viewer.

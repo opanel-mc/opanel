@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.stream.Stream;
@@ -273,6 +274,35 @@ public class PaperServer extends BasePaperServer implements OPanelServer, CodeOf
             Files.delete(filePath);
         } catch (Exception e) {
             FileOpsHelperApi.scheduleDelete(List.of(filePath.toString()));
+            throw new ActLaterException();
+        }
+    }
+
+    @Rewrite
+    @Override
+    public void updatePlugin(String fileName, Path newPluginFile) throws IOException, ActLaterException {
+        Path pluginsPath = getPluginsPath();
+        Path targetPath = pluginsPath.resolve(fileName);
+        if(!Files.exists(targetPath)) {
+            targetPath = pluginsPath.resolve(fileName + OPanelPlugin.DISABLED_SUFFIX);
+        }
+
+        if(!Files.exists(targetPath)) {
+            throw new NoSuchFileException("Plugin file not found: " + fileName);
+        }
+
+        try {
+            Files.move(newPluginFile, targetPath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            // The plugin is loaded and cannot be overwritten, defer it to the server restart
+            Path deferredPath = pluginsPath.resolve(fileName + ".update");
+            try {
+                Files.move(newPluginFile, deferredPath, StandardCopyOption.REPLACE_EXISTING);
+            } catch (Exception e2) {
+                throw new IllegalStateException("Cannot update a loaded plugin.");
+            }
+            FileOpsHelperApi.cancelPendingOperationsByTarget(List.of(targetPath.toString()));
+            FileOpsHelperApi.scheduleMove(deferredPath.toString(), targetPath.toString(), true);
             throw new ActLaterException();
         }
     }

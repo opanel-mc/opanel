@@ -1,7 +1,12 @@
+import type { PluginUpdate, PluginUpdatesResponse } from "@/lib/types";
 import { toastRestartAlert } from "@/components/restart-alert";
 import { apiUrl, sendDeleteRequest, sendPostRequest, toastError } from "@/lib/api";
 import { emitter } from "@/lib/emitter";
 import { $ } from "@/lib/i18n";
+import { getLocalStorage } from "@/lib/utils";
+
+const AUTO_CHECK_STORAGE_KEY = "opanel.plugins.auto-check";
+const AUTO_CHECK_INTERVAL = 12 * 60 * 60 * 1000; // 12 hours
 
 export async function downloadPlugin(fileName: string) {
   window.open(`${apiUrl}/api/plugins/${fileName}`, "_blank");
@@ -38,5 +43,35 @@ export async function deletePlugin(fileName: string) {
       [404, $("plugins.action.delete.error.404", fileName)],
       [500, $("common.error.500")]
     ]);
+  }
+}
+
+export async function checkPluginUpdates(force = false): Promise<PluginUpdate[]> {
+  const { updates } = await sendPostRequest<PluginUpdatesResponse>(`/api/plugins/check-updates${force ? "?force=1" : ""}`);
+  return updates;
+}
+
+export async function updatePlugins(fileNames: string[]) {
+  const { code } = await sendPostRequest(`/api/plugins/update`, JSON.stringify(fileNames));
+  emitter.emit("refresh-data");
+  if(code === 202) { // 202 Accepted
+    toastRestartAlert();
+  }
+}
+
+export function shouldAutoCheckPluginUpdates(): boolean {
+  try {
+    const dismissedAt = parseInt(getLocalStorage().getItem(AUTO_CHECK_STORAGE_KEY) ?? "0", 10);
+    return Date.now() - dismissedAt > AUTO_CHECK_INTERVAL;
+  } catch {
+    return true;
+  }
+}
+
+export function markPluginUpdateDialogDismissed() {
+  try {
+    getLocalStorage().setItem(AUTO_CHECK_STORAGE_KEY, String(Date.now()));
+  } catch {
+    //
   }
 }

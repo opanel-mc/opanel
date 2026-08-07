@@ -1,6 +1,7 @@
 package net.opanel.common;
 
 import net.opanel.OPanel;
+import net.opanel.exception.ActLaterException;
 import net.opanel.storage.Storage;
 import net.opanel.storage.StorageKey;
 import net.opanel.utils.Utils;
@@ -104,8 +105,11 @@ public interface OPanelServer {
     long getIngameTime();
     Path getPluginsPath();
     List<OPanelPlugin> getPlugins();
+
     void togglePlugin(String fileName, boolean enabled) throws IOException;
     void deletePlugin(String fileName) throws IOException;
+    void updatePlugin(String fileName, Path newPluginFile) throws IOException, ActLaterException;
+
     OPanelChunkAccessor getChunkAccessor();
 
     static String getPropertiesContent() throws IOException {

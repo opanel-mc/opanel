@@ -13,8 +13,10 @@ import org.bukkit.entity.Player;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.stream.Stream;
@@ -218,6 +220,26 @@ public class PaperServer extends BasePaperServer implements OPanelServer, PaperC
                 }
             });
         });
+    }
+
+    @Override
+    public void updatePlugin(String fileName, Path newPluginFile) throws IOException {
+        Path pluginsPath = getPluginsPath();
+        Path targetPath = pluginsPath.resolve(fileName);
+
+        if(!Files.exists(targetPath)) {
+            targetPath = pluginsPath.resolve(fileName + OPanelPlugin.DISABLED_SUFFIX);
+        }
+
+        if(!Files.exists(targetPath)) {
+            throw new NoSuchFileException("Plugin file not found: " + fileName);
+        }
+
+        try {
+            Files.move(newPluginFile, targetPath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            throw new IllegalStateException("Cannot update a loaded plugin.");
+        }
     }
 
     @Override

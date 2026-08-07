@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.stream.Stream;
@@ -353,6 +354,33 @@ public abstract class BaseNeoServer implements OPanelServer {
             Files.delete(filePath);
         } catch (Exception e) {
             FileOpsHelperApi.scheduleDelete(List.of(filePath.toString()));
+            throw new ActLaterException();
+        }
+    }
+
+    @Override
+    public void updatePlugin(String fileName, Path newPluginFile) throws IOException, ActLaterException {
+        Path modsPath = getPluginsPath();
+        Path targetPath = modsPath.resolve(fileName);
+        if(!Files.exists(targetPath)) {
+            targetPath = modsPath.resolve(fileName + OPanelPlugin.DISABLED_SUFFIX);
+        }
+
+        if(!Files.exists(targetPath)) {
+            throw new NoSuchFileException("Mod file not found: " + fileName);
+        }
+
+        try {
+            Files.move(newPluginFile, targetPath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            // The mod is loaded and the file cannot be overwritten, defer it to the server restart
+            Path deferredPath = modsPath.resolve(fileName + ".update");
+            try {
+                Files.move(newPluginFile, deferredPath, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e2) {
+                throw new IOException("Cannot update a loaded mod.");
+            }
+            FileOpsHelperApi.scheduleMove(deferredPath.toString(), targetPath.toString(), true);
             throw new ActLaterException();
         }
     }
