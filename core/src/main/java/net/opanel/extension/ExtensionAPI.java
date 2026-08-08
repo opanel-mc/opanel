@@ -5,11 +5,11 @@ import net.opanel.api.OPanelAPI;
 
 public class ExtensionAPI implements OPanelAPI {
     private final OPanel plugin;
-    private final String extensionId;
+    private final ExtensionMetadata metadata;
 
-    public ExtensionAPI(OPanel plugin, String extensionId) {
+    public ExtensionAPI(OPanel plugin, ExtensionMetadata metadata) {
         this.plugin = plugin;
-        this.extensionId = extensionId;
+        this.metadata = metadata;
     }
 
     @Override
@@ -33,6 +33,6 @@ public class ExtensionAPI implements OPanelAPI {
     }
 
     private String formatLog(String message) {
-        return "[" + extensionId + "] " + message;
+        return "[" + metadata.name + "] " + message;
     }
 }

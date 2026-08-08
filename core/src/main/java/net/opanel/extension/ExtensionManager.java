@@ -1,5 +1,6 @@
 package net.opanel.extension;
 
+import com.google.gson.Gson;
 import net.opanel.OPanel;
 import net.opanel.api.Extension;
 import net.opanel.api.ExtensionLoad;
@@ -9,12 +10,14 @@ import net.opanel.utils.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -27,9 +30,11 @@ import java.util.jar.JarFile;
 import java.util.stream.Stream;
 
 public class ExtensionManager {
+    private static final String METADATA_FILE = "extension.json";
     private static final String WEB_ROOT = "web/";
     private static final String WEB_INDEX = WEB_ROOT + "index.html";
     private static final String EXTENSION_ID_PATTERN = "[a-z0-9]+(?:-[a-z0-9]+)*";
+    private static final Gson gson = new Gson();
 
     private final OPanel plugin;
     private final Map<String, LoadedExtension> loadedExtensions = new LinkedHashMap<>();
@@ -95,13 +100,8 @@ public class ExtensionManager {
         boolean loadCallbackStarted = false;
         try {
             jarFile = new JarFile(extensionPath.toFile());
-            classLoader = new ExtensionClassLoader(extensionPath.toUri().toURL(), OPanelAPI.class.getClassLoader());
-
-            Class<?> entryClass = findExtensionEntry(jarFile, classLoader, extensionPath);
-            if(entryClass == null) return;
-
-            Extension extensionAnnotation = entryClass.getAnnotation(Extension.class);
-            String extensionId = extensionAnnotation.id();
+            ExtensionMetadata metadata = readMetadata(jarFile);
+            String extensionId = metadata.extId;
             if(!extensionId.matches(EXTENSION_ID_PATTERN) || extensionId.length() > 64) {
                 plugin.logger.error("Skipping extension '" + extensionPath.getFileName() + "': invalid extension id '" + extensionId + "'.");
                 return;
@@ -111,17 +111,21 @@ public class ExtensionManager {
                 return;
             }
 
+            classLoader = new ExtensionClassLoader(extensionPath.toUri().toURL(), OPanelAPI.class.getClassLoader());
+            Class<?> entryClass = findExtensionEntry(jarFile, classLoader, extensionPath);
+            if(entryClass == null) return;
+
+            plugin.logger.info("Loading extension '"+ metadata.name +"' v"+ metadata.version);
             validateEntryClass(entryClass);
             Method loadMethod = findLoadMethod(entryClass);
             Method unloadMethod = findUnloadMethod(entryClass);
             Constructor<?> constructor = entryClass.getConstructor();
             Object instance = constructor.newInstance();
-            loadedExtension = new LoadedExtension(extensionId, extensionPath, instance, loadMethod, unloadMethod, classLoader, jarFile);
+            loadedExtension = new LoadedExtension(extensionId, metadata, extensionPath, instance, loadMethod, unloadMethod, classLoader, jarFile);
 
             loadCallbackStarted = true;
-            invokeLifecycle(classLoader, loadMethod, instance, new ExtensionAPI(plugin, extensionId));
+            invokeLifecycle(classLoader, loadMethod, instance, new ExtensionAPI(plugin, metadata));
             loadedExtensions.put(extensionId, loadedExtension);
-            plugin.logger.info("Loaded extension '" + extensionId + "' from " + extensionPath.getFileName() + ".");
             jarFile = null;
             classLoader = null;
         } catch (Throwable e) {
@@ -158,6 +162,27 @@ public class ExtensionManager {
             return null;
         }
         return entries.get(0);
+    }
+
+    private static ExtensionMetadata readMetadata(JarFile jarFile) throws IOException {
+        JarEntry entry = jarFile.getJarEntry(METADATA_FILE);
+        if(entry == null || entry.isDirectory()) {
+            throw new IllegalArgumentException("Missing " + METADATA_FILE + ".");
+        }
+
+        try(
+                InputStream inputStream = jarFile.getInputStream(entry);
+                InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)
+        ) {
+            ExtensionMetadata metadata = gson.fromJson(reader, ExtensionMetadata.class);
+            if(metadata == null || metadata.extId == null || metadata.extId.isBlank()) {
+                throw new IllegalArgumentException(METADATA_FILE + " must define a non-blank extId.");
+            }
+            if(metadata.name == null || metadata.name.isBlank()) {
+                throw new IllegalArgumentException(METADATA_FILE + " must define a non-blank name.");
+            }
+            return metadata;
+        }
     }
 
     private static boolean isClassEntry(String name) {

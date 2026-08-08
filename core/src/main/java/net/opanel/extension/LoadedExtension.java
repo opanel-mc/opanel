@@ -7,6 +7,7 @@ import java.util.jar.JarFile;
 
 public class LoadedExtension {
     public final String id;
+    public final ExtensionMetadata metadata;
     public final Path sourceJar;
     public final Object instance;
     public final Method loadMethod;
@@ -16,6 +17,7 @@ public class LoadedExtension {
 
     public LoadedExtension(
             String id,
+            ExtensionMetadata metadata,
             Path sourceJar,
             Object instance,
             Method loadMethod,
@@ -24,6 +26,7 @@ public class LoadedExtension {
             JarFile jarFile
     ) {
         this.id = id;
+        this.metadata = metadata;
         this.sourceJar = sourceJar;
         this.instance = instance;
         this.loadMethod = loadMethod;

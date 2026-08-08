@@ -2,7 +2,7 @@ package com.example.extension;
 
 import net.opanel.api.*;
 
-@Extension(id = "example-extension")
+@Extension
 public class Main {
     private OPanelAPI api;
 
