@@ -1,6 +1,7 @@
 package net.opanel.controller;
 
 import io.javalin.http.ContentType;
+import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 import net.opanel.OPanel;
 import net.opanel.web.WebServer;
@@ -15,7 +16,7 @@ public class ExtensionPageController extends BaseController {
         super(plugin);
     }
 
-    public void getExtensionPage(io.javalin.http.Context ctx) {
+    public Handler getExtensionPage = ctx -> {
         String extensionId = ctx.pathParam("extId");
         if(!plugin.getExtensionManager().hasWebIndex(extensionId)) {
             sendResponse(ctx, HttpStatus.NOT_FOUND, "Extension or extension page was not found.");
@@ -32,5 +33,5 @@ public class ExtensionPageController extends BaseController {
             plugin.logger.error("Failed to read extension host page: " + e.getMessage());
             sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, "Failed to read extension host page.");
         }
-    }
+    };
 }

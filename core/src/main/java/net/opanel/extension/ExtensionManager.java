@@ -81,13 +81,21 @@ public class ExtensionManager {
         loadedExtensions.clear();
     }
 
+    public synchronized LoadedExtension getExtension(String extensionId) {
+        return loadedExtensions.get(extensionId);
+    }
+
+    public synchronized boolean hasExtension(String extensionId) {
+        return loadedExtensions.containsKey(extensionId);
+    }
+
     public synchronized boolean hasWebIndex(String extensionId) {
-        LoadedExtension extension = loadedExtensions.get(extensionId);
+        LoadedExtension extension = getExtension(extensionId);
         return extension != null && extension.hasResource(WEB_INDEX);
     }
 
     public synchronized InputStream openWebResource(String extensionId, String resourcePath) throws IOException {
-        LoadedExtension extension = loadedExtensions.get(extensionId);
+        LoadedExtension extension = getExtension(extensionId);
         if(extension == null) return null;
 
         JarEntry entry = extension.jarFile.getJarEntry(WEB_ROOT + resourcePath);
@@ -99,11 +107,12 @@ public class ExtensionManager {
         JarFile jarFile = null;
         ExtensionClassLoader classLoader = null;
         LoadedExtension loadedExtension = null;
+        String extensionId = null;
         boolean loadCallbackStarted = false;
         try {
             jarFile = new JarFile(extensionPath.toFile());
             ExtensionMetadata metadata = readMetadata(jarFile);
-            String extensionId = metadata.extId;
+            extensionId = metadata.extId;
             if(!extensionId.matches(EXTENSION_ID_PATTERN) || extensionId.length() > 64) {
                 plugin.logger.error("Skipping extension '" + extensionPath.getFileName() + "': invalid extension id '" + extensionId + "'.");
                 return;
@@ -113,7 +122,7 @@ public class ExtensionManager {
                 return;
             }
 
-            classLoader = new ExtensionClassLoader(extensionPath.toUri().toURL(), OPanelAPI.class.getClassLoader());
+            classLoader = new ExtensionClassLoader(extensionPath.toUri().toURL(), OPanelAPI.class.getClassLoader(), OPanel.class.getClassLoader());
             Class<?> entryClass = findExtensionEntry(jarFile, classLoader, extensionPath);
             if(entryClass == null) return;
 
@@ -123,12 +132,23 @@ public class ExtensionManager {
             Method unloadMethod = findUnloadMethod(entryClass);
             Constructor<?> constructor = entryClass.getConstructor();
             Object instance = constructor.newInstance();
+
             ExtensionAPI api = ExtensionContext.buildApi(plugin, metadata);
-            loadedExtension = new LoadedExtension(extensionId, metadata, extensionPath, instance, loadMethod, unloadMethod, api, classLoader, jarFile);
+            loadedExtension = new LoadedExtension(
+                    extensionId,
+                    metadata,
+                    extensionPath,
+                    instance,
+                    loadMethod,
+                    unloadMethod,
+                    api,
+                    classLoader,
+                    jarFile
+            );
 
             loadCallbackStarted = true;
-            invokeLifecycle(classLoader, loadMethod, instance, api);
             loadedExtensions.put(extensionId, loadedExtension);
+            invokeLifecycle(classLoader, loadMethod, instance, api);
             jarFile = null;
             classLoader = null;
         } catch (Throwable e) {
@@ -140,6 +160,7 @@ public class ExtensionManager {
                     plugin.logger.error("Failed to clean up extension '" + loadedExtension.id + "': " + describe(unloadError));
                 } finally {
                     loadedExtension.api.invalidate();
+                    loadedExtensions.remove(extensionId);
                 }
             }
         } finally {
@@ -275,15 +296,22 @@ public class ExtensionManager {
 
     public static class ExtensionClassLoader extends URLClassLoader {
         private final ClassLoader apiClassLoader;
+        private final ClassLoader coreClassLoader;
 
-        private ExtensionClassLoader(URL extensionUrl, ClassLoader apiClassLoader) {
+        private ExtensionClassLoader(URL extensionUrl, ClassLoader apiClassLoader, ClassLoader coreClassLoader) {
             super(new URL[] { extensionUrl }, ClassLoader.getPlatformClassLoader());
             this.apiClassLoader = apiClassLoader;
+            this.coreClassLoader = coreClassLoader;
         }
 
         @Override
         protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+            // Expose OPanel API classes
             if(name.startsWith("net.opanel.api.")) return apiClassLoader.loadClass(name);
+
+            // Expose Javalin classes
+            if(name.startsWith("io.javalin.")) return coreClassLoader.loadClass(name);
+
             try { // try to load java-provided class
                 return ClassLoader.getPlatformClassLoader().loadClass(name);
             } catch (ClassNotFoundException e) {

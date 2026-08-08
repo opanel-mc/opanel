@@ -1,5 +1,6 @@
 package net.opanel.utils;
 
+import io.javalin.http.ContentType;
 import net.opanel.OPanel;
 
 import javax.imageio.ImageIO;
@@ -330,5 +331,20 @@ public class Utils {
             if(method.isAnnotationPresent(annotationClass)) methods.add(method);
         }
         return methods;
+    }
+
+    public static String normalizePath(String path) {
+        if(path == null || path.isEmpty()) return "index.html";
+        if(path.contains("\\")) return null;
+        if(path.startsWith("/")) {
+            path = path.substring(1);
+            if(path.startsWith("/")) return null;
+        }
+
+        String[] segments = path.split("/");
+        for(String segment : segments) {
+            if(segment.equals("..")) return null;
+        }
+        return path;
     }
 }

@@ -3,6 +3,7 @@ package net.opanel.web;
 import com.google.gson.Gson;
 import io.javalin.Javalin;
 import io.javalin.config.SizeUnit;
+import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 import io.javalin.jetty.JettyServer;
 import io.javalin.json.JavalinGson;
@@ -139,8 +140,8 @@ public class WebServer {
         app.before("/*", beforeController.handleFonts);
         app.get("/panel/ext", ctx -> ctx.status(HttpStatus.NOT_FOUND));
         app.get("/panel/ext/", ctx -> ctx.status(HttpStatus.NOT_FOUND));
-        app.get("/panel/ext/{extId}", extensionPageController::getExtensionPage);
-        app.get("/panel/ext/{extId}/", extensionPageController::getExtensionPage);
+        app.get("/panel/ext/{extId}", extensionPageController.getExtensionPage);
+        app.get("/panel/ext/{extId}/", extensionPageController.getExtensionPage);
         app.routes(() -> path("assets", () -> {
             before("/upload/*", beforeController.authToken);
             get("/{name}", assetsController.getAsset);
@@ -284,10 +285,11 @@ public class WebServer {
                 post("/{interfaceName}", openAPIController.toggleInterface);
             });
             path("extension-res", () -> {
-                get("{extId}", extensionsController::getResource);
-                get("{extId}/", extensionsController::getResource);
-                get("{extId}/<resource>", extensionsController::getResource);
+                get("{extId}", extensionsController.getExtensionResource);
+                get("{extId}/", extensionsController.getExtensionResource);
+                get("{extId}/<resource>", extensionsController.getExtensionResource);
             });
+            before("extension/{extId}/<path>", beforeController.routeExtensionBackend);
         }));
 
         // Open API Controllers

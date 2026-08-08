@@ -11,6 +11,7 @@ repositories {
 }
 
 dependencies {
+    compileOnly 'io.javalin:javalin:5.6.4'
     compileOnly(project(":api"))
 }
 

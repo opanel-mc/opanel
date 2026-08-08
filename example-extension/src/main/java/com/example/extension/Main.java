@@ -1,5 +1,6 @@
 package com.example.extension;
 
+import io.javalin.http.HandlerType;
 import net.opanel.api.*;
 
 @Extension
@@ -15,6 +16,10 @@ public class Main {
         api.logInfo("Server Info: "+ server.getServerType().getName() +" "+ server.getMinecraftVersion());
         api.logInfo("Server Motd: "+ server.getMotd());
         api.logInfo("Players: "+ server.getOnlinePlayers().size() +" / "+ server.getMaxPlayerCount());
+
+        api.addHandler("/test", HandlerType.GET, ctx -> {
+            ctx.result("Hello World");
+        });
     }
 
     @ExtensionUnload

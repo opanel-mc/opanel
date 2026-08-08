@@ -1,9 +1,13 @@
 package net.opanel.extension;
 
+import io.javalin.http.Handler;
+import io.javalin.http.HandlerType;
 import net.opanel.extension.api.ExtensionAPI;
 
 import java.lang.reflect.Method;
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -17,6 +21,7 @@ public class LoadedExtension {
     public final ExtensionAPI api;
     public final ExtensionManager.ExtensionClassLoader classLoader;
     public final JarFile jarFile;
+    public final Map<String, BackendRoute> backendRoutesMap = new LinkedHashMap<>();
 
     public LoadedExtension(
             String id,
@@ -43,5 +48,21 @@ public class LoadedExtension {
     public boolean hasResource(String resourcePath) {
         JarEntry entry = jarFile.getJarEntry(resourcePath);
         return entry != null && !entry.isDirectory();
+    }
+
+    public void addHandler(String path, HandlerType method, Handler handler) {
+        BackendRoute route = new BackendRoute();
+        route.method = method;
+        route.handler = handler;
+        backendRoutesMap.put(path, route);
+    }
+
+    public BackendRoute getBackendRoute(String path) {
+        return backendRoutesMap.get(path);
+    }
+
+    public static class BackendRoute {
+        public HandlerType method;
+        public Handler handler;
     }
 }

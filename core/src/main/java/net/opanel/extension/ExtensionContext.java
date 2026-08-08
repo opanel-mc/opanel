@@ -31,6 +31,14 @@ public final class ExtensionContext {
         if(!active) throw new APIUnavailableException("The extension API is no longer available.");
     }
 
+    public String getExtensionId() {
+        return metadata.extId;
+    }
+
+    public ExtensionMetadata getExtensionMetadata() {
+        return metadata;
+    }
+
     public OPanel getPlugin() {
         return plugin;
     }

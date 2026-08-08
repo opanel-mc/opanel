@@ -2,10 +2,13 @@ package net.opanel.controller.api;
 
 import io.javalin.http.ContentType;
 import io.javalin.http.Context;
+import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
+import io.javalin.http.servlet.JavalinServletContext;
 import net.opanel.OPanel;
 import net.opanel.controller.BaseController;
 import net.opanel.extension.ExtensionManager;
+import net.opanel.utils.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,18 +18,22 @@ public class ExtensionsController extends BaseController {
         super(plugin);
     }
 
-    public void getResource(Context ctx) {
+    public Handler getExtensionResource = ctx -> {
         String extensionId = ctx.pathParam("extId");
         String resourcePath = ctx.pathParamMap().containsKey("resource") ? ctx.pathParam("resource") : "";
-        String normalizedPath = normalizeResourcePath(resourcePath);
+        String normalizedPath = Utils.normalizePath(resourcePath);
         if(normalizedPath == null) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Invalid extension resource path.");
             return;
         }
 
         ExtensionManager extensionManager = plugin.getExtensionManager();
+        if(!extensionManager.hasExtension(extensionId)) {
+            sendResponse(ctx, HttpStatus.NOT_FOUND, "Extension not found.");
+            return;
+        }
         if(!extensionManager.hasWebIndex(extensionId)) {
-            sendResponse(ctx, HttpStatus.NOT_FOUND, "Extension or extension page was not found.");
+            sendResponse(ctx, HttpStatus.NOT_FOUND, "Extension page not found.");
             return;
         }
 
@@ -38,7 +45,7 @@ public class ExtensionsController extends BaseController {
                 resource = extensionManager.openWebResource(extensionId, servedPath);
             }
             if(resource == null) {
-                sendResponse(ctx, HttpStatus.NOT_FOUND, "Extension resource was not found.");
+                sendResponse(ctx, HttpStatus.NOT_FOUND, "Extension resource not found.");
                 return;
             }
 
@@ -48,18 +55,7 @@ public class ExtensionsController extends BaseController {
             plugin.logger.error("Failed to read extension resource '" + extensionId + "/" + normalizedPath + "': " + e.getMessage());
             sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, "Failed to read extension resource.");
         }
-    }
-
-    private static String normalizeResourcePath(String resourcePath) {
-        if(resourcePath == null || resourcePath.isEmpty()) return "index.html";
-        if(resourcePath.startsWith("/") || resourcePath.contains("\\")) return null;
-
-        String[] segments = resourcePath.split("/");
-        for(String segment : segments) {
-            if(segment.equals("..")) return null;
-        }
-        return resourcePath;
-    }
+    };
 
     private static ContentType getContentType(String resourcePath) {
         int extensionStart = resourcePath.lastIndexOf('.') + 1;

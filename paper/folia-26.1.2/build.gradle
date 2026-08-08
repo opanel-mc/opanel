@@ -55,7 +55,6 @@ shadowJar {
     relocate 'com.google.gson', 'net.opanel.deps.gson'
     relocate 'org.objectweb.asm', 'net.opanel.deps.objectweb.asm'
     relocate 'de.tr7zw.changeme.nbtapi', 'net.opanel.deps.nbtapi'
-    relocate 'io.javalin', 'net.opanel.deps.javalin'
     relocate 'kotlin', 'net.opanel.deps.kotlin'
     relocate 'org.bstats', 'net.opanel.deps.bstats'
     relocate 'com.nimbusds', 'net.opanel.deps.nimbusds'
