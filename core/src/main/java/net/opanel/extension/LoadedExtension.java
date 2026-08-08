@@ -1,5 +1,7 @@
 package net.opanel.extension;
 
+import net.opanel.extension.api.ExtensionAPI;
+
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.jar.JarEntry;
@@ -12,6 +14,7 @@ public class LoadedExtension {
     public final Object instance;
     public final Method loadMethod;
     public final Method unloadMethod;
+    public final ExtensionAPI api;
     public final ExtensionManager.ExtensionClassLoader classLoader;
     public final JarFile jarFile;
 
@@ -22,6 +25,7 @@ public class LoadedExtension {
             Object instance,
             Method loadMethod,
             Method unloadMethod,
+            ExtensionAPI api,
             ExtensionManager.ExtensionClassLoader classLoader,
             JarFile jarFile
     ) {
@@ -31,6 +35,7 @@ public class LoadedExtension {
         this.instance = instance;
         this.loadMethod = loadMethod;
         this.unloadMethod = unloadMethod;
+        this.api = api;
         this.classLoader = classLoader;
         this.jarFile = jarFile;
     }

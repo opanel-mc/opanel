@@ -9,7 +9,12 @@ public class Main {
     @ExtensionLoad
     public void load(OPanelAPI api) {
         this.api = api;
-        api.logInfo("Example extension loaded with OPanel " + api.getOPanelVersion());
+        api.logInfo("Example extension loaded");
+
+        ServerAPI server = api.getServer();
+        api.logInfo("Server Info: "+ server.getServerType().getName() +" "+ server.getMinecraftVersion());
+        api.logInfo("Server Motd: "+ server.getMotd());
+        api.logInfo("Players: "+ server.getOnlinePlayers().size() +" / "+ server.getMaxPlayerCount());
     }
 
     @ExtensionUnload

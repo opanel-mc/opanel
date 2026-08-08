@@ -6,6 +6,7 @@ import net.opanel.api.Extension;
 import net.opanel.api.ExtensionLoad;
 import net.opanel.api.ExtensionUnload;
 import net.opanel.api.OPanelAPI;
+import net.opanel.extension.api.ExtensionAPI;
 import net.opanel.utils.Utils;
 
 import java.io.IOException;
@@ -73,6 +74,7 @@ public class ExtensionManager {
             } catch (Throwable e) {
                 plugin.logger.error("Failed to unload extension '" + extension.id + "': " + describe(e));
             } finally {
+                extension.api.invalidate();
                 closeExtension(extension);
             }
         }
@@ -121,10 +123,11 @@ public class ExtensionManager {
             Method unloadMethod = findUnloadMethod(entryClass);
             Constructor<?> constructor = entryClass.getConstructor();
             Object instance = constructor.newInstance();
-            loadedExtension = new LoadedExtension(extensionId, metadata, extensionPath, instance, loadMethod, unloadMethod, classLoader, jarFile);
+            ExtensionAPI api = ExtensionContext.buildApi(plugin, metadata);
+            loadedExtension = new LoadedExtension(extensionId, metadata, extensionPath, instance, loadMethod, unloadMethod, api, classLoader, jarFile);
 
             loadCallbackStarted = true;
-            invokeLifecycle(classLoader, loadMethod, instance, new ExtensionAPI(plugin, metadata));
+            invokeLifecycle(classLoader, loadMethod, instance, api);
             loadedExtensions.put(extensionId, loadedExtension);
             jarFile = null;
             classLoader = null;
@@ -135,6 +138,8 @@ public class ExtensionManager {
                     invokeLifecycle(loadedExtension.classLoader, loadedExtension.unloadMethod, loadedExtension.instance);
                 } catch (Throwable unloadError) {
                     plugin.logger.error("Failed to clean up extension '" + loadedExtension.id + "': " + describe(unloadError));
+                } finally {
+                    loadedExtension.api.invalidate();
                 }
             }
         } finally {
