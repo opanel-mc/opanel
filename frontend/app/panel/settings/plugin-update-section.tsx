@@ -17,6 +17,7 @@ import { sendGetRequest, sendPostRequest, toastError } from "@/lib/api";
 import { controlWidth, Section, SettingsItem } from "./settings-control";
 
 const RESTART_STRATEGIES = ["defer", "restart-if-needed"] as const;
+const UPDATE_SOURCES = ["both", "mcim", "modrinth"] as const;
 
 export function PluginUpdateSection() {
   const [status, setStatus] = useState<PluginUpdateStatusResponse | null>(null);
@@ -108,6 +109,24 @@ export function PluginUpdateSection() {
                 save({ pluginUpdateCheckInterval: Math.floor(value) });
               }
             }}/>
+        }/>
+      <SettingsItem
+        id="plugins.update-source"
+        name={$("settings.plugins.update-source")}
+        description={$("settings.plugins.update-source.description")}
+        control={
+          <Select
+            value={status.modrinthApiSource}
+            onValueChange={(value) => save({ modrinthApiSource: value })}>
+            <SelectTrigger className={controlWidth}><SelectValue/></SelectTrigger>
+            <SelectContent>
+              {UPDATE_SOURCES.map((source) => (
+                <SelectItem key={source} value={source}>
+                  {$(`settings.plugins.update-source.${source}` as never)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         }/>
     </Section>
   );

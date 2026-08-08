@@ -16,26 +16,33 @@ import java.util.List;
  */
 public class PluginUpdateManager {
     private final PluginUpdateCoordinator coordinator;
+    private final ModrinthUpdateSourceProvider modrinthProvider;
 
     public PluginUpdateManager(long checkIntervalSeconds) {
-        this(checkIntervalSeconds, "");
+        this(checkIntervalSeconds, "", "");
     }
 
     public PluginUpdateManager(long checkIntervalSeconds, String curseForgeApiKey) {
-        this(buildProviders(curseForgeApiKey), checkIntervalSeconds);
+        this(checkIntervalSeconds, curseForgeApiKey, "");
     }
 
-    private static List<UpdateSourceProvider> buildProviders(String curseForgeApiKey) {
+    public PluginUpdateManager(long checkIntervalSeconds, String curseForgeApiKey, String modrinthSource) {
+        this.modrinthProvider = new ModrinthUpdateSourceProvider(modrinthSource);
         List<UpdateSourceProvider> providers = new ArrayList<>();
-        providers.add(new ModrinthUpdateSourceProvider());
+        providers.add(modrinthProvider);
         providers.add(new GitHubReleaseUpdateSourceProvider());
         providers.add(new HangarUpdateSourceProvider());
         providers.add(new CurseForgeUpdateSourceProvider(curseForgeApiKey));
-        return providers;
+        this.coordinator = new PluginUpdateCoordinator(providers, checkIntervalSeconds);
     }
 
     public PluginUpdateManager(List<UpdateSourceProvider> providers, long checkIntervalSeconds) {
         this.coordinator = new PluginUpdateCoordinator(providers, checkIntervalSeconds);
+        this.modrinthProvider = null;
+    }
+
+    public void setModrinthSource(String source) {
+        if(modrinthProvider != null) modrinthProvider.setSource(source);
     }
 
     public List<PluginUpdate> check(

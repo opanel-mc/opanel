@@ -36,7 +36,8 @@ public class ConfigManagerImpl implements ConfigManager {
                 configSrc.getInt("pluginUpdateCheckInterval", OPanelConfiguration.defaultConfig.pluginUpdateCheckInterval),
                 configSrc.getBoolean("autoApplyPluginUpdates", OPanelConfiguration.defaultConfig.autoApplyPluginUpdates),
                 configSrc.getString("pluginUpdateRestartStrategy", OPanelConfiguration.defaultConfig.pluginUpdateRestartStrategy),
-                configSrc.getString("curseForgeApiKey", OPanelConfiguration.defaultConfig.curseForgeApiKey)
+                configSrc.getString("curseForgeApiKey", OPanelConfiguration.defaultConfig.curseForgeApiKey),
+                configSrc.getString("modrinthApiSource", OPanelConfiguration.defaultConfig.modrinthApiSource)
         );
     }
 
@@ -62,6 +63,7 @@ public class ConfigManagerImpl implements ConfigManager {
         configSrc.set("autoApplyPluginUpdates", config.autoApplyPluginUpdates);
         configSrc.set("pluginUpdateRestartStrategy", config.pluginUpdateRestartStrategy);
         configSrc.set("curseForgeApiKey", config.curseForgeApiKey);
+        configSrc.set("modrinthApiSource", config.modrinthApiSource);
         plugin.saveConfig();
     }
 }

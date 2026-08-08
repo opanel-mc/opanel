@@ -15,6 +15,7 @@ import net.opanel.exception.PluginUpdateConflictException;
 import net.opanel.update.PluginUpdate;
 import net.opanel.update.PluginUpdateBinding;
 import net.opanel.update.PluginUpdateManager;
+import net.opanel.update.ModrinthUpdateSourceProvider;
 import net.opanel.utils.Callback;
 import net.opanel.utils.Utils;
 
@@ -373,6 +374,7 @@ public class PluginsController extends BaseController {
         obj.put("autoApplyPluginUpdates", plugin.getConfig().autoApplyPluginUpdates);
         obj.put("pluginUpdateRestartStrategy", plugin.getConfig().pluginUpdateRestartStrategy);
         obj.put("pluginUpdateCheckInterval", plugin.getConfig().pluginUpdateCheckInterval);
+        obj.put("modrinthApiSource", plugin.getConfig().modrinthApiSource);
         obj.put("lastCheckedAt", plugin.getPluginUpdateManager().getCoordinator().getLastCheckedAt());
         obj.put("pendingUpdateCount", plugin.getPluginUpdateManager().getCoordinator().getCachedUpdates().size());
         sendResponse(ctx, obj);
@@ -399,8 +401,17 @@ public class PluginsController extends BaseController {
                     config.pluginUpdateCheckInterval = interval;
                 }
             }
+            if(body.has("modrinthApiSource") && body.get("modrinthApiSource").isJsonPrimitive()) {
+                final String source = body.get("modrinthApiSource").getAsString();
+                if(!ModrinthUpdateSourceProvider.isValidSource(source)) {
+                    sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal Modrinth update source.");
+                    return;
+                }
+                config.modrinthApiSource = source;
+            }
 
             plugin.setConfig(config);
+            plugin.getPluginUpdateManager().setModrinthSource(config.modrinthApiSource);
             plugin.getPluginUpdateManager().invalidateCache();
             getPluginUpdateStatus.handle(ctx);
         } catch (JsonParseException | UnsupportedOperationException e) {

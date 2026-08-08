@@ -26,6 +26,7 @@ public class Config {
     public static final ModConfigSpec.BooleanValue AUTO_APPLY_PLUGIN_UPDATES = BUILDER.define("autoApplyPluginUpdates", OPanelConfiguration.defaultConfig.autoApplyPluginUpdates);
     public static final ModConfigSpec.ConfigValue<String> PLUGIN_UPDATE_RESTART_STRATEGY = BUILDER.define("pluginUpdateRestartStrategy", OPanelConfiguration.defaultConfig.pluginUpdateRestartStrategy);
     public static final ModConfigSpec.ConfigValue<String> CURSEFORGE_API_KEY = BUILDER.define("curseForgeApiKey", OPanelConfiguration.defaultConfig.curseForgeApiKey);
+    public static final ModConfigSpec.ConfigValue<String> MODRINTH_API_SOURCE = BUILDER.define("modrinthApiSource", OPanelConfiguration.defaultConfig.modrinthApiSource);
 
     public static final ModConfigSpec SPEC = BUILDER.build();
 }

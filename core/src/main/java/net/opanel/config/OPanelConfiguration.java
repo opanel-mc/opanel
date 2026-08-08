@@ -22,7 +22,8 @@ public class OPanelConfiguration {
             43200,
             false,
             "defer",
-            ""
+            "",
+            "both"
     );
 
     public String accessKey;
@@ -45,6 +46,7 @@ public class OPanelConfiguration {
     public boolean autoApplyPluginUpdates;
     public String pluginUpdateRestartStrategy;
     public String curseForgeApiKey;
+    public String modrinthApiSource;
 
     public OPanelConfiguration(
             String accessKey,
@@ -66,7 +68,8 @@ public class OPanelConfiguration {
             int pluginUpdateCheckInterval,
             boolean autoApplyPluginUpdates,
             String pluginUpdateRestartStrategy,
-            String curseForgeApiKey
+            String curseForgeApiKey,
+            String modrinthApiSource
     ) {
         this.accessKey = accessKey;
         this.salt = salt;
@@ -88,5 +91,6 @@ public class OPanelConfiguration {
         this.autoApplyPluginUpdates = autoApplyPluginUpdates;
         this.pluginUpdateRestartStrategy = pluginUpdateRestartStrategy;
         this.curseForgeApiKey = curseForgeApiKey;
+        this.modrinthApiSource = modrinthApiSource;
     }
 }

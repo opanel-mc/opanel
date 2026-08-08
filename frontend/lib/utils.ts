@@ -100,9 +100,15 @@ export function stringToBase64(str: string): string {
 }
 
 export function base64ToString(base64: string): string {
-  const binStr = atob(base64);
-  const bytes = Uint8Array.from(binStr, (char) => char.charCodeAt(0));
-  return new TextDecoder().decode(bytes);
+  try {
+    const binStr = atob(base64);
+    const bytes = Uint8Array.from(binStr, (char) => char.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+  } catch {
+    // Third-party data (e.g. from Modrinth/MCIM) may not always be valid base64.
+    // Return the raw string instead of crashing the React render tree.
+    return base64;
+  }
 }
 
 export function isNumeric(str: string): boolean {

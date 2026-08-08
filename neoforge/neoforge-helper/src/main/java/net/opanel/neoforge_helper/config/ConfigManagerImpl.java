@@ -26,7 +26,8 @@ public class ConfigManagerImpl implements ConfigManager {
                 Config.PLUGIN_UPDATE_CHECK_INTERVAL.get(),
                 Config.AUTO_APPLY_PLUGIN_UPDATES.get(),
                 Config.PLUGIN_UPDATE_RESTART_STRATEGY.get(),
-                Config.CURSEFORGE_API_KEY.get()
+                Config.CURSEFORGE_API_KEY.get(),
+                Config.MODRINTH_API_SOURCE.get()
         );
     }
 
@@ -52,6 +53,7 @@ public class ConfigManagerImpl implements ConfigManager {
         Config.AUTO_APPLY_PLUGIN_UPDATES.set(config.autoApplyPluginUpdates);
         Config.PLUGIN_UPDATE_RESTART_STRATEGY.set(config.pluginUpdateRestartStrategy);
         Config.CURSEFORGE_API_KEY.set(config.curseForgeApiKey);
+        Config.MODRINTH_API_SOURCE.set(config.modrinthApiSource);
         Config.SPEC.save();
     }
 }

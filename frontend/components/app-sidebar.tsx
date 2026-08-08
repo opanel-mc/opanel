@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Fragment, useContext } from "react";
 import { compare } from "semver";
-import { Activity, Blocks, ClockFading, Download, Earth, Gauge, HeartHandshake, MapIcon, PaintBucket, PencilRuler, ScrollText, Settings, SquareTerminal, Unplug, Users } from "lucide-react";
+import { Activity, Blocks, ClockFading, Download, Earth, Gauge, HeartHandshake, MapIcon, PaintBucket, PencilRuler, ScrollText, Settings, SquareTerminal, Store, Unplug, Users } from "lucide-react";
 import { SiModelcontextprotocol } from "@icons-pack/react-simple-icons";
 import {
   Sidebar,
@@ -75,6 +75,11 @@ const managementGroupItems = [
     name: $("sidebar.management.plugins"),
     url: "/panel/plugins",
     icon: Blocks
+  },
+  {
+    name: $("sidebar.management.marketplace"),
+    url: "/panel/marketplace",
+    icon: Store
   },
   {
     name: $("sidebar.management.logs"),

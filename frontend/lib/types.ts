@@ -300,6 +300,7 @@ export interface PluginUpdateStatusResponse {
   autoApplyPluginUpdates: boolean
   pluginUpdateRestartStrategy: string
   pluginUpdateCheckInterval: number
+  modrinthApiSource: string
   lastCheckedAt: number
   pendingUpdateCount: number
 }
@@ -310,6 +311,132 @@ export interface PluginUpdateSettings {
   autoApplyPluginUpdates?: boolean
   pluginUpdateRestartStrategy?: string
   pluginUpdateCheckInterval?: number
+  modrinthApiSource?: string
+}
+
+/** `/api/plugins/marketplace/status` */
+export interface MarketplaceStatusResponse {
+  source: string
+  serverType: ServerType
+  mcVersion: string | null
+  loaderCategories: string[]
+}
+
+export interface MarketplaceProjectHit {
+  id: string
+  slug: string
+  title: string // base64
+  author: string // base64
+  summary: string // base64
+  iconUrl: string | null
+  downloads: number
+  follows: number
+  projectUrl: string
+  projectType: string
+  categories: string[]
+  updatedAt: string
+}
+
+/** `/api/plugins/marketplace/search` */
+export interface MarketplaceSearchResponse {
+  hits: MarketplaceProjectHit[]
+  totalHits: number
+  offset: number
+  limit: number
+  applied: {
+    serverType: string
+    mcVersion: string | null
+    source: string
+    compatibleOnly: boolean
+  }
+}
+
+export interface MarketplaceDependency {
+  projectId: string
+  dependencyType: string
+  versionId?: string | null
+  projectTitle?: string | null // base64
+}
+
+export interface MarketplaceVersion {
+  id: string
+  name: string // base64
+  versionNumber: string // base64
+  channel: string
+  datePublished: string
+  gameVersions: string[]
+  loaders: string[]
+  downloads: number
+  fileName: string
+  fileSize: number
+  downloadUrl: string
+  sha1: string | null
+  compatible: boolean
+  dependencies: MarketplaceDependency[]
+}
+
+/** `/api/plugins/marketplace/project/{projectId}` */
+export interface MarketplaceProjectResponse {
+  project: {
+    id: string
+    slug: string
+    title: string // base64
+    author: string // base64
+    description: string // base64
+    iconUrl: string | null
+    projectUrl: string
+    sourceUrl?: string | null
+    projectType: string
+    updatedAt: string
+    downloads: number
+    follows: number
+    categories: string[]
+    versionIds: string[]
+  }
+  versions: MarketplaceVersion[]
+  versionsFilteredByGame: boolean
+  compatibility: {
+    serverType: string
+    mcVersion: string | null
+    loaders: string[]
+  }
+}
+
+export interface MarketplaceSelectedFile {
+  projectId: string
+  projectTitle: string // base64
+  versionId: string
+  versionNumber: string // base64
+  fileName: string
+  size: number
+  url: string
+  sha1: string | null
+}
+
+/** `/api/plugins/marketplace/project/{projectId}/install-preview` */
+export interface MarketplaceInstallPreviewResponse {
+  target: MarketplaceSelectedFile
+  missingDependencies: MarketplaceSelectedFile[]
+  alreadyInstalled: MarketplaceDependency[]
+  unresolvedDependencies: MarketplaceDependency[]
+  conflicts: { fileName: string }[]
+}
+
+/** Body entry for `POST /api/plugins/marketplace/install`. */
+export interface MarketplaceInstallEntry {
+  projectId: string
+  versionId: string
+}
+
+/** `POST /api/plugins/marketplace/install` */
+export interface MarketplaceInstallResponse {
+  installed: {
+    projectId: string
+    projectTitle: string
+    versionNumber: string
+    fileName: string
+  }[]
+  requiresRestart: boolean
 }
 
 /** `/api/tasks` */

@@ -82,7 +82,8 @@ public class OPanel {
         // Initialize plugin update manager
         pluginUpdateManager = new PluginUpdateManager(
             configManager.get().pluginUpdateCheckInterval,
-            configManager.get().curseForgeApiKey
+            configManager.get().curseForgeApiKey,
+            configManager.get().modrinthApiSource
         );
         pluginAutoUpdateService = new PluginAutoUpdateService(this);
         pluginAutoUpdateService.start();

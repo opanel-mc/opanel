@@ -118,6 +118,7 @@ public class WebServer {
         PlayersController playersController = new PlayersController(plugin);
         SavesController savesController = new SavesController(plugin);
         PluginsController pluginsController = new PluginsController(plugin);
+        MarketplaceController marketplaceController = new MarketplaceController(plugin);
         TerminalController terminalController = new TerminalController(plugin);
         SecurityController securityController = new SecurityController(plugin);
         VersionController versionController = new VersionController(plugin);
@@ -242,6 +243,13 @@ public class WebServer {
                 delete("update-bindings", pluginsController.removePluginUpdateBinding);
                 get("update-status", pluginsController.getPluginUpdateStatus);
                 post("update-settings", pluginsController.updatePluginSettings);
+                path("marketplace", () -> {
+                    get("status", marketplaceController.getStatus);
+                    get("search", marketplaceController.search);
+                    get("project/{projectId}", marketplaceController.getProject);
+                    get("project/{projectId}/install-preview", marketplaceController.getInstallPreview);
+                    post("install", marketplaceController.install);
+                });
                 get("{fileName}", pluginsController.downloadPlugin);
                 post("{fileName}", pluginsController.togglePlugin);
                 delete("{fileName}", pluginsController.deletePlugin);
