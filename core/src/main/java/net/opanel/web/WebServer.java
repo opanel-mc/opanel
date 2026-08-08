@@ -286,7 +286,7 @@ public class WebServer {
             path("extension-res", () -> {
                 get("{extId}", extensionsController::getResource);
                 get("{extId}/", extensionsController::getResource);
-                get("{extId}/{resource}*", extensionsController::getResource);
+                get("{extId}/<resource>", extensionsController::getResource);
             });
         }));
 
