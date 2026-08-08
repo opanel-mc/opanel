@@ -279,8 +279,10 @@ public class ExtensionManager {
         @Override
         protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
             if(name.startsWith("net.opanel.api.")) return apiClassLoader.loadClass(name);
-            if(name.startsWith("java.") || name.startsWith("javax.") || name.startsWith("jdk.") || name.startsWith("sun.")) {
+            try { // try to load java-provided class
                 return ClassLoader.getPlatformClassLoader().loadClass(name);
+            } catch (ClassNotFoundException e) {
+                //
             }
 
             synchronized(getClassLoadingLock(name)) {
