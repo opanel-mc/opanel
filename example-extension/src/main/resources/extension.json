@@ -1,0 +1,7 @@
+{
+  "extId": "example-extension",
+  "version": "1.0.0",
+  "name": "Example Extension",
+  "description": "An example OPanel extension.",
+  "author": "Norcleeh"
+}
