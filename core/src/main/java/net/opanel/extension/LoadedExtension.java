@@ -7,9 +7,9 @@ import net.opanel.extension.api.ExtensionAPI;
 
 import java.lang.reflect.Method;
 import java.nio.file.Path;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -24,7 +24,7 @@ public class LoadedExtension {
     public final ExtensionManager.ExtensionClassLoader classLoader;
     public final JarFile jarFile;
     public final Map<EventType, List<Method>> eventHandlers;
-    public final Map<String, BackendRoute> backendRoutesMap = new LinkedHashMap<>();
+    public final Map<String, BackendRoute> backendRoutesMap = new ConcurrentHashMap<>();
 
     public LoadedExtension(
             String id,

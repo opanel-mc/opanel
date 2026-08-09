@@ -140,8 +140,15 @@ public class BeforeController extends BaseController {
             return;
         }
 
-        route.handler.handle(ctx);
-        clearContextTasks(ctx);
+        Thread thread = Thread.currentThread();
+        ClassLoader previousClassLoader = thread.getContextClassLoader();
+        try {
+            thread.setContextClassLoader(extension.classLoader);
+            route.handler.handle(ctx);
+        } finally {
+            thread.setContextClassLoader(previousClassLoader);
+            clearContextTasks(ctx);
+        }
     };
 
     private String getOpenAPIInterfaceName(String path) {
