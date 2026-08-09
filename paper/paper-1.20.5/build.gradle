@@ -31,7 +31,7 @@ base {
 dependencies {
     // Paper's retained 1.20.5 POM imports an Adventure BOM snapshot that is no longer published.
     compileOnly "io.papermc.paper:paper-api:${paper_api_version}-R0.1-SNAPSHOT"
-    shadowImplementation "de.tr7zw:item-nbt-api:2.15.2"
+    shadowImplementation "de.tr7zw:item-nbt-api:2.16.0"
     compileOnly "org.apache.logging.log4j:log4j-core:2.24.1"
     compileOnly "com.mojang:brigadier:1.0.18"
     shadowImplementation "org.bstats:bstats-bukkit:3.2.1"
