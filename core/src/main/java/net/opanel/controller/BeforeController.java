@@ -118,7 +118,7 @@ public class BeforeController extends BaseController {
     public Handler routeExtensionBackend = ctx -> {
         String extensionId = ctx.pathParam("extId");
         String path = ctx.pathParamMap().containsKey("path") ? ctx.pathParam("path") : "";
-        String normalizedPath = Utils.normalizePath(path);
+        String normalizedPath = path.isEmpty() ? "index.html" : Utils.normalizePath(path);
         if(normalizedPath == null) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Invalid extension backend path.");
             clearContextTasks(ctx);

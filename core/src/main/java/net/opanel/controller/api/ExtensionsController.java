@@ -21,7 +21,7 @@ public class ExtensionsController extends BaseController {
     public Handler getExtensionResource = ctx -> {
         String extensionId = ctx.pathParam("extId");
         String resourcePath = ctx.pathParamMap().containsKey("resource") ? ctx.pathParam("resource") : "";
-        String normalizedPath = Utils.normalizePath(resourcePath);
+        String normalizedPath = resourcePath.isEmpty() ? "index.html" : Utils.normalizePath(resourcePath);
         if(normalizedPath == null) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Invalid extension resource path.");
             return;

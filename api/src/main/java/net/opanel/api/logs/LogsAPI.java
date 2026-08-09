@@ -44,11 +44,4 @@ public interface LogsAPI {
      *         not exist or cannot be deleted
      */
     void deleteLog(String fileName);
-
-    /**
-     * Deletes all archived .log.gz files. This operation may block and must not be
-     * called from an extension lifecycle callback or the Minecraft main thread.
-     * Other files, including active {@code .log} files, are left untouched.
-     */
-    void clearLogs();
 }

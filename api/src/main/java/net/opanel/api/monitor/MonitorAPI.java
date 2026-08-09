@@ -27,7 +27,7 @@ public interface MonitorAPI {
      * Returns at most the newest {@code limit} retained samples. Negative limits
      * produce an empty list, and values above the history capacity are clamped.
      *
-     * @param limit maximum number of newest samples to return
+     * @param limit maximum number of newest samples to return (<=200)
      * @return an unmodifiable chronological history list
      */
     List<MonitorSnapshot> getHistory(int limit);

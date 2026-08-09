@@ -39,18 +39,6 @@ public final class ExtensionLogsAPI implements LogsAPI {
         ctx.run("delete log", () -> logger().deleteLog(fileName));
     }
 
-    @Override
-    public void clearLogs() {
-        ctx.run("clear archived logs", () -> {
-            Loggable logger = logger();
-            for(String fileName : logger.getLogFileList()) {
-                if(fileName.endsWith(".log.gz")) {
-                    logger.deleteLog(fileName);
-                }
-            }
-        });
-    }
-
     private Loggable logger() {
         ctx.ensureActive();
         return ctx.getPlugin().logger;

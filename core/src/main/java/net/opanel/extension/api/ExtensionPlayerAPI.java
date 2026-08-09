@@ -43,7 +43,7 @@ public final class ExtensionPlayerAPI implements PlayerAPI {
     }
 
     @Override
-    public boolean isOperator() {
+    public boolean isOp() {
         return ctx.call("get player operator status", () -> player().isOp());
     }
 
@@ -109,17 +109,12 @@ public final class ExtensionPlayerAPI implements PlayerAPI {
     }
 
     @Override
-    public void setOperator(boolean operator) {
+    public void setOp(boolean operator) {
         ctx.run("set player operator status", () -> {
             OPanelPlayer player = player();
             if(operator) player.giveOp();
             else player.depriveOp();
         });
-    }
-
-    @Override
-    public void kick() {
-        kick("");
     }
 
     @Override
@@ -132,11 +127,6 @@ public final class ExtensionPlayerAPI implements PlayerAPI {
             }
             player.kick(reason);
         });
-    }
-
-    @Override
-    public void ban() {
-        ban("");
     }
 
     @Override

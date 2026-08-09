@@ -39,7 +39,7 @@ public interface PlayerAPI {
     /**
      * @return {@code true} when the player currently has operator privileges
      */
-    boolean isOperator();
+    boolean isOp();
 
     /**
      * @return {@code true} when the player is banned from the server
@@ -105,7 +105,7 @@ public interface PlayerAPI {
      *
      * @param operator {@code true} to grant operator privileges, {@code false} to revoke them
      */
-    void setOperator(boolean operator);
+    void setOp(boolean operator);
 
     /**
      * Kicks the player with an empty reason. This operation may block and must not be called
@@ -113,7 +113,9 @@ public interface PlayerAPI {
      *
      * @throws net.opanel.api.exception.InvalidPlayerStateException if the player is offline
      */
-    void kick();
+    default void kick() {
+        kick("");
+    }
 
     /**
      * Kicks the player. This operation may block and must not be called from an extension
@@ -129,7 +131,9 @@ public interface PlayerAPI {
      * Bans the player with an empty reason. This operation may block and must not be called
      * from an extension lifecycle callback or the Minecraft main thread.
      */
-    void ban();
+    default void ban() {
+        ban("");
+    }
 
     /**
      * Bans the player. This operation may block and must not be called from an extension

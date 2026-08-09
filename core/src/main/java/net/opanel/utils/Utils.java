@@ -334,7 +334,6 @@ public class Utils {
     }
 
     public static String normalizePath(String path) {
-        if(path == null || path.isEmpty()) return "index.html";
         if(path.contains("\\")) return null;
         if(path.startsWith("/")) {
             path = path.substring(1);
