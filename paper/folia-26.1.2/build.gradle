@@ -30,7 +30,7 @@ base {
 
 dependencies {
     compileOnly "io.papermc.paper:paper-api:${paper_version}"
-    shadowImplementation "de.tr7zw:item-nbt-api:2.15.5"
+    shadowImplementation "de.tr7zw:item-nbt-api:2.16.0"
     compileOnly "org.apache.logging.log4j:log4j-core:2.24.1"
     compileOnly "com.mojang:brigadier:1.0.18"
     shadowImplementation "org.bstats:bstats-bukkit:3.2.1"
