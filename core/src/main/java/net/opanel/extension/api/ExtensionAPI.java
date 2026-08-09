@@ -4,7 +4,11 @@ import io.javalin.http.Handler;
 import io.javalin.http.HandlerType;
 import net.opanel.OPanel;
 import net.opanel.api.OPanelAPI;
-import net.opanel.api.ServerAPI;
+import net.opanel.api.logs.LogsAPI;
+import net.opanel.api.monitor.MonitorAPI;
+import net.opanel.api.plugins.PluginsAPI;
+import net.opanel.api.server.ServerAPI;
+import net.opanel.api.tasks.TasksAPI;
 import net.opanel.extension.ExtensionContext;
 import net.opanel.extension.LoadedExtension;
 import net.opanel.utils.Utils;
@@ -12,10 +16,19 @@ import net.opanel.utils.Utils;
 public final class ExtensionAPI implements OPanelAPI {
     private final ExtensionContext ctx;
     private final ServerAPI server;
+    private final PluginsAPI plugins;
+    private final LogsAPI logs;
+    private final TasksAPI tasks;
+    private final MonitorAPI monitor;
 
     public ExtensionAPI(ExtensionContext ctx) {
         this.ctx = ctx;
-        this.server = new ExtensionServerAPI(ctx);
+
+        server = new ExtensionServerAPI(ctx);
+        plugins = new ExtensionPluginsAPI(ctx);
+        logs = new ExtensionLogsAPI(ctx);
+        tasks = new ExtensionTasksAPI(ctx);
+        monitor = new ExtensionMonitorAPI(ctx);
     }
 
     public void invalidate() {
@@ -32,6 +45,30 @@ public final class ExtensionAPI implements OPanelAPI {
     public ServerAPI getServer() {
         ctx.ensureActive();
         return server;
+    }
+
+    @Override
+    public PluginsAPI getPluginsAPI() {
+        ctx.ensureActive();
+        return plugins;
+    }
+
+    @Override
+    public LogsAPI getLogsAPI() {
+        ctx.ensureActive();
+        return logs;
+    }
+
+    @Override
+    public TasksAPI getTasksAPI() {
+        ctx.ensureActive();
+        return tasks;
+    }
+
+    @Override
+    public MonitorAPI getMonitor() {
+        ctx.ensureActive();
+        return monitor;
     }
 
     @Override

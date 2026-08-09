@@ -1,4 +1,4 @@
-package net.opanel.api;
+package net.opanel.api.server;
 
 public enum ServerType {
     PAPER("Paper"),
@@ -14,6 +14,11 @@ public enum ServerType {
         this.name = name;
     }
 
+    /**
+     * Returns the human-readable platform name.
+     *
+     * @return display name
+     */
     public String getName() {
         return name;
     }

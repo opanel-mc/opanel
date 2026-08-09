@@ -2,6 +2,7 @@ package com.example.extension;
 
 import io.javalin.http.HandlerType;
 import net.opanel.api.*;
+import net.opanel.api.server.ServerAPI;
 
 @Extension
 public class Main {

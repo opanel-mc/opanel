@@ -2,6 +2,7 @@ package net.opanel.extension;
 
 import net.opanel.OPanel;
 import net.opanel.api.exception.APIUnavailableException;
+import net.opanel.api.exception.ActLaterException;
 import net.opanel.api.exception.OPanelAPIException;
 import net.opanel.api.exception.OperationFailedException;
 import net.opanel.api.exception.PlayerUnavailableException;
@@ -70,7 +71,7 @@ public final class ExtensionContext {
         ensureActive();
         try {
             return supplier.get();
-        } catch (OPanelAPIException e) {
+        } catch (ActLaterException | OPanelAPIException e) {
             throw e;
         } catch (Exception e) {
             throw new OperationFailedException(operation, e);

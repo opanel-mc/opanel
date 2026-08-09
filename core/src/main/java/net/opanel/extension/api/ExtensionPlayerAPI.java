@@ -1,8 +1,9 @@
 package net.opanel.extension.api;
 
-import net.opanel.api.GameMode;
-import net.opanel.api.PlayerAPI;
-import net.opanel.api.Position;
+import net.opanel.api.player.GameMode;
+import net.opanel.api.player.InventoryAPI;
+import net.opanel.api.player.PlayerAPI;
+import net.opanel.api.player.Position;
 import net.opanel.api.exception.InvalidPlayerStateException;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
@@ -17,10 +18,12 @@ import java.util.UUID;
 public final class ExtensionPlayerAPI implements PlayerAPI {
     private final ExtensionContext ctx;
     private final UUID uuid;
+    private final InventoryAPI inventory;
 
     ExtensionPlayerAPI(ExtensionContext ctx, UUID uuid) {
         this.ctx = Objects.requireNonNull(ctx, "ctx");
         this.uuid = Objects.requireNonNull(uuid, "uuid");
+        this.inventory = new ExtensionInventoryAPI(ctx, uuid);
     }
 
     @Override
@@ -67,6 +70,12 @@ public final class ExtensionPlayerAPI implements PlayerAPI {
             OPanelPlayer player = player();
             return new Position(player.getX(), player.getY(), player.getZ());
         });
+    }
+
+    @Override
+    public InventoryAPI getInventory() {
+        ctx.ensureActive();
+        return inventory;
     }
 
     @Override

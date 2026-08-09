@@ -1,15 +1,20 @@
 package net.opanel.extension.api;
 
-import net.opanel.api.PlayerAPI;
-import net.opanel.api.ServerAPI;
-import net.opanel.api.ServerType;
+import net.opanel.api.server.Dimension;
+import net.opanel.api.player.PlayerAPI;
+import net.opanel.api.server.ServerAPI;
+import net.opanel.api.server.ServerType;
 import net.opanel.common.OPanelPlayer;
+import net.opanel.common.OPanelDimension;
 import net.opanel.common.OPanelServer;
 import net.opanel.extension.ExtensionContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -82,6 +87,52 @@ public final class ExtensionServerAPI implements ServerAPI {
     }
 
     @Override
+    public Map<String, Object> getGamerules(Dimension dimension) {
+        Objects.requireNonNull(dimension, "dimension");
+        return ctx.call("get game rules", () -> Collections.unmodifiableMap(
+                new LinkedHashMap<>(ctx.getServer().getGamerules(toCommonDimension(dimension)))
+        ));
+    }
+
+    @Override
+    public void setGamerules(Dimension dimension, Map<String, Object> gamerules) {
+        Objects.requireNonNull(dimension, "dimension");
+        Objects.requireNonNull(gamerules, "gamerules");
+
+        Map<String, Object> updates = new LinkedHashMap<>();
+        for(Map.Entry<String, Object> entry : gamerules.entrySet()) {
+            String key = Objects.requireNonNull(entry.getKey(), "gamerule key");
+            if(key.isBlank()) throw new IllegalArgumentException("gamerule key must not be blank");
+            updates.put(key, Objects.requireNonNull(entry.getValue(), "gamerule value"));
+        }
+
+        ctx.run("set game rules", () -> {
+            OPanelDimension commonDimension = toCommonDimension(dimension);
+            HashMap<String, Object> merged = new HashMap<>(ctx.getServer().getGamerules(commonDimension));
+            merged.putAll(updates);
+            ctx.getServer().setGamerules(commonDimension, merged);
+        });
+    }
+
+    @Override
+    public void setGamerule(Dimension dimension, String key, Object value) {
+        Objects.requireNonNull(dimension, "dimension");
+        Objects.requireNonNull(key, "key");
+        Objects.requireNonNull(value, "value");
+        if(key.isBlank()) throw new IllegalArgumentException("key must not be blank");
+
+        ctx.run("set game rule", () -> {
+            OPanelDimension commonDimension = toCommonDimension(dimension);
+            HashMap<String, Object> gamerules = ctx.getServer().getGamerules(commonDimension);
+            if(!gamerules.containsKey(key)) {
+                throw new IllegalArgumentException("Unknown game rule: " + key);
+            }
+            gamerules.put(key, value);
+            ctx.getServer().setGamerules(commonDimension, gamerules);
+        });
+    }
+
+    @Override
     public boolean isWhitelistEnabled() {
         return ctx.call("get whitelist status", () -> ctx.getServer().isWhitelistEnabled());
     }
@@ -111,6 +162,14 @@ public final class ExtensionServerAPI implements ServerAPI {
             }
             return Collections.unmodifiableList(players);
         });
+    }
+
+    private static OPanelDimension toCommonDimension(Dimension dimension) {
+        return switch(dimension) {
+            case OVERWORLD -> OPanelDimension.OVERWORLD;
+            case NETHER -> OPanelDimension.NETHER;
+            case THE_END -> OPanelDimension.THE_END;
+        };
     }
 
     @FunctionalInterface

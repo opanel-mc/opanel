@@ -1,4 +1,4 @@
-package net.opanel.api;
+package net.opanel.api.player;
 
 public enum GameMode {
     ADVENTURE,
