@@ -6,12 +6,16 @@ import net.opanel.OPanel;
 import net.opanel.api.OPanelAPI;
 import net.opanel.api.logs.LogsAPI;
 import net.opanel.api.monitor.MonitorAPI;
+import net.opanel.api.player.PlayerAPI;
 import net.opanel.api.plugins.PluginsAPI;
 import net.opanel.api.server.ServerAPI;
 import net.opanel.api.tasks.TasksAPI;
 import net.opanel.extension.ExtensionContext;
 import net.opanel.extension.LoadedExtension;
 import net.opanel.utils.Utils;
+
+import java.util.Objects;
+import java.util.UUID;
 
 public final class ExtensionAPI implements OPanelAPI {
     private final ExtensionContext ctx;
@@ -33,6 +37,11 @@ public final class ExtensionAPI implements OPanelAPI {
 
     public void invalidate() {
         ctx.invalidate();
+    }
+
+    public PlayerAPI createPlayerHandle(String uuid) {
+        ctx.ensureActive();
+        return new ExtensionPlayerAPI(ctx, UUID.fromString(uuid));
     }
 
     @Override

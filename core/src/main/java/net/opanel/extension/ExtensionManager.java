@@ -6,6 +6,7 @@ import net.opanel.api.Extension;
 import net.opanel.api.ExtensionLoad;
 import net.opanel.api.ExtensionUnload;
 import net.opanel.api.OPanelAPI;
+import net.opanel.event.EventType;
 import net.opanel.extension.api.ExtensionAPI;
 import net.opanel.utils.Utils;
 
@@ -38,15 +39,18 @@ public class ExtensionManager {
     private static final Gson gson = new Gson();
 
     private final OPanel plugin;
+    private final ExtensionEventDispatcher eventDispatcher;
     private final Map<String, LoadedExtension> loadedExtensions = new LinkedHashMap<>();
     private boolean scanned;
+    private boolean unloading;
 
     public ExtensionManager(OPanel plugin) {
         this.plugin = plugin;
+        eventDispatcher = new ExtensionEventDispatcher(plugin);
     }
 
     public synchronized void loadExtensions() {
-        if(scanned) return;
+        if(scanned || unloading) return;
         scanned = true;
 
         List<Path> extensionJars = new ArrayList<>();
@@ -65,20 +69,32 @@ public class ExtensionManager {
         }
     }
 
-    public synchronized void unloadExtensions() {
-        List<LoadedExtension> extensions = new ArrayList<>(loadedExtensions.values());
-        for(int i = extensions.size() - 1; i >= 0; i--) {
-            LoadedExtension extension = extensions.get(i);
-            try {
-                invokeLifecycle(extension.classLoader, extension.unloadMethod, extension.instance);
-            } catch (Throwable e) {
-                plugin.logger.error("Failed to unload extension '" + extension.id + "': " + describe(e));
-            } finally {
-                extension.api.invalidate();
-                closeExtension(extension);
+    public void unloadExtensions() {
+        List<LoadedExtension> extensions;
+        synchronized(this) {
+            if(unloading) return;
+            unloading = true;
+            extensions = new ArrayList<>(loadedExtensions.values());
+        }
+
+        try {
+            eventDispatcher.shutdown();
+            for(int i = extensions.size() - 1; i >= 0; i--) {
+                LoadedExtension extension = extensions.get(i);
+                try {
+                    invokeLifecycle(extension.classLoader, extension.unloadMethod, extension.instance);
+                } catch (Throwable e) {
+                    plugin.logger.error("Failed to unload extension '" + extension.id + "': " + describe(e));
+                } finally {
+                    extension.api.invalidate();
+                    closeExtension(extension);
+                }
+            }
+        } finally {
+            synchronized(this) {
+                loadedExtensions.clear();
             }
         }
-        loadedExtensions.clear();
     }
 
     public synchronized LoadedExtension getExtension(String extensionId) {
@@ -109,6 +125,7 @@ public class ExtensionManager {
         LoadedExtension loadedExtension = null;
         String extensionId = null;
         boolean loadCallbackStarted = false;
+        boolean eventHandlersActivated = false;
         try {
             jarFile = new JarFile(extensionPath.toFile());
             ExtensionMetadata metadata = readMetadata(jarFile);
@@ -130,6 +147,7 @@ public class ExtensionManager {
             validateEntryClass(entryClass);
             Method loadMethod = findLoadMethod(entryClass);
             Method unloadMethod = findUnloadMethod(entryClass);
+            Map<EventType, List<Method>> eventHandlers = ExtensionEventDispatcher.findEventHandlers(entryClass);
             Constructor<?> constructor = entryClass.getConstructor();
             Object instance = constructor.newInstance();
 
@@ -143,17 +161,22 @@ public class ExtensionManager {
                     unloadMethod,
                     api,
                     classLoader,
-                    jarFile
+                    jarFile,
+                    eventHandlers
             );
 
             loadCallbackStarted = true;
             loadedExtensions.put(extensionId, loadedExtension);
             invokeLifecycle(classLoader, loadMethod, instance, api);
+            eventDispatcher.activate(loadedExtension);
+            eventHandlersActivated = true;
             jarFile = null;
             classLoader = null;
         } catch (Throwable e) {
             plugin.logger.error("Failed to load extension '" + extensionPath.getFileName() + "': " + describe(e));
             if(loadCallbackStarted) {
+                if(eventHandlersActivated) eventDispatcher.deactivate(loadedExtension);
+
                 try {
                     invokeLifecycle(loadedExtension.classLoader, loadedExtension.unloadMethod, loadedExtension.instance);
                 } catch (Throwable unloadError) {

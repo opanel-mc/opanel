@@ -23,7 +23,7 @@ public final class ExtensionPlayerAPI implements PlayerAPI {
     ExtensionPlayerAPI(ExtensionContext ctx, UUID uuid) {
         this.ctx = Objects.requireNonNull(ctx, "ctx");
         this.uuid = Objects.requireNonNull(uuid, "uuid");
-        this.inventory = new ExtensionInventoryAPI(ctx, uuid);
+        inventory = new ExtensionInventoryAPI(ctx, uuid);
     }
 
     @Override

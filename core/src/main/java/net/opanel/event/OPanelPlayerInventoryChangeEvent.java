@@ -1,9 +1,12 @@
 package net.opanel.event;
 
 import net.opanel.OPanel;
+import net.opanel.api.event.PlayerInventoryChangeEvent;
+import net.opanel.api.player.PlayerAPI;
 import net.opanel.common.OPanelInventory;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelServer;
+import net.opanel.extension.api.ExtensionAPI;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -40,6 +43,12 @@ public class OPanelPlayerInventoryChangeEvent extends OPanelEvent {
 
     public String getHash() {
         return hash;
+    }
+
+    @Override
+    public PlayerInventoryChangeEvent toAPIEvent(ExtensionAPI api) {
+        PlayerAPI playerHandle = api.createPlayerHandle(player.getUUID());
+        return new PlayerInventoryChangeEvent(playerHandle, playerHandle.getInventory());
     }
 
     public static synchronized void registerPoller(OPanel plugin) {
