@@ -333,7 +333,7 @@ public class ExtensionManager {
             if(name.startsWith("net.opanel.api.")) return apiClassLoader.loadClass(name);
 
             // Expose Javalin classes
-            if(name.startsWith("io.javalin.")) return coreClassLoader.loadClass(name);
+            if(name.startsWith("io.javalin.") || name.startsWith("jakarta.servlet.")) return coreClassLoader.loadClass(name);
 
             try { // try to load java-provided class
                 return ClassLoader.getPlatformClassLoader().loadClass(name);
