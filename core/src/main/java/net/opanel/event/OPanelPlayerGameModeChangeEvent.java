@@ -1,6 +1,7 @@
 package net.opanel.event;
 
 import net.opanel.api.event.PlayerGameModeChangeEvent;
+import net.opanel.api.player.GameMode;
 import net.opanel.api.player.PlayerAPI;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
@@ -25,7 +26,9 @@ public class OPanelPlayerGameModeChangeEvent extends OPanelEvent {
 
     @Override
     public PlayerGameModeChangeEvent toAPIEvent(ExtensionAPI api) {
-        PlayerAPI playerHandle = api.createPlayerHandle(player.getUUID());
-        return new PlayerGameModeChangeEvent(playerHandle, playerHandle.getGameMode());
+        return new PlayerGameModeChangeEvent(
+            api.createPlayerHandle(player.getUUID()),
+            gamemode.toAPITyped()
+        );
     }
 }

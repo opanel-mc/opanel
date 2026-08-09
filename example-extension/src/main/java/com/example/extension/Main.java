@@ -2,6 +2,7 @@ package com.example.extension;
 
 import io.javalin.http.HandlerType;
 import net.opanel.api.*;
+import net.opanel.api.event.PlayerGameModeChangeEvent;
 import net.opanel.api.event.PlayerInventoryChangeEvent;
 import net.opanel.api.event.PlayerJoinEvent;
 import net.opanel.api.server.ServerAPI;
@@ -38,5 +39,10 @@ public class Main {
     @EventHandler
     public void onPlayerInventoryChange(PlayerInventoryChangeEvent event) {
         api.logInfo("Player inventory changed: "+ event.getPlayer().getName());
+    }
+
+    @EventHandler
+    public void onPlayerGameModeChange(PlayerGameModeChangeEvent event) {
+        api.logInfo("Player gamemode changed: "+ event.getPlayer().getName() +", gamemode: "+ event.getGameMode());
     }
 }
