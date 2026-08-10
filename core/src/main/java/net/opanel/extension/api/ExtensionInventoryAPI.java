@@ -1,19 +1,13 @@
 package net.opanel.extension.api;
 
-import net.opanel.api.player.InventoryAPI;
-import net.opanel.api.player.InventoryItem;
-import net.opanel.api.player.InventoryType;
+import cn.opanel.api.player.InventoryAPI;
+import cn.opanel.api.player.InventoryItem;
+import cn.opanel.api.player.InventoryType;
 import net.opanel.common.OPanelInventory;
 import net.opanel.common.OPanelInventoryType;
 import net.opanel.extension.ExtensionContext;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public final class ExtensionInventoryAPI implements InventoryAPI {
     private final ExtensionContext ctx;

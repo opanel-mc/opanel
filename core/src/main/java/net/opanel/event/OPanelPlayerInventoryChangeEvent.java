@@ -1,8 +1,8 @@
 package net.opanel.event;
 
+import cn.opanel.api.event.PlayerInventoryChangeEvent;
+import cn.opanel.api.player.PlayerAPI;
 import net.opanel.OPanel;
-import net.opanel.api.event.PlayerInventoryChangeEvent;
-import net.opanel.api.player.PlayerAPI;
 import net.opanel.common.OPanelInventory;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelServer;
@@ -10,11 +10,7 @@ import net.opanel.extension.api.ExtensionAPI;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class OPanelPlayerInventoryChangeEvent extends OPanelEvent {
     private static final long POLL_INTERVAL_MS = 1000;

@@ -1,7 +1,7 @@
 package net.opanel.extension.api;
 
-import net.opanel.api.monitor.MonitorAPI;
-import net.opanel.api.monitor.MonitorSnapshot;
+import cn.opanel.api.monitor.MonitorAPI;
+import cn.opanel.api.monitor.MonitorSnapshot;
 import net.opanel.extension.ExtensionContext;
 import net.opanel.monitor.MonitorData;
 import net.opanel.monitor.MonitorManager;

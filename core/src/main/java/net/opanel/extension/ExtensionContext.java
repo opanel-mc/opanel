@@ -1,12 +1,7 @@
 package net.opanel.extension;
 
+import cn.opanel.api.exception.*;
 import net.opanel.OPanel;
-import net.opanel.api.exception.APIUnavailableException;
-import net.opanel.api.exception.ActLaterException;
-import net.opanel.api.exception.OPanelAPIException;
-import net.opanel.api.exception.OperationFailedException;
-import net.opanel.api.exception.PlayerUnavailableException;
-import net.opanel.api.exception.ServerUnavailableException;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelServer;
 import net.opanel.extension.api.ExtensionAPI;

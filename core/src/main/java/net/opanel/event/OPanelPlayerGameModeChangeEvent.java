@@ -1,8 +1,6 @@
 package net.opanel.event;
 
-import net.opanel.api.event.PlayerGameModeChangeEvent;
-import net.opanel.api.player.GameMode;
-import net.opanel.api.player.PlayerAPI;
+import cn.opanel.api.event.PlayerGameModeChangeEvent;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.extension.api.ExtensionAPI;

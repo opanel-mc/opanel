@@ -1,10 +1,10 @@
 package net.opanel.extension.api;
 
-import net.opanel.api.player.GameMode;
-import net.opanel.api.player.InventoryAPI;
-import net.opanel.api.player.PlayerAPI;
-import net.opanel.api.player.Position;
-import net.opanel.api.exception.InvalidPlayerStateException;
+import cn.opanel.api.exception.InvalidPlayerStateException;
+import cn.opanel.api.player.GameMode;
+import cn.opanel.api.player.InventoryAPI;
+import cn.opanel.api.player.PlayerAPI;
+import cn.opanel.api.player.Position;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.extension.ExtensionContext;

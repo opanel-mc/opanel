@@ -1,11 +1,11 @@
 package net.opanel.extension;
 
+import cn.opanel.api.Extension;
+import cn.opanel.api.ExtensionLoad;
+import cn.opanel.api.ExtensionUnload;
+import cn.opanel.api.OPanelAPI;
 import com.google.gson.Gson;
 import net.opanel.OPanel;
-import net.opanel.api.Extension;
-import net.opanel.api.ExtensionLoad;
-import net.opanel.api.ExtensionUnload;
-import net.opanel.api.OPanelAPI;
 import net.opanel.event.EventType;
 import net.opanel.extension.api.ExtensionAPI;
 import net.opanel.utils.Utils;
@@ -22,11 +22,7 @@ import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
