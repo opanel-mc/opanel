@@ -1,6 +1,6 @@
 package net.opanel.common;
 
-import net.opanel.api.player.GameMode;
+import cn.opanel.api.player.GameMode;
 
 public enum OPanelGameMode {
     ADVENTURE(2, "adventure"),

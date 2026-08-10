@@ -1,6 +1,11 @@
 plugins {
     id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+    id 'com.gradleup.nmcp'
 }
+
+group = 'cn.opanel'
 
 base {
     archivesName = "${rootProject.name}-api"
@@ -11,11 +16,59 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'io.javalin:javalin:5.6.4'
+    compileOnlyApi 'io.javalin:javalin:5.6.4'
 }
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(14)
     }
+
+    withSourcesJar()
+    withJavadocJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifactId = 'opanel-api'
+
+            pom {
+                name = 'OPanel API'
+                description = 'Public API for developing OPanel extensions'
+                url = 'https://github.com/opanel-mc/opanel'
+
+                licenses {
+                    license {
+                        name = 'GNU General Public License v3.0 or later'
+                        url = 'https://www.gnu.org/licenses/gpl-3.0.html'
+                        distribution = 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        name = 'OPanel Project'
+                        organization = 'OPanel Project'
+                        organizationUrl = 'https://github.com/opanel-mc'
+                    }
+                }
+
+                scm {
+                    connection = 'scm:git:https://github.com/opanel-mc/opanel.git'
+                    developerConnection = 'scm:git:ssh://git@github.com/opanel-mc/opanel.git'
+                    url = 'https://github.com/opanel-mc/opanel'
+                }
+            }
+        }
+    }
+}
+
+signing {
+    def signingKey = findProperty('signingKey')
+    def signingPassword = findProperty('signingPassword')
+
+    useInMemoryPgpKeys(signingKey, signingPassword)
+    sign publishing.publications.mavenJava
 }

@@ -1,6 +1,6 @@
 package net.opanel.event;
 
-import net.opanel.api.event.ExtensionEvent;
+import cn.opanel.api.event.ExtensionEvent;
 import net.opanel.extension.api.ExtensionAPI;
 
 import java.util.Set;

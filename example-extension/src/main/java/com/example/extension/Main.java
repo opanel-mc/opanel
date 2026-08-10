@@ -1,11 +1,11 @@
 package com.example.extension;
 
+import cn.opanel.api.*;
+import cn.opanel.api.event.PlayerGameModeChangeEvent;
+import cn.opanel.api.event.PlayerInventoryChangeEvent;
+import cn.opanel.api.event.PlayerJoinEvent;
+import cn.opanel.api.server.ServerAPI;
 import io.javalin.http.HandlerType;
-import net.opanel.api.*;
-import net.opanel.api.event.PlayerGameModeChangeEvent;
-import net.opanel.api.event.PlayerInventoryChangeEvent;
-import net.opanel.api.event.PlayerJoinEvent;
-import net.opanel.api.server.ServerAPI;
 
 @Extension
 public class Main {

@@ -1,6 +1,6 @@
 package net.opanel.extension.api;
 
-import net.opanel.api.logs.LogsAPI;
+import cn.opanel.api.logs.LogsAPI;
 import net.opanel.extension.ExtensionContext;
 import net.opanel.logger.Loggable;
 import net.opanel.utils.Utils;

@@ -1,20 +1,19 @@
 package net.opanel.extension.api;
 
+import cn.opanel.api.OPanelAPI;
+import cn.opanel.api.logs.LogsAPI;
+import cn.opanel.api.monitor.MonitorAPI;
+import cn.opanel.api.player.PlayerAPI;
+import cn.opanel.api.plugins.PluginsAPI;
+import cn.opanel.api.server.ServerAPI;
+import cn.opanel.api.tasks.TasksAPI;
 import io.javalin.http.Handler;
 import io.javalin.http.HandlerType;
 import net.opanel.OPanel;
-import net.opanel.api.OPanelAPI;
-import net.opanel.api.logs.LogsAPI;
-import net.opanel.api.monitor.MonitorAPI;
-import net.opanel.api.player.PlayerAPI;
-import net.opanel.api.plugins.PluginsAPI;
-import net.opanel.api.server.ServerAPI;
-import net.opanel.api.tasks.TasksAPI;
 import net.opanel.extension.ExtensionContext;
 import net.opanel.extension.LoadedExtension;
 import net.opanel.utils.Utils;
 
-import java.util.Objects;
 import java.util.UUID;
 
 public final class ExtensionAPI implements OPanelAPI {

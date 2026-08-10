@@ -1,6 +1,6 @@
 package net.opanel.event;
 
-import net.opanel.api.event.PlayerMoveEvent;
+import cn.opanel.api.event.PlayerMoveEvent;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.extension.api.ExtensionAPI;
 

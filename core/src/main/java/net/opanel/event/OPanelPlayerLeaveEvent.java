@@ -1,6 +1,6 @@
 package net.opanel.event;
 
-import net.opanel.api.event.PlayerLeaveEvent;
+import cn.opanel.api.event.PlayerLeaveEvent;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.extension.api.ExtensionAPI;
 
