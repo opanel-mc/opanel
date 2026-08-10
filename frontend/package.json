@@ -85,7 +85,7 @@
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react": "^7.37.5",
     "jsdom": "^28.1.0",
-    "oxlint": "^1.77.0",
+    "oxlint": "^1.78.0",
     "tailwind-scrollbar": "^4.0.2",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.4",
