@@ -326,7 +326,7 @@ public class ExtensionManager {
         @Override
         protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
             // Expose OPanel API classes
-            if(name.startsWith("net.opanel.api.")) return apiClassLoader.loadClass(name);
+            if(name.startsWith("cn.opanel.api.")) return apiClassLoader.loadClass(name);
 
             // Expose Javalin classes
             if(name.startsWith("io.javalin.") || name.startsWith("jakarta.servlet.")) return coreClassLoader.loadClass(name);
