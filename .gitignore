@@ -40,3 +40,9 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### WorkBuddy internal data (memory, not project source) ###
+.workbuddy/
+
+### Local Gradle state ###
+.gradle-local/
