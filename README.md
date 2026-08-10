@@ -36,19 +36,18 @@ The features of OPanel include:
 
 ### Screenshots
 
-![preview-dashboard](./images/preview-dashboard.png)
-
-![preview-players](./images/preview-players.png)
-
-![preview-inventory](./images/preview-inventory.png)
-
-![preview-inventory-nbt](./images/preview-inventory-nbt.png)
-
-![preview-terminal](./images/preview-terminal.png)
-
-![preview-tasks](./images/preview-tasks.png)
-
-![preview-plugins](./images/preview-plugins.png)
+|||
+|:---:|:---:|
+|![Dashboard](./images/preview-dashboard.png)|![Monitor](./images/preview-monitor.png)|
+|**Dashboard**|**Monitor**|
+|![Map](./images/preview-map.png)|![Players Manager](./images/preview-players.png)|
+|**Map**|**Players Manager**|
+|![Inventory Editor](./images/preview-inventory.png)|![Item NBT Editor](./images/preview-inventory-nbt.png)|
+|**Inventory Editor**|**Item NBT Editor**|
+|![Terminal](./images/preview-terminal.png)|![Scheduled Tasks](./images/preview-tasks.png)|
+|**Terminal**|**Scheduled Tasks**|
+|![Plugin Manager](./images/preview-plugins.png)||
+|**Plugin Manager**||
 
 ## Usage
 
