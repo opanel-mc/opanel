@@ -36,19 +36,18 @@ OPanel 的功能包括：
 
 ### 预览
 
-![preview-dashboard](./images/preview-dashboard.png)
-
-![preview-players](./images/preview-players.png)
-
-![preview-inventory](./images/preview-inventory.png)
-
-![preview-inventory-nbt](./images/preview-inventory-nbt.png)
-
-![preview-terminal](./images/preview-terminal.png)
-
-![preview-tasks](./images/preview-tasks.png)
-
-![preview-plugins](./images/preview-plugins.png)
+|||
+|:---:|:---:|
+|![仪表盘](./images/preview-dashboard.png)|![监控](./images/preview-monitor.png)|
+|**仪表盘**|**监控**|
+|![地图](./images/preview-map.png)|![玩家管理](./images/preview-players.png)|
+|**地图**|**玩家管理**|
+|![背包编辑](./images/preview-inventory.png)|![物品 NBT 编辑](./images/preview-inventory-nbt.png)|
+|**背包编辑**|**物品 NBT 编辑**|
+|![后台](./images/preview-terminal.png)|![定时任务](./images/preview-tasks.png)|
+|**后台**|**定时任务**|
+|![插件管理](./images/preview-plugins.png)||
+|**插件管理**||
 
 ## 用法
 
