@@ -20,69 +20,76 @@ plugins {
 
 rootProject.name = 'opanel'
 
-include 'core'
+def apiOnly = providers.gradleProperty('apiOnly')
+    .map { it.toBoolean() }
+    .getOrElse(false)
+
 include 'api'
 
-def platformModules = [
-    fabric: [
-        'fabric-config',
-        'fabric-helper',
-        'fabric-1.19',
-        'fabric-1.19.4',
-        'fabric-1.20',
-        'fabric-1.20.2',
-        'fabric-1.20.3',
-        'fabric-1.20.5',
-        'fabric-1.21',
-        'fabric-1.21.2',
-        'fabric-1.21.5',
-        'fabric-1.21.9',
-        'fabric-1.21.11',
-        'fabric-helper-unmapped',
-        'fabric-26.1'
-    ],
-    forge: [
-        'forge-helper',
-        'forge-1.19.4',
-        'forge-1.20.1',
-        'forge-1.20.2',
-        'forge-1.20.3',
-        'forge-1.20.6',
-        'forge-1.21',
-        'forge-1.21.3',
-        'forge-1.21.5',
-        'forge-1.21.8',
-        'forge-1.21.9',
-        'forge-1.21.11',
-        'forge-26.1'
-    ],
-    neoforge: [
-        'neoforge-helper',
-        'neoforge-1.21.1',
-        'neoforge-1.21.3',
-        'neoforge-1.21.5'
-    ],
-    paper: [
-        'paper-helper',
-        'paper-1.16.1',
-        'paper-1.19.4',
-        'paper-1.20',
-        'paper-1.20.5',
-        'paper-1.21',
-        'paper-1.21.9',
-        'paper-26.1',
-        'folia-1.20',
-        'folia-1.20.5',
-        'folia-1.21',
-        'folia-1.21.11',
-        'folia-26.1.2'
-    ],
-]
-platformModules.each { platform, modules ->
-    modules.each { m ->
-        include m
-        project(":${m}").projectDir = file("${platform}/${m}")
-    }
-}
+if (!apiOnly) {
+    include 'core'
 
-include 'example-extension'
+    def platformModules = [
+        fabric: [
+            'fabric-config',
+            'fabric-helper',
+            'fabric-1.19',
+            'fabric-1.19.4',
+            'fabric-1.20',
+            'fabric-1.20.2',
+            'fabric-1.20.3',
+            'fabric-1.20.5',
+            'fabric-1.21',
+            'fabric-1.21.2',
+            'fabric-1.21.5',
+            'fabric-1.21.9',
+            'fabric-1.21.11',
+            'fabric-helper-unmapped',
+            'fabric-26.1'
+        ],
+        forge: [
+            'forge-helper',
+            'forge-1.19.4',
+            'forge-1.20.1',
+            'forge-1.20.2',
+            'forge-1.20.3',
+            'forge-1.20.6',
+            'forge-1.21',
+            'forge-1.21.3',
+            'forge-1.21.5',
+            'forge-1.21.8',
+            'forge-1.21.9',
+            'forge-1.21.11',
+            'forge-26.1'
+        ],
+        neoforge: [
+            'neoforge-helper',
+            'neoforge-1.21.1',
+            'neoforge-1.21.3',
+            'neoforge-1.21.5'
+        ],
+        paper: [
+            'paper-helper',
+            'paper-1.16.1',
+            'paper-1.19.4',
+            'paper-1.20',
+            'paper-1.20.5',
+            'paper-1.21',
+            'paper-1.21.9',
+            'paper-26.1',
+            'folia-1.20',
+            'folia-1.20.5',
+            'folia-1.21',
+            'folia-1.21.11',
+            'folia-26.1.2'
+        ],
+    ]
+    platformModules.each { platform, modules ->
+        modules.each { m ->
+            include m
+            project(":${m}").projectDir = file("${platform}/${m}")
+        }
+    }
+
+    include 'example-extension'
+}

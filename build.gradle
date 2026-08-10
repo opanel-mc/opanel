@@ -8,6 +8,10 @@ plugins {
     id 'java'
 }
 
+repositories {
+    mavenCentral()
+}
+
 licenseReport {
     renderers = [new TextReportRenderer('ThirdPartyNotices.txt')]
 }
@@ -36,7 +40,7 @@ nmcpAggregation {
         password = providers.environmentVariable('CENTRAL_PORTAL_PASSWORD')
                 .getOrElse('')
 
-        publishingType = 'USER_MANAGED'
+        publishingType = 'AUTOMATIC'
         publicationName = "cn.opanel:opanel-api:${version}"
     }
 }

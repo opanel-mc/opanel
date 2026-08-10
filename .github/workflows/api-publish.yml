@@ -50,6 +50,7 @@ jobs:
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_SIGNING_PASSPHRASE }}
         run: |
           JAVA_HOME="$JAVA_HOME_21_X64" ./gradlew \
+            -PapiOnly=true \
             :api:check \
             publishAggregationToCentralPortal \
             --no-daemon \
