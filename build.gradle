@@ -8,6 +8,10 @@ plugins {
     id 'java'
 }
 
+repositories {
+    mavenCentral()
+}
+
 licenseReport {
     renderers = [new TextReportRenderer('ThirdPartyNotices.txt')]
 }
