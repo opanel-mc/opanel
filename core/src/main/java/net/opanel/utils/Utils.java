@@ -1,10 +1,13 @@
 package net.opanel.utils;
 
+import io.javalin.http.ContentType;
 import net.opanel.OPanel;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -341,5 +344,27 @@ public class Utils {
         int hour = (int) Math.floor((double) gameTick / 1000 + 6) % 24;
         int minute = (int) Math.floor(((double) gameTick % 1000) / 16.6);
         return (hour < 10 ? "0"+ hour : String.valueOf(hour)) +":"+ (minute < 10 ? "0"+ minute : String.valueOf(minute));
+    }
+
+    public static List<Method> findAnnotatedMethods(Class<?> type, Class<? extends Annotation> annotationClass) {
+        List<Method> methods = new ArrayList<>();
+        for(Method method : type.getDeclaredMethods()) {
+            if(method.isAnnotationPresent(annotationClass)) methods.add(method);
+        }
+        return methods;
+    }
+
+    public static String normalizePath(String path) {
+        if(path.contains("\\")) return null;
+        if(path.startsWith("/")) {
+            path = path.substring(1);
+            if(path.startsWith("/")) return null;
+        }
+
+        String[] segments = path.split("/");
+        for(String segment : segments) {
+            if(segment.equals("..")) return null;
+        }
+        return path;
     }
 }

@@ -1,5 +1,7 @@
 package net.opanel.common;
 
+import net.opanel.api.player.GameMode;
+
 public enum OPanelGameMode {
     ADVENTURE(2, "adventure"),
     SURVIVAL(0, "survival"),
@@ -20,6 +22,15 @@ public enum OPanelGameMode {
 
     public String getName() {
         return name;
+    }
+
+    public GameMode toAPITyped() {
+        return switch(this) {
+            case ADVENTURE -> GameMode.ADVENTURE;
+            case SURVIVAL -> GameMode.SURVIVAL;
+            case CREATIVE -> GameMode.CREATIVE;
+            case SPECTATOR -> GameMode.SPECTATOR;
+        };
     }
 
     public static OPanelGameMode fromId(int id) {

@@ -5,8 +5,11 @@ import io.javalin.http.servlet.JavalinServletContext;
 import net.opanel.OPanel;
 import net.opanel.config.McpConfiguration;
 import net.opanel.config.OpenAPIConfiguration;
+import net.opanel.extension.ExtensionManager;
+import net.opanel.extension.LoadedExtension;
 import net.opanel.storage.Storage;
 import net.opanel.storage.StorageKey;
+import net.opanel.utils.Utils;
 import net.opanel.web.JwtManager;
 
 public class BeforeController extends BaseController {
@@ -108,6 +111,42 @@ public class BeforeController extends BaseController {
         Boolean interfaceEnabled = openAPIConfig.interfaces.get(interfaceName);
         if(interfaceEnabled != null && !interfaceEnabled) {
             sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "Interface '"+ interfaceName +"' is not enabled.");
+            clearContextTasks(ctx);
+        }
+    };
+
+    public Handler routeExtensionBackend = ctx -> {
+        String extensionId = ctx.pathParam("extId");
+        String path = ctx.pathParamMap().containsKey("path") ? ctx.pathParam("path") : "";
+        String normalizedPath = path.isEmpty() ? "index.html" : Utils.normalizePath(path);
+        if(normalizedPath == null) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Invalid extension backend path.");
+            clearContextTasks(ctx);
+            return;
+        }
+
+        ExtensionManager extensionManager = plugin.getExtensionManager();
+        if(!extensionManager.hasExtension(extensionId)) {
+            sendResponse(ctx, HttpStatus.NOT_FOUND, "Extension not found.");
+            clearContextTasks(ctx);
+            return;
+        }
+
+        LoadedExtension extension = extensionManager.getExtension(extensionId);
+        LoadedExtension.BackendRoute route = extension.getBackendRoute(normalizedPath);
+        if(route == null || route.method != ctx.method()) {
+            sendResponse(ctx, HttpStatus.NOT_FOUND, "Extension backend path not found.");
+            clearContextTasks(ctx);
+            return;
+        }
+
+        Thread thread = Thread.currentThread();
+        ClassLoader previousClassLoader = thread.getContextClassLoader();
+        try {
+            thread.setContextClassLoader(extension.classLoader);
+            route.handler.handle(ctx);
+        } finally {
+            thread.setContextClassLoader(previousClassLoader);
             clearContextTasks(ctx);
         }
     };

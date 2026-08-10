@@ -2,7 +2,7 @@
 
 import type { OidcConfigResponse } from "@/lib/types";
 import { useEffect, useState } from "react";
-import { ShieldCheck, Trash2, Plus } from "lucide-react";
+import { ShieldCheck, Trash2, Plus, ShieldEllipsis } from "lucide-react";
 import { toast } from "sonner";
 import { SubPage } from "../sub-page";
 import { $ } from "@/lib/i18n";
@@ -10,7 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { sendGetRequest, sendPostRequest, sendDeleteRequest, toastError } from "@/lib/api";
 import { ConfigItem, ConfigSection } from "@/components/config-item";
-import { Empty, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle
+} from "@/components/ui/empty";
 import { emitter } from "@/lib/emitter";
 import { googleSansCode } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
@@ -23,7 +29,12 @@ export default function OIDCConfiguration() {
   const fetchOidcStatus = async () => {
     try {
       const res = await sendGetRequest<OidcConfigResponse>("/api/auth/oidc/config", false);
-      setConfig({ enabled: res.enabled, displayName: res.displayName, discoveryUrl: res.discoveryUrl, clientId: res.clientId });
+      setConfig({
+        enabled: res.enabled,
+        displayName: res.displayName,
+        discoveryUrl: res.discoveryUrl,
+        clientId: res.clientId
+      });
       if(res.enabled) {
         const { allowedUserIds: ids } = await sendGetRequest<{ allowedUserIds: string[] }>("/api/auth/oidc/allowed-users");
         setAllowedUserIds(ids ?? []);
@@ -143,9 +154,15 @@ export default function OIDCConfiguration() {
           </div>
         </>
       ) : (
-        <Empty>
+        <Empty className="border rounded-md border-solid">
           <EmptyHeader>
-            <EmptyTitle>{$("oidc.not-enabled")}</EmptyTitle>
+            <EmptyMedia variant="icon">
+              <ShieldEllipsis />
+            </EmptyMedia>
+            <EmptyTitle>{$("oidc.empty.title")}</EmptyTitle>
+            <EmptyDescription>
+              {$("oidc.empty.description")}
+            </EmptyDescription>
           </EmptyHeader>
         </Empty>
       )}

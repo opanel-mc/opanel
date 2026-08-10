@@ -64,7 +64,6 @@ shadowJar {
     relocate 'com.google.gson', 'net.opanel.deps.gson'
     relocate 'org.objectweb.asm', 'net.opanel.deps.objectweb.asm'
     relocate 'oshi', 'net.opanel.deps.oshi'
-    relocate 'io.javalin', 'net.opanel.deps.javalin'
     relocate 'kotlin', 'net.opanel.deps.kotlin'
     relocate 'com.nimbusds', 'net.opanel.deps.nimbusds'
     relocate 'net.minidev', 'net.opanel.deps.minidev'

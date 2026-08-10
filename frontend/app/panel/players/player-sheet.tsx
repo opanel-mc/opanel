@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type PropsWithChildren } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Backpack, Ban, BrushCleaning, Copy, ShieldOff, UserMinus, UserPlus } from "lucide-react";
+import { Backpack, Ban, BrushCleaning, Copy, ShieldOff, Trash } from "lucide-react";
 import {
   Sheet,
   SheetClose,
@@ -39,18 +39,20 @@ import {
   kick,
   pardon,
   removeFromWhitelist,
+  removePlayerData,
   setGameMode
 } from "./player-utils";
 import { emitter } from "@/lib/emitter";
 import { millisToTime } from "@/lib/time";
 import { $ } from "@/lib/i18n";
 import { Alert } from "@/components/alert";
-import { cn, copyToClipboard } from "@/lib/utils";
+import { cn, copyToClipboard, sleep } from "@/lib/utils";
 import { googleSansCode } from "@/lib/fonts";
 
 const formSchema = z.object({
   gamemode: z.enum(Object.values(GameMode) as [string, ...string[]]),
-  isOp: z.boolean()
+  isOp: z.boolean(),
+  isWhitelisted: z.boolean()
 });
 
 export function PlayerSheet({
@@ -72,7 +74,8 @@ export function PlayerSheet({
     resolver: zodResolver(formSchema),
     values: {
       gamemode: player.gamemode ?? "adventure",
-      isOp: player.isOp
+      isOp: player.isOp,
+      isWhitelisted: player.isWhitelisted ?? false
     }
   });
 
@@ -84,6 +87,15 @@ export function PlayerSheet({
       player.isOp
       ? await depriveOp(player.uuid, false)
       : await giveOp(player.uuid, false);
+    }
+    if(
+      player.name
+      && player.isWhitelisted !== undefined
+      && values.isWhitelisted !== player.isWhitelisted
+    ) {
+      values.isWhitelisted
+      ? await addToWhitelist(player.name, player.uuid, false)
+      : await removeFromWhitelist(player.name, player.uuid, false);
     }
     emitter.emit("refresh-data");
   };
@@ -239,44 +251,37 @@ export function PlayerSheet({
                       <Switch
                         {...field}
                         value=""
-                        defaultChecked={player.isOp}
+                        checked={field.value}
                         onCheckedChange={field.onChange}/>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}/>
+              {(player.name && player.isWhitelisted !== undefined) && (
+                <FormField
+                  control={form.control}
+                  name="isWhitelisted"
+                  render={({ field }) => (
+                    <FormItem className="flex justify-between">
+                      <FormLabel>{$("players.edit.form.whitelist.label")}</FormLabel>
+                      <FormControl>
+                        <Switch
+                          {...field}
+                          value=""
+                          checked={field.value}
+                          onCheckedChange={field.onChange}/>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}/>
+              )}
               <div className="space-y-3">
                 <Label>{$("players.edit.form.manage")}</Label>
-                <div className="grid grid-rows-2 grid-cols-2 gap-2 [&>*]:cursor-pointer">
-                  {(player.name && player.isWhitelisted !== undefined) && (
-                    player.isWhitelisted
-                    ? (
-                      <Button
-                        variant="outline"
-                        onClick={async () => {
-                          await removeFromWhitelist(player.name, player.uuid);
-                          emitter.emit("refresh-data");
-                        }}>
-                        <UserMinus />
-                        {$("players.action.remove-from-whitelist")}
-                      </Button>
-                    )
-                    : (
-                      <Button
-                        variant="outline"
-                        onClick={async () => {
-                          await addToWhitelist(player.name, player.uuid);
-                          emitter.emit("refresh-data");
-                        }}>
-                        <UserPlus />
-                        {$("players.action.add-to-whitelist")}
-                      </Button>
-                    )
-                  )}
+                <div className="grid grid-cols-2 gap-2 [&>*]:cursor-pointer">
                   <Button
                     variant="outline"
                     title={$("players.action.edit-inventory")}
-                    className={player.isWhitelisted === undefined ? "col-span-2" : "col-start-2"}
+                    className="col-span-2"
                     asChild>
                     <Link href={`/panel/players/inventory?uuid=${player.uuid}`}>
                       <Backpack />
@@ -295,6 +300,7 @@ export function PlayerSheet({
                     asChild>
                     <Button
                       variant="outline"
+                      className="col-span-2"
                       disabled={!player.isOnline}>
                       <BrushCleaning />
                       {$("players.action.kick")}
@@ -331,6 +337,27 @@ export function PlayerSheet({
                       </Button>
                     )
                   }
+                  <Alert
+                    title={$("players.action.remove.alert.title", player.name)}
+                    description={
+                      !player.isOnline
+                      ? $("players.action.remove.alert.description1")
+                      : $("players.action.remove.alert.description2")
+                    }
+                    onAction={async () => {
+                      if(player.isOnline) {
+                        await kick(player.uuid, $("players.action.remove.kick-reason"), false);
+                        await sleep(100);
+                      }
+                      await removePlayerData(player.uuid);
+                      emitter.emit("refresh-data");
+                    }}
+                    asChild>
+                    <Button variant="destructive">
+                      <Trash />
+                      {$("players.action.remove")}
+                    </Button>
+                  </Alert>
                 </div>
               </div>
             </div>

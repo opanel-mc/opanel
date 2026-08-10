@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-r
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   type ColumnDef,
+  type VisibilityState,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
@@ -28,6 +29,7 @@ export function DataTable<D, V>({
   data,
   pagination = false,
   paginationQueryKey,
+  columnVisibility = {},
   fallbackMessage = $("table.empty"),
   className
 }: {
@@ -35,6 +37,7 @@ export function DataTable<D, V>({
   data: D[]
   pagination?: boolean
   paginationQueryKey?: string
+  columnVisibility?: VisibilityState
   fallbackMessage?: string
   className?: string
 }) {
@@ -50,7 +53,8 @@ export function DataTable<D, V>({
     getPaginationRowModel: pagination ? getPaginationRowModel() : undefined,
     onPaginationChange: setPaginationState,
     state: {
-      pagination: paginationState
+      pagination: paginationState,
+      columnVisibility
     }
   });
 
