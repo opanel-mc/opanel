@@ -11,11 +11,14 @@ export async function toggleExtension(fileName: string, enabled: boolean) {
     await sendPostRequest(`/api/extensions/${encodeURIComponent(fileName)}?enabled=${enabled ? "1" : "0"}`);
     emitter.emit("refresh-data");
   } catch (e: any) {
-    toastError(e, enabled
+    toastError(e, (
+      enabled
       ? $("extensions.action.toggle.enable.error", fileName)
-      : $("extensions.action.toggle.disable.error", fileName), [
+      : $("extensions.action.toggle.disable.error", fileName)
+    ), [
       [400, $("common.error.400")],
       [401, $("common.error.401")],
+      [403, $("extensions.action.error.403")],
       [404, $("extensions.action.toggle.error.404", fileName)],
       [500, $("common.error.500")]
     ]);
@@ -30,6 +33,7 @@ export async function deleteExtension(fileName: string) {
     toastError(e, $("extensions.action.delete.error", fileName), [
       [400, $("common.error.400")],
       [401, $("common.error.401")],
+      [403, $("extensions.action.error.403")],
       [404, $("extensions.action.delete.error.404", fileName)],
       [500, $("common.error.500")]
     ]);

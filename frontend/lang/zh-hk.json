@@ -648,6 +648,7 @@
   "extensions.item.enabled": "已啟用",
   "extensions.item.disabled": "已停用",
   "extensions.action.refresh": "重新整理",
+  "extensions.action.error.403": "擴充功能正在卸載，請稍後再試",
   "extensions.action.upload": "上載",
   "extensions.action.upload.title": "上載擴充功能",
   "extensions.action.upload.description": "在此上載擴充功能 jar 檔案，有效的擴充功能將在上載後立即載入。",

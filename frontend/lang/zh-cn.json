@@ -648,6 +648,7 @@
   "extensions.item.enabled": "已启用",
   "extensions.item.disabled": "已禁用",
   "extensions.action.refresh": "刷新",
+  "extensions.action.error.403": "扩展正在卸载，请稍后重试",
   "extensions.action.upload": "上传",
   "extensions.action.upload.title": "上传扩展",
   "extensions.action.upload.description": "在此上传扩展 jar 文件，有效的扩展将在上传后立即加载。",

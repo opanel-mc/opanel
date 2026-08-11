@@ -648,6 +648,7 @@
   "extensions.item.enabled": "Aktiviert",
   "extensions.item.disabled": "Deaktiviert",
   "extensions.action.refresh": "Aktualisieren",
+  "extensions.action.error.403": "Die Erweiterung wird gerade entladen. Bitte versuche es später erneut",
   "extensions.action.upload": "Hochladen",
   "extensions.action.upload.title": "Erweiterung hochladen",
   "extensions.action.upload.description": "Lade hier eine Erweiterungs-JAR-Datei hoch. Gültige Erweiterungen werden sofort geladen.",

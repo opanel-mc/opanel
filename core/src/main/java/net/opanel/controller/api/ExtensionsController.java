@@ -124,6 +124,12 @@ public class ExtensionsController extends BaseController {
 
             plugin.getExtensionManager().loadExtension(targetPath);
             sendResponse(ctx, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Invalid extension id.");
+        } catch (IllegalStateException e) {
+            sendResponse(ctx, HttpStatus.CONFLICT, "The extension already exists.");
+        } catch (IllegalAccessException e) {
+            sendResponse(ctx, HttpStatus.FORBIDDEN, "The extension is being unloaded.");
         } catch (Exception e) {
             e.printStackTrace();
             sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
@@ -169,6 +175,8 @@ public class ExtensionsController extends BaseController {
             sendResponse(ctx, HttpStatus.OK);
         } catch (NoSuchFileException e) {
             sendResponse(ctx, HttpStatus.NOT_FOUND, "Cannot find the extension.");
+        } catch (IllegalStateException e) {
+            sendResponse(ctx, HttpStatus.FORBIDDEN, "The extension is being unloaded.");
         } catch (Exception e) {
             e.printStackTrace();
             sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
@@ -195,6 +203,8 @@ public class ExtensionsController extends BaseController {
             sendResponse(ctx, HttpStatus.OK);
         } catch (NoSuchFileException e) {
             sendResponse(ctx, HttpStatus.NOT_FOUND, "Cannot find the extension.");
+        } catch (IllegalStateException e) {
+            sendResponse(ctx, HttpStatus.FORBIDDEN, "The extension is being unloaded.");
         } catch (Exception e) {
             if(loadedExtension != null && Files.exists(filePath)) {
                 plugin.getExtensionManager().loadExtension(filePath);

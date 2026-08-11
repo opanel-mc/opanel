@@ -648,6 +648,7 @@
   "extensions.item.enabled": "Enabled",
   "extensions.item.disabled": "Disabled",
   "extensions.action.refresh": "Refresh",
+  "extensions.action.error.403": "The extension is being unloaded, please try again later",
   "extensions.action.upload": "Upload",
   "extensions.action.upload.title": "Upload Extension",
   "extensions.action.upload.description": "Upload an extension jar file here. Valid extensions are loaded immediately.",

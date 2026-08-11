@@ -648,6 +648,7 @@
   "extensions.item.enabled": "有効",
   "extensions.item.disabled": "無効",
   "extensions.action.refresh": "更新",
+  "extensions.action.error.403": "拡張機能をアンロードしています。しばらくしてからもう一度お試しください",
   "extensions.action.upload": "アップロード",
   "extensions.action.upload.title": "拡張機能をアップロード",
   "extensions.action.upload.description": "拡張機能の jar ファイルをアップロードします。有効な拡張機能はすぐにロードされます。",

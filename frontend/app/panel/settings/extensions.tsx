@@ -217,6 +217,7 @@ export function Extensions() {
       toastError(e, $("extensions.action.upload.error"), [
         [400, $("extensions.action.upload.error.400")],
         [401, $("common.error.401")],
+        [403, $("extensions.action.error.403")],
         [409, $("extensions.action.upload.error.409")],
         [500, $("common.error.500")]
       ]);

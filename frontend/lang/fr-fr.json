@@ -648,6 +648,7 @@
   "extensions.item.enabled": "Activée",
   "extensions.item.disabled": "Désactivée",
   "extensions.action.refresh": "Actualiser",
+  "extensions.action.error.403": "L’extension est en cours de déchargement. Veuillez réessayer plus tard",
   "extensions.action.upload": "Téléverser",
   "extensions.action.upload.title": "Téléverser une extension",
   "extensions.action.upload.description": "Téléversez ici un fichier jar d’extension. Les extensions valides sont chargées immédiatement.",

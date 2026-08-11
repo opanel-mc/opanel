@@ -64,7 +64,13 @@ public class ExtensionManager {
         }
 
         for(Path extensionJar : extensionJars) {
-            loadExtension(extensionJar);
+            try {
+                loadExtension(extensionJar);
+            } catch (IllegalArgumentException | IllegalStateException e) {
+                plugin.logger.error("Skipping extension '"+ extensionJar.getFileName() +"': "+ e.getMessage());
+            } catch (Exception e) {
+                plugin.logger.error("Failed to load extension '"+ extensionJar.getFileName() +"': "+ e.getMessage());
+            }
         }
     }
 
@@ -79,7 +85,12 @@ public class ExtensionManager {
         try {
             eventDispatcher.shutdown();
             for(int i = extensions.size() - 1; i >= 0; i--) {
-                unloadExtension(extensions.get(i));
+                LoadedExtension extension = extensions.get(i);
+                try {
+                    unloadExtension(extension);
+                } catch (Exception e) {
+                    plugin.logger.error("Failed to unload extension '"+ extension.id +"': "+ e.getMessage());
+                }
             }
         } finally {
             synchronized(this) {
@@ -114,7 +125,8 @@ public class ExtensionManager {
         return extension.jarFile.getInputStream(entry);
     }
 
-    public synchronized void loadExtension(Path extensionPath) {
+    public synchronized void loadExtension(Path extensionPath)
+            throws IllegalArgumentException, IllegalStateException, IllegalAccessException {
         if(unloading) return;
 
         JarFile jarFile = null;
@@ -127,16 +139,13 @@ public class ExtensionManager {
             ExtensionMetadata metadata = readMetadata(jarFile);
             extensionId = metadata.extId;
             if(!extensionId.matches(EXTENSION_ID_PATTERN) || extensionId.length() > 64) {
-                plugin.logger.error("Skipping extension '" + extensionPath.getFileName() + "': invalid extension id '" + extensionId + "'.");
-                return;
+                throw new IllegalArgumentException("Invalid extension id '"+ extensionId +"'.");
             }
             if(loadedExtensions.containsKey(extensionId)) {
-                plugin.logger.error("Skipping extension '" + extensionPath.getFileName() + "': extension id '" + extensionId + "' is already loaded.");
-                return;
+                throw new IllegalStateException("Extension id '"+ extensionId +"' is already loaded.");
             }
             if(unloadingExtensionIds.contains(extensionId)) {
-                plugin.logger.error("Skipping extension '" + extensionPath.getFileName() + "': extension id '" + extensionId + "' is being unloaded.");
-                return;
+                throw new IllegalAccessException("Extension id '"+ extensionId +"' is being unloaded.");
             }
 
             classLoader = new ExtensionClassLoader(extensionPath.toUri().toURL(), OPanelAPI.class.getClassLoader(), OPanel.class.getClassLoader());
@@ -172,12 +181,12 @@ public class ExtensionManager {
             jarFile = null;
             classLoader = null;
         } catch (Throwable e) {
-            plugin.logger.error("Failed to load extension '" + extensionPath.getFileName() + "': " + describe(e));
             if(loadCallbackStarted) {
                 unloadExtension(loadedExtension);
                 classLoader = null;
                 jarFile = null;
             }
+            throw new RuntimeException(describe(e));
         } finally {
             if(classLoader != null) close(classLoader, extensionPath);
             if(jarFile != null) close(jarFile, extensionPath);
@@ -194,12 +203,12 @@ public class ExtensionManager {
                         Class<?> type = Class.forName(className, false, classLoader);
                         if(type.isAnnotationPresent(Extension.class)) entries.add(type);
                     } catch (Throwable e) {
-                        plugin.logger.warn("Unable to inspect class '" + className + "' in extension '" + extensionPath.getFileName() + "': " + describe(e));
+                        plugin.logger.warn("Unable to inspect class '"+ className +"' in extension '"+ extensionPath.getFileName() +"': "+ describe(e));
                     }
                 });
 
         if(entries.size() != 1) {
-            plugin.logger.error("Skipping extension '" + extensionPath.getFileName() + "': expected exactly one @Extension entry, found " + entries.size() + ".");
+            plugin.logger.error("Skipping extension '"+ extensionPath.getFileName() +"': expected exactly one @Extension entry, found "+ entries.size() +".");
             return null;
         }
         return entries.get(0);
@@ -214,7 +223,7 @@ public class ExtensionManager {
     private static ExtensionMetadata readMetadata(JarFile jarFile) throws IOException {
         JarEntry entry = jarFile.getJarEntry(METADATA_FILE);
         if(entry == null || entry.isDirectory()) {
-            throw new IllegalArgumentException("Missing " + METADATA_FILE + ".");
+            throw new IllegalArgumentException("Missing "+ METADATA_FILE +".");
         }
 
         try(
@@ -223,19 +232,19 @@ public class ExtensionManager {
         ) {
             ExtensionMetadata metadata = gson.fromJson(reader, ExtensionMetadata.class);
             if(metadata == null || metadata.extId == null || metadata.extId.isBlank()) {
-                throw new IllegalArgumentException(METADATA_FILE + " must define a non-blank extId.");
+                throw new IllegalArgumentException(METADATA_FILE +" must define a non-blank extId.");
             }
             if(metadata.name == null || metadata.name.isBlank()) {
-                throw new IllegalArgumentException(METADATA_FILE + " must define a non-blank name.");
+                throw new IllegalArgumentException(METADATA_FILE +" must define a non-blank name.");
             }
             if(metadata.pages == null) metadata.pages = List.of();
             for(int i = 0; i < metadata.pages.size(); i++) {
                 ExtensionMetadata.ExtensionPage page = metadata.pages.get(i);
                 if(page == null || page.name == null || page.name.isBlank()) {
-                    throw new IllegalArgumentException(METADATA_FILE + " page at index " + i + " must define a non-blank name.");
+                    throw new IllegalArgumentException(METADATA_FILE +" page at index "+ i +" must define a non-blank name.");
                 }
                 if(page.url == null || !isSafePageUrl(page.url)) {
-                    throw new IllegalArgumentException(METADATA_FILE + " page at index " + i + " must define a valid, safe URL.");
+                    throw new IllegalArgumentException(METADATA_FILE +" page at index "+ i +" must define a valid, safe URL.");
                 }
             }
             return metadata;
@@ -326,7 +335,7 @@ public class ExtensionManager {
 
     private static String describe(Throwable e) {
         String message = e.getMessage();
-        return e.getClass().getSimpleName() + (message == null || message.isBlank() ? "" : ": " + message);
+        return e.getClass().getSimpleName() + (message == null || message.isBlank() ? "" : ": "+ message);
     }
 
     public void unloadExtension(LoadedExtension extension) {
@@ -339,7 +348,7 @@ public class ExtensionManager {
             try {
                 invokeLifecycle(extension.classLoader, extension.unloadMethod, extension.instance);
             } catch (Throwable e) {
-                plugin.logger.error("Failed to unload extension '" + extension.id + "': " + describe(e));
+                throw new RuntimeException(describe(e));
             }
         } finally {
             extension.api.invalidate();
@@ -358,7 +367,7 @@ public class ExtensionManager {
         try {
             closeable.close();
         } catch (Exception e) {
-            plugin.logger.error("Failed to close extension '" + extensionPath.getFileName() + "': " + e.getMessage());
+            plugin.logger.error("Failed to close extension '"+ extensionPath.getFileName() +"': "+ e.getMessage());
         }
     }
 

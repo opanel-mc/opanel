@@ -648,6 +648,7 @@
   "extensions.item.enabled": "활성화됨",
   "extensions.item.disabled": "비활성화됨",
   "extensions.action.refresh": "새로 고침",
+  "extensions.action.error.403": "확장 기능을 언로드하는 중입니다. 잠시 후 다시 시도하세요",
   "extensions.action.upload": "업로드",
   "extensions.action.upload.title": "확장 기능 업로드",
   "extensions.action.upload.description": "확장 기능 jar 파일을 업로드하세요. 유효한 확장 기능은 즉시 로드됩니다.",
