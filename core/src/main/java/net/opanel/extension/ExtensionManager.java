@@ -68,7 +68,7 @@ public class ExtensionManager {
                 loadExtension(extensionJar);
             } catch (IllegalArgumentException | IllegalStateException e) {
                 plugin.logger.error("Skipping extension '"+ extensionJar.getFileName() +"': "+ e.getMessage());
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 plugin.logger.error("Failed to load extension '"+ extensionJar.getFileName() +"': "+ e.getMessage());
             }
         }
@@ -125,8 +125,7 @@ public class ExtensionManager {
         return extension.jarFile.getInputStream(entry);
     }
 
-    public synchronized void loadExtension(Path extensionPath)
-            throws IllegalArgumentException, IllegalStateException, IllegalAccessException {
+    public synchronized void loadExtension(Path extensionPath) throws Throwable {
         if(unloading) return;
 
         JarFile jarFile = null;
@@ -186,7 +185,7 @@ public class ExtensionManager {
                 classLoader = null;
                 jarFile = null;
             }
-            throw new RuntimeException(describe(e));
+            throw e;
         } finally {
             if(classLoader != null) close(classLoader, extensionPath);
             if(jarFile != null) close(jarFile, extensionPath);
