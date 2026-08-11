@@ -137,6 +137,7 @@ public class WebServer {
         app.get("/panel/ext/", ctx -> ctx.status(HttpStatus.NOT_FOUND));
         app.get("/panel/ext/{extId}", extensionPageController.getExtensionPage);
         app.get("/panel/ext/{extId}/", extensionPageController.getExtensionPage);
+        app.get("/panel/ext/{extId}/<resource>", extensionPageController.getExtensionPage);
         app.routes(() -> path("assets", () -> {
             before("/upload/*", beforeController.authToken);
             get("/{name}", assetsController.getAsset);
