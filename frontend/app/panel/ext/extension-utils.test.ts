@@ -1,18 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { parseExtensionPagePath } from "./extension-utils";
+import { getExtensionIframeSrc } from "./extension-utils";
 
-describe("parseExtensionPagePath", () => {
+describe("getExtensionIframeSrc", () => {
   it.each([
-    ["/panel/ext/example-extension", "/"],
-    ["/panel/ext/example-extension/", "/"],
-    ["/panel/ext/example-extension/test", "/test"],
-    ["/panel/ext/example-extension/test/nested", "/test/nested"],
-    ["/panel/ext/example-extension/test%20page", "/test%20page"]
-  ])("extracts the extension id and resource path from %s", (pathname, resourcePath) => {
-    expect(parseExtensionPagePath(pathname)).toEqual({
-      extensionId: "example-extension",
-      resourcePath
-    });
+    ["/panel/ext/example-extension", "/api/extension-res/example-extension/"],
+    ["/panel/ext/example-extension/", "/api/extension-res/example-extension/"],
+    ["/panel/ext/example-extension/test", "/api/extension-res/example-extension/test"],
+    ["/panel/ext/example-extension/test/nested", "/api/extension-res/example-extension/test/nested"],
+    ["/panel/ext/example-extension/test%20page", "/api/extension-res/example-extension/test%20page"],
+    ["/panel/ext/example-extension/test?key=value", "/api/extension-res/example-extension/test?key=value"],
+    ["/panel/ext/example-extension/test?key=value#test", "/api/extension-res/example-extension/test?key=value#test"],
+  ])("converts %s to the extension iframe src", (path, expected) => {
+    expect(getExtensionIframeSrc(new URL(path, "https://opanel.test"))).toBe(expected);
   });
 
   it.each([
@@ -22,7 +21,7 @@ describe("parseExtensionPagePath", () => {
     "/panel/ext/Example-Extension/test",
     "/panel/ext/example%2Fextension/test",
     "/panel/ext/%/test"
-  ])("rejects a missing or invalid extension id in %s", (pathname) => {
-    expect(parseExtensionPagePath(pathname)).toBeNull();
+  ])("rejects a missing or invalid extension id in %s", (path) => {
+    expect(getExtensionIframeSrc(new URL(path, "https://opanel.test"))).toBeNull();
   });
 });
