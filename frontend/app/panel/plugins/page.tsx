@@ -191,7 +191,7 @@ export default function Plugins() {
         handleUpload(e.dataTransfer.files[0]);
       }}>
       {/* Drag and Drop Area */}
-      <div className={cn("absolute top-0 left-0 right-0 bottom-0 z-50 flex flex-col justify-center items-center gap-4 pointer-events-none", uploadVisible ? "" : "hidden")}>
+      <div className={cn("absolute top-0 left-0 right-0 bottom-0 z-50 flex flex-col justify-center items-center gap-4 bg-background/90 pointer-events-none", uploadVisible ? "" : "hidden")}>
         <div
           className="absolute w-full h-full border-4 rounded-sm border-dashed"/>
         <Upload size={60} stroke="var(--color-muted-foreground)"/>

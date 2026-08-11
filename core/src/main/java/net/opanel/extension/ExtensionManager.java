@@ -37,6 +37,7 @@ public class ExtensionManager {
     private final OPanel plugin;
     private final ExtensionEventDispatcher eventDispatcher;
     private final Map<String, LoadedExtension> loadedExtensions = new LinkedHashMap<>();
+    private final Set<String> unloadingExtensionIds = new HashSet<>();
     private boolean scanned;
     private boolean unloading;
 
@@ -76,15 +77,7 @@ public class ExtensionManager {
         try {
             eventDispatcher.shutdown();
             for(int i = extensions.size() - 1; i >= 0; i--) {
-                LoadedExtension extension = extensions.get(i);
-                try {
-                    invokeLifecycle(extension.classLoader, extension.unloadMethod, extension.instance);
-                } catch (Throwable e) {
-                    plugin.logger.error("Failed to unload extension '" + extension.id + "': " + describe(e));
-                } finally {
-                    extension.api.invalidate();
-                    closeExtension(extension);
-                }
+                unloadExtension(extensions.get(i));
             }
         } finally {
             synchronized(this) {
@@ -115,13 +108,14 @@ public class ExtensionManager {
         return extension.jarFile.getInputStream(entry);
     }
 
-    private void loadExtension(Path extensionPath) {
+    public synchronized void loadExtension(Path extensionPath) {
+        if(unloading) return;
+
         JarFile jarFile = null;
         ExtensionClassLoader classLoader = null;
         LoadedExtension loadedExtension = null;
         String extensionId = null;
         boolean loadCallbackStarted = false;
-        boolean eventHandlersActivated = false;
         try {
             jarFile = new JarFile(extensionPath.toFile());
             ExtensionMetadata metadata = readMetadata(jarFile);
@@ -132,6 +126,10 @@ public class ExtensionManager {
             }
             if(loadedExtensions.containsKey(extensionId)) {
                 plugin.logger.error("Skipping extension '" + extensionPath.getFileName() + "': extension id '" + extensionId + "' is already loaded.");
+                return;
+            }
+            if(unloadingExtensionIds.contains(extensionId)) {
+                plugin.logger.error("Skipping extension '" + extensionPath.getFileName() + "': extension id '" + extensionId + "' is being unloaded.");
                 return;
             }
 
@@ -165,22 +163,14 @@ public class ExtensionManager {
             loadedExtensions.put(extensionId, loadedExtension);
             invokeLifecycle(classLoader, loadMethod, instance, api);
             eventDispatcher.activate(loadedExtension);
-            eventHandlersActivated = true;
             jarFile = null;
             classLoader = null;
         } catch (Throwable e) {
             plugin.logger.error("Failed to load extension '" + extensionPath.getFileName() + "': " + describe(e));
             if(loadCallbackStarted) {
-                if(eventHandlersActivated) eventDispatcher.deactivate(loadedExtension);
-
-                try {
-                    invokeLifecycle(loadedExtension.classLoader, loadedExtension.unloadMethod, loadedExtension.instance);
-                } catch (Throwable unloadError) {
-                    plugin.logger.error("Failed to clean up extension '" + loadedExtension.id + "': " + describe(unloadError));
-                } finally {
-                    loadedExtension.api.invalidate();
-                    loadedExtensions.remove(extensionId);
-                }
+                unloadExtension(loadedExtension);
+                classLoader = null;
+                jarFile = null;
             }
         } finally {
             if(classLoader != null) close(classLoader, extensionPath);
@@ -207,6 +197,12 @@ public class ExtensionManager {
             return null;
         }
         return entries.get(0);
+    }
+
+    public static ExtensionMetadata readMetadata(Path extensionPath) throws IOException {
+        try(JarFile jarFile = new JarFile(extensionPath.toFile())) {
+            return readMetadata(jarFile);
+        }
     }
 
     private static ExtensionMetadata readMetadata(JarFile jarFile) throws IOException {
@@ -300,9 +296,29 @@ public class ExtensionManager {
         return e.getClass().getSimpleName() + (message == null || message.isBlank() ? "" : ": " + message);
     }
 
-    private void closeExtension(LoadedExtension extension) {
-        close(extension.classLoader, extension.sourceJar);
-        close(extension.jarFile, extension.sourceJar);
+    public void unloadExtension(LoadedExtension extension) {
+        synchronized(this) {
+            if(loadedExtensions.get(extension.id) != extension || !unloadingExtensionIds.add(extension.id)) return;
+        }
+
+        try {
+            eventDispatcher.deactivate(extension);
+            try {
+                invokeLifecycle(extension.classLoader, extension.unloadMethod, extension.instance);
+            } catch (Throwable e) {
+                plugin.logger.error("Failed to unload extension '" + extension.id + "': " + describe(e));
+            }
+        } finally {
+            extension.api.invalidate();
+            synchronized(this) {
+                loadedExtensions.remove(extension.id, extension);
+            }
+            close(extension.classLoader, extension.sourceJar);
+            close(extension.jarFile, extension.sourceJar);
+            synchronized(this) {
+                unloadingExtensionIds.remove(extension.id);
+            }
+        }
     }
 
     private void close(AutoCloseable closeable, Path extensionPath) {

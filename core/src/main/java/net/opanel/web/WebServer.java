@@ -3,7 +3,6 @@ package net.opanel.web;
 import com.google.gson.Gson;
 import io.javalin.Javalin;
 import io.javalin.config.SizeUnit;
-import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 import io.javalin.jetty.JettyServer;
 import io.javalin.json.JavalinGson;
@@ -16,11 +15,7 @@ import net.opanel.controller.ErrorController;
 import net.opanel.controller.ExtensionPageController;
 import net.opanel.controller.api.*;
 import net.opanel.controller.openapi.*;
-import net.opanel.endpoint.InventoryEndpoint;
-import net.opanel.endpoint.MapEndpoint;
-import net.opanel.endpoint.MonitorEndpoint;
-import net.opanel.endpoint.PlayersEndpoint;
-import net.opanel.endpoint.TerminalEndpoint;
+import net.opanel.endpoint.*;
 
 import java.util.HashMap;
 
@@ -283,6 +278,13 @@ public class WebServer {
                 post("/", openAPIController.toggleOpenAPI);
                 get("/{interfaceName}", openAPIController.getInterfaceEnabled);
                 post("/{interfaceName}", openAPIController.toggleInterface);
+            });
+            path("extensions", () -> {
+                get("/", extensionsController.getExtensions);
+                post("/", extensionsController.uploadExtension);
+                get("{fileName}", extensionsController.downloadExtension);
+                post("{fileName}", extensionsController.toggleExtension);
+                delete("{fileName}", extensionsController.deleteExtension);
             });
             path("extension-res", () -> {
                 get("{extId}", extensionsController.getExtensionResource);
