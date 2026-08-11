@@ -12,11 +12,11 @@ export async function toggleExtension(fileName: string, enabled: boolean) {
     emitter.emit("refresh-data");
   } catch (e: any) {
     toastError(e, enabled
-      ? $("settings.extensions.action.toggle.enable.error", fileName)
-      : $("settings.extensions.action.toggle.disable.error", fileName), [
+      ? $("extensions.action.toggle.enable.error", fileName)
+      : $("extensions.action.toggle.disable.error", fileName), [
       [400, $("common.error.400")],
       [401, $("common.error.401")],
-      [404, $("settings.extensions.action.toggle.error.404", fileName)],
+      [404, $("extensions.action.toggle.error.404", fileName)],
       [500, $("common.error.500")]
     ]);
   }
@@ -27,10 +27,10 @@ export async function deleteExtension(fileName: string) {
     await sendDeleteRequest(`/api/extensions/${encodeURIComponent(fileName)}`);
     emitter.emit("refresh-data");
   } catch (e: any) {
-    toastError(e, $("settings.extensions.action.delete.error", fileName), [
+    toastError(e, $("extensions.action.delete.error", fileName), [
       [400, $("common.error.400")],
       [401, $("common.error.401")],
-      [404, $("settings.extensions.action.delete.error.404", fileName)],
+      [404, $("extensions.action.delete.error.404", fileName)],
       [500, $("common.error.500")]
     ]);
   }

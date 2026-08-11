@@ -77,6 +77,23 @@ public class ExtensionsController extends BaseController {
         sendResponse(ctx, obj);
     };
 
+    public Handler getRegisteredExtensionPages = ctx -> {
+        HashMap<String, Object> obj = new HashMap<>();
+        List<HashMap<String, String>> pages = new ArrayList<>();
+
+        for(LoadedExtension extension : plugin.getExtensionManager().getLoadedExtensions()) {
+            for(ExtensionMetadata.ExtensionPage page : extension.metadata.pages) {
+                HashMap<String, String> pageInfo = new HashMap<>();
+                pageInfo.put("name", page.name);
+                pageInfo.put("url", "/panel/ext/" + extension.id + page.url);
+                pages.add(pageInfo);
+            }
+        }
+
+        obj.put("pages", pages);
+        sendResponse(ctx, obj);
+    };
+
     public Handler uploadExtension = ctx -> {
         try {
             UploadedFile file = ctx.uploadedFile("file");

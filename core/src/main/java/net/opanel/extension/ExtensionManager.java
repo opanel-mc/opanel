@@ -17,6 +17,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
@@ -88,6 +90,10 @@ public class ExtensionManager {
 
     public synchronized LoadedExtension getExtension(String extensionId) {
         return loadedExtensions.get(extensionId);
+    }
+
+    public synchronized List<LoadedExtension> getLoadedExtensions() {
+        return List.copyOf(loadedExtensions.values());
     }
 
     public synchronized boolean hasExtension(String extensionId) {
@@ -222,7 +228,34 @@ public class ExtensionManager {
             if(metadata.name == null || metadata.name.isBlank()) {
                 throw new IllegalArgumentException(METADATA_FILE + " must define a non-blank name.");
             }
+            if(metadata.pages == null) metadata.pages = List.of();
+            for(int i = 0; i < metadata.pages.size(); i++) {
+                ExtensionMetadata.ExtensionPage page = metadata.pages.get(i);
+                if(page == null || page.name == null || page.name.isBlank()) {
+                    throw new IllegalArgumentException(METADATA_FILE + " page at index " + i + " must define a non-blank name.");
+                }
+                if(page.url == null || !isSafePageUrl(page.url)) {
+                    throw new IllegalArgumentException(METADATA_FILE + " page at index " + i + " must define a valid, safe URL.");
+                }
+            }
             return metadata;
+        }
+    }
+
+    private static boolean isSafePageUrl(String url) {
+        if(url.isBlank() || !url.startsWith("/") || url.startsWith("//") || url.contains("\\")) return false;
+
+        try {
+            URI uri = new URI(url);
+            if(uri.isAbsolute() || uri.getRawAuthority() != null) return false;
+
+            String path = uri.getPath();
+            return path != null
+                    && path.startsWith("/")
+                    && !path.startsWith("//")
+                    && Utils.normalizePath(path) != null;
+        } catch (URISyntaxException e) {
+            return false;
         }
     }
 

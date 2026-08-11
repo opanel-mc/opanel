@@ -59,15 +59,15 @@ function ExtensionUploadDialog({
       <DialogTrigger asChild>
         <Button className="cursor-pointer">
           <Upload />
-          {$("settings.extensions.action.upload")}
+          {$("extensions.action.upload")}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{$("settings.extensions.action.upload.title")}</DialogTitle>
-          <DialogDescription>{$("settings.extensions.action.upload.description")}</DialogDescription>
+          <DialogTitle>{$("extensions.action.upload.title")}</DialogTitle>
+          <DialogDescription>{$("extensions.action.upload.description")}</DialogDescription>
         </DialogHeader>
-        <Label htmlFor="extension-file">{$("settings.extensions.action.upload.input.label")}</Label>
+        <Label htmlFor="extension-file">{$("extensions.action.upload.input.label")}</Label>
         <Input
           id="extension-file"
           type="file"
@@ -123,8 +123,8 @@ function ExtensionItem({ extension }: { extension: Extension }) {
         {extension.enabled ? <Check /> : <X />}
         {
           extension.enabled
-          ? $("settings.extensions.item.enabled")
-          : $("settings.extensions.item.disabled")
+          ? $("extensions.item.enabled")
+          : $("extensions.item.disabled")
         }
       </Badge>
       <div className="flex min-md:justify-end [&>*]:cursor-pointer">
@@ -132,7 +132,7 @@ function ExtensionItem({ extension }: { extension: Extension }) {
           <Button
             variant="ghost"
             size="icon-sm"
-            title={$("settings.extensions.action.open")}
+            title={$("extensions.action.open")}
             asChild>
             <Link
               href={`/panel/ext/${encodeURIComponent(extension.extId)}`}
@@ -145,7 +145,7 @@ function ExtensionItem({ extension }: { extension: Extension }) {
         <Button
           variant="ghost"
           size="icon-sm"
-          title={$("settings.extensions.action.download")}
+          title={$("extensions.action.download")}
           onClick={() => downloadExtension(fileName)}>
           <Download />
         </Button>
@@ -153,8 +153,8 @@ function ExtensionItem({ extension }: { extension: Extension }) {
           variant="ghost"
           size="icon-sm"
           title={extension.enabled
-            ? $("settings.extensions.action.toggle.disable")
-            : $("settings.extensions.action.toggle.enable")}
+            ? $("extensions.action.toggle.disable")
+            : $("extensions.action.toggle.enable")}
           onClick={() => toggleExtension(fileName, !extension.enabled)}>
           {extension.enabled
             ? <Ban className="stroke-red-400"/>
@@ -163,7 +163,7 @@ function ExtensionItem({ extension }: { extension: Extension }) {
         <Button
           variant="ghost"
           size="icon-sm"
-          title={$("settings.extensions.action.delete")}
+          title={$("extensions.action.delete")}
           onClick={() => deleteExtension(fileName)}>
           <Trash2 className="stroke-red-400"/>
         </Button>
@@ -188,7 +188,7 @@ export function Extensions() {
       setExtensions(res.extensions.sort((a, b) => a.name.localeCompare(b.name)));
       setFolderPath(res.folderPath);
     } catch (e: any) {
-      toastError(e, $("settings.extensions.fetch.error"), [
+      toastError(e, $("extensions.fetch.error"), [
         [400, $("common.error.400")],
         [401, $("common.error.401")],
         [500, $("common.error.500")]
@@ -202,8 +202,8 @@ export function Extensions() {
     setUploadVisible(false);
 
     if(!file.name.endsWith(".jar")) {
-      toast.error($("settings.extensions.action.upload.error"), {
-        description: $("settings.extensions.action.upload.error.description")
+      toast.error($("extensions.action.upload.error"), {
+        description: $("extensions.action.upload.error.description")
       });
       return;
     }
@@ -214,10 +214,10 @@ export function Extensions() {
       await uploadFile("/api/extensions", file, setUploadProgress);
       await fetchExtensions();
     } catch (e: any) {
-      toastError(e, $("settings.extensions.action.upload.error"), [
-        [400, $("settings.extensions.action.upload.error.400")],
+      toastError(e, $("extensions.action.upload.error"), [
+        [400, $("extensions.action.upload.error.400")],
         [401, $("common.error.401")],
-        [409, $("settings.extensions.action.upload.error.409")],
+        [409, $("extensions.action.upload.error.409")],
         [500, $("common.error.500")]
       ]);
     } finally {
@@ -297,7 +297,7 @@ export function Extensions() {
       )}>
         <div className="absolute inset-0 rounded-md border-4 border-dashed"/>
         <Upload size={60} stroke="var(--color-muted-foreground)"/>
-        <span className="text-muted-foreground">{$("settings.extensions.dnd.label")}</span>
+        <span className="text-muted-foreground">{$("extensions.dnd.label")}</span>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -307,13 +307,13 @@ export function Extensions() {
           </InputGroupAddon>
           <InputGroupInput
             value={searchString}
-            placeholder={$("settings.extensions.search.placeholder")}
+            placeholder={$("extensions.search.placeholder")}
             onChange={(e) => setSearchString(e.target.value)}/>
         </InputGroup>
         <Button
           variant="ghost"
           size="icon"
-          title={$("settings.extensions.action.refresh")}
+          title={$("extensions.action.refresh")}
           onClick={() => emitter.emit("refresh-data")}>
           <RotateCw />
         </Button>
@@ -325,11 +325,11 @@ export function Extensions() {
 
       <div className="flex min-h-5 items-center justify-between gap-3 text-sm text-muted-foreground max-sm:flex-col max-sm:items-stretch">
         <span className="truncate max-md:text-xs" title={folderPath}>
-          {$("settings.extensions.hint", folderPath)}
+          {$("extensions.hint", folderPath)}
         </span>
         {uploadProgress !== null && (
           <div className="flex w-72 shrink-0 flex-col items-end gap-1 max-sm:w-full">
-            <span>{$("settings.extensions.progress.label", uploadName ?? "")}</span>
+            <span>{$("extensions.progress.label", uploadName ?? "")}</span>
             <Progress value={uploadProgress * 100} className="h-1"/>
           </div>
         )}
@@ -346,11 +346,11 @@ export function Extensions() {
                 <EmptyMedia variant="icon">
                   <Puzzle />
                 </EmptyMedia>
-                <EmptyTitle>{$("settings.extensions.empty.title")}</EmptyTitle>
+                <EmptyTitle>{$("extensions.empty.title")}</EmptyTitle>
                 <EmptyDescription>
                   {normalizedSearch
-                    ? $("settings.extensions.empty.search-description")
-                    : $("settings.extensions.empty.description")}
+                    ? $("extensions.empty.search-description")
+                    : $("extensions.empty.description")}
                 </EmptyDescription>
               </EmptyHeader>
             </Empty>
@@ -358,14 +358,14 @@ export function Extensions() {
       </div>
       <footer className="shrink-0">
         <Text
-          id="settings.extensions.footer.description"
+          id="extensions.footer.description"
           args={[
             <Link
               href="https://opanel.cn/docs/extension"
               target="_blank"
               rel="noopener noreferrer"
               key={0}>
-              {$("settings.extensions.footer.guide")}
+              {$("extensions.footer.guide")}
             </Link>
           ]}
           className="text-sm text-muted-foreground"/>

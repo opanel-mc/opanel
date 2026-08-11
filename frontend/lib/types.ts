@@ -137,6 +137,11 @@ export interface Extension {
   hasWebIndex: boolean
 }
 
+export interface ExtensionPage {
+  name: string
+  url: string
+}
+
 export interface ScheduledTask {
   id: string
   name: string // base64
@@ -275,6 +280,11 @@ export interface PluginsResponse {
 export interface ExtensionsResponse {
   extensions: Extension[]
   folderPath: string
+}
+
+/** `/api/extension-res` */
+export interface ExtensionPagesResponse {
+  pages: ExtensionPage[]
 }
 
 /** `/api/tasks` */

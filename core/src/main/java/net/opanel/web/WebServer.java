@@ -287,6 +287,7 @@ public class WebServer {
                 delete("{fileName}", extensionsController.deleteExtension);
             });
             path("extension-res", () -> {
+                get("/", extensionsController.getRegisteredExtensionPages);
                 get("{extId}", extensionsController.getExtensionResource);
                 get("{extId}/", extensionsController.getExtensionResource);
                 get("{extId}/<resource>", extensionsController.getExtensionResource);
