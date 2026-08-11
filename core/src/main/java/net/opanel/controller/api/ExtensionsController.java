@@ -157,20 +157,30 @@ public class ExtensionsController extends BaseController {
         boolean isDisabled = fileName.endsWith(DISABLED_SUFFIX);
         ExtensionManager extensionManager = plugin.getExtensionManager();
         try {
-            if(isDisabled && enabled.equals("1")) {
-                Path enabledPath = OPanel.EXTENSIONS_DIR_PATH.resolve(removeDisabledSuffix(fileName));
-                Files.move(originalPath, enabledPath);
-                extensionManager.loadExtension(enabledPath);
-            } else if(!isDisabled && !enabled.equals("1")) {
-                LoadedExtension loadedExtension = findLoadedExtension(originalPath);
-                if(loadedExtension != null) extensionManager.unloadExtension(loadedExtension);
+            Path toggledPath = isDisabled
+                    ? OPanel.EXTENSIONS_DIR_PATH.resolve(removeDisabledSuffix(fileName))
+                    : OPanel.EXTENSIONS_DIR_PATH.resolve(fileName + DISABLED_SUFFIX);
+            boolean suffixChanged = false;
+            try {
+                if(isDisabled && enabled.equals("1")) {
+                    Files.move(originalPath, toggledPath);
+                    suffixChanged = true;
+                    extensionManager.loadExtension(toggledPath);
+                } else if(!isDisabled && !enabled.equals("1")) {
+                    LoadedExtension loadedExtension = findLoadedExtension(originalPath);
+                    if(loadedExtension != null) extensionManager.unloadExtension(loadedExtension);
 
-                try {
-                    Files.move(originalPath, OPanel.EXTENSIONS_DIR_PATH.resolve(fileName + DISABLED_SUFFIX));
-                } catch (IOException e) {
-                    if(loadedExtension != null) extensionManager.loadExtension(originalPath);
-                    throw e;
+                    try {
+                        Files.move(originalPath, toggledPath);
+                        suffixChanged = true;
+                    } catch (IOException e) {
+                        if(loadedExtension != null) extensionManager.loadExtension(originalPath);
+                        throw e;
+                    }
                 }
+            } catch (Exception e) {
+                if(suffixChanged) restoreExtensionSuffix(toggledPath, originalPath, e);
+                throw e;
             }
             sendResponse(ctx, HttpStatus.OK);
         } catch (NoSuchFileException e) {
@@ -182,6 +192,18 @@ public class ExtensionsController extends BaseController {
             sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     };
+
+    private void restoreExtensionSuffix(Path currentPath, Path originalPath, Exception cause) {
+        try {
+            Files.move(currentPath, originalPath);
+        } catch (IOException e) {
+            cause.addSuppressed(e);
+            plugin.logger.error(
+                    "Failed to restore extension file suffix from '"
+                    + currentPath.getFileName() +"' to '"+ originalPath.getFileName() +"': "+ e.getMessage()
+            );
+        }
+    }
 
     public Handler deleteExtension = ctx -> {
         String fileName = ctx.pathParam("fileName");
