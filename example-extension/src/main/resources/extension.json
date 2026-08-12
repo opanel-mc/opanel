@@ -3,5 +3,11 @@
   "version": "1.0.0",
   "name": "Example Extension",
   "description": "An example OPanel extension.",
-  "author": "Norcleeh"
+  "author": "Norcleeh",
+  "pages": [
+    {
+      "name": "Example Page",
+      "url": "/"
+    }
+  ]
 }
