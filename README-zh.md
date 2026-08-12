@@ -34,7 +34,23 @@ OPanel 的功能包括：
 - MCP 服务器: 通过[OPanel MCP](https://github.com/opanel-mc/opanel-mcp)，您可以使用AI智能体助手 (如 Claude Code, OpenClaw) 来管理您的服务器
 - 开放 API: 您可以通过配置 OPanel 的开放 API，在服务器官网展示实时服务器状态和数据
 
-### 预览
+### 支持语言
+
+中文（包括简体，繁体，粤语），英语，日语，法语，德语，韩语
+
+## 用法
+
+请阅读[快速开始](https://opanel.cn/docs/quick-start)。
+
+### 使用 AI 智能体开发扩展
+
+如果你想使用 AI 智能体来快速开发一个 OPanel 扩展，也可以安装使用 OPanel 提供的 [Agent Skill](https://agentskills.io/home)。
+
+```shell
+npx skills add opanel-mc/opanel
+```
+
+## 截图
 
 |||
 |:---:|:---:|
@@ -49,17 +65,13 @@ OPanel 的功能包括：
 |![插件管理](./images/preview-plugins.png)||
 |**插件管理**||
 
-## 用法
+## 扩展
 
-请阅读[快速开始](https://opanel.cn/docs/quick-start)。
+OPanel 扩展可以在不修改 OPanel 本体的情况下添加自定义后端 API、面板页面和事件监听来延申 OPanel 的功能。请阅读[扩展开发指南](https://opanel.cn/docs/extension)以开始开发。
 
 ## 贡献
 
 查看[贡献指南](https://opanel.cn/docs/contributing)以了解更多信息。
-
-## 支持语言
-
-中文（包括简体，繁体，粤语），英语，日语，法语，德语，韩语
 
 ## 友情链接
 

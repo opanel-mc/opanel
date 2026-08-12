@@ -34,7 +34,15 @@ The features of OPanel include:
 - MCP Server: You can use your AI agent (e.g. Claude Code, OpenClaw) to manage your server via [OPanel MCP](https://github.com/opanel-mc/opanel-mcp).
 - Open API: You can configure OPanel Open API to show real-time server status and statistics on the official website of your server.
 
-### Screenshots
+### Supported Languages
+
+Chinese (including Simplified, Traditional, Cantonese), English, Japanese, French, German, Korean
+
+## Usage
+
+Read the [Quick Start](https://opanel.cn/docs/quick-start) to get started.
+
+## Screenshots
 
 |||
 |:---:|:---:|
@@ -49,17 +57,21 @@ The features of OPanel include:
 |![Plugin Manager](./images/preview-plugins.png)||
 |**Plugin Manager**||
 
-## Usage
+## Extensions
 
-Read the [Quick Start](https://opanel.cn/docs/quick-start) to get started.
+OPanel extensions can extend OPanel without modifying its core by adding custom backend APIs, panel pages, and event listeners. Read the [Extension Development Guide](https://opanel.cn/docs/extension) to get started.
+
+### Develop with AI Agents
+
+If you want to use an AI agent to quickly develop an OPanel extension, you can install the [Agent Skill](https://agentskills.io/home) provided by OPanel.
+
+```shell
+npx skills add opanel-mc/opanel
+```
 
 ## Contributing
 
 See [Contributing Guidelines](https://opanel.cn/docs/contributing) for more information.
-
-## Supported languages
-
-Chinese (including Simplified, Traditional, Cantonese), English, Japanese, French, German, Korean
 
 ## Friend Links
 

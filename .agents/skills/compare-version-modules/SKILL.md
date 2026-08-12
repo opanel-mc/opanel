@@ -1,6 +1,8 @@
 ---
 name: compare-version-modules
 description: Compare two server-platform adaptation modules of the same platform but different Minecraft/game versions (e.g. forge-1.21.5 vs forge-1.21.8), surfacing only the real API / 写法 differences by normalizing away package-name and version-string noise. Use when the user asks to 对比/比较/diff two version modules, find what changed between two `<platform>-<version>` directories (forge/neoforge/fabric/spigot/folia), or understand how to port an adaptation from one game version to the next.
+metadata:
+   internal: true
 ---
 
 # Compare version modules
