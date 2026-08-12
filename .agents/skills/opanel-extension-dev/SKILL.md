@@ -1,6 +1,6 @@
 ---
 name: opanel-extension-dev
-description: 指导 OPanel 扩展的创建、实现、审查、调试与兼容性迁移。Use when a task mentions OPanel extension development, extension.json, @Extension lifecycle methods, OPanelAPI, extension backend routes, extension resources/web frontend pages, or OPanel extension event listeners.
+description: 指导 OPanel 扩展的创建、实现、审查、调试与兼容性迁移。Use when a task mentions OPanel extension development, extension.json, @Extension lifecycle methods, OPanelAPI, extension backend routes, extension sidebar page registration, extension resources/web frontend pages, or OPanel extension event listeners.
 ---
 
 # OPanel 扩展开发
@@ -60,11 +60,24 @@ java {
   "version": "1.0.0",
   "name": "Example Extension",
   "description": "An example OPanel extension.",
-  "author": "Author Name"
+  "author": "Author Name",
+  "pages": [
+    {
+      "name": "Example Page",
+      "url": "/"
+    }
+  ]
 }
 ```
 
-保留并填写全部五个字段。`extId` 必须在所有已安装扩展中唯一；兼容当前实现时使用不超过 64 个字符的小写 kebab-case：`[a-z0-9]+(?:-[a-z0-9]+)*`。不要用显示名称、空格或下划线充当 ID。
+保留并填写五个基础字段；按需添加 `pages`。`extId` 必须在所有已安装扩展中唯一；兼容当前实现时使用不超过 64 个字符的小写 kebab-case：`[a-z0-9]+(?:-[a-z0-9]+)*`。不要用显示名称、空格或下划线充当 ID。
+
+`pages` 是可选的侧边栏页面注册数组；省略或设为 `null` 时不注册页面。每一项包含：
+
+- `name`：侧边栏直接显示的非空页面名称。
+- `url`：扩展 Web 根目录内的页面路径。必须非空、以单个 `/` 开头，且不能是绝对 URL、`//` 开头的 URL、反斜杠路径或包含 `..` 路径段的路径。不要填写 `/panel/ext/<extId>` 前缀。
+
+OPanel 将每项转换为 `/panel/ext/<extId><url>`，并显示在侧边栏的“扩展”分组中；同一扩展的页面保持数组声明顺序。例如，`extId` 为 `example-extension`、`url` 为 `/reports/` 时，面板链接为 `/panel/ext/example-extension/reports/`。只为确实存在的扩展页面注册入口；`pages` 不会自动创建 HTML，也不是页面访问白名单。
 
 ## 实现入口与生命周期
 
@@ -128,7 +141,7 @@ api.addHandler("status", HandlerType.GET, ctx -> {
 
 ## 添加前端页面
 
-把静态 HTML、CSS 和 JavaScript 放在 `src/main/resources/web`，并提供 `web/index.html`：
+把静态 HTML、CSS 和 JavaScript 放在 `src/main/resources/web`。只要扩展提供前端页面，就必须提供 `web/index.html`，即使所有侧边栏入口都指向子页面：
 
 ```html
 <!doctype html>
@@ -145,11 +158,11 @@ api.addHandler("status", HandlerType.GET, ctx -> {
 </html>
 ```
 
-- 用户入口使用 `/panel/ext/<extId>/`。
-- 当前面板通过 iframe 加载扩展的 `web/index.html`；把页面设计成独立静态应用，不假设能直接使用 OPanel 的 React 组件树或上下文。
-- 静态资源使用相对于 `index.html` 的 URL。当前内部资源命名空间为 `/api/extension-res/<extId>/...`，不要把它写死，除非确实需要绝对地址。
+- 在 `extension.json.pages` 中注册需要出现在侧边栏的入口。根页面使用 `"url": "/"`；目录页面优先使用带结尾斜杠的路径，例如 `"url": "/reports/"` 对应 `web/reports/index.html`；文件页面如 `"url": "/reports.html"` 对应 `web/reports.html`。
+- 面板使用 iframe 加载与当前 `/panel/ext/<extId>/...` 路径对应的扩展 Web 资源。把页面设计成独立静态应用，不假设能直接使用 OPanel 的 React 组件树、上下文或组件库。
+- 静态资源使用相对于当前 HTML 文件的 URL。当前内部资源命名空间为 `/api/extension-res/<extId>/...`，不要把它写死，除非确实需要绝对地址。
 - 前端调用扩展后端时使用 `/api/extension/<extId>/...`，保留登录 cookie，并处理 401、404 与服务端错误。
-- 若目标版本的文档宣称支持 `/panel/ext/<extId>/<asset-path>`，先与实际前端路由和资源控制器核对；不同版本可能只有扩展首页入口。
+- `pages` 中的查询参数和 URL fragment 会随面板路由传给 iframe；页面路由仍应以目标版本的实际前端路由和资源控制器为准，旧版本可能只支持扩展首页。
 
 ## 监听事件
 
@@ -195,10 +208,10 @@ public void onPlayerJoin(PlayerJoinEvent event) {
 按改动风险执行以下检查，并遵守仓库对构建命令的限制：
 
 1. 运行允许的 Gradle 编译或构建任务，确认使用目标 Java 与 API 版本。
-2. 检查构建 JAR 至少包含根目录 `extension.json`、唯一入口类，以及需要前端时的 `web/index.html` 和静态资源。
+2. 检查构建 JAR 至少包含根目录 `extension.json`、唯一入口类，以及需要前端时的 `web/index.html`、每个已注册页面对应的 HTML 和静态资源。
 3. 确认 JAR 未错误捆绑 OPanel API/Javalin，且扩展自身所需运行时依赖完整。
 4. 将 JAR 放入测试服务端的 `opanel/extensions`，启动并检查加载日志；不要直接改动生产服务端。
-5. 登录面板后测试 `/api/extension/<extId>/...` 和 `/panel/ext/<extId>/`，覆盖成功、未授权、无效输入与不存在资源。
+5. 登录面板后确认 `pages` 中的入口按声明顺序出现在“扩展”侧边栏分组，逐个测试 `/panel/ext/<extId><url>`；同时测试 `/api/extension/<extId>/...`，覆盖成功、未授权、无效输入与不存在资源。
 6. 触发每个事件 handler，确认异常不会破坏事件线程，耗时工作不会阻塞事件分发。
 7. 停止 OPanel，确认 `unload()` 释放 worker、定时器、文件和网络资源。
 8. 交付时列出修改文件、目标 OPanel 版本、兼容性假设和实际执行的验证；未运行的测试要明确说明。
@@ -206,11 +219,13 @@ public void onPlayerJoin(PlayerJoinEvent event) {
 ## 常见故障定位
 
 - `Missing extension.json`：确认文件位于 JAR 根目录，不是 `web/` 或源码包目录。
+- `page at index ... must define...`：逐项检查 `pages` 的非空 `name` 和安全 `url`；`url` 应从 `/` 开始，但不能包含扩展面板前缀、外部地址、反斜杠或 `..` 路径段。
 - `expected exactly one @Extension entry`：删除重复入口，或确认入口类实际打进 JAR。
 - `@ExtensionLoad method must be...`：逐字核对公开性、方法名、返回值和参数类型。
 - `event type is not supported`：改用目标版本事件包中确实由分发器注册的具体类型。
 - 后端 404：核对 `extId`、规范化路径、HTTP 方法、路由是否在 `load()` 中完成注册。
-- 前端 404：确认扩展已加载、`web/index.html` 存在、资源路径大小写与 JAR entry 一致。
+- 侧边栏无扩展入口：确认扩展已成功加载且 `extension.json.pages` 非空；未加载或已禁用的扩展不会注册页面。
+- 前端 404：确认扩展已加载、`web/index.html` 存在、`pages[].url` 对应的 HTML 已打进 JAR，并核对资源路径大小写和目录页面的结尾斜杠。
 - `ClassNotFoundException`：区分 API/Javalin（应为 `compileOnly`）和扩展第三方库（应打包进扩展 JAR），再检查 Shadow/relocation。
 - 卸载后 API 报不可用：停止后台任务，避免在 `unload()` 返回后继续持有或调用 API handle。
 
