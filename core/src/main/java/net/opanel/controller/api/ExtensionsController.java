@@ -1,9 +1,6 @@
 package net.opanel.controller.api;
 
-import io.javalin.http.ContentType;
-import io.javalin.http.Handler;
-import io.javalin.http.HttpStatus;
-import io.javalin.http.UploadedFile;
+import io.javalin.http.*;
 import net.opanel.OPanel;
 import net.opanel.controller.BaseController;
 import net.opanel.extension.ExtensionManager;
@@ -260,9 +257,10 @@ public class ExtensionsController extends BaseController {
 
     public Handler getExtensionResource = ctx -> {
         String extensionId = ctx.pathParam("extId");
-        String resourcePath = ctx.pathParamMap().containsKey("resource") ? ctx.pathParam("resource") : "";
-        String normalizedPath = resourcePath.isEmpty() ? "index.html" : Utils.normalizePath(resourcePath);
-        if(normalizedPath == null) {
+        String reqResourcePath = Utils.normalizePath(
+            ctx.pathParamMap().containsKey("resource") ? ctx.pathParam("resource") : ""
+        );
+        if(reqResourcePath == null) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Invalid extension resource path.");
             return;
         }
@@ -277,27 +275,60 @@ public class ExtensionsController extends BaseController {
             return;
         }
 
+        boolean hasTrailingSlash = ctx.path().endsWith("/");
         try {
-            String servedPath = resourcePath.endsWith("/") ? normalizedPath + "index.html" : normalizedPath;
-            InputStream resource = extensionManager.openWebResource(extensionId, servedPath);
-            if(resource == null && !resourcePath.endsWith("/")) {
-                servedPath += "/index.html";
-                resource = extensionManager.openWebResource(extensionId, servedPath);
+            // case 1: visiting root without trailing slash (`/{extId}` redirects to `/{extId}/`)
+            if(reqResourcePath.isEmpty() && !hasTrailingSlash) {
+                redirectToDirectory(ctx);
+                return;
             }
+
+            // A trailing-slash url (`/{extId}/` or `/{extId}/route/`) resolves to its `index.html`
+            // A url without a trailing slash (`/{extId}/bundle.js` or `/{extId}/route`) first resolves as an exact resource
+            String resolvedResourcePath = (
+                hasTrailingSlash
+                ? getDirectoryIndexPath(reqResourcePath)
+                : reqResourcePath
+            );
+            InputStream resource = extensionManager.openWebResource(extensionId, resolvedResourcePath);
+
+            // case 2: `/route` has no exact resource but `/route/index.html` exists, just redirect to `/route/`
+            if(resource == null && !hasTrailingSlash) {
+                String directoryIndexPath = getDirectoryIndexPath(reqResourcePath);
+                try(InputStream indexResource = extensionManager.openWebResource(extensionId, directoryIndexPath)) {
+                    if(indexResource != null) {
+                        redirectToDirectory(ctx);
+                        return;
+                    }
+                }
+            }
+
+            // case 3: the exact resource is absent, or a trailing-slash URL has no corresponding `index.html`
             if(resource == null) {
                 sendResponse(ctx, HttpStatus.NOT_FOUND, "Extension resource not found.");
                 return;
             }
 
             ctx.status(HttpStatus.OK);
-            ctx.writeSeekableStream(resource, getContentType(servedPath).toString());
+            ctx.writeSeekableStream(resource, getContentType(resolvedResourcePath).toString());
         } catch (IOException e) {
-            plugin.logger.error("Failed to read extension resource '" + extensionId + "/" + normalizedPath + "': " + e.getMessage());
+            plugin.logger.error("Failed to read extension resource '" + extensionId + "/" + reqResourcePath + "': " + e.getMessage());
             sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, "Failed to read extension resource.");
         }
     };
 
-    private static ContentType getContentType(String resourcePath) {
+    private String getDirectoryIndexPath(String resourcePath) {
+        if(resourcePath.isEmpty()) return "index.html";
+        return resourcePath + (resourcePath.endsWith("/") ? "" : "/") + "index.html";
+    }
+
+    private void redirectToDirectory(Context ctx) {
+        String location = ctx.path() + "/";
+        if(ctx.queryString() != null) location += "?" + ctx.queryString();
+        ctx.redirect(location, HttpStatus.TEMPORARY_REDIRECT);
+    }
+
+    private ContentType getContentType(String resourcePath) {
         int extensionStart = resourcePath.lastIndexOf('.') + 1;
         String extension = extensionStart == 0 ? "" : resourcePath.substring(extensionStart);
         ContentType contentType = ContentType.getContentTypeByExtension(extension);
