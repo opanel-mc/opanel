@@ -1,13 +1,13 @@
 "use client";
 
-import type { APIResponse, VersionResponse } from "@/lib/types";
+import type { APIResponse, ExtensionPage, ExtensionPagesResponse, VersionResponse } from "@/lib/types";
 import { useEffect, useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import {
   SidebarInset,
   SidebarProvider
 } from "@/components/ui/sidebar";
-import { VersionContext } from "@/contexts/api-context";
+import { ExtensionsContext, VersionContext } from "@/contexts/api-context";
 import { sendGetRequest } from "@/lib/api";
 import { useKeydown } from "@/hooks/use-keydown";
 import { useCheckAuth } from "@/hooks/use-check-auth";
@@ -21,6 +21,7 @@ export default function PanelLayout({
   const [mounted, setMounted] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [versionInfo, setVersionInfo] = useState<APIResponse<VersionResponse>>();
+  const [extensionPages, setExtensionPages] = useState<ExtensionPage[]>([]);
 
   const fetchVersionInfo = async () => {
     try {
@@ -34,6 +35,15 @@ export default function PanelLayout({
     }
   };
 
+  const fetchExtensionPages = async () => {
+    try {
+      const res = await sendGetRequest<ExtensionPagesResponse>("/api/extension-res");
+      setExtensionPages(res.pages);
+    } catch (error) {
+      console.error("Error fetching extension pages:", error);
+    }
+  };
+
   useEffect(() => {
     setMounted(true);
     setSidebarOpen(getSettings("state.sidebar.open"));
@@ -43,7 +53,10 @@ export default function PanelLayout({
     changeSettings("state.sidebar.open", sidebarOpen);
   }, [sidebarOpen]);
 
-  useCheckAuth(() => fetchVersionInfo());
+  useCheckAuth(() => {
+    fetchVersionInfo();
+    fetchExtensionPages();
+  });
 
   useKeydown("a", { ctrl: true }, (e) => e.preventDefault());
   useKeydown("p", { ctrl: true }, (e) => e.preventDefault());
@@ -55,10 +68,12 @@ export default function PanelLayout({
       onOpenChange={setSidebarOpen}
       className="h-[100dvh] min-h-0 overflow-hidden">
       <VersionContext value={versionInfo}>
-        <AppSidebar />
-        <SidebarInset className="min-w-0" suppressHydrationWarning>
-          {mounted ? children : <></>}
-        </SidebarInset>
+        <ExtensionsContext value={extensionPages}>
+          <AppSidebar />
+          <SidebarInset className="min-w-0" suppressHydrationWarning>
+            {mounted ? children : <></>}
+          </SidebarInset>
+        </ExtensionsContext>
       </VersionContext>
     </SidebarProvider>
   );
