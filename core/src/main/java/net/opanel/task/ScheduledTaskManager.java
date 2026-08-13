@@ -180,6 +180,37 @@ public class ScheduledTaskManager {
         }
     }
 
+    public ScheduledTask updateTask(
+            String id,
+            String name,
+            String cronExpression,
+            List<String> commands
+    ) throws IllegalArgumentException, IllegalTaskCommandSyntaxException {
+        writeLock.lock();
+        try {
+            ScheduledTask task = getTaskUnsafe(id);
+            if(task == null) {
+                throw new NoSuchElementException("Cannot find the task: " + id);
+            }
+
+            Objects.requireNonNull(name, "name");
+            Objects.requireNonNull(commands, "commands");
+            TaskCommandParser.parse(commands);
+            Cron cron = cronParser.parse(cronExpression);
+            ExecutionTime executionTime = ExecutionTime.forCron(cron);
+            List<String> commandSnapshot = new ArrayList<>(commands);
+
+            task.setName(name);
+            task.setCron(cronExpression);
+            task.setCommands(commandSnapshot);
+            scheduleTask(executionTime, task);
+            saveTasks();
+            return task;
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
     private ScheduledTask getTaskUnsafe(String id) {
         for(ScheduledTask task : tasks) {
             if(task.getId().equals(id)) {

@@ -9,7 +9,9 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/api" />
             <option value="$PROJECT_DIR$/core" />
+            <option value="$PROJECT_DIR$/example-extension" />
             <option value="$PROJECT_DIR$/fabric/fabric-1.19" />
             <option value="$PROJECT_DIR$/fabric/fabric-1.19.4" />
             <option value="$PROJECT_DIR$/fabric/fabric-1.20" />

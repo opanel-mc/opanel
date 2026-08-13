@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ChevronDown, Cog, FilePen, Server, SettingsIcon, SquareTerminal } from "lucide-react";
+import { ChevronDown, Cog, FilePen, Puzzle, Server, SettingsIcon, SquareTerminal } from "lucide-react";
 import { changeSettings, getSettings, resetSettings, type SettingsStorageType } from "@/lib/settings";
 import { SubPage } from "../sub-page";
 import {
@@ -39,8 +39,15 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { getLogLevels } from "@/lib/ws/terminal";
+import { Extensions } from "./extensions";
 
-const SETTINGS_TAB_VALUES = ["general", "server", "terminal", "editor"] as const;
+const SETTINGS_TAB_VALUES = [
+  "general",
+  "server",
+  "terminal",
+  "editor",
+  "extensions",
+] as const;
 
 function Section({ className, children }: PropsWithChildren & {
   className?: string
@@ -196,6 +203,10 @@ export default function Settings() {
             <TabsTrigger value="editor">
               <FilePen />
               {$("settings.editor.title")}
+            </TabsTrigger>
+            <TabsTrigger value="extensions">
+              <Puzzle />
+              {$("settings.extensions.title")}
             </TabsTrigger>
           </TabsList>
           <div className="pb-2 border-b max-sm:hidden">
@@ -456,6 +467,9 @@ export default function Settings() {
                 control={<SettingsFontSizeSlider id="monaco.font-size"/>}/>
             </Section>
           </SectionGroup>
+        </TabsContent>
+        <TabsContent value="extensions">
+          <Extensions />
         </TabsContent>
       </Tabs>
     </SubPage>

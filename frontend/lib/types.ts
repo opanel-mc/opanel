@@ -125,6 +125,23 @@ export interface Plugin {
   loaded: boolean
 }
 
+export interface Extension {
+  fileName: string // base64
+  extId: string
+  name: string
+  version: string
+  description: string // base64
+  author: string
+  size: number
+  enabled: boolean
+  hasWebIndex: boolean
+}
+
+export interface ExtensionPage {
+  name: string
+  url: string
+}
+
 export interface ScheduledTask {
   id: string
   name: string // base64
@@ -257,6 +274,17 @@ export interface BannedIpsResponse {
 export interface PluginsResponse {
   plugins: Plugin[]
   folderPath: string
+}
+
+/** `/api/extensions` */
+export interface ExtensionsResponse {
+  extensions: Extension[]
+  folderPath: string
+}
+
+/** `/api/extension-res` */
+export interface ExtensionPagesResponse {
+  pages: ExtensionPage[]
 }
 
 /** `/api/tasks` */

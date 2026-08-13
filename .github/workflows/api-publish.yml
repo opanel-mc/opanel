@@ -1,0 +1,57 @@
+name: Publish API to Maven Central
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: maven-central-api
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish OPanel API
+    runs-on: ubuntu-latest
+    environment: maven-central
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: |
+            21
+            14
+          cache: gradle
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Validate release version
+        shell: bash
+        run: |
+          VERSION="$(sed -n 's/^version=//p' gradle.properties)"
+          if [[ -z "$VERSION" || "$VERSION" == *-SNAPSHOT ]]; then
+            echo "Invalid Maven Central release version: $VERSION"
+            exit 1
+          fi
+          echo "Publishing cn.opanel:opanel-api:$VERSION"
+
+      - name: Build and publish
+        env:
+          CENTRAL_PORTAL_USERNAME: ${{ secrets.CENTRAL_PORTAL_USERNAME }}
+          CENTRAL_PORTAL_PASSWORD: ${{ secrets.CENTRAL_PORTAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_SIGNING_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_SIGNING_PASSPHRASE }}
+        run: |
+          JAVA_HOME="$JAVA_HOME_21_X64" ./gradlew \
+            -PapiOnly=true \
+            :api:check \
+            publishAggregationToCentralPortal \
+            --no-daemon \
+            --stacktrace

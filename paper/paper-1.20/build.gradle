@@ -30,7 +30,7 @@ base {
 
 dependencies {
     compileOnly "io.papermc.paper:paper-api:${minecraft_version}-R0.1-SNAPSHOT"
-    shadowImplementation "de.tr7zw:item-nbt-api:2.15.2"
+    shadowImplementation "de.tr7zw:item-nbt-api:2.16.0"
     compileOnly "org.apache.logging.log4j:log4j-core:2.24.1"
     compileOnly "com.mojang:brigadier:1.0.18"
     shadowImplementation "org.bstats:bstats-bukkit:3.2.1"
@@ -55,7 +55,6 @@ shadowJar {
     relocate 'com.google.gson', 'net.opanel.deps.gson'
     relocate 'org.objectweb.asm', 'net.opanel.deps.objectweb.asm'
     relocate 'de.tr7zw.changeme.nbtapi', 'net.opanel.deps.nbtapi'
-    relocate 'io.javalin', 'net.opanel.deps.javalin'
     relocate 'kotlin', 'net.opanel.deps.kotlin'
     relocate 'org.bstats', 'net.opanel.deps.bstats'
     relocate 'com.nimbusds', 'net.opanel.deps.nimbusds'

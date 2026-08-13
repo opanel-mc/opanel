@@ -34,33 +34,44 @@ The features of OPanel include:
 - MCP Server: You can use your AI agent (e.g. Claude Code, OpenClaw) to manage your server via [OPanel MCP](https://github.com/opanel-mc/opanel-mcp).
 - Open API: You can configure OPanel Open API to show real-time server status and statistics on the official website of your server.
 
-### Screenshots
+### Supported Languages
 
-![preview-dashboard](./images/preview-dashboard.png)
-
-![preview-players](./images/preview-players.png)
-
-![preview-inventory](./images/preview-inventory.png)
-
-![preview-inventory-nbt](./images/preview-inventory-nbt.png)
-
-![preview-terminal](./images/preview-terminal.png)
-
-![preview-tasks](./images/preview-tasks.png)
-
-![preview-plugins](./images/preview-plugins.png)
+Chinese (including Simplified, Traditional, Cantonese), English, Japanese, French, German, Korean
 
 ## Usage
 
 Read the [Quick Start](https://opanel.cn/docs/quick-start) to get started.
 
+## Screenshots
+
+|||
+|:---:|:---:|
+|![Dashboard](./images/preview-dashboard.png)|![Monitor](./images/preview-monitor.png)|
+|**Dashboard**|**Monitor**|
+|![Map](./images/preview-map.png)|![Players Manager](./images/preview-players.png)|
+|**Map**|**Players Manager**|
+|![Inventory Editor](./images/preview-inventory.png)|![Item NBT Editor](./images/preview-inventory-nbt.png)|
+|**Inventory Editor**|**Item NBT Editor**|
+|![Terminal](./images/preview-terminal.png)|![Scheduled Tasks](./images/preview-tasks.png)|
+|**Terminal**|**Scheduled Tasks**|
+|![Plugin Manager](./images/preview-plugins.png)||
+|**Plugin Manager**||
+
+## Extensions
+
+OPanel extensions can extend OPanel without modifying its core by adding custom backend APIs, panel pages, and event listeners. Read the [Extension Development Guide](https://opanel.cn/docs/extension) to get started.
+
+### Develop with AI Agents
+
+If you want to use an AI agent to quickly develop an OPanel extension, you can install the [Agent Skill](https://agentskills.io/home) provided by OPanel.
+
+```shell
+npx skills add opanel-mc/opanel
+```
+
 ## Contributing
 
 See [Contributing Guidelines](https://opanel.cn/docs/contributing) for more information.
-
-## Supported languages
-
-Chinese (including Simplified, Traditional, Cantonese), English, Japanese, French, German, Korean
 
 ## Friend Links
 
