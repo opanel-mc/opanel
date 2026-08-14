@@ -52,4 +52,22 @@ public interface PluginsAPI {
      *         not exist or the platform rejects the operation
      */
     void setEnabled(String fileName, boolean enabled) throws ActLaterException;
+
+    /**
+     * Deletes a plugin or mod file. This operation may block and must not be
+     * called from an extension lifecycle callback or the Minecraft main thread.
+     *
+     * <p>Some platforms cannot delete a plugin that is already loaded. In that
+     * case the deletion is accepted for the next server start and
+     * {@link ActLaterException} is thrown to distinguish deferred success from
+     * an immediate deletion.</p>
+     *
+     * @param fileName safe {@code .jar} or {@code .jar.disabled} file name
+     * @throws NullPointerException if {@code fileName} is {@code null}
+     * @throws IllegalArgumentException if {@code fileName} is invalid
+     * @throws ActLaterException if the accepted deletion requires a server restart
+     * @throws OperationFailedException if the file does not exist or the
+     *         platform rejects the operation
+     */
+    void deletePlugin(String fileName) throws ActLaterException;
 }
