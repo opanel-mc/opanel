@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Fragment, useContext } from "react";
 import { compare } from "semver";
-import { Activity, Blocks, ClockFading, Earth, Gauge, HeartHandshake, MapIcon, PaintBucket, PencilRuler, ScrollText, Settings, SquareTerminal, Unplug, Users } from "lucide-react";
+import { Activity, Blocks, Box, ClockFading, Earth, Gauge, HeartHandshake, MapIcon, PaintBucket, PencilRuler, ScrollText, Settings, SquareTerminal, Unplug, Users } from "lucide-react";
 import { SiModelcontextprotocol } from "@icons-pack/react-simple-icons";
 import {
   Sidebar,
@@ -24,7 +24,7 @@ import { Button } from "./ui/button";
 import { cn, isPaperSeries } from "@/lib/utils";
 import { minecraftAE } from "@/lib/fonts";
 import { Logo } from "./logo";
-import { VersionContext } from "@/contexts/api-context";
+import { ExtensionsContext, VersionContext } from "@/contexts/api-context";
 import { $ } from "@/lib/i18n";
 
 const serverGroupItems = [
@@ -110,6 +110,7 @@ const configurationGroupItems = [
 export function AppSidebar() {
   const pathname = usePathname();
   const versionCtx = useContext(VersionContext);
+  const extensionPages = useContext(ExtensionsContext);
 
   return (
     <Sidebar collapsible="icon">
@@ -186,6 +187,28 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        {extensionPages.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupLabel>{$("sidebar.extensions")}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {extensionPages.map((item, i) => (
+                  <SidebarMenuItem key={i}>
+                    <SidebarMenuButton
+                      isActive={pathname.startsWith(item.url)}
+                      asChild>
+                      <Link href={item.url} className="pl-3">
+                        {pathname.startsWith(item.url) && <SidebarIndicator className="left-2"/>}
+                        <Box />
+                        <span className="whitespace-nowrap">{item.name}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
       <SidebarFooter className="p-4 max-sm:p-2 bg-background min-sm:items-end max-sm:flex-row max-sm:justify-between group-data-[state=collapsed]:px-0 group-data-[state=collapsed]:items-center">
         <Button

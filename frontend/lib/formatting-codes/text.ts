@@ -34,18 +34,6 @@ export function purify(text: string): string {
 }
 
 /**
- * @see https://minecraft.fandom.com/wiki/Formatting_codes Compatibility with older versions
- * @deprecated
- */
-// export function transformText(text: string): string {
-//   return text.replaceAll("§", "\u00c2\u00a7");
-// }
-
-// function convert(text: string): string {
-//   return text.replaceAll("&", secSign);
-// }
-
-/**
  * Parses a Minecraft text string with formatting codes into HTML elements.
  */
 export function parseTextToHTML(text: string, maxLines = 1, maxCharPerLine = Infinity): HTMLSpanElement {

@@ -63,9 +63,7 @@ public class TasksController extends BaseController {
         
         try {
             TaskEditRequestBodyType reqBody = ctx.bodyAsClass(TaskEditRequestBodyType.class);
-            scheduledTaskManager.setTaskCron(id, reqBody.cron);
-            scheduledTaskManager.setTaskName(id, reqBody.name);
-            scheduledTaskManager.setTaskCommands(id, reqBody.commands);
+            scheduledTaskManager.updateTask(id, reqBody.name, reqBody.cron, reqBody.commands);
             sendResponse(ctx, HttpStatus.OK);
         } catch (IllegalTaskCommandSyntaxException e) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal commands syntax: "+ e.getMessage());

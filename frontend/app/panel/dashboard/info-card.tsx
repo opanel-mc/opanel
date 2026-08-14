@@ -164,7 +164,7 @@ export function InfoCard({
           </FaviconDialog>
         </div>
         
-        <div className="p-4 pl-0 flex-1 flex flex-col gap-2">
+        <div className="p-4 pl-0 min-w-0 flex-1 flex flex-col gap-2">
           <div className="flex max-lg:flex-col gap-4 max-lg:gap-1 [&>*]:space-x-2 [&>*]:whitespace-nowrap">
             <div>
               <span className="font-semibold text-nowrap">{$("dashboard.info.version")}</span>
@@ -184,10 +184,17 @@ export function InfoCard({
             </div>
           </div>
           <div className="h-fit text-sm *:leading-6">
-            {ctx && <MinecraftText maxLines={2} maxCharPerLine={45}>{"§7"+ base64ToString(ctx.motd)}</MinecraftText>}
+            {ctx && (
+              <MinecraftText
+                maxLines={2}
+                maxCharPerLine={45}
+                className="whitespace-nowrap truncate">
+                {"§7"+ base64ToString(ctx.motd)}
+              </MinecraftText>
+            )}
           </div>
         </div>
-        <div className="p-4 max-lg:p-1 flex flex-col justify-between">
+        <div className="p-4 max-lg:p-1 shrink-0 flex flex-col justify-between">
           <div className="flex justify-end gap-2">
             {versionCtx?.mcdr && (
               <Badge

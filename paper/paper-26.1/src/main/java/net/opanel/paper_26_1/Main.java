@@ -32,13 +32,11 @@ public class Main extends JavaPlugin implements Listener, TaskRunner {
 
     @Override
     public void onEnable() {
-        // see https://github.com/tr7zw/Item-NBT-API/issues/349
-//        if(!NBT.preloadApi()) {
-//            LOGGER.warning("Cannot start OPanel plugin: NBT-API is not initialized properly.");
-//            Bukkit.getPluginManager().disablePlugin(this);
-//            return;
-//        }
-        NBT.preloadApi();
+        if(!NBT.preloadApi()) {
+            LOGGER.warning("Cannot start OPanel plugin: NBT-API is not initialized properly.");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
         FileOpsHelperBootstrap.initialize(Paths.get(""), OPanel.TMP_DIR_PATH);
 
         final LoggerImpl logger = new LoggerImpl(LOGGER);
