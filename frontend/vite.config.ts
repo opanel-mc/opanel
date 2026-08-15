@@ -18,4 +18,12 @@ export default defineConfig({
       ),
     },
   },
+  build: {
+    rolldownOptions: {
+      checks: {
+        pluginTimings: false,
+        filenameConflict: false
+      }
+    }
+  }
 });
