@@ -1,0 +1,1 @@
+import{a as e}from"./rolldown-runtime-B0Z9INg1.js";import{i as t}from"./framework-B19KePI3.js";import{t as n}from"./emitter-z7c4Wyh8.js";var r=e(t(),1);function i(){(0,r.useEffect)(()=>{n.emit(`loading-done`)},[])}export{i as t};

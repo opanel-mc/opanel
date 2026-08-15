@@ -1,0 +1,1 @@
+import"./rolldown-runtime-B0Z9INg1.js";import{i as e,r as t}from"./framework-B19KePI3.js";import{t as n}from"./dist-Db1ECiSg.js";e();var r=t();function i({children:e,...t}){return(0,r.jsx)(n,{...t,children:e})}export{i as ThemeProvider};

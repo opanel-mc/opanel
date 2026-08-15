@@ -1,0 +1,1 @@
+import{r as e}from"./framework-B19KePI3.js";import{t}from"./dist-9TxjDC-Y.js";import{n}from"./dist-Db1ECiSg.js";var r=e(),i=({...e})=>{let{theme:i=`system`}=n();return(0,r.jsx)(t,{theme:i,className:`toaster group`,style:{"--normal-bg":`var(--popover)`,"--normal-text":`var(--popover-foreground)`,"--normal-border":`var(--border)`},...e})};export{i as Toaster};
