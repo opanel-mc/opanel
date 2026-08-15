@@ -9,15 +9,23 @@ import net.opanel.OPanel;
 import net.opanel.common.OPanelServer;
 import net.opanel.web.JwtManager;
 import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.WriteCallback;
 
 import java.lang.reflect.Type;
+import java.nio.channels.WritePendingException;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public abstract class BaseEndpoint implements Connectable {
+    private static final Gson GSON = new Gson();
+    // Bounds Jetty's otherwise-unbounded outgoing frame queue (default -1) so a stalled client cannot exhaust memory.
+    // This bound counts frames, not bytes.
+    private static final int MAX_OUTGOING_FRAMES = 1024;
+
     protected final Javalin app;
     protected final WsConfig ws;
     protected final OPanel plugin;
@@ -25,6 +33,7 @@ public abstract class BaseEndpoint implements Connectable {
 
     private final Set<Session> sessions = new CopyOnWriteArraySet<>();
     private final ConcurrentHashMap<Session, Set<Consumer<WsMessageContext>>> sessionListeners = new ConcurrentHashMap<>();
+    private final Set<Session> slowConsumerSessions = ConcurrentHashMap.newKeySet();
 
     public BaseEndpoint(Javalin app, WsConfig ws, OPanel plugin) {
         this.app = app;
@@ -46,6 +55,7 @@ public abstract class BaseEndpoint implements Connectable {
                 return;
             }
             // Register session
+            session.getRemote().setMaxOutgoingFrames(MAX_OUTGOING_FRAMES);
             sessions.add(session);
             ctx.send(new Packet<>(Packet.CONNECT));
             onConnect(ctx);
@@ -123,24 +133,50 @@ public abstract class BaseEndpoint implements Connectable {
     }
 
     protected <D> void sendMessage(Session session, Packet<D> packet) {
-        if(!session.isOpen()) return;
+        if(!session.isOpen() || slowConsumerSessions.contains(session)) return;
+        sendMessage(session, GSON.toJson(packet));
+    }
 
-        String message = new Gson().toJson(packet);
+    private void sendMessage(Session session, String message) {
+        if(!session.isOpen() || slowConsumerSessions.contains(session)) return;
+
         try {
-            session.getRemote().sendString(message);
-        } catch(Exception e) {
-            // Use System.err to avoid recursive logging through LogListenerAppender
-            System.err.println("[OPanel] Failed to send message to session: " + e.getMessage());
+            session.getRemote().sendString(message, new WriteCallback() {
+                @Override
+                public void writeFailed(Throwable t) {
+                    // Minecraft reroutes System.err into the server log, so the send path must remain silent.
+                    if(t instanceof WritePendingException && slowConsumerSessions.add(session)) {
+                        CompletableFuture.runAsync(() -> {
+                            try {
+                                session.close(1013, "Slow consumer");
+                            } catch (Throwable e) {
+                                try {
+                                    session.disconnect();
+                                } catch (Throwable _e) {
+                                    //
+                                }
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void writeSuccess() { }
+            });
+        } catch (Throwable e) {
+            //
         }
     }
 
     protected <D> void broadcast(Packet<D> packet) {
+        if(sessions.isEmpty()) return;
+        String message = GSON.toJson(packet);
         for(Session session : sessions) {
             if(!session.isOpen()) {
                 cleanupSession(session);
                 continue;
             }
-            sendMessage(session, packet);
+            sendMessage(session, message);
         }
     }
 
@@ -152,10 +188,12 @@ public abstract class BaseEndpoint implements Connectable {
         }
         sessions.clear();
         sessionListeners.clear();
+        slowConsumerSessions.clear();
     }
 
     private void cleanupSession(Session session) {
         sessions.remove(session);
         sessionListeners.remove(session);
+        slowConsumerSessions.remove(session);
     }
 }

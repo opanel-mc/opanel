@@ -52,6 +52,18 @@ public final class ExtensionPluginsAPI implements PluginsAPI {
         });
     }
 
+    @Override
+    public void deletePlugin(String fileName) throws ActLaterException {
+        validateFileName(fileName);
+        ctx.run("delete plugin", () -> {
+            try {
+                ctx.getServer().deletePlugin(fileName);
+            } catch (net.opanel.exception.ActLaterException e) {
+                throw new ActLaterException();
+            }
+        });
+    }
+
     private static void validateFileName(String fileName) {
         Objects.requireNonNull(fileName, "fileName");
         if(!Utils.isSafeFileName(fileName) || (
