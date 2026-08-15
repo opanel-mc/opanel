@@ -149,10 +149,12 @@ public abstract class BaseEndpoint implements Connectable {
                         CompletableFuture.runAsync(() -> {
                             try {
                                 session.close(1013, "Slow consumer");
-                            } catch(Throwable ignored) {
+                            } catch (Throwable e) {
                                 try {
                                     session.disconnect();
-                                } catch(Throwable ignoredDisconnectFailure) { }
+                                } catch (Throwable _e) {
+                                    //
+                                }
                             }
                         });
                     }
@@ -161,7 +163,9 @@ public abstract class BaseEndpoint implements Connectable {
                 @Override
                 public void writeSuccess() { }
             });
-        } catch(Throwable ignored) { }
+        } catch (Throwable e) {
+            //
+        }
     }
 
     protected <D> void broadcast(Packet<D> packet) {
