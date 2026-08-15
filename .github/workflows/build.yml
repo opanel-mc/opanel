@@ -1,31 +1,51 @@
 name: Build
 
 on:
+  workflow_dispatch:
+    inputs:
+      build_jar:
+        description: Build jar files
+        required: true
+        type: boolean
+        default: true
   push:
     branches:
       - main
     paths-ignore:
+      - ".agents/**"
       - ".claude/**"
       - ".github/**"
+      - ".idea/**"
       - ".vscode/**"
+      - "gradle/**"
       - "images/**"
+      - ".gitattributes"
       - ".gitignore"
       - "**/*.md"
       - "LICENSE"
+      - "ThirdPartyNotices.txt"
   pull_request:
     paths-ignore:
+      - ".agents/**"
       - ".claude/**"
       - ".github/**"
+      - ".idea/**"
       - ".vscode/**"
+      - "gradle/**"
       - "images/**"
+      - ".gitattributes"
       - ".gitignore"
       - "**/*.md"
       - "LICENSE"
+      - "ThirdPartyNotices.txt"
 
 jobs:
   frontend:
 
     runs-on: ubuntu-latest
+
+    outputs:
+      jar_required: ${{ steps.changes.outputs.jar_required }}
 
     strategy:
       matrix:
@@ -37,6 +57,30 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+    - name: Determine whether jar build is required
+      id: changes
+      working-directory: .
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        BUILD_JAR: ${{ inputs.build_jar }}
+        BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        HEAD_SHA: ${{ github.sha }}
+      run: |
+        if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+          echo "jar_required=$BUILD_JAR" >> "$GITHUB_OUTPUT"
+        elif [[ -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then
+          echo "jar_required=true" >> "$GITHUB_OUTPUT"
+        else
+          changed_files=$(git diff --name-only --no-renames "$BASE_SHA" "$HEAD_SHA" -- . ':(exclude)frontend/**')
+          if [[ -n "$changed_files" ]]; then
+            echo "jar_required=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "jar_required=false" >> "$GITHUB_OUTPUT"
+          fi
+        fi
+    
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v6
       with:
@@ -57,7 +101,20 @@ jobs:
     - name: Run wasm unit tests
       run: npm run wasm:test
 
+    - name: Build and bundle frontend
+      run: npm run build:pack
+    - name: Upload bundled frontend
+      if: steps.changes.outputs.jar_required == 'true'
+      uses: actions/upload-artifact@v7
+      with:
+        name: frontend-build
+        path: core/src/main/resources/web
+        if-no-files-found: error
+
   jar:
+
+    needs: frontend
+    if: needs.frontend.outputs.jar_required == 'true'
 
     runs-on: ubuntu-latest
 
@@ -65,7 +122,6 @@ jobs:
       matrix:
         java-version: [25]
         gradle-version: [9.3.0]
-        node-version: [22.x]
 
     steps:
     - name: Remove unnecessary files to release disk space
@@ -85,19 +141,16 @@ jobs:
           14
         distribution: "zulu"
         cache: "gradle"
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v6
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-        cache-dependency-path: ./frontend/package-lock.json
     - name: Change wrapper permissions
       run: chmod +x ./gradlew
 
-    - name: Install frontend dependencies
-      run: cd frontend && npm i
-    - name: Build and bundle frontend
-      run: cd frontend && npm run build:pack
+    - name: Remove bundled frontend from checkout
+      run: rm -rf ./core/src/main/resources/web
+    - name: Download frontend build
+      uses: actions/download-artifact@v8
+      with:
+        name: frontend-build
+        path: core/src/main/resources/web
 
     - name: Build jar files
       run: JAVA_HOME=$JAVA_HOME_25_X64 ./gradlew build --stacktrace
@@ -108,7 +161,6 @@ jobs:
         script: |
           core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN)
           core.exportVariable('ACTIONS_RESULTS_URL', process.env.ACTIONS_RESULTS_URL)
-
     - name: Upload jar files
       working-directory: .github/scripts
       run: |
