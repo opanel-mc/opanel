@@ -17,6 +17,6 @@ export function useCheckAuth(success?: () => void, done?: () => void) {
         }
       })
       .finally(() => done && done());
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // oxlint-disable-next-line react/exhaustive-deps
   }, []);
 }

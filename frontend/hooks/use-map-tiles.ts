@@ -131,7 +131,7 @@ export function useMapTiles({ postWorkerMessage }: UseMapTilesOptions) {
     postRequestTiles();
   }, [postRequestTiles]);
 
-  // eslint-disable-next-line arrow-body-style
+  // oxlint-disable-next-line arrow-body-style
   useEffect(() => {
     return () => {
       if(rafRef.current !== null) cancelAnimationFrame(rafRef.current);

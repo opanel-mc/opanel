@@ -3,6 +3,7 @@ package net.opanel.web;
 import com.google.gson.Gson;
 import io.javalin.Javalin;
 import io.javalin.config.SizeUnit;
+import io.javalin.http.ContentType;
 import io.javalin.http.HttpStatus;
 import io.javalin.jetty.JettyServer;
 import io.javalin.json.JavalinGson;
@@ -90,6 +91,7 @@ public class WebServer {
                     request.getRequestURI().equals("/panel/ext")
                     || request.getRequestURI().startsWith("/panel/ext/")
                 );
+                staticFiles.mimeTypes.add("text/x-component", "rsc");
             });
         });
 

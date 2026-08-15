@@ -10,6 +10,10 @@ export default defineConfig({
     alias: {
       "@/style/item-effect.css": path.resolve(__dirname, "test/style-stub.ts"),
       "@": path.resolve(__dirname, "."),
+      "next/dynamic": "vinext/shims/dynamic",
+      "next/font/local": "vinext/shims/font-local",
+      "next/link": "vinext/shims/link",
+      "next/navigation": "vinext/shims/navigation",
     }
   },
   test: {

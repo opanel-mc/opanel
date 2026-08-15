@@ -1,7 +1,5 @@
-const { execute } = require("./generate-minecraft-assets");
-const { buildWasm } = require("./build-wasm");
+import { buildWasm } from "./build-wasm.js";
+import { execute } from "./generate-minecraft-assets.js";
 
-(async () => {
-  await execute();
-  buildWasm();
-})();
+await execute();
+buildWasm();

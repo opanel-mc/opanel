@@ -224,7 +224,6 @@ export function TerminalViewer({
     });
 
     return () => clearLogs();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [client]);
   
   return (
