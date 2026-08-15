@@ -43,10 +43,6 @@ jobs:
     outputs:
       jar_required: ${{ steps.changes.outputs.jar_required }}
 
-    strategy:
-      matrix:
-        node-version: [22.x]
-    
     defaults:
       run:
         working-directory: ./frontend
@@ -79,10 +75,10 @@ jobs:
           fi
         fi
     
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js 22.x
       uses: actions/setup-node@v6
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 22.x
         cache: 'npm'
         cache-dependency-path: ./frontend/package-lock.json
     - name: Install dependencies
@@ -115,11 +111,6 @@ jobs:
     if: needs.frontend.outputs.jar_required == 'true'
 
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        java-version: [25]
-        gradle-version: [9.3.0]
 
     steps:
     - name: Remove unnecessary files to release disk space
