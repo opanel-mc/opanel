@@ -107,6 +107,10 @@ public class BeforeController extends BaseController {
             reqPath = reqPath.substring(0, reqPath.length() - 1);
         }
         ctx.redirect((reqPath.isEmpty() ? "index" : reqPath) +".rsc?"+ ctx.queryString());
+        // A redirect does not stop Javalin's task chain. Without clearing it,
+        // the static-file handler can overwrite this response with the route's
+        // index.html, which the vinext client then tries to decode as RSC.
+        clearContextTasks(ctx);
     };
 
     public Handler handleFonts = ctx -> {
