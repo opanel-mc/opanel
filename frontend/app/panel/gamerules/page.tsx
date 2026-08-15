@@ -113,6 +113,8 @@ export default function Gamerules() {
   };
 
   useEffect(() => {
+    if(searchParams.get("dim") === dimension) return;
+
     const next = new URLSearchParams(searchParams.toString());
     next.set("dim", dimension);
     replace(`${pathname}?${next.toString()}`);
