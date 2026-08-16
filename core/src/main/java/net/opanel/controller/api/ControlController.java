@@ -6,16 +6,15 @@ import net.opanel.OPanel;
 import net.opanel.common.OPanelSave;
 import net.opanel.common.OPanelServer;
 import net.opanel.common.ServerType;
-import net.opanel.common.features.PaperConfigFeature;
 import net.opanel.common.features.CodeOfConductFeature;
+import net.opanel.common.features.PaperConfigFeature;
+import net.opanel.controller.BaseController;
 import net.opanel.storage.Storage;
 import net.opanel.storage.StorageKey;
 import net.opanel.utils.Utils;
-import net.opanel.controller.BaseController;
 
 import java.io.IOException;
 import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
 import java.util.HashMap;
 
 public class ControlController extends BaseController {
@@ -275,10 +274,6 @@ public class ControlController extends BaseController {
     public Handler setLaunchCommand = ctx -> {
         try {
             final String launchCommand = ctx.body();
-            if(launchCommand.isEmpty()) {
-                sendResponse(ctx, HttpStatus.BAD_REQUEST, "Launch command is missing.");
-                return;
-            }
 
             Storage.get().setStoredData(StorageKey.LAUNCH_COMMAND, launchCommand);
             sendResponse(ctx, HttpStatus.OK);
