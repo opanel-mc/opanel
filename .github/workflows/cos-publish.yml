@@ -13,10 +13,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  publish:
-    name: Publish OPanel API
+  prepare:
     runs-on: ubuntu-latest
-    environment: opanel-dist
+
+    outputs:
+      matrix: ${{ steps.prepare_matrix.outputs.matrix }}
+      tag_name: ${{ steps.release_info.outputs.tag_name }}
 
     steps:
     - uses: actions/checkout@v6
@@ -26,7 +28,7 @@ jobs:
       id: release_info
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-    
+
     - name: Download release assets
       uses: robinraju/release-downloader@v1
       with:
@@ -36,14 +38,76 @@ jobs:
         tarBall: false
         zipBall: false
         out-file-path: "${{ github.workspace }}/release-jars"
+
+    - name: Prepare publishing matrix
+      id: prepare_matrix
+      run: node .github/scripts/prepare-cos-matrix.mjs
+      env:
+        RELEASE_ASSETS_DIR: ${{ github.workspace }}/release-jars
+        RELEASE_REPOSITORY: ${{ github.repository }}
+        RELEASE_TAG: ${{ steps.release_info.outputs.tag_name }}
+
+  publish:
+    name: Upload ${{ matrix.asset }}
+    needs: prepare
+    runs-on: ubuntu-latest
+    environment: opanel-dist
+
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+
+    steps:
+    - name: Download release asset
+      env:
+        ASSET_NAME: ${{ matrix.asset }}
+        DOWNLOAD_URL: ${{ matrix.downloadUrl }}
+      run: |
+        mkdir -p "$RUNNER_TEMP/release-asset"
+        curl --fail --location --show-error --retry 3 \
+          --output "$RUNNER_TEMP/release-asset/$ASSET_NAME" \
+          "$DOWNLOAD_URL"
     
+    - name: Install COSCLI
+      env:
+        COSCLI_VERSION: v1.0.8
+        COSCLI_SHA256: 7165f2ae16c5f7ac495864c963ca574a76e04ec72680d7bc8a8eee3234d8cf91
+      run: |
+        curl --fail --location --show-error \
+          --output "$RUNNER_TEMP/coscli" \
+          "https://github.com/tencentyun/coscli/releases/download/${COSCLI_VERSION}/coscli-${COSCLI_VERSION}-linux-amd64"
+        echo "${COSCLI_SHA256}  $RUNNER_TEMP/coscli" | sha256sum --check -
+        chmod 755 "$RUNNER_TEMP/coscli"
+        "$RUNNER_TEMP/coscli" --version
+
     - name: Upload to COS
-      uses: TencentCloud/cos-action@v1
-      with:
-        secret_id: ${{ secrets.COS_SECRET_ID }}
-        secret_key: ${{ secrets.COS_SECRET_KEY }}
-        cos_bucket: ${{ env.COS_BUCKET }}
-        cos_region: ${{ env.COS_REGION }}
-        local_path: "${{ github.workspace }}/release-jars"
-        remote_path: ${{ steps.release_info.outputs.tag_name }}
-        clean: true
+      env:
+        COS_SECRET_ID: ${{ secrets.COS_SECRET_ID }}
+        COS_SECRET_KEY: ${{ secrets.COS_SECRET_KEY }}
+        COS_BUCKET: ${{ vars.COS_BUCKET }}
+        COS_REGION: ${{ vars.COS_REGION }}
+        ASSET_NAME: ${{ matrix.asset }}
+        REMOTE_PATH: ${{ needs.prepare.outputs.tag_name }}
+      run: |
+        set -euo pipefail
+
+        : "${COS_SECRET_ID:?Missing COS_SECRET_ID secret}"
+        : "${COS_SECRET_KEY:?Missing COS_SECRET_KEY secret}"
+        : "${COS_BUCKET:?Missing COS_BUCKET variable}"
+        : "${COS_REGION:?Missing COS_REGION variable}"
+        : "${ASSET_NAME:?Missing release asset name}"
+        : "${REMOTE_PATH:?Missing release tag}"
+
+        "$RUNNER_TEMP/coscli" cp \
+          "$RUNNER_TEMP/release-asset/$ASSET_NAME" \
+          "cos://${COS_BUCKET}/${REMOTE_PATH}/${ASSET_NAME}" \
+          --secret-id "$COS_SECRET_ID" \
+          --secret-key "$COS_SECRET_KEY" \
+          --endpoint "cos.${COS_REGION}.myqcloud.com" \
+          --init-skip \
+          --part-size 1 \
+          --thread-num 8 \
+          --check-point=true \
+          --fail-output-path "$RUNNER_TEMP/coscli-output" \
+          --process-log-path "$RUNNER_TEMP/coscli-output"
