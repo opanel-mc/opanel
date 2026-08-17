@@ -55,7 +55,6 @@ jobs:
         COS_SECRET_KEY: ${{ secrets.COS_SECRET_KEY }}
         COS_BUCKET: ${{ vars.COS_BUCKET }}
         COS_REGION: ${{ vars.COS_REGION }}
-        COSCLI_CONFIG: ${{ runner.temp }}/cos.yaml
         LOCAL_PATH: ${{ github.workspace }}/release-jars
         REMOTE_PATH: ${{ steps.release_info.outputs.tag_name }}
       run: |
@@ -67,22 +66,15 @@ jobs:
         : "${COS_REGION:?Missing COS_REGION variable}"
         : "${REMOTE_PATH:?Missing release tag}"
 
-        "$RUNNER_TEMP/coscli" config set \
-          --secret_id "$COS_SECRET_ID" \
-          --secret_key "$COS_SECRET_KEY" \
-          --config-path "$COSCLI_CONFIG"
-        "$RUNNER_TEMP/coscli" config add \
-          --bucket "$COS_BUCKET" \
-          --region "$COS_REGION" \
-          --endpoint "cos.${COS_REGION}.myqcloud.com" \
-          --alias publish \
-          --config-path "$COSCLI_CONFIG"
         "$RUNNER_TEMP/coscli" sync \
           "$LOCAL_PATH/" \
-          "cos://publish/${REMOTE_PATH}/" \
+          "cos://${COS_BUCKET}/${REMOTE_PATH}/" \
+          --secret-id "$COS_SECRET_ID" \
+          --secret-key "$COS_SECRET_KEY" \
+          --endpoint "cos.${COS_REGION}.myqcloud.com" \
+          --init-skip \
           --recursive \
           --delete \
           --force \
           --fail-output-path "$RUNNER_TEMP/coscli-output" \
-          --process-log-path "$RUNNER_TEMP/coscli-output" \
-          --config-path "$COSCLI_CONFIG"
+          --process-log-path "$RUNNER_TEMP/coscli-output"
