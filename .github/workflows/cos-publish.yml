@@ -1,0 +1,49 @@
+name: Publish to COS
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cos-publish-${{ github.event.release.tag_name || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish OPanel API
+    runs-on: ubuntu-latest
+    environment: opanel-dist
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Get latest release
+      uses: easyware-io/get-latest-release@v1
+      id: release_info
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Download release assets
+      uses: robinraju/release-downloader@v1
+      with:
+        repository: "opanel-mc/opanel"
+        tag: ${{ steps.release_info.outputs.tag_name }}
+        fileName: "*.jar"
+        tarBall: false
+        zipBall: false
+        out-file-path: "${{ github.workspace }}/release-jars"
+    
+    - name: Upload to COS
+      uses: TencentCloud/cos-action@v1
+      with:
+        secret_id: ${{ secrets.COS_SECRET_ID }}
+        secret_key: ${{ secrets.COS_SECRET_KEY }}
+        cos_bucket: ${{ env.COS_BUCKET }}
+        cos_region: ${{ env.COS_REGION }}
+        local_path: "${{ github.workspace }}/release-jars"
+        remote_path: ${{ steps.release_info.outputs.tag_name }}
+        clean: true
