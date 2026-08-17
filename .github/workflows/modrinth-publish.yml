@@ -49,7 +49,7 @@ jobs:
         RELEASE_PRERELEASE: ${{ steps.release_info.outputs.prerelease }}
         RELEASE_REPOSITORY: ${{ github.repository }}
         RELEASE_TAG: ${{ steps.release_info.outputs.tag_name }}
-        SUPPORTED_VERSION_LIST_URL: https://opanel.cn/supported-version-list.json
+        SUPPORTED_VERSION_LIST_URL: https://dist.opanel.cn/supported-version-list.json
 
   publish:
 
