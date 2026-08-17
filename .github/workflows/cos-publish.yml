@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   publish:
-    name: Publish OPanel API
+    name: Publish release jars to COS
     runs-on: ubuntu-latest
     environment: opanel-dist
 
@@ -37,13 +37,52 @@ jobs:
         zipBall: false
         out-file-path: "${{ github.workspace }}/release-jars"
     
+    - name: Install COSCLI
+      env:
+        COSCLI_VERSION: v1.0.8
+        COSCLI_SHA256: 7165f2ae16c5f7ac495864c963ca574a76e04ec72680d7bc8a8eee3234d8cf91
+      run: |
+        curl --fail --location --show-error \
+          --output "$RUNNER_TEMP/coscli" \
+          "https://github.com/tencentyun/coscli/releases/download/${COSCLI_VERSION}/coscli-${COSCLI_VERSION}-linux-amd64"
+        echo "${COSCLI_SHA256}  $RUNNER_TEMP/coscli" | sha256sum --check -
+        chmod 755 "$RUNNER_TEMP/coscli"
+        "$RUNNER_TEMP/coscli" --version
+
     - name: Upload to COS
-      uses: TencentCloud/cos-action@v1
-      with:
-        secret_id: ${{ secrets.COS_SECRET_ID }}
-        secret_key: ${{ secrets.COS_SECRET_KEY }}
-        cos_bucket: ${{ env.COS_BUCKET }}
-        cos_region: ${{ env.COS_REGION }}
-        local_path: "${{ github.workspace }}/release-jars"
-        remote_path: ${{ steps.release_info.outputs.tag_name }}
-        clean: true
+      env:
+        COS_SECRET_ID: ${{ secrets.COS_SECRET_ID }}
+        COS_SECRET_KEY: ${{ secrets.COS_SECRET_KEY }}
+        COS_BUCKET: ${{ vars.COS_BUCKET }}
+        COS_REGION: ${{ vars.COS_REGION }}
+        COSCLI_CONFIG: ${{ runner.temp }}/cos.yaml
+        LOCAL_PATH: ${{ github.workspace }}/release-jars
+        REMOTE_PATH: ${{ steps.release_info.outputs.tag_name }}
+      run: |
+        set -euo pipefail
+
+        : "${COS_SECRET_ID:?Missing COS_SECRET_ID secret}"
+        : "${COS_SECRET_KEY:?Missing COS_SECRET_KEY secret}"
+        : "${COS_BUCKET:?Missing COS_BUCKET variable}"
+        : "${COS_REGION:?Missing COS_REGION variable}"
+        : "${REMOTE_PATH:?Missing release tag}"
+
+        "$RUNNER_TEMP/coscli" config set \
+          --secret_id "$COS_SECRET_ID" \
+          --secret_key "$COS_SECRET_KEY" \
+          --config-path "$COSCLI_CONFIG"
+        "$RUNNER_TEMP/coscli" config add \
+          --bucket "$COS_BUCKET" \
+          --region "$COS_REGION" \
+          --endpoint "cos.${COS_REGION}.myqcloud.com" \
+          --alias publish \
+          --config-path "$COSCLI_CONFIG"
+        "$RUNNER_TEMP/coscli" sync \
+          "$LOCAL_PATH/" \
+          "cos://publish/${REMOTE_PATH}/" \
+          --recursive \
+          --delete \
+          --force \
+          --fail-output-path "$RUNNER_TEMP/coscli-output" \
+          --process-log-path "$RUNNER_TEMP/coscli-output" \
+          --config-path "$COSCLI_CONFIG"
