@@ -1,10 +1,9 @@
 import path from "node:path";
 import vinext from "vinext";
 import { defineConfig } from "vite";
-import { vinextRscCacheBustingFallback } from "./vinext-plugins/vinext-rsc-cache-busting-fallback.ts";
 
 export default defineConfig({
-  plugins: [vinextRscCacheBustingFallback(), vinext()],
+  plugins: [vinext()],
   ssr: {
     // semver is CommonJS. Keeping it external avoids Vite's dev SSR module
     // runner applying an incompatible CommonJS transform to its internals.
