@@ -1,1 +1,0 @@
-function e(){return`d911317a-4a08-44e8-a732-4f3602832ea0`}function t(t,n=e()){n&&t.set(`x-deployment-id`,n)}export{e as n,t};
