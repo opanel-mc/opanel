@@ -31,7 +31,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange>
           <Toaster
-            position="bottom-right"
+            position="top-right"
+            offset={{ top: "3rem", right: "0.5rem" }}
+            mobileOffset={{ top: "3rem" }}
             expand
             richColors/>
           {children}

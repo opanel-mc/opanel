@@ -160,6 +160,16 @@
   [data-slot="terminal-log"] span a {
     @apply no-underline hover:underline;
   }
+  [data-sonner-toaster][data-y-position="top"] {
+    height: 100vh;
+    clip-path: inset(0 -100vw -100vh -100vw);
+    pointer-events: none;
+
+    [data-sonner-toast] {
+      margin-top: 0.5rem;
+      pointer-events: auto;
+    }
+  }
 }
 
 @layer utilities {
