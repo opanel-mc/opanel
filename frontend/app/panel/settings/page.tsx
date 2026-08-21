@@ -108,6 +108,8 @@ export default function Settings() {
   const [showErrorLevel, setShowErrorLevel] = useState(getSettings("terminal.log-levels").includes("ERROR"));
 
   const setTab = (value: string) => {
+    if(!pathname.startsWith("/panel/settings")) return;
+
     const next = new URLSearchParams(searchParams.toString());
     next.set("tab", value);
     replace(`${pathname}?${next.toString()}`);
@@ -140,7 +142,7 @@ export default function Settings() {
   };
 
   useEffect(() => {
-    if(searchParams.has("openLaunchCommand")) {
+    if(searchParams.has("openLaunchCommand") && pathname.startsWith("/panel/settings")) {
       setOpenLaunchCommand(true);
       toast.warning($("settings.server.launch-command.required"));
       
