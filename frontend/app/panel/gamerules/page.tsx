@@ -110,7 +110,10 @@ export default function Gamerules() {
   };
 
   useEffect(() => {
-    if(searchParams.get("dim") === dimension) return;
+    if(
+      searchParams.get("dim") === dimension
+      || !pathname.startsWith("/panel/gamerules")
+    ) return;
 
     const next = new URLSearchParams(searchParams.toString());
     next.set("dim", dimension);
