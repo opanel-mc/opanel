@@ -12,12 +12,11 @@ const PLATFORM_NAMES = {
 
 const assetsDir = process.env.RELEASE_ASSETS_DIR;
 const releaseTag = process.env.RELEASE_TAG;
-const releaseRepository = process.env.RELEASE_REPOSITORY;
 const releaseName = process.env.RELEASE_NAME?.trim() || `OPanel ${releaseTag}`;
 const supportedVersionListUrl = process.env.SUPPORTED_VERSION_LIST_URL;
 
-if(!assetsDir || !releaseTag || !releaseRepository || !supportedVersionListUrl) {
-  throw new Error("RELEASE_ASSETS_DIR, RELEASE_TAG, RELEASE_REPOSITORY and SUPPORTED_VERSION_LIST_URL are required");
+if(!assetsDir || !releaseTag || !supportedVersionListUrl) {
+  throw new Error("RELEASE_ASSETS_DIR, RELEASE_TAG and SUPPORTED_VERSION_LIST_URL are required");
 }
 
 if(!statSync(assetsDir).isDirectory()) {
@@ -73,7 +72,6 @@ for(const asset of jarNames) {
     asset,
     buildVersion,
     channel,
-    downloadUrl: createDownloadUrl(releaseRepository, releaseTag, asset),
     gameVersions: JSON.stringify(gameVersions),
     loader: platform,
     platform: PLATFORM_NAMES[platform],
@@ -166,10 +164,6 @@ function getReleaseChannel(tag, prerelease) {
     return "beta";
   }
   return "release";
-}
-
-function createDownloadUrl(repository, tag, asset) {
-  return `https://github.com/${repository}/releases/download/${encodeURIComponent(tag)}/${encodeURIComponent(asset)}`;
 }
 
 function hashFile(file) {

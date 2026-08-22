@@ -1,14 +1,10 @@
 import { appendFileSync, readdirSync, statSync } from "node:fs";
 
 const assetsDir = process.env.RELEASE_ASSETS_DIR;
-const releaseRepository = process.env.RELEASE_REPOSITORY;
 const releaseTag = process.env.RELEASE_TAG;
 
-if(!assetsDir || !releaseRepository || !releaseTag) {
-  throw new Error("RELEASE_ASSETS_DIR, RELEASE_REPOSITORY and RELEASE_TAG are required");
-}
-if(!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(releaseRepository)) {
-  throw new Error(`Invalid release repository: ${releaseRepository}`);
+if(!assetsDir || !releaseTag) {
+  throw new Error("RELEASE_ASSETS_DIR and RELEASE_TAG are required");
 }
 if(!statSync(assetsDir).isDirectory()) {
   throw new Error(`Release assets directory does not exist: ${assetsDir}`);
@@ -29,10 +25,7 @@ if(assets.length === 0) {
 }
 
 const matrix = JSON.stringify({
-  include: assets.map((asset) => ({
-    asset,
-    downloadUrl: createDownloadUrl(releaseRepository, releaseTag, asset),
-  })),
+  include: assets.map((asset) => ({ asset })),
 });
 
 if(process.env.GITHUB_OUTPUT) {
@@ -40,7 +33,3 @@ if(process.env.GITHUB_OUTPUT) {
 }
 
 console.log(`Prepared ${assets.length} COS publishing targets for ${releaseTag}.`);
-
-function createDownloadUrl(repository, tag, asset) {
-  return `https://github.com/${repository}/releases/download/${encodeURIComponent(tag)}/${encodeURIComponent(asset)}`;
-}
