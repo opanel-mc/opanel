@@ -2,6 +2,16 @@ name: Publish
 
 on:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Release tag to publish
+        required: true
+        type: string
+      prerelease:
+        description: Mark as prerelease
+        required: false
+        type: boolean
+        default: false
   release:
     types: [published]
 
@@ -9,7 +19,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: publish-${{ github.event.release.tag_name || github.ref }}
+  group: publish-${{ github.event.release.tag_name || inputs.release_tag || github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -85,7 +95,7 @@ jobs:
       run: node .github/scripts/prepare-cos-matrix.mjs
       env:
         RELEASE_ASSETS_DIR: ${{ github.workspace }}/build/libs
-        RELEASE_TAG: ${{ github.event.release.tag_name || github.ref_name }}
+        RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release_tag }}
 
   publish-cos:
     name: Upload ${{ matrix.asset }}
@@ -124,7 +134,7 @@ jobs:
         COS_BUCKET: ${{ vars.COS_BUCKET }}
         COS_REGION: ${{ vars.COS_REGION }}
         ASSET_NAME: ${{ matrix.asset }}
-        REMOTE_PATH: ${{ github.event.release.tag_name || github.ref_name }}
+        REMOTE_PATH: ${{ github.event.release.tag_name || inputs.release_tag }}
       run: |
         set -euo pipefail
 
@@ -169,9 +179,9 @@ jobs:
       run: node .github/scripts/prepare-modrinth-matrix.mjs
       env:
         RELEASE_ASSETS_DIR: ${{ github.workspace }}/build/libs
-        RELEASE_NAME: ${{ github.event.release.name || github.ref_name }}
-        RELEASE_PRERELEASE: ${{ github.event.release.prerelease || false }}
-        RELEASE_TAG: ${{ github.event.release.tag_name || github.ref_name }}
+        RELEASE_NAME: ${{ github.event.release.name || inputs.release_tag }}
+        RELEASE_PRERELEASE: ${{ github.event.release.prerelease || inputs.prerelease }}
+        RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release_tag }}
         SUPPORTED_VERSION_LIST_URL: https://dist.opanel.cn/supported-version-list.json
 
   publish-modrinth:
@@ -269,9 +279,9 @@ jobs:
   #       curseforge-id: ${{ vars.CURSEFORGE_ID }}
   #       curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
   #       files: "${{ github.workspace }}/build/libs/*.jar"
-  #       name: ${{ github.event.release.name || github.ref_name }}
-  #       version: ${{ github.event.release.tag_name || github.ref_name }}
-  #       version-type: ${{ github.event.release.prerelease == true && 'beta' || 'release' }}
+  #       name: ${{ github.event.release.tag_name || inputs.release_tag || github.ref }}
+  #       version: ${{ github.event.release.tag_name || inputs.release_tag || github.ref }}
+  #       version-type: ${{ (github.event.release.prerelease || inputs.prerelease) == true && 'beta' || 'release' }}
   #       loaders: |
   #         bukkit
   #         folia
