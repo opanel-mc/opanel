@@ -92,7 +92,7 @@ export function CpuMonitorBlock({ className }: {
             label: $("monitor.chart.cpu")
           }
         }}
-        className="w-full max-h-52">
+        className="w-full h-52">
         <AreaChart
           accessibilityLayer
           data={monitorDataList}
@@ -143,7 +143,7 @@ export function MemoryMonitorBlock({ className }: {
             label: $("monitor.chart.memory")
           }
         }}
-        className="w-full max-h-44">
+        className="w-full h-44">
         <AreaChart
           accessibilityLayer
           data={monitorDataList}
@@ -203,7 +203,7 @@ export function JvmMemoryMonitorBlock({ className }: {
             label: $("monitor.chart.jvm-memory")
           }
         }}
-        className="w-full max-h-44">
+        className="w-full h-44">
         <AreaChart
           accessibilityLayer
           data={monitorDataList}
@@ -291,7 +291,7 @@ export function TpsMonitorBlock({ className }: {
             label: "TPS"
           }
         }}
-        className="w-full max-h-24">
+        className="w-full h-24">
         <AreaChart
           accessibilityLayer
           data={monitorDataList}
@@ -362,7 +362,7 @@ export function NetworkMonitorBlock({ className }: {
             label: $("monitor.chart.network-download")
           }
         }}
-        className="w-full max-h-24">
+        className="w-full h-24">
         <AreaChart
           accessibilityLayer
           data={monitorDataList}
@@ -433,7 +433,7 @@ export const ActivityMonitorBlock = memo(({ className }: {
             color: "var(--color-highlight-primary)"
           }
         }}
-        className="w-full max-h-56">
+        className="w-full h-56">
         <BarChart
           accessibilityLayer
           data={activityChartData}
