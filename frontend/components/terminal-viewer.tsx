@@ -21,6 +21,8 @@ const ansiConverter = new AnsiConverter();
 const urlRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:;%_\+.~#?&//=]*)/g;
 
 function preprocessLogLine(line: string): string {
+  line = purifyUnsafeText(line);
+
   if(getSettings("terminal.rich-style")) {
     line = ansiConverter.toHtml(parseTextToANSI(line.replaceAll("\x7f", secSign)));
   }
