@@ -176,4 +176,64 @@ describe("test terminal viewer", () => {
     expect(screen.queryByText("line-1")).not.toBeInTheDocument();
     expect(screen.queryByText("line-2")).not.toBeInTheDocument();
   });
+
+  it("should escape html tags in log line", async () => {
+    const { client, emit } = createMockTerminalClient();
+    const { container } = render(<TerminalViewer client={client as any} levels={DEFAULT_LEVELS}/>);
+
+    const htmlTag = "<span class='malicious'>pwned</span>";
+    emit("log", createLog(1, { line: htmlTag }));
+
+    await waitFor(() => {
+      expect(container.querySelector("[data-slot='terminal-log']")).toBeInTheDocument();
+    });
+
+    const log = container.querySelector("[data-slot='terminal-log']");
+    expect(container.querySelector(".malicious")).not.toBeInTheDocument();
+    expect(log?.innerHTML).not.toContain(htmlTag);
+  });
+
+  it("should escape html tags in thrown message", async () => {
+    const { client, emit } = createMockTerminalClient();
+    const { container } = render(<TerminalViewer client={client as any} levels={DEFAULT_LEVELS}/>);
+
+    const htmlTag = "<div class='malicious'>pwned</div>";
+    emit("log", createLog(1, { thrownMessage: htmlTag }));
+
+    await waitFor(() => {
+      expect(container.querySelector("[data-slot='terminal-log']")).toBeInTheDocument();
+    });
+
+    const log = container.querySelector("[data-slot='terminal-log']");
+    expect(container.querySelector(".malicious")).not.toBeInTheDocument();
+    expect(log?.innerHTML).not.toContain(htmlTag);
+  });
+
+  it("should escape html from init log packets", async () => {
+    const { client, emit } = createMockTerminalClient();
+    const { container } = render(<TerminalViewer client={client as any} levels={DEFAULT_LEVELS}/>);
+
+    const htmlTag = "<script class='malicious'>alert(1)</script>";
+    emit("init", [createLog(1, { line: htmlTag, thrownMessage: htmlTag })]);
+
+    await waitFor(() => {
+      expect(container.querySelector("[data-slot='terminal-log']")).toBeInTheDocument();
+    });
+
+    expect(container.querySelector("script.malicious")).not.toBeInTheDocument();
+  });
+
+  it("should escape html from mcdr log packets", async () => {
+    const { client, emit } = createMockTerminalClient();
+    const { container } = render(<TerminalViewer client={client as any} levels={DEFAULT_LEVELS}/>);
+
+    const htmlTag = "<img class='malicious' src='x' onerror='alert(1)'/>";
+    emit("mcdr-log", createLog(1, { mcdr: true, line: htmlTag }));
+
+    await waitFor(() => {
+      expect(container.querySelector("[data-slot='terminal-log']")).toBeInTheDocument();
+    });
+
+    expect(container.querySelector("img.malicious")).not.toBeInTheDocument();
+  });
 });

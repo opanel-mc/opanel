@@ -203,6 +203,11 @@ export function TerminalViewer({
     client.subscribe("init", (data: ConsoleLog[]) => {
       for(let i = data.length - MAX_LOG_LINES > 0 ? data.length - MAX_LOG_LINES : 0; i < data.length; i++) {
         data[i].line = purifyUnsafeText(data[i].line);
+        const thrownMessage = data[i].thrownMessage;
+        if(thrownMessage) {
+          data[i].thrownMessage = purifyUnsafeText(thrownMessage);
+        }
+
         data[i].uuid = uuidv7();
         logsBufferRef.current.push(data[i]);
       }
@@ -211,6 +216,10 @@ export function TerminalViewer({
 
     client.subscribe("log", (data: ConsoleLog) => {
       data.line = purifyUnsafeText(data.line);
+      if(data.thrownMessage) {
+        data.thrownMessage = purifyUnsafeText(data.thrownMessage);
+      }
+
       data.uuid = uuidv7();
       logsBufferRef.current.push(data);
       scheduleFlushLogsBuffer();
@@ -218,6 +227,10 @@ export function TerminalViewer({
 
     client.subscribe("mcdr-log", (data: ConsoleLog) => {
       data.line = purifyUnsafeText(data.line);
+      if(data.thrownMessage) {
+        data.thrownMessage = purifyUnsafeText(data.thrownMessage);
+      }
+      
       data.uuid = uuidv7();
       logsBufferRef.current.push(data);
       scheduleFlushLogsBuffer();
