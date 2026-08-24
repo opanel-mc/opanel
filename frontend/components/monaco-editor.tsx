@@ -9,9 +9,10 @@ import JsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker";
 import TypeScriptWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker";
 import YamlWorker from "monaco-yaml/yaml.worker?worker";
 
-import "@/lib/monaco/opanel-theme";
-import "@/lib/monaco/server-log";
-import "@/lib/monaco/task-command";
+import { enableAutomaticLayout } from "@/lib/monaco/editor-layout";
+import "@/lib/monaco/opanel-theme-def";
+import "@/lib/monaco/server-log-def";
+import "@/lib/monaco/task-command-def";
 
 export default function MonacoEditor({
   onMount,
@@ -49,30 +50,7 @@ export default function MonacoEditor({
 
   const handleEditorDidMount = (editor: monaco.editor.IStandaloneCodeEditor) => {
     if(automaticLayout) {
-      const container = editor.getContainerDomNode();
-      let animationFrame: number | undefined;
-      let lastWidth = container.clientWidth;
-      let lastHeight = container.clientHeight;
-
-      const resizeObserver = new ResizeObserver(([entry]) => {
-        const width = entry?.contentRect.width ?? container.clientWidth;
-        const height = entry?.contentRect.height ?? container.clientHeight;
-        if(width === lastWidth && height === lastHeight) return;
-
-        lastWidth = width;
-        lastHeight = height;
-        if(animationFrame !== undefined) cancelAnimationFrame(animationFrame);
-        animationFrame = requestAnimationFrame(() => {
-          animationFrame = undefined;
-          editor.layout({ width, height });
-        });
-      });
-
-      resizeObserver.observe(container);
-      editor.onDidDispose(() => {
-        resizeObserver.disconnect();
-        if(animationFrame !== undefined) cancelAnimationFrame(animationFrame);
-      });
+      enableAutomaticLayout(editor);
     }
 
     if(!autoFitHeight) return;
