@@ -60,11 +60,11 @@ public class NeoInventory extends BaseNeoInventory implements OPanelInventory {
         if(item == null || item.isEmpty()) return ItemStack.EMPTY;
 
         CompoundTag itemNbt = new CompoundTag();
-        itemNbt.putByte("Slot", (byte) item.slot);
-        itemNbt.putString("id", item.id);
-        itemNbt.putByte("count", (byte) Math.max(1, item.count));
-        if(item.snbt != null) {
-            itemNbt.put("components", TagParser.parseCompoundFully(item.snbt));
+        itemNbt.putByte("Slot", (byte) item.slot());
+        itemNbt.putString("id", item.id());
+        itemNbt.putByte("count", (byte) Math.max(1, item.count()));
+        if(item.snbt() != null) {
+            itemNbt.put("components", TagParser.parseCompoundFully(item.snbt()));
         }
         DataResult<ItemStack> parseResult = ItemStack.CODEC.parse(serializationContext, itemNbt);
         return parseResult.result().orElse(ItemStack.EMPTY);

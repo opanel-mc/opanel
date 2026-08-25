@@ -32,7 +32,7 @@ public final class ExtensionPluginsAPI implements PluginsAPI {
         validateFileName(fileName);
         return ctx.call("get plugin", () -> {
             for(OPanelPlugin plugin : ctx.getServer().getPlugins()) {
-                if(fileName.equals(plugin.getFileName())) {
+                if(fileName.equals(plugin.fileName())) {
                     return Optional.of(toPluginInfo(plugin));
                 }
             }
@@ -76,16 +76,16 @@ public final class ExtensionPluginsAPI implements PluginsAPI {
 
     private static PluginInfo toPluginInfo(OPanelPlugin plugin) {
         return new PluginInfo(
-                plugin.getFileName(),
-                plugin.getName(),
-                plugin.getVersion(),
-                plugin.getDescription(),
-                plugin.getAuthors(),
-                plugin.getWebsite(),
-                plugin.getIcon(),
-                plugin.getFileSize(),
-                plugin.isEnabled(),
-                plugin.isLoaded()
+                plugin.fileName(),
+                plugin.name(),
+                plugin.version(),
+                plugin.description(),
+                plugin.authors(),
+                plugin.website(),
+                plugin.icon(),
+                plugin.fileSize(),
+                plugin.enabled(),
+                plugin.loaded()
         );
     }
 }

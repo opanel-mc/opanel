@@ -75,9 +75,9 @@ public abstract class BasePaperOfflineInventory implements OPanelInventory {
                     equipmentNbt.removeKey(OPanelInventoryType.getEquipmentSlotName(slot));
                 }
                 for(OPanelItemStack item : items) {
-                    if(item == null || item.isEmpty() || item.slot < 0 || item.slot >= inventoryType.getSize()) continue;
+                    if(item == null || item.isEmpty() || item.slot() < 0 || item.slot() >= inventoryType.getSize()) continue;
                     equipmentNbt.set(
-                        OPanelInventoryType.getEquipmentSlotName(item.slot),
+                        OPanelInventoryType.getEquipmentSlotName(item.slot()),
                         toNbt(inventoryType, item),
                         NBTHandlers.STORE_READWRITE_TAG
                     );
@@ -93,7 +93,7 @@ public abstract class BasePaperOfflineInventory implements OPanelInventory {
             }
 
             for(OPanelItemStack item : items) {
-                if(item == null || item.isEmpty() || item.slot < 0 || item.slot >= inventoryType.getSize()) continue;
+                if(item == null || item.isEmpty() || item.slot() < 0 || item.slot() >= inventoryType.getSize()) continue;
                 list.addCompound(toNbt(inventoryType, item));
             }
             saveNbt();
@@ -105,19 +105,19 @@ public abstract class BasePaperOfflineInventory implements OPanelInventory {
     @Override
     public void setItem(OPanelInventoryType inventoryType, OPanelItemStack item) throws NbtApiException {
         List<OPanelItemStack> items = getItems(inventoryType);
-        items.set(item.slot, item);
+        items.set(item.slot(), item);
         setItems(inventoryType, items);
     }
 
     protected ReadWriteNBT toNbt(OPanelInventoryType inventoryType, OPanelItemStack item) throws NbtApiException {
         ReadWriteNBT itemNbt = NBT.createNBTObject();
         if(inventoryType != OPanelInventoryType.EQUIPMENTS || !usesEquipmentTag()) {
-            itemNbt.setByte("Slot", (byte) inventoryType.toSavedSlot(item.slot));
+            itemNbt.setByte("Slot", (byte) inventoryType.toSavedSlot(item.slot()));
         }
-        itemNbt.setString("id", item.id);
-        itemNbt.setByte(KEY_OF_COUNT, (byte) item.count);
-        if(item.snbt != null) {
-            itemNbt.set(KEY_OF_NBT, NBT.parseNBT(item.snbt), NBTHandlers.STORE_READWRITE_TAG);
+        itemNbt.setString("id", item.id());
+        itemNbt.setByte(KEY_OF_COUNT, (byte) item.count());
+        if(item.snbt() != null) {
+            itemNbt.set(KEY_OF_NBT, NBT.parseNBT(item.snbt()), NBTHandlers.STORE_READWRITE_TAG);
         }
         return itemNbt;
     }

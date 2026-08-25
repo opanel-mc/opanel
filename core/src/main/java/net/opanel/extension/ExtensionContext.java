@@ -28,7 +28,7 @@ public final class ExtensionContext {
     }
 
     public String getExtensionId() {
-        return metadata.extId;
+        return metadata.extId();
     }
 
     public ExtensionMetadata getExtensionMetadata() {
@@ -57,7 +57,7 @@ public final class ExtensionContext {
 
     public String getLogPrefix() {
         ensureActive();
-        return "[" + metadata.name + "] ";
+        return "[" + metadata.name() + "] ";
     }
 
     public <T> T call(String operation, ThrowingSupplier<T> supplier) {

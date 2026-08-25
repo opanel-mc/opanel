@@ -2,16 +2,17 @@ package net.opanel.extension;
 
 import java.util.List;
 
-public class ExtensionMetadata {
-    public String extId;
-    public String version;
-    public String name;
-    public String description;
-    public String author;
-    public List<ExtensionPage> pages;
-
-    public static class ExtensionPage {
-        public String name;
-        public String url;
+public record ExtensionMetadata(
+        String extId,
+        String version,
+        String name,
+        String description,
+        String author,
+        List<ExtensionPage> pages
+) {
+    public ExtensionMetadata {
+        if(pages == null) pages = List.of();
     }
+
+    public record ExtensionPage(String name, String url) {}
 }

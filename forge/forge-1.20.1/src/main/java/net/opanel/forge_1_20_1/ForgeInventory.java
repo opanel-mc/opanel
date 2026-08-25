@@ -62,11 +62,11 @@ public class ForgeInventory extends BaseForgeInventory {
         if(item == null || item.isEmpty()) return ItemStack.EMPTY;
 
         CompoundTag itemNbt = new CompoundTag();
-        itemNbt.putByte("Slot", (byte) item.slot);
-        itemNbt.putString("id", item.id);
-        itemNbt.putByte("Count", (byte) Math.max(1, item.count));
-        if(item.snbt != null) {
-            itemNbt.put("tag", TagParser.parseTag(item.snbt));
+        itemNbt.putByte("Slot", (byte) item.slot());
+        itemNbt.putString("id", item.id());
+        itemNbt.putByte("Count", (byte) Math.max(1, item.count()));
+        if(item.snbt() != null) {
+            itemNbt.put("tag", TagParser.parseTag(item.snbt()));
         }
         return ItemStack.of(itemNbt);
     }

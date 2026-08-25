@@ -21,12 +21,12 @@ public class OpenMonitorController extends BaseController {
         }
 
         HashMap<String, Object> obj = new HashMap<>();
-        obj.put("cpu", data == null ? 0 : data.cpu);
-        obj.put("memory", data == null ? 0 : data.memory);
-        obj.put("jvmMemory", data == null ? 0 : data.jvmMemory);
-        obj.put("tps", data == null ? 0 : data.tps);
-        obj.put("networkUpload", data == null ? 0 : data.networkUpload);
-        obj.put("networkDownload", data == null ? 0 : data.networkDownload);
+        obj.put("cpu", data == null ? 0 : data.cpu());
+        obj.put("memory", data == null ? 0 : data.memory());
+        obj.put("jvmMemory", data == null ? 0 : data.jvmMemory());
+        obj.put("tps", data == null ? 0 : data.tps());
+        obj.put("networkUpload", data == null ? 0 : data.networkUpload());
+        obj.put("networkDownload", data == null ? 0 : data.networkDownload());
 
         sendResponse(ctx, obj);
     };

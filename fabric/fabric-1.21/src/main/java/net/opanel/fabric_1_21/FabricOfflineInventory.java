@@ -80,7 +80,7 @@ public class FabricOfflineInventory extends BaseFabricOfflineInventory {
             }
 
             for(OPanelItemStack item : items) {
-                if(item == null || item.isEmpty() || item.slot < 0 || item.slot >= inventoryType.getSize()) continue;
+                if(item == null || item.isEmpty() || item.slot() < 0 || item.slot() >= inventoryType.getSize()) continue;
                 nbtList.add(toNbt(inventoryType, item));
             }
             saveNbt();
@@ -92,18 +92,18 @@ public class FabricOfflineInventory extends BaseFabricOfflineInventory {
     @Override
     public void setItem(OPanelInventoryType inventoryType, OPanelItemStack item) throws CommandSyntaxException {
         List<OPanelItemStack> items = getItems(inventoryType);
-        items.set(item.slot, item);
+        items.set(item.slot(), item);
         setItems(inventoryType, items);
     }
 
     @Override
     protected NbtCompound toNbt(OPanelInventoryType inventoryType, OPanelItemStack item) throws CommandSyntaxException {
         NbtCompound itemNbt = new NbtCompound();
-        itemNbt.putByte("Slot", (byte) inventoryType.toSavedSlot(item.slot));
-        itemNbt.putString("id", item.id);
-        itemNbt.putByte("count", (byte) item.count);
-        if(item.snbt != null) {
-            itemNbt.put("components", StringNbtReader.parse(item.snbt));
+        itemNbt.putByte("Slot", (byte) inventoryType.toSavedSlot(item.slot()));
+        itemNbt.putString("id", item.id());
+        itemNbt.putByte("count", (byte) item.count());
+        if(item.snbt() != null) {
+            itemNbt.put("components", StringNbtReader.parse(item.snbt()));
         }
         return itemNbt;
     }

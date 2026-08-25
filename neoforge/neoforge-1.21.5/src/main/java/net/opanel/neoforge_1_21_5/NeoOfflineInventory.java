@@ -81,8 +81,8 @@ public class NeoOfflineInventory extends BaseNeoOfflineInventory implements OPan
                     equipmentNbt.remove(OPanelInventoryType.getEquipmentSlotName(slot));
                 }
                 for(OPanelItemStack item : items) {
-                    if(item == null || item.isEmpty() || item.slot < 0 || item.slot >= inventoryType.getSize()) continue;
-                    equipmentNbt.put(OPanelInventoryType.getEquipmentSlotName(item.slot), toNbt(inventoryType, item));
+                    if(item == null || item.isEmpty() || item.slot() < 0 || item.slot() >= inventoryType.getSize()) continue;
+                    equipmentNbt.put(OPanelInventoryType.getEquipmentSlotName(item.slot()), toNbt(inventoryType, item));
                 }
                 saveNbt();
             } catch (IOException e) {
@@ -100,7 +100,7 @@ public class NeoOfflineInventory extends BaseNeoOfflineInventory implements OPan
             }
 
             for(OPanelItemStack item : items) {
-                if(item == null || item.isEmpty() || item.slot < 0 || item.slot >= inventoryType.getSize()) continue;
+                if(item == null || item.isEmpty() || item.slot() < 0 || item.slot() >= inventoryType.getSize()) continue;
                 nbtList.add(toNbt(inventoryType, item));
             }
             saveNbt();
@@ -112,7 +112,7 @@ public class NeoOfflineInventory extends BaseNeoOfflineInventory implements OPan
     @Override
     public void setItem(OPanelInventoryType inventoryType, OPanelItemStack item) throws CommandSyntaxException {
         List<OPanelItemStack> items = getItems(inventoryType);
-        items.set(item.slot, item);
+        items.set(item.slot(), item);
         setItems(inventoryType, items);
     }
 
@@ -120,12 +120,12 @@ public class NeoOfflineInventory extends BaseNeoOfflineInventory implements OPan
     protected CompoundTag toNbt(OPanelInventoryType inventoryType, OPanelItemStack item) throws CommandSyntaxException {
         CompoundTag itemNbt = new CompoundTag();
         if(inventoryType != OPanelInventoryType.EQUIPMENTS) {
-            itemNbt.putByte("Slot", (byte) inventoryType.toSavedSlot(item.slot));
+            itemNbt.putByte("Slot", (byte) inventoryType.toSavedSlot(item.slot()));
         }
-        itemNbt.putString("id", item.id);
-        itemNbt.putByte("count", (byte) item.count);
-        if(item.snbt != null) {
-            itemNbt.put("components", TagParser.parseCompoundFully(item.snbt));
+        itemNbt.putString("id", item.id());
+        itemNbt.putByte("count", (byte) item.count());
+        if(item.snbt() != null) {
+            itemNbt.put("components", TagParser.parseCompoundFully(item.snbt()));
         }
         return itemNbt;
     }

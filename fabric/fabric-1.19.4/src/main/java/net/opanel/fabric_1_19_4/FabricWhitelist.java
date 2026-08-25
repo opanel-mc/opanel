@@ -16,16 +16,16 @@ public class FabricWhitelist extends BaseFabricWhitelist implements OPanelWhitel
 
     @Override
     public void add(OPanelWhitelistEntry entry) throws IOException {
-        if(getNames().contains(entry.name)) return;
-        GameProfile profile = new GameProfile(UUID.fromString(entry.uuid), entry.name);
+        if(getNames().contains(entry.name())) return;
+        GameProfile profile = new GameProfile(UUID.fromString(entry.uuid()), entry.name());
         whitelist.add(new WhitelistEntry(profile));
         whitelist.save();
     }
 
     @Override
     public void remove(OPanelWhitelistEntry entry) throws IOException {
-        if(!getNames().contains(entry.name)) return;
-        GameProfile profile = new GameProfile(UUID.fromString(entry.uuid), entry.name);
+        if(!getNames().contains(entry.name())) return;
+        GameProfile profile = new GameProfile(UUID.fromString(entry.uuid()), entry.name());
         whitelist.remove(new WhitelistEntry(profile));
         whitelist.save();
     }

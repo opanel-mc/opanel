@@ -20,10 +20,10 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Consumer;
 
 public class InventoryEndpoint extends BaseEndpoint {
-    private static class InventoryUpdatePayload {
-        public String inventoryType;
-        public OPanelInventory.OPanelItemStack item;
-    }
+    private record InventoryUpdatePayload(
+            String inventoryType,
+            OPanelInventory.OPanelItemStack item
+    ) {}
 
     private static class InventoryPacket<D> extends Packet<D> {
         public static final String INIT = "init";
@@ -75,13 +75,13 @@ public class InventoryEndpoint extends BaseEndpoint {
             OPanelInventoryType inventoryType = (
                 payload == null
                 ? null
-                : OPanelInventoryType.fromString(payload.inventoryType)
+                : OPanelInventoryType.fromString(payload.inventoryType())
             );
             if(
                 inventoryType == null
-                || payload.item == null
-                || payload.item.slot < 0
-                || payload.item.slot >= inventoryType.getSize()
+                || payload.item() == null
+                || payload.item().slot() < 0
+                || payload.item().slot() >= inventoryType.getSize()
             ) {
                 sendErrorMessage(msgCtx, HttpStatus.BAD_REQUEST);
                 return;
@@ -95,7 +95,7 @@ public class InventoryEndpoint extends BaseEndpoint {
 
             OPanelInventory currentInventory = currentPlayer.getInventory();
             try {
-                currentInventory.setItem(inventoryType, payload.item);
+                currentInventory.setItem(inventoryType, payload.item());
             } catch (Exception e) {
                 sendErrorMessage(msgCtx, HttpStatus.BAD_REQUEST);
                 return;

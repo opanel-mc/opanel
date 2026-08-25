@@ -39,22 +39,22 @@ public class PluginsController extends BaseController {
 
         List<HashMap<String, Object>> plugins = new ArrayList<>();
         for(OPanelPlugin p : server.getPlugins()) {
-            PendingOperation futureStatus = pendingOperationMap.get(p.getFileName());
+            PendingOperation futureStatus = pendingOperationMap.get(p.fileName());
             if(futureStatus == PendingOperation.DELETED) continue;
 
-            final String description = p.getDescription();
+            final String description = p.description();
 
             HashMap<String, Object> pluginInfo = new HashMap<>();
-            pluginInfo.put("fileName", Utils.stringToBase64(p.getFileName()));
-            pluginInfo.put("name", p.getName());
-            pluginInfo.put("version", p.getVersion());
+            pluginInfo.put("fileName", Utils.stringToBase64(p.fileName()));
+            pluginInfo.put("name", p.name());
+            pluginInfo.put("version", p.version());
             pluginInfo.put("description", description != null ? Utils.stringToBase64(description) : null);
-            pluginInfo.put("authors", p.getAuthors());
-            pluginInfo.put("website", p.getWebsite());
-            pluginInfo.put("icon", p.getIcon() != null ? "/api/plugins/icon/"+ p.getFileName() +"?t="+ System.currentTimeMillis() : null);
-            pluginInfo.put("size", p.getFileSize());
-            pluginInfo.put("enabled", futureStatus != null ? futureStatus.isEnabled() : p.isEnabled());
-            pluginInfo.put("loaded", p.isLoaded());
+            pluginInfo.put("authors", p.authors());
+            pluginInfo.put("website", p.website());
+            pluginInfo.put("icon", p.icon() != null ? "/api/plugins/icon/"+ p.fileName() +"?t="+ System.currentTimeMillis() : null);
+            pluginInfo.put("size", p.fileSize());
+            pluginInfo.put("enabled", futureStatus != null ? futureStatus.isEnabled() : p.enabled());
+            pluginInfo.put("loaded", p.loaded());
             plugins.add(pluginInfo);
         }
         obj.put("plugins", plugins);
@@ -71,13 +71,13 @@ public class PluginsController extends BaseController {
         }
 
         for(OPanelPlugin plugin : server.getPlugins()) {
-            if(fileName.equals(plugin.getFileName())) {
-                if(!plugin.isLoaded()) {
+            if(fileName.equals(plugin.fileName())) {
+                if(!plugin.loaded()) {
                     sendResponse(ctx, HttpStatus.PRECONDITION_FAILED, "The plugin is not loaded by the server.");
                     return;
                 }
 
-                byte[] icon = plugin.getIcon();
+                byte[] icon = plugin.icon();
                 if(icon == null) {
                     sendResponse(ctx, HttpStatus.UNPROCESSABLE_CONTENT, "The plugin doesn't have an icon.");
                     return;

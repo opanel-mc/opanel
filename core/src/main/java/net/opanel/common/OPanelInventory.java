@@ -18,7 +18,7 @@ public interface OPanelInventory {
 
     default OPanelItemStack getItem(OPanelInventoryType inventoryType, int slot) {
         for(OPanelItemStack item : getItems(inventoryType)) {
-            if(item.slot == slot) return item;
+            if(item.slot() == slot) return item;
         }
         return new OPanelItemStack(slot, "minecraft:air", 0, null);
     }
@@ -27,13 +27,13 @@ public interface OPanelInventory {
         StringBuilder sb = new StringBuilder();
         for(OPanelInventoryType inventoryType : OPanelInventoryType.values()) {
             List<OPanelItemStack> items = new ArrayList<>(getItems(inventoryType));
-            items.sort(Comparator.comparingInt(i -> i.slot));
+            items.sort(Comparator.comparingInt(OPanelItemStack::slot));
             sb.append(inventoryType.getName()).append('{');
             for(OPanelItemStack item : items) {
-                sb.append(item.slot).append('|')
-                  .append(item.id == null ? "" : item.id).append('|')
-                  .append(item.count).append('|')
-                  .append(item.snbt == null ? "" : item.snbt)
+                sb.append(item.slot()).append('|')
+                  .append(item.id() == null ? "" : item.id()).append('|')
+                  .append(item.count()).append('|')
+                  .append(item.snbt() == null ? "" : item.snbt())
                   .append(';');
             }
             sb.append('}');
@@ -68,31 +68,19 @@ public interface OPanelInventory {
         List<OPanelItemStack> items = createEmptyItems(inventoryType);
         for(OPanelItemStack savedItem : savedItems) {
             if(savedItem == null || savedItem.isEmpty()) continue;
-            int logicalSlot = inventoryType.fromSavedSlot(savedItem.slot);
+            int logicalSlot = inventoryType.fromSavedSlot(savedItem.slot());
             if(logicalSlot < 0) continue;
             items.set(logicalSlot, new OPanelItemStack(
                 logicalSlot,
-                savedItem.id,
-                savedItem.count,
-                savedItem.snbt
+                savedItem.id(),
+                savedItem.count(),
+                savedItem.snbt()
             ));
         }
         return items;
     }
 
-    class OPanelItemStack {
-        public int slot;
-        public String id;
-        public int count;
-        public String snbt;
-
-        public OPanelItemStack(int slot, String id, int count, String snbt) {
-            this.slot = slot;
-            this.id = id;
-            this.count = count;
-            this.snbt = snbt;
-        }
-
+    record OPanelItemStack(int slot, String id, int count, String snbt) {
         public boolean isEmpty() {
             return count <= 0 || id == null || id.equals("minecraft:air");
         }

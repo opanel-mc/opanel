@@ -34,14 +34,14 @@ public abstract class BaseFabricInventory implements OPanelInventory {
         }
 
         for(OPanelItemStack item : items) {
-            if(item == null || item.slot < 0 || item.slot >= getSize(inventoryType)) continue;
-            setItemStack(inventoryType, item.slot, toItemStack(item));
+            if(item == null || item.slot() < 0 || item.slot() >= getSize(inventoryType)) continue;
+            setItemStack(inventoryType, item.slot(), toItemStack(item));
         }
     }
 
     @Override
     public void setItem(OPanelInventoryType inventoryType, OPanelItemStack item) throws CommandSyntaxException {
-        setItemStack(inventoryType, item.slot, toItemStack(item));
+        setItemStack(inventoryType, item.slot(), toItemStack(item));
     }
 
     private void setItemStack(OPanelInventoryType inventoryType, int slot, ItemStack item) {

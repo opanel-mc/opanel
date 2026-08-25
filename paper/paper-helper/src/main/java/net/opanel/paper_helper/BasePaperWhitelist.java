@@ -54,18 +54,18 @@ public abstract class BasePaperWhitelist implements OPanelWhitelist {
 
     @Override
     public void add(OPanelWhitelistEntry entry) {
-        if(getNames().contains(entry.name)) return;
+        if(getNames().contains(entry.name())) return;
         runner.runTask(() -> {
-            server.getOfflinePlayer(UUID.fromString(entry.uuid)).setWhitelisted(true);
+            server.getOfflinePlayer(UUID.fromString(entry.uuid())).setWhitelisted(true);
             server.reloadWhitelist();
         });
     }
 
     @Override
     public void remove(OPanelWhitelistEntry entry) {
-        if(!getNames().contains(entry.name)) return;
+        if(!getNames().contains(entry.name())) return;
         runner.runTask(() -> {
-            server.getOfflinePlayer(UUID.fromString(entry.uuid)).setWhitelisted(false);
+            server.getOfflinePlayer(UUID.fromString(entry.uuid())).setWhitelisted(false);
             server.reloadWhitelist();
         });
     }

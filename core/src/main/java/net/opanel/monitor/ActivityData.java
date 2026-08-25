@@ -10,21 +10,13 @@ import java.util.Objects;
 import java.util.Set;
 
 public class ActivityData {
-    public static class PlayerEntry {
-        public String name;
-        public String uuid;
-
-        public PlayerEntry(String name, String uuid) {
-            this.name = name;
-            this.uuid = uuid;
-        }
-
+    public record PlayerEntry(String name, String uuid) {
         @Override
         public boolean equals(Object obj) {
             if(this == obj) return true;
             if(!(obj instanceof PlayerEntry)) return false;
 
-            return Objects.equals(uuid, ((PlayerEntry) obj).uuid);
+            return Objects.equals(uuid, ((PlayerEntry) obj).uuid());
         }
 
         @Override

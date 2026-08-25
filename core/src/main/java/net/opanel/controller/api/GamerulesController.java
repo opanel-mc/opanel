@@ -35,12 +35,12 @@ public class GamerulesController extends BaseController {
         }
 
         GamerulesEditRequestBodyType reqBody = ctx.bodyAsClass(GamerulesEditRequestBodyType.class);
-        if(reqBody.gamerules == null) {
+        if(reqBody.gamerules() == null) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Gamerules is missing.");
             return;
         }
 
-        server.setGamerules(dimension, reqBody.gamerules);
+        server.setGamerules(dimension, reqBody.gamerules());
         sendResponse(ctx, HttpStatus.OK);
     };
 
@@ -73,7 +73,5 @@ public class GamerulesController extends BaseController {
         sendResponse(ctx, HttpStatus.OK);
     };
 
-    private static class GamerulesEditRequestBodyType {
-        HashMap<String, Object> gamerules;
-    }
+    private record GamerulesEditRequestBodyType(HashMap<String, Object> gamerules) {}
 }

@@ -44,7 +44,7 @@ public class TasksController extends BaseController {
     public Handler createTask = ctx -> {
         try {
             TaskEditRequestBodyType reqBody = ctx.bodyAsClass(TaskEditRequestBodyType.class);
-            ScheduledTask task = scheduledTaskManager.createTask(Utils.base64ToString(reqBody.name), reqBody.cron, reqBody.commands);
+            ScheduledTask task = scheduledTaskManager.createTask(Utils.base64ToString(reqBody.name()), reqBody.cron(), reqBody.commands());
 
             HashMap<String, Object> obj = new HashMap<>();
             obj.put("taskId", task.getId());
@@ -63,7 +63,7 @@ public class TasksController extends BaseController {
         
         try {
             TaskEditRequestBodyType reqBody = ctx.bodyAsClass(TaskEditRequestBodyType.class);
-            scheduledTaskManager.updateTask(id, reqBody.name, reqBody.cron, reqBody.commands);
+            scheduledTaskManager.updateTask(id, reqBody.name(), reqBody.cron(), reqBody.commands());
             sendResponse(ctx, HttpStatus.OK);
         } catch (IllegalTaskCommandSyntaxException e) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal commands syntax: "+ e.getMessage());
@@ -107,9 +107,5 @@ public class TasksController extends BaseController {
         }
     };
 
-    private static class TaskEditRequestBodyType {
-        String name;
-        String cron;
-        List<String> commands;
-    }
+    private record TaskEditRequestBodyType(String name, String cron, List<String> commands) {}
 }

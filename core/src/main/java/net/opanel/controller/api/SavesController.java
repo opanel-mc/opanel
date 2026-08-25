@@ -220,16 +220,16 @@ public class SavesController extends BaseController {
                 return;
             }
 
-            save.setDisplayName(Utils.base64ToString(reqBody.displayName));
-            save.setHardcoreEnabled(reqBody.isHardcore);
-            if(reqBody.isHardcore) {
+            save.setDisplayName(Utils.base64ToString(reqBody.displayName()));
+            save.setHardcoreEnabled(reqBody.isHardcore());
+            if(reqBody.isHardcore()) {
                 save.setDefaultGameMode(OPanelGameMode.SURVIVAL);
                 save.setDifficulty(OPanelDifficulty.HARD);
                 save.setDifficultyLocked(true);
             } else {
-                save.setDefaultGameMode(OPanelGameMode.fromString(reqBody.defaultGameMode));
-                save.setDifficulty(OPanelDifficulty.fromString(reqBody.difficulty));
-                save.setDifficultyLocked(reqBody.isDifficultyLocked);
+                save.setDefaultGameMode(OPanelGameMode.fromString(reqBody.defaultGameMode()));
+                save.setDifficulty(OPanelDifficulty.fromString(reqBody.difficulty()));
+                save.setDifficultyLocked(reqBody.isDifficultyLocked());
             }
             sendResponse(ctx, HttpStatus.OK);
         } catch (IOException e) {
@@ -297,13 +297,13 @@ public class SavesController extends BaseController {
         }
     };
 
-    private static class SaveEditRequestBodyType {
-        String displayName; // base64
-        String defaultGameMode;
-        String difficulty;
-        boolean isDifficultyLocked;
-        boolean isHardcore;
-    }
+    private record SaveEditRequestBodyType(
+            String displayName,
+            String defaultGameMode,
+            String difficulty,
+            boolean isDifficultyLocked,
+            boolean isHardcore
+    ) {}
 
     private boolean isValidSaveName(String saveName) {
         return Utils.isSafeFileName(saveName);

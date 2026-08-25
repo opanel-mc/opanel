@@ -53,11 +53,11 @@ public class ExtensionsController extends BaseController {
                 LoadedExtension loadedExtension = findLoadedExtension(extensionPath, metadata);
                 HashMap<String, Object> extensionInfo = new HashMap<>();
                 extensionInfo.put("fileName", Utils.stringToBase64(fileName));
-                extensionInfo.put("extId", metadata.extId);
-                extensionInfo.put("name", metadata.name);
-                extensionInfo.put("version", metadata.version);
-                extensionInfo.put("description", Utils.stringToBase64(metadata.description));
-                extensionInfo.put("author", metadata.author);
+                extensionInfo.put("extId", metadata.extId());
+                extensionInfo.put("name", metadata.name());
+                extensionInfo.put("version", metadata.version());
+                extensionInfo.put("description", Utils.stringToBase64(metadata.description()));
+                extensionInfo.put("author", metadata.author());
                 extensionInfo.put("size", Files.size(extensionPath));
                 extensionInfo.put("enabled", !fileName.endsWith(DISABLED_SUFFIX));
                 extensionInfo.put("hasWebIndex", loadedExtension != null && loadedExtension.hasResource("web/index.html"));
@@ -79,10 +79,10 @@ public class ExtensionsController extends BaseController {
         List<HashMap<String, String>> pages = new ArrayList<>();
 
         for(LoadedExtension extension : plugin.getExtensionManager().getLoadedExtensions()) {
-            for(ExtensionMetadata.ExtensionPage page : extension.metadata.pages) {
+            for(ExtensionMetadata.ExtensionPage page : extension.metadata.pages()) {
                 HashMap<String, String> pageInfo = new HashMap<>();
-                pageInfo.put("name", page.name);
-                pageInfo.put("url", "/panel/ext/" + extension.id + page.url);
+                pageInfo.put("name", page.name());
+                pageInfo.put("url", "/panel/ext/" + extension.id + page.url());
                 pages.add(pageInfo);
             }
         }
@@ -344,9 +344,9 @@ public class ExtensionsController extends BaseController {
     }
 
     private LoadedExtension findLoadedExtension(Path extensionPath, ExtensionMetadata metadata) {
-        if(metadata == null || metadata.extId == null) return null;
+        if(metadata == null || metadata.extId() == null) return null;
 
-        LoadedExtension extension = plugin.getExtensionManager().getExtension(metadata.extId);
+        LoadedExtension extension = plugin.getExtensionManager().getExtension(metadata.extId());
         if(extension == null) return null;
 
         Path normalizedJarPath = extension.sourceJar.toAbsolutePath().normalize();

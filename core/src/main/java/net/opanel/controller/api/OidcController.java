@@ -136,13 +136,13 @@ public class OidcController extends BaseController {
         }
 
         RequestBodyType reqBody = ctx.bodyAsClass(RequestBodyType.class);
-        if(reqBody == null || reqBody.accessKey == null) {
+        if(reqBody == null || reqBody.accessKey() == null) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Access key is missing.");
             return;
         }
 
         final String hashedAccessKey = plugin.getConfig().accessKey;
-        if(!reqBody.accessKey.equals(hashedAccessKey)) {
+        if(!reqBody.accessKey().equals(hashedAccessKey)) {
             int current = failedVerifyRecords.merge(reqIp, 1, Integer::sum);
             if(current >= MAX_VERIFY_TRIES) {
                 temporaryBannedRecords.put(reqIp, System.currentTimeMillis() + BANNED_PERIOD);
@@ -199,7 +199,7 @@ public class OidcController extends BaseController {
 
     public Handler addAllowedUser = ctx -> {
         RequestBodyType reqBody = ctx.bodyAsClass(RequestBodyType.class);
-        if(reqBody == null || reqBody.userId == null || reqBody.userId.isBlank()) {
+        if(reqBody == null || reqBody.userId() == null || reqBody.userId().isBlank()) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "User ID is missing.");
             return;
         }
@@ -211,8 +211,8 @@ public class OidcController extends BaseController {
         if(oidcConfig.allowedUserIds == null) {
             oidcConfig.allowedUserIds = new java.util.ArrayList<>();
         }
-        if(!oidcConfig.allowedUserIds.contains(reqBody.userId)) {
-            oidcConfig.allowedUserIds.add(reqBody.userId);
+        if(!oidcConfig.allowedUserIds.contains(reqBody.userId())) {
+            oidcConfig.allowedUserIds.add(reqBody.userId());
             Storage.get().setStoredData(StorageKey.OIDC_CONFIG, oidcConfig);
         }
 
@@ -223,7 +223,7 @@ public class OidcController extends BaseController {
 
     public Handler removeAllowedUser = ctx -> {
         RequestBodyType reqBody = ctx.bodyAsClass(RequestBodyType.class);
-        if(reqBody == null || reqBody.userId == null || reqBody.userId.isBlank()) {
+        if(reqBody == null || reqBody.userId() == null || reqBody.userId().isBlank()) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "User ID is missing.");
             return;
         }
@@ -234,7 +234,7 @@ public class OidcController extends BaseController {
             return;
         }
 
-        oidcConfig.allowedUserIds.remove(reqBody.userId);
+        oidcConfig.allowedUserIds.remove(reqBody.userId());
         Storage.get().setStoredData(StorageKey.OIDC_CONFIG, oidcConfig);
 
         HashMap<String, Object> res = new HashMap<>();
@@ -254,10 +254,7 @@ public class OidcController extends BaseController {
         return scheme + "://" + host + "/api/auth/oidc/callback";
     }
 
-    private static class RequestBodyType {
-        String accessKey;
-        String userId;
-    }
+    private record RequestBodyType(String accessKey, String userId) {}
 
     private boolean checkTemporaryBan(String ip) {
         Long banUntil = temporaryBannedRecords.get(ip);

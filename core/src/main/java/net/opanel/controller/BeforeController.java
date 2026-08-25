@@ -165,7 +165,7 @@ public class BeforeController extends BaseController {
 
         LoadedExtension extension = extensionManager.getExtension(extensionId);
         LoadedExtension.BackendRoute route = extension.getBackendRoute(normalizedPath);
-        if(route == null || route.method != ctx.method()) {
+        if(route == null || route.method() != ctx.method()) {
             sendResponse(ctx, HttpStatus.NOT_FOUND, "Extension backend path not found.");
             clearContextTasks(ctx);
             return;
@@ -175,7 +175,7 @@ public class BeforeController extends BaseController {
         ClassLoader previousClassLoader = thread.getContextClassLoader();
         try {
             thread.setContextClassLoader(extension.classLoader);
-            route.handler.handle(ctx);
+            route.handler().handle(ctx);
         } finally {
             thread.setContextClassLoader(previousClassLoader);
             clearContextTasks(ctx);
