@@ -8,6 +8,7 @@ const textureModules = import.meta.glob<{ items: Item[] }>([
   "!@minecraft-textures-json/1.13.json",
   "!@minecraft-textures-json/1.14.json",
   "!@minecraft-textures-json/1.15.json",
+  "!@minecraft-textures-json/1.16.json",
   "!@minecraft-textures-json/1.17.json",
   "!@minecraft-textures-json/1.18.json",
 ]);

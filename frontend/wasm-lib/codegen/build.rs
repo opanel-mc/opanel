@@ -105,11 +105,6 @@ fn main() {
         value.push(']');
 
         map.entry(id.clone(), &value);
-
-        if id == "minecraft:dirt_path" {
-            // 1.16.x grass_path = dirt_path
-            map.entry("minecraft:grass_path".to_string(), &value);
-        }
     }
 
     let out_path = Path::new(&env::var_os("OUT_DIR").unwrap()).join("colors.rs");
