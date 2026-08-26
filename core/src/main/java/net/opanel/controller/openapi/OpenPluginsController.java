@@ -21,19 +21,19 @@ public class OpenPluginsController extends BaseController {
 
         List<HashMap<String, Object>> plugins = new ArrayList<>();
         for(OPanelPlugin p : server.getPlugins()) {
-            final String description = p.getDescription();
+            final String description = p.description();
 
             HashMap<String, Object> pluginInfo = new HashMap<>();
-            pluginInfo.put("fileName", p.getFileName());
-            pluginInfo.put("name", p.getName());
-            pluginInfo.put("version", p.getVersion());
+            pluginInfo.put("fileName", p.fileName());
+            pluginInfo.put("name", p.name());
+            pluginInfo.put("version", p.version());
             pluginInfo.put("description", description);
-            pluginInfo.put("authors", p.getAuthors());
-            pluginInfo.put("website", p.getWebsite());
-            pluginInfo.put("icon", p.getIcon() != null ? "/open-api/plugins/icon/"+ p.getFileName() : null);
-            pluginInfo.put("size", p.getFileSize());
-            pluginInfo.put("enabled", p.isEnabled());
-            pluginInfo.put("loaded", p.isLoaded());
+            pluginInfo.put("authors", p.authors());
+            pluginInfo.put("website", p.website());
+            pluginInfo.put("icon", p.icon() != null ? "/open-api/plugins/icon/"+ p.fileName() : null);
+            pluginInfo.put("size", p.fileSize());
+            pluginInfo.put("enabled", p.enabled());
+            pluginInfo.put("loaded", p.loaded());
             plugins.add(pluginInfo);
         }
         obj.put("plugins", plugins);
@@ -49,13 +49,13 @@ public class OpenPluginsController extends BaseController {
         }
 
         for(OPanelPlugin plugin : server.getPlugins()) {
-            if(fileName.equals(plugin.getFileName())) {
-                if(!plugin.isLoaded()) {
+            if(fileName.equals(plugin.fileName())) {
+                if(!plugin.loaded()) {
                     sendResponse(ctx, HttpStatus.PRECONDITION_FAILED, "The plugin is not loaded by the server.");
                     return;
                 }
 
-                byte[] icon = plugin.getIcon();
+                byte[] icon = plugin.icon();
                 if(icon == null) {
                     sendResponse(ctx, HttpStatus.UNPROCESSABLE_CONTENT, "The plugin doesn't have an icon.");
                     return;

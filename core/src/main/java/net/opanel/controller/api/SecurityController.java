@@ -18,13 +18,13 @@ public class SecurityController extends BaseController {
 
     public Handler updateAccessKey = ctx -> {
         RequestBodyType reqBody = ctx.bodyAsClass(RequestBodyType.class);
-        if(reqBody == null || reqBody.currentKey == null || reqBody.newKey == null) {
+        if(reqBody == null || reqBody.currentKey() == null || reqBody.newKey() == null) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Invalid request body.");
             return;
         }
 
-        final String currentKey = reqBody.currentKey; // hashed 1
-        final String newKey = reqBody.newKey; // hashed 1
+        final String currentKey = reqBody.currentKey(); // hashed 1
+        final String newKey = reqBody.newKey(); // hashed 1
         final String realKey = plugin.getConfig().accessKey; // hashed 2
 
         if(!Utils.md5(currentKey).equals(realKey)) {
@@ -42,8 +42,5 @@ public class SecurityController extends BaseController {
         sendResponse(ctx, new HashMap<>());
     };
 
-    private static class RequestBodyType {
-        String currentKey;
-        String newKey;
-    }
+    private record RequestBodyType(String currentKey, String newKey) {}
 }

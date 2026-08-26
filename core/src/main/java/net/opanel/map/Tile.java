@@ -13,15 +13,7 @@ public class Tile {
     private static final String PLAINS_ID = "minecraft:plains";
     private static final int HEIGHT_MAP_COLUMNS = 16 * 16;
 
-    public static class Block {
-        public final String id;
-        public final String biome;
-
-        private Block(String id, String biome) {
-            this.id = id;
-            this.biome = biome;
-        }
-    }
+    public record Block(String id, String biome) {}
 
     public static class Section {
         private final int y;

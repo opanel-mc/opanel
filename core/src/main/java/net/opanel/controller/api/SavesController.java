@@ -86,9 +86,7 @@ public class SavesController extends BaseController {
              * Paper separates nether and the end dimension from the save folder,
              * so we need to put them together when processing the save files
              */
-            if(server.getServerType().isPaperSeries() && save instanceof PaperDimensionFeature) {
-                PaperDimensionFeature feat = (PaperDimensionFeature) save;
-
+            if(server.getServerType().isPaperSeries() && save instanceof PaperDimensionFeature feat) {
                 Path netherDim = Paths.get("").resolve(saveName +"_nether").resolve(feat.getNetherPath());
                 Path theEndDim = Paths.get("").resolve(saveName +"_the_end").resolve(feat.getTheEndPath());
                 if(Files.exists(netherDim)) Utils.copyDirectoryRecursively(netherDim, savePath.resolve(feat.getNetherPath()));
@@ -101,9 +99,7 @@ public class SavesController extends BaseController {
                 Files.delete(zipPath);
 
                 // Finally, don't forget to delete the DIM-1 and DIM1 folders manually copied by us
-                if(server.getServerType().isPaperSeries() && save instanceof PaperDimensionFeature) {
-                    PaperDimensionFeature feat = (PaperDimensionFeature) save;
-
+                if(server.getServerType().isPaperSeries() && save instanceof PaperDimensionFeature feat) {
                     if(Files.exists(savePath.resolve(feat.getNetherPath()))) Utils.deleteDirectoryRecursively(savePath.resolve(feat.getNetherPath()));
                     if(Files.exists(savePath.resolve(feat.getTheEndPath()))) Utils.deleteDirectoryRecursively(savePath.resolve(feat.getTheEndPath()));
                 }
@@ -115,9 +111,7 @@ public class SavesController extends BaseController {
         } catch (Exception e) {
             // Delete the files if some exceptions are thrown
             if(Files.exists(zipPath)) Files.delete(zipPath);
-            if(server.getServerType().isPaperSeries() && save instanceof PaperDimensionFeature) {
-                PaperDimensionFeature feat = (PaperDimensionFeature) save;
-
+            if(server.getServerType().isPaperSeries() && save instanceof PaperDimensionFeature feat) {
                 if(Files.exists(savePath.resolve(feat.getNetherPath()))) Utils.deleteDirectoryRecursively(savePath.resolve(feat.getNetherPath()));
                 if(Files.exists(savePath.resolve(feat.getTheEndPath()))) Utils.deleteDirectoryRecursively(savePath.resolve(feat.getTheEndPath()));
             }
@@ -220,16 +214,16 @@ public class SavesController extends BaseController {
                 return;
             }
 
-            save.setDisplayName(Utils.base64ToString(reqBody.displayName));
-            save.setHardcoreEnabled(reqBody.isHardcore);
-            if(reqBody.isHardcore) {
+            save.setDisplayName(Utils.base64ToString(reqBody.displayName()));
+            save.setHardcoreEnabled(reqBody.isHardcore());
+            if(reqBody.isHardcore()) {
                 save.setDefaultGameMode(OPanelGameMode.SURVIVAL);
                 save.setDifficulty(OPanelDifficulty.HARD);
                 save.setDifficultyLocked(true);
             } else {
-                save.setDefaultGameMode(OPanelGameMode.fromString(reqBody.defaultGameMode));
-                save.setDifficulty(OPanelDifficulty.fromString(reqBody.difficulty));
-                save.setDifficultyLocked(reqBody.isDifficultyLocked);
+                save.setDefaultGameMode(OPanelGameMode.fromString(reqBody.defaultGameMode()));
+                save.setDifficulty(OPanelDifficulty.fromString(reqBody.difficulty()));
+                save.setDifficultyLocked(reqBody.isDifficultyLocked());
             }
             sendResponse(ctx, HttpStatus.OK);
         } catch (IOException e) {
@@ -297,13 +291,13 @@ public class SavesController extends BaseController {
         }
     };
 
-    private static class SaveEditRequestBodyType {
-        String displayName; // base64
-        String defaultGameMode;
-        String difficulty;
-        boolean isDifficultyLocked;
-        boolean isHardcore;
-    }
+    private record SaveEditRequestBodyType(
+            String displayName,
+            String defaultGameMode,
+            String difficulty,
+            boolean isDifficultyLocked,
+            boolean isHardcore
+    ) {}
 
     private boolean isValidSaveName(String saveName) {
         return Utils.isSafeFileName(saveName);

@@ -19,12 +19,12 @@ public class MonitorController extends BaseController {
     public Handler getMonitorSnapshot = ctx -> { // for mcp
         MonitorData data = plugin.getMonitorManager().getSnapshot();
         HashMap<String, Object> obj = new HashMap<>();
-        obj.put("cpu", data.cpu);
-        obj.put("memory", data.memory);
-        obj.put("jvmMemory", data.jvmMemory);
-        obj.put("tps", data.tps);
-        obj.put("networkUpload", data.networkUpload);
-        obj.put("networkDownload", data.networkDownload);
+        obj.put("cpu", data.cpu());
+        obj.put("memory", data.memory());
+        obj.put("jvmMemory", data.jvmMemory());
+        obj.put("tps", data.tps());
+        obj.put("networkUpload", data.networkUpload());
+        obj.put("networkDownload", data.networkDownload());
         sendResponse(ctx, obj);
     };
 

@@ -33,8 +33,10 @@ public class Utils {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             md.update(str.getBytes(StandardCharsets.UTF_8));
+
+            // Not using HexFormat here:
+            // Keep the legacy logic to avoid potential compatibility issue
             byte[] bytes = md.digest();
-            
             StringBuilder sb = new StringBuilder(bytes.length * 2);
             for(byte b : bytes) {
                 sb.append(String.format("%02x", b & 0xff));
@@ -204,11 +206,7 @@ public class Utils {
         byte[] randBytes = new byte[byteLength];
         rand.nextBytes(randBytes);
 
-        StringBuilder sb = new StringBuilder();
-        for(byte b : randBytes) {
-            sb.append(String.format("%02x", b & 0xff));
-        }
-        return sb.toString();
+        return HexFormat.of().formatHex(randBytes);
     }
 
     public static String generateRandomCharSequence(int length, boolean specialChars) {

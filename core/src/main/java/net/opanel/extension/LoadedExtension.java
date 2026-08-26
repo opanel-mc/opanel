@@ -56,18 +56,12 @@ public class LoadedExtension {
     }
 
     public void addHandler(String path, HandlerType method, Handler handler) {
-        BackendRoute route = new BackendRoute();
-        route.method = method;
-        route.handler = handler;
-        backendRoutesMap.put(path, route);
+        backendRoutesMap.put(path, new BackendRoute(method, handler));
     }
 
     public BackendRoute getBackendRoute(String path) {
         return backendRoutesMap.get(path);
     }
 
-    public static class BackendRoute {
-        public HandlerType method;
-        public Handler handler;
-    }
+    public record BackendRoute(HandlerType method, Handler handler) {}
 }

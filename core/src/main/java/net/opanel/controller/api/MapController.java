@@ -101,10 +101,10 @@ public class MapController extends BaseController {
         }
 
         TilesRangeRequestType reqBody = ctx.bodyAsClass(TilesRangeRequestType.class);
-        Integer x1 = reqBody.x1;
-        Integer z1 = reqBody.z1;
-        Integer x2 = reqBody.x2;
-        Integer z2 = reqBody.z2;
+        Integer x1 = reqBody.x1();
+        Integer z1 = reqBody.z1();
+        Integer x2 = reqBody.x2();
+        Integer z2 = reqBody.z2();
         if(x1 == null || z1 == null || x2 == null || z2 == null) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Incomplete range coords.");
             return;
@@ -167,7 +167,7 @@ public class MapController extends BaseController {
         }
 
         TileListRequestType reqBody = ctx.bodyAsClass(TileListRequestType.class);
-        List<int[]> tileCoords = reqBody.tileCoords;
+        List<int[]> tileCoords = reqBody.tileCoords();
         if(tileCoords == null) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Tile coordinates is missing.");
             return;
@@ -213,11 +213,7 @@ public class MapController extends BaseController {
         return Utils.md5(sb.toString());
     }
 
-    private static class TilesRangeRequestType {
-        Integer x1, z1, x2, z2;
-    }
+    private record TilesRangeRequestType(Integer x1, Integer z1, Integer x2, Integer z2) {}
 
-    private static class TileListRequestType {
-        List<int[]> tileCoords;
-    }
+    private record TileListRequestType(List<int[]> tileCoords) {}
 }

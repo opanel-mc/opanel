@@ -136,7 +136,7 @@ public class ExtensionManager {
         try {
             jarFile = new JarFile(extensionPath.toFile());
             ExtensionMetadata metadata = readMetadata(jarFile);
-            extensionId = metadata.extId;
+            extensionId = metadata.extId();
             if(!extensionId.matches(EXTENSION_ID_PATTERN) || extensionId.length() > 64) {
                 throw new IllegalArgumentException("Invalid extension id '"+ extensionId +"'.");
             }
@@ -151,7 +151,7 @@ public class ExtensionManager {
             Class<?> entryClass = findExtensionEntry(jarFile, classLoader, extensionPath);
             if(entryClass == null) return;
 
-            plugin.logger.info("Loading extension '"+ metadata.name +"' v"+ metadata.version);
+            plugin.logger.info("Loading extension '"+ metadata.name() +"' v"+ metadata.version());
             validateEntryClass(entryClass);
             Method loadMethod = findLoadMethod(entryClass);
             Method unloadMethod = findUnloadMethod(entryClass);
@@ -230,19 +230,18 @@ public class ExtensionManager {
                 InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)
         ) {
             ExtensionMetadata metadata = gson.fromJson(reader, ExtensionMetadata.class);
-            if(metadata == null || metadata.extId == null || metadata.extId.isBlank()) {
+            if(metadata == null || metadata.extId() == null || metadata.extId().isBlank()) {
                 throw new IllegalArgumentException(METADATA_FILE +" must define a non-blank extId.");
             }
-            if(metadata.name == null || metadata.name.isBlank()) {
+            if(metadata.name() == null || metadata.name().isBlank()) {
                 throw new IllegalArgumentException(METADATA_FILE +" must define a non-blank name.");
             }
-            if(metadata.pages == null) metadata.pages = List.of();
-            for(int i = 0; i < metadata.pages.size(); i++) {
-                ExtensionMetadata.ExtensionPage page = metadata.pages.get(i);
-                if(page == null || page.name == null || page.name.isBlank()) {
+            for(int i = 0; i < metadata.pages().size(); i++) {
+                ExtensionMetadata.ExtensionPage page = metadata.pages().get(i);
+                if(page == null || page.name() == null || page.name().isBlank()) {
                     throw new IllegalArgumentException(METADATA_FILE +" page at index "+ i +" must define a non-blank name.");
                 }
-                if(page.url == null || !isSafePageUrl(page.url)) {
+                if(page.url() == null || !isSafePageUrl(page.url())) {
                     throw new IllegalArgumentException(METADATA_FILE +" page at index "+ i +" must define a valid, safe URL.");
                 }
             }

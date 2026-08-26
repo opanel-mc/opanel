@@ -40,8 +40,8 @@ public class NetworkMonitor {
                 continue;
             }
 
-            totalUploadBytes += Math.max(0, bytesSent - previousCounter.bytesSent);
-            totalDownloadBytes += Math.max(0, bytesRecv - previousCounter.bytesRecv);
+            totalUploadBytes += Math.max(0, bytesSent - previousCounter.bytesSent());
+            totalDownloadBytes += Math.max(0, bytesRecv - previousCounter.bytesRecv());
         }
 
         previousCounters.clear();
@@ -72,23 +72,7 @@ public class NetworkMonitor {
         return Math.max(0, Math.round((deltaBytes * 1000D) / elapsedMillis));
     }
 
-    public static class NetworkRate {
-        public final double upload;
-        public final double download;
+    public record NetworkRate(double uploadRate, double downloadRate) {}
 
-        public NetworkRate(double upload, double download) {
-            this.upload = upload;
-            this.download = download;
-        }
-    }
-
-    private static class InterfaceCounter {
-        private final long bytesSent;
-        private final long bytesRecv;
-
-        private InterfaceCounter(long bytesSent, long bytesRecv) {
-            this.bytesSent = bytesSent;
-            this.bytesRecv = bytesRecv;
-        }
-    }
+    private record InterfaceCounter(long bytesSent, long bytesRecv) {}
 }

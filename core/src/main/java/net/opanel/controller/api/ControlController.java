@@ -52,13 +52,13 @@ public class ControlController extends BaseController {
     public Handler getCodeOfConducts = ctx -> {
         HashMap<String, Object> obj = new HashMap<>();
 
-        if(!(server instanceof CodeOfConductFeature)) {
+        if(!(server instanceof CodeOfConductFeature codeOfConductFeature)) {
             sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "Minecraft versions lower than 1.21.9 don't support server code-of-conduct.");
             return;
         }
 
         try {
-            HashMap<String, String> codeOfConducts = ((CodeOfConductFeature) server).getCodeOfConducts();
+            HashMap<String, String> codeOfConducts = codeOfConductFeature.getCodeOfConducts();
             codeOfConducts.replaceAll((lang, content) -> Utils.stringToBase64(content));
 
             obj.put("codeOfConducts", codeOfConducts);
@@ -70,7 +70,7 @@ public class ControlController extends BaseController {
     };
 
     public Handler changeCodeOfConduct = ctx -> {
-        if(!(server instanceof CodeOfConductFeature)) {
+        if(!(server instanceof CodeOfConductFeature codeOfConductFeature)) {
             sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "Minecraft versions lower than 1.21.9 don't support server code-of-conduct.");
             return;
         }
@@ -83,7 +83,7 @@ public class ControlController extends BaseController {
             }
 
             final String content = ctx.body();
-            ((CodeOfConductFeature) server).updateOrCreateCodeOfConduct(lang, !content.isEmpty() ? Utils.base64ToString(content) : "");
+            codeOfConductFeature.updateOrCreateCodeOfConduct(lang, !content.isEmpty() ? Utils.base64ToString(content) : "");
             sendResponse(ctx, HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
@@ -92,7 +92,7 @@ public class ControlController extends BaseController {
     };
 
     public Handler removeCodeOfConduct = ctx -> {
-        if(!(server instanceof CodeOfConductFeature)) {
+        if(!(server instanceof CodeOfConductFeature codeOfConductFeature)) {
             sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "Minecraft versions lower than 1.21.9 don't support server code-of-conduct.");
             return;
         }
@@ -104,7 +104,7 @@ public class ControlController extends BaseController {
                 return;
             }
 
-            ((CodeOfConductFeature) server).removeCodeOfConduct(lang);
+            codeOfConductFeature.removeCodeOfConduct(lang);
             sendResponse(ctx, HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
@@ -155,7 +155,7 @@ public class ControlController extends BaseController {
     };
 
     public Handler getPaperServerConfig = ctx -> {
-        if(!(server instanceof PaperConfigFeature)) {
+        if(!(server instanceof PaperConfigFeature paperConfigFeature)) {
             sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "This server is not a Paper server.");
             return;
         }
@@ -163,12 +163,12 @@ public class ControlController extends BaseController {
         ServerType serverType = server.getServerType();
         try {
             HashMap<String, Object> obj = new HashMap<>();
-            obj.put("bukkit", Utils.stringToBase64(((PaperConfigFeature) server).getPaperServerConfigContent("bukkit")));
-            obj.put("spigot", Utils.stringToBase64(((PaperConfigFeature) server).getPaperServerConfigContent("spigot")));
-            obj.put("paper", Utils.stringToBase64(((PaperConfigFeature) server).getPaperServerConfigContent("paper")));
+            obj.put("bukkit", Utils.stringToBase64(paperConfigFeature.getPaperServerConfigContent("bukkit")));
+            obj.put("spigot", Utils.stringToBase64(paperConfigFeature.getPaperServerConfigContent("spigot")));
+            obj.put("paper", Utils.stringToBase64(paperConfigFeature.getPaperServerConfigContent("paper")));
             if(serverType == ServerType.LEAVES) {
                 obj.put("leaves", Utils.stringToBase64(
-                    ((PaperConfigFeature) server).getPaperServerConfigContent("leaves")
+                    paperConfigFeature.getPaperServerConfigContent("leaves")
                 ));
             }
             sendResponse(ctx, obj);
@@ -183,7 +183,7 @@ public class ControlController extends BaseController {
     };
 
     public Handler setPaperServerConfig = ctx -> {
-        if(!(server instanceof PaperConfigFeature)) {
+        if(!(server instanceof PaperConfigFeature paperConfigFeature)) {
             sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "This server is not a Paper server.");
             return;
         }
@@ -201,7 +201,7 @@ public class ControlController extends BaseController {
                 return;
             }
 
-            ((PaperConfigFeature) server).writePaperServerConfigContent(target, Utils.base64ToString(content));
+            paperConfigFeature.writePaperServerConfigContent(target, Utils.base64ToString(content));
             sendResponse(ctx, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Unknown target.");
@@ -214,7 +214,7 @@ public class ControlController extends BaseController {
     };
 
     public Handler getPaperWorldConfig = ctx -> {
-        if(!(server instanceof PaperConfigFeature)) {
+        if(!(server instanceof PaperConfigFeature paperConfigFeature)) {
             sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "This server is not a Paper server.");
             return;
         }
@@ -224,9 +224,9 @@ public class ControlController extends BaseController {
 
             HashMap<String, Object> obj = new HashMap<>();
             if(worldName == null) {
-                obj.put("config", ((PaperConfigFeature) server).getPaperWorldDefaultsConfigContent());
+                obj.put("config", paperConfigFeature.getPaperWorldDefaultsConfigContent());
             } else {
-                obj.put("config", ((PaperConfigFeature) server).getPaperWorldConfigContent(worldName));
+                obj.put("config", paperConfigFeature.getPaperWorldConfigContent(worldName));
             }
             sendResponse(ctx, obj);
         } catch (NoSuchFileException e) {
@@ -238,7 +238,7 @@ public class ControlController extends BaseController {
     };
 
     public Handler setPaperWorldConfig = ctx -> {
-        if(!(server instanceof PaperConfigFeature)) {
+        if(!(server instanceof PaperConfigFeature paperConfigFeature)) {
             sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "This server is not a Paper server.");
             return;
         }
@@ -252,9 +252,9 @@ public class ControlController extends BaseController {
             }
 
             if(worldName == null) {
-                ((PaperConfigFeature) server).writePaperWorldDefaultsConfigContent(Utils.base64ToString(content));
+                paperConfigFeature.writePaperWorldDefaultsConfigContent(Utils.base64ToString(content));
             } else {
-                ((PaperConfigFeature) server).writePaperWorldConfigContent(worldName, Utils.base64ToString(content));
+                paperConfigFeature.writePaperWorldConfigContent(worldName, Utils.base64ToString(content));
             }
             sendResponse(ctx, HttpStatus.OK);
         } catch (NoSuchFileException e) {

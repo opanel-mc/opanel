@@ -101,7 +101,7 @@ public final class ExtensionInventoryAPI implements InventoryAPI {
     }
 
     private static InventoryItem toPublicItem(OPanelInventory.OPanelItemStack item) {
-        return new InventoryItem(item.slot, item.id, Math.max(0, item.count), item.snbt);
+        return new InventoryItem(item.slot(), item.id(), Math.max(0, item.count()), item.snbt());
     }
 
     private static OPanelInventory.OPanelItemStack toCommonItem(InventoryItem item) {

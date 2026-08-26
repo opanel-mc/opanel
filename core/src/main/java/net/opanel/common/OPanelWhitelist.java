@@ -10,13 +10,5 @@ public interface OPanelWhitelist {
     void add(OPanelWhitelistEntry entry) throws IOException;
     void remove(OPanelWhitelistEntry entry) throws IOException;
 
-    class OPanelWhitelistEntry {
-        public String name;
-        public String uuid;
-
-        public OPanelWhitelistEntry(String name, String uuid) {
-            this.name = name;
-            this.uuid = uuid;
-        }
-    }
+    record OPanelWhitelistEntry(String name, String uuid) {}
 }

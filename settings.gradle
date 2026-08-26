@@ -70,7 +70,6 @@ if (!apiOnly) {
         ],
         paper: [
             'paper-helper',
-            'paper-1.16.1',
             'paper-1.19.4',
             'paper-1.20',
             'paper-1.20.5',

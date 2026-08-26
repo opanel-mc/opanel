@@ -142,7 +142,7 @@ public class OidcManager {
             throw new RuntimeException("Invalid or expired state parameter in OIDC callback");
         }
 
-        if(System.currentTimeMillis() - stateEntry.timestamp > STATE_MAX_AGE_MS) {
+        if(System.currentTimeMillis() - stateEntry.timestamp() > STATE_MAX_AGE_MS) {
             throw new RuntimeException("OIDC state parameter has expired");
         }
 
@@ -171,7 +171,7 @@ public class OidcManager {
 
         IDTokenClaimsSet claimsSet;
         try {
-            claimsSet = idTokenValidator.validate(idToken, Nonce.parse(stateEntry.nonce));
+            claimsSet = idTokenValidator.validate(idToken, Nonce.parse(stateEntry.nonce()));
         } catch (Exception e) {
             throw new RuntimeException("OIDC ID token validation failed: " + e.getMessage());
         }
@@ -181,7 +181,7 @@ public class OidcManager {
 
     public void cleanExpiredStates() {
         long now = System.currentTimeMillis();
-        stateStore.entrySet().removeIf(entry -> now - entry.getValue().timestamp > STATE_MAX_AGE_MS);
+        stateStore.entrySet().removeIf(entry -> now - entry.getValue().timestamp() > STATE_MAX_AGE_MS);
     }
 
     public void shutdown() {
@@ -196,13 +196,5 @@ public class OidcManager {
         }
     }
 
-    private static class StateEntry {
-        final String nonce;
-        final long timestamp;
-
-        StateEntry(String nonce, long timestamp) {
-            this.nonce = nonce;
-            this.timestamp = timestamp;
-        }
-    }
+    private record StateEntry(String nonce, long timestamp) {}
 }

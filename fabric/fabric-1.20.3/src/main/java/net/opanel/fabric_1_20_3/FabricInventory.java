@@ -61,11 +61,11 @@ public class FabricInventory extends BaseFabricInventory {
         if(item == null || item.isEmpty()) return ItemStack.EMPTY;
 
         NbtCompound itemNbt = new NbtCompound();
-        itemNbt.putByte("Slot", (byte) item.slot);
-        itemNbt.putString("id", item.id);
-        itemNbt.putByte("Count", (byte) Math.max(1, item.count));
-        if(item.snbt != null) {
-            itemNbt.put("tag", StringNbtReader.parse(item.snbt));
+        itemNbt.putByte("Slot", (byte) item.slot());
+        itemNbt.putString("id", item.id());
+        itemNbt.putByte("Count", (byte) Math.max(1, item.count()));
+        if(item.snbt() != null) {
+            itemNbt.put("tag", StringNbtReader.parse(item.snbt()));
         }
         return ItemStack.fromNbt(itemNbt);
     }

@@ -48,12 +48,12 @@ public final class ExtensionMonitorAPI implements MonitorAPI {
 
     private static MonitorSnapshot toSnapshot(MonitorData data) {
         return new MonitorSnapshot(
-                data.cpu,
-                data.memory,
-                data.jvmMemory,
-                data.tps,
-                data.networkUpload,
-                data.networkDownload
+                data.cpu(),
+                data.memory(),
+                data.jvmMemory(),
+                data.tps(),
+                data.networkUpload(),
+                data.networkDownload()
         );
     }
 }

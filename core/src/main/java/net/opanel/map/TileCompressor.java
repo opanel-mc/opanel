@@ -31,13 +31,13 @@ public class TileCompressor {
             for(int x = 0; x < 16; x++) {
                 Tile.Block block = topBlocks[z][x];
 
-                String id = block.id;
+                String id = block.id();
                 if(!indexes.containsKey(id)) {
                     palette.add(id);
                     indexes.put(id, palette.size() - 1);
                 }
 
-                String biome = block.biome;
+                String biome = block.biome();
                 if(!biomesIndexes.containsKey(biome)) {
                     biomesPalette.add(biome);
                     biomesIndexes.put(biome, biomesPalette.size() - 1);
@@ -52,8 +52,8 @@ public class TileCompressor {
             for(int x = 0; x < 16; x++) {
                 int index = z * 16 + x;
                 Tile.Block block = topBlocks[z][x];
-                blockData[index] = indexes.get(block.id);
-                biomesData[index] = biomesIndexes.get(block.biome);
+                blockData[index] = indexes.get(block.id());
+                biomesData[index] = biomesIndexes.get(block.biome());
             }
         }
         long[] bitpackedBlockData = AnvilUtility.bitpack(blockData, AnvilUtility.paletteSizeToBitsSize(palette.size(), 4));

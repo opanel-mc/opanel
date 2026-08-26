@@ -22,10 +22,7 @@ public class TerminalEndpoint extends BaseEndpoint {
         }
     }
 
-    private static class AutocompletePacketData {
-        String command;
-        int argIndex; // starts from 1
-    }
+    private record AutocompletePacketData(String command, int argIndex) {}
 
     private final LogListenerManager logListenerManager;
     private MCDRConnector mcdrConnector;
@@ -74,11 +71,11 @@ public class TerminalEndpoint extends BaseEndpoint {
         });
 
         subscribe(session, TerminalPacket.AUTOCOMPLETE, AutocompletePacketData.class, (msgCtx, data) -> {
-            if(data.argIndex == 1) {
+            if(data.argIndex() == 1) {
                 ctx.send(new TerminalPacket<>(TerminalPacket.AUTOCOMPLETE, plugin.getServer().getCommands()));
                 return;
             }
-            ctx.send(new TerminalPacket<>(TerminalPacket.AUTOCOMPLETE, plugin.getServer().getCommandTabList(data.argIndex, data.command)));
+            ctx.send(new TerminalPacket<>(TerminalPacket.AUTOCOMPLETE, plugin.getServer().getCommandTabList(data.argIndex(), data.command())));
         });
     }
 

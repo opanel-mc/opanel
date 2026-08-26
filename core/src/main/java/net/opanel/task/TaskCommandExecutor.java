@@ -19,8 +19,7 @@ public class TaskCommandExecutor {
 
         for(int i = 0; i < nodes.size(); i++) {
             TaskCommand.Node<?> node = nodes.get(i);
-            if(node instanceof TaskCommand.Loop) {
-                TaskCommand.Loop loopNode = (TaskCommand.Loop) node;
+            if(node instanceof TaskCommand.Loop loopNode) {
                 for(int j = 0; j < loopNode.getLoopTimes(); j++) {
                     execute(server, loopNode.getValue());
                 }
@@ -38,13 +37,12 @@ public class TaskCommandExecutor {
 //                }
 //                i = signIndex;
 //            }
-            if(node instanceof TaskCommand.Builtin) {
-                TaskCommand.Builtin builtinNode = (TaskCommand.Builtin) node;
+            if(node instanceof TaskCommand.Builtin builtinNode) {
                 TaskBuiltinOperation operation = builtinNode.getValue();
                 operation.execute(builtinNode.getArgs(), server);
             }
-            if(node instanceof TaskCommand.ServerCommand) {
-                final String rawCommand = ((TaskCommand.ServerCommand) node).getValue();
+            if(node instanceof TaskCommand.ServerCommand serverCommandNode) {
+                final String rawCommand = serverCommandNode.getValue();
                 server.sendServerCommand(variableInjector.inject(rawCommand));
             }
         }

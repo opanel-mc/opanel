@@ -72,13 +72,13 @@ public interface OPanelServer {
                 command = new String[] { "cmd.exe", "/c", "start", "", "cmd.exe", "/c", "timeout "+ delay +" > NUL && "+ launchCommand };
             } else if(os.contains("mac")) { // mac
                 // create launch script file
-                final String scriptContent = new StringBuilder()
-                    .append("#!/bin/bash").append("\n")
-                    .append("sleep ").append(delay).append("\n")
-                    .append("cd \"").append(cwd.toAbsolutePath()).append("\"").append("\n")
-                    .append(launchCommand).append("\n")
-                    .append("rm -- \"$0\"")
-                    .toString();
+                final String scriptContent = """
+                    #!/bin/bash
+                    sleep %d
+                    cd "%s"
+                    %s
+                    rm -- "$0"\
+                    """.formatted(delay, cwd.toAbsolutePath(), launchCommand);
                 Path scriptPath = OPanel.TMP_DIR_PATH.resolve("temp_restart.command").toAbsolutePath();
                 Utils.writeTextFile(scriptPath, scriptContent);
 

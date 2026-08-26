@@ -62,7 +62,7 @@ public class AuthController extends BaseController {
         }
 
         RequestBodyType reqBody = ctx.bodyAsClass(RequestBodyType.class);
-        if(reqBody.id == null || reqBody.result == null) {
+        if(reqBody.id() == null || reqBody.result() == null) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Id or result is missing.");
             return;
         }
@@ -70,10 +70,10 @@ public class AuthController extends BaseController {
         final String reqIp = getIpAndCheck(ctx);
         if(reqIp == null) return;
 
-        final String challengeResult = reqBody.result; // hashed 3
+        final String challengeResult = reqBody.result(); // hashed 3
         final String storedRealKey = plugin.getConfig().accessKey; // hashed 2
-        final String realResult = Utils.md5(storedRealKey + cramMap.get(reqBody.id)); // hashed 3
-        cramMap.remove(reqBody.id);
+        final String realResult = Utils.md5(storedRealKey + cramMap.get(reqBody.id())); // hashed 3
+        cramMap.remove(reqBody.id());
 
         if(challengeResult.equals(realResult)) {
             removeFailedRecord(reqIp);
@@ -121,10 +121,7 @@ public class AuthController extends BaseController {
         sendResponse(ctx, HttpStatus.OK);
     };
 
-    private static class RequestBodyType {
-        String id;
-        String result; // Challenge result
-    }
+    private record RequestBodyType(String id, String result) {}
 
     private String getIpAndCheck(Context ctx) {
         final String reqIp = getClientIp(ctx);

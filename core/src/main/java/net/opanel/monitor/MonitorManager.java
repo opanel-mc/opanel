@@ -15,7 +15,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 
-import static net.opanel.monitor.Monitor.*;
+import static net.opanel.monitor.Monitor.getJvmMemoryRate;
+import static net.opanel.monitor.Monitor.getMemoryRate;
 
 public class MonitorManager {
     public static final int MAX_HISTORY_SIZE = 200;
@@ -69,8 +70,8 @@ public class MonitorManager {
                     getMemoryRate(si),
                     getJvmMemoryRate(),
                     TPS.getRecentTPS(),
-                    networkRate.upload,
-                    networkRate.download
+                    networkRate.uploadRate(),
+                    networkRate.downloadRate()
             );
 
             lock.writeLock().lock();
@@ -102,8 +103,8 @@ public class MonitorManager {
                 getMemoryRate(si),
                 getJvmMemoryRate(),
                 TPS.getRecentTPS(),
-                networkRate.upload,
-                networkRate.download
+                networkRate.uploadRate(),
+                networkRate.downloadRate()
         );
     }
 

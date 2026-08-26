@@ -63,9 +63,9 @@ public abstract class BasePaperInventory implements OPanelInventory {
             }
 
             for(OPanelItemStack item : items) {
-                if(item == null || item.slot < 0 || item.slot >= getSize(inventoryType)) continue;
+                if(item == null || item.slot() < 0 || item.slot() >= getSize(inventoryType)) continue;
                 try {
-                    setItemStack(inventoryType, inventory, item.slot, toItemStack(item));
+                    setItemStack(inventoryType, inventory, item.slot(), toItemStack(item));
                 } catch (NbtApiException e) {
                     //
                 }
@@ -78,7 +78,7 @@ public abstract class BasePaperInventory implements OPanelInventory {
         runner.runTask(() -> {
             try {
                 Inventory inventory = getInventory(inventoryType);
-                setItemStack(inventoryType, inventory, item.slot, toItemStack(item));
+                setItemStack(inventoryType, inventory, item.slot(), toItemStack(item));
             } catch (NbtApiException e) {
                 //
             }
@@ -106,15 +106,15 @@ public abstract class BasePaperInventory implements OPanelInventory {
 
     protected ItemStack toItemStack(OPanelItemStack item) throws NbtApiException {
         if(item == null || item.isEmpty()) return null;
-        Material material = Material.matchMaterial(item.id);
+        Material material = Material.matchMaterial(item.id());
         if(material == null || material == Material.AIR) return null;
 
         ReadWriteNBT itemNbt = NBT.createNBTObject();
-        itemNbt.setByte("Slot", (byte) item.slot);
-        itemNbt.setString("id", item.id);
-        itemNbt.setByte(KEY_OF_COUNT, (byte) Math.max(1, item.count));
-        if(item.snbt != null) {
-            itemNbt.set(KEY_OF_NBT, NBT.parseNBT(item.snbt), NBTHandlers.STORE_READWRITE_TAG);
+        itemNbt.setByte("Slot", (byte) item.slot());
+        itemNbt.setString("id", item.id());
+        itemNbt.setByte(KEY_OF_COUNT, (byte) Math.max(1, item.count()));
+        if(item.snbt() != null) {
+            itemNbt.set(KEY_OF_NBT, NBT.parseNBT(item.snbt()), NBTHandlers.STORE_READWRITE_TAG);
         }
         return NBT.itemStackFromNBT(itemNbt);
     }

@@ -27,8 +27,8 @@ public class TaskCommand {
 
         public void addChild(Node<?> node) {
             value.add(node);
-            if(node instanceof Sign) {
-                gotoSignMap.put(((Sign) node).getValue(), value.size());
+            if(node instanceof Sign sign) {
+                gotoSignMap.put(sign.getValue(), value.size());
             }
         }
 
