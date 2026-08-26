@@ -561,7 +561,8 @@
   "tasks.form.cron.advanced.input.placeholder": "請輸入 Cron 表達式...",
   "tasks.form.cron.advanced.input.description": "Cron 表達式語法請參考 {0}。",
   "tasks.form.commands.label": "指令列表",
-  "tasks.form.commands.description": "用換行分開，按順序逐一執行。",
+  "tasks.form.commands.description1": "用換行分開，按順序逐一執行。",
+  "tasks.form.commands.description2": "定時任務指令語法指南",
   "tasks.form.commands.empty1": "指令唔可以為空",
   "tasks.form.commands.empty2": "至少需要一條指令",
 

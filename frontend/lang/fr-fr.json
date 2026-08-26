@@ -561,7 +561,8 @@
   "tasks.form.cron.advanced.input.placeholder": "Entrez une expression Cron...",
   "tasks.form.cron.advanced.input.description": "Veuillez vous référer à {0} pour la syntaxe de l'expression Cron.",
   "tasks.form.commands.label": "Liste de commandes",
-  "tasks.form.commands.description": "Séparées par des retours à la ligne, exécutées séquentiellement.",
+  "tasks.form.commands.description1": "Séparées par des retours à la ligne, exécutées séquentiellement.",
+  "tasks.form.commands.description2": "Guide de syntaxe des commandes de tâches planifiées",
   "tasks.form.commands.empty1": "La commande ne peut pas être vide",
   "tasks.form.commands.empty2": "Au moins une commande est requise",
 

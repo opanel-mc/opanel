@@ -561,7 +561,8 @@
   "tasks.form.cron.advanced.input.placeholder": "Geben Sie einen Cron-Ausdruck ein...",
   "tasks.form.cron.advanced.input.description": "Bitte beachten Sie {0} für die Syntax des Cron-Ausdrucks.",
   "tasks.form.commands.label": "Befehlsliste",
-  "tasks.form.commands.description": "Durch Zeilenumbrüche getrennt, werden nacheinander ausgeführt.",
+  "tasks.form.commands.description1": "Durch Zeilenumbrüche getrennt, werden nacheinander ausgeführt.",
+  "tasks.form.commands.description2": "Syntaxleitfaden für Befehle geplanter Aufgaben",
   "tasks.form.commands.empty1": "Der Befehl darf nicht leer sein",
   "tasks.form.commands.empty2": "Mindestens ein Befehl ist erforderlich",
 
