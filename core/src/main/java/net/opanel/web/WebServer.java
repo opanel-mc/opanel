@@ -34,6 +34,7 @@ public class WebServer {
     private final OPanel plugin;
     private final Set<BaseEndpoint> endpoints = ConcurrentHashMap.newKeySet();
     private Javalin app;
+    private boolean isResourceFactoryRegistered = false;
 
     public WebServer(OPanel plugin) {
         this.plugin = plugin;
@@ -288,10 +289,13 @@ public class WebServer {
 
     public void start() throws Exception {
         if(
-            plugin.getServer().getServerType() == ServerType.FORGE
-            || plugin.getServer().getServerType() == ServerType.NEOFORGE
+            !isResourceFactoryRegistered && (
+                plugin.getServer().getServerType() == ServerType.FORGE
+                || plugin.getServer().getServerType() == ServerType.NEOFORGE
+            )
         ) {
             ResourceFactory.registerResourceFactory("union", new URLResourceFactory());
+            isResourceFactoryRegistered = true;
         }
 
         app = Javalin.create(config -> {
