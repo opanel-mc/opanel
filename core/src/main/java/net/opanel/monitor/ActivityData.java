@@ -14,9 +14,8 @@ public class ActivityData {
         @Override
         public boolean equals(Object obj) {
             if(this == obj) return true;
-            if(!(obj instanceof PlayerEntry)) return false;
-
-            return Objects.equals(uuid, ((PlayerEntry) obj).uuid());
+            if(!(obj instanceof PlayerEntry player)) return false;
+            return Objects.equals(uuid, player.uuid());
         }
 
         @Override

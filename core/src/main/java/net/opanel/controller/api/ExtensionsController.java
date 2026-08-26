@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ExtensionsController extends BaseController {
@@ -39,7 +38,7 @@ public class ExtensionsController extends BaseController {
                     .filter(Files::isRegularFile)
                     .filter(path -> isValidExtensionFileName(path.getFileName().toString()))
                     .sorted(Comparator.comparing(path -> path.getFileName().toString()))
-                    .collect(Collectors.toList());
+                    .toList();
 
             for(Path extensionPath : extensionPaths) {
                 String fileName = extensionPath.getFileName().toString();

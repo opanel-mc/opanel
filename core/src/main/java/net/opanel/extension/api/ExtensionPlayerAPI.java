@@ -143,8 +143,7 @@ public final class ExtensionPlayerAPI implements PlayerAPI {
     @Override
     public boolean equals(Object object) {
         if(this == object) return true;
-        if(!(object instanceof ExtensionPlayerAPI)) return false;
-        ExtensionPlayerAPI player = (ExtensionPlayerAPI) object;
+        if(!(object instanceof ExtensionPlayerAPI player)) return false;
         return uuid.equals(player.uuid);
     }
 

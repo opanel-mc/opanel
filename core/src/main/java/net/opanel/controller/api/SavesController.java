@@ -86,9 +86,7 @@ public class SavesController extends BaseController {
              * Paper separates nether and the end dimension from the save folder,
              * so we need to put them together when processing the save files
              */
-            if(server.getServerType().isPaperSeries() && save instanceof PaperDimensionFeature) {
-                PaperDimensionFeature feat = (PaperDimensionFeature) save;
-
+            if(server.getServerType().isPaperSeries() && save instanceof PaperDimensionFeature feat) {
                 Path netherDim = Paths.get("").resolve(saveName +"_nether").resolve(feat.getNetherPath());
                 Path theEndDim = Paths.get("").resolve(saveName +"_the_end").resolve(feat.getTheEndPath());
                 if(Files.exists(netherDim)) Utils.copyDirectoryRecursively(netherDim, savePath.resolve(feat.getNetherPath()));
@@ -101,9 +99,7 @@ public class SavesController extends BaseController {
                 Files.delete(zipPath);
 
                 // Finally, don't forget to delete the DIM-1 and DIM1 folders manually copied by us
-                if(server.getServerType().isPaperSeries() && save instanceof PaperDimensionFeature) {
-                    PaperDimensionFeature feat = (PaperDimensionFeature) save;
-
+                if(server.getServerType().isPaperSeries() && save instanceof PaperDimensionFeature feat) {
                     if(Files.exists(savePath.resolve(feat.getNetherPath()))) Utils.deleteDirectoryRecursively(savePath.resolve(feat.getNetherPath()));
                     if(Files.exists(savePath.resolve(feat.getTheEndPath()))) Utils.deleteDirectoryRecursively(savePath.resolve(feat.getTheEndPath()));
                 }
@@ -115,9 +111,7 @@ public class SavesController extends BaseController {
         } catch (Exception e) {
             // Delete the files if some exceptions are thrown
             if(Files.exists(zipPath)) Files.delete(zipPath);
-            if(server.getServerType().isPaperSeries() && save instanceof PaperDimensionFeature) {
-                PaperDimensionFeature feat = (PaperDimensionFeature) save;
-
+            if(server.getServerType().isPaperSeries() && save instanceof PaperDimensionFeature feat) {
                 if(Files.exists(savePath.resolve(feat.getNetherPath()))) Utils.deleteDirectoryRecursively(savePath.resolve(feat.getNetherPath()));
                 if(Files.exists(savePath.resolve(feat.getTheEndPath()))) Utils.deleteDirectoryRecursively(savePath.resolve(feat.getTheEndPath()));
             }
