@@ -17,6 +17,12 @@ configurations.configureEach {
         force 'net.java.dev.jna:jna-platform:5.17.0'
         force 'org.slf4j:slf4j-api:2.0.17'
         force 'com.google.code.gson:gson:2.11.0'
+
+        force 'org.ow2.asm:asm:9.10.1'
+        force 'org.ow2.asm:asm-analysis:9.10.1'
+        force 'org.ow2.asm:asm-commons:9.10.1'
+        force 'org.ow2.asm:asm-tree:9.10.1'
+        force 'org.ow2.asm:asm-util:9.10.1'
     }
 }
 
@@ -103,6 +109,7 @@ tasks.named('processResources', ProcessResources) {
 
 shadowJar {
     configurations = [project.configurations.shadowImplementation]
+    mergeServiceFiles()
 
     archiveBaseName.set(baseName +"-build")
     archiveClassifier.set('')

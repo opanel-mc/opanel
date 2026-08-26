@@ -15,6 +15,7 @@ import net.opanel.logger.Loggable;
 import net.opanel.time.Uptimer;
 import net.opanel.time.TPS;
 import net.opanel.utils.Utils;
+import net.opanel.web.OidcManager;
 import net.opanel.web.WebServer;
 
 import java.io.File;
@@ -46,6 +47,7 @@ public class OPanel {
     private final MonitorManager monitorManager;
     private final ActivityManager activityManager;
     private final ExtensionManager extensionManager;
+    private final OidcManager oidcManager;
     private final WebServer webServer;
     private OPanelServer server;
     private LogListenerManager logListenerManager;
@@ -80,6 +82,9 @@ public class OPanel {
 
         // Initialize extensions
         extensionManager = new ExtensionManager(this);
+
+        // Initialize oidc
+        oidcManager = new OidcManager();
 
         // Setup web server
         webServer = new WebServer(this);
@@ -175,12 +180,16 @@ public class OPanel {
         return activityManager;
     }
 
-    public WebServer getWebServer() {
-        return webServer;
-    }
-
     public ExtensionManager getExtensionManager() {
         return extensionManager;
+    }
+
+    public OidcManager getOidcManager() {
+        return oidcManager;
+    }
+
+    public WebServer getWebServer() {
+        return webServer;
     }
 
     public void setServer(OPanelServer server) {
@@ -227,6 +236,10 @@ public class OPanel {
 
         if(activityManager != null) {
             activityManager.shutdown();
+        }
+
+        if(oidcManager != null) {
+            oidcManager.shutdown();
         }
 
         OPanelPlayerInventoryChangeEvent.shutdown();

@@ -53,7 +53,7 @@ public class BeforeController extends BaseController {
     };
 
     public Handler authToken = ctx -> {
-        if(ctx.path().startsWith("/api/auth") || ctx.path().equals("/api/icon") || ctx.method() == HandlerType.OPTIONS) return;
+        if(ctx.path().startsWith("/api/auth") || ctx.path().equals("/api/icon") || ctx.method().equals(HandlerType.OPTIONS)) return;
 
         String authorization = ctx.header("Authorization");
         if(authorization != null && authorization.startsWith("Bearer ") && !ctx.path().startsWith("/api/security")) { // auth mcp access token
@@ -165,7 +165,7 @@ public class BeforeController extends BaseController {
 
         LoadedExtension extension = extensionManager.getExtension(extensionId);
         LoadedExtension.BackendRoute route = extension.getBackendRoute(normalizedPath);
-        if(route == null || route.method() != ctx.method()) {
+        if(route == null || !route.method().equals(ctx.method())) {
             sendResponse(ctx, HttpStatus.NOT_FOUND, "Extension backend path not found.");
             clearContextTasks(ctx);
             return;

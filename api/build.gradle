@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    compileOnlyApi 'io.javalin:javalin:5.6.4'
+    compileOnlyApi 'io.javalin:javalin:7.2.3'
 }
 
 java {

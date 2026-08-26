@@ -1,6 +1,5 @@
 package net.opanel.endpoint;
 
-import io.javalin.Javalin;
 import io.javalin.websocket.WsConfig;
 import io.javalin.websocket.WsContext;
 import net.opanel.OPanel;
@@ -23,8 +22,8 @@ public class MonitorEndpoint extends BaseEndpoint {
     private final MonitorManager monitorManager;
     private final Consumer<MonitorData> updateListener;
 
-    public MonitorEndpoint(Javalin app, WsConfig ws, OPanel plugin) {
-        super(app, ws, plugin);
+    public MonitorEndpoint(WsConfig ws, OPanel plugin) {
+        super(ws, plugin);
 
         monitorManager = plugin.getMonitorManager();
 

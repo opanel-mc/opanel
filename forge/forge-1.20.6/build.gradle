@@ -70,6 +70,7 @@ tasks.named('processResources', ProcessResources) {
 
 shadowJar {
     configurations = [project.configurations.shadowImplementation]
+    mergeServiceFiles()
 
     archiveBaseName.set(baseName +"-build")
     archiveClassifier.set('')

@@ -330,7 +330,7 @@ public class ExtensionsController extends BaseController {
     private ContentType getContentType(String resourcePath) {
         int extensionStart = resourcePath.lastIndexOf('.') + 1;
         String extension = extensionStart == 0 ? "" : resourcePath.substring(extensionStart);
-        ContentType contentType = ContentType.getContentTypeByExtension(extension);
+        ContentType contentType = ContentType.contentTypeByExtension(extension);
         return contentType == null ? ContentType.APPLICATION_OCTET_STREAM : contentType;
     }
 

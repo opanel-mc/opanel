@@ -1,6 +1,5 @@
 package net.opanel.endpoint;
 
-import io.javalin.Javalin;
 import io.javalin.websocket.WsConfig;
 import net.opanel.OPanel;
 import net.opanel.event.EventManager;
@@ -20,8 +19,8 @@ public class MapEndpoint extends BaseEndpoint {
 
     private final Consumer<OPanelDirtyChunksFlushEvent> dirtyChunksFlushedListener;
 
-    public MapEndpoint(Javalin app, WsConfig ws, OPanel plugin) {
-        super(app, ws, plugin);
+    public MapEndpoint(WsConfig ws, OPanel plugin) {
+        super(ws, plugin);
 
         dirtyChunksFlushedListener = (OPanelDirtyChunksFlushEvent event) -> {
             broadcast(new MapPacket<>(MapPacket.CHUNKS_FLUSHED, event));
