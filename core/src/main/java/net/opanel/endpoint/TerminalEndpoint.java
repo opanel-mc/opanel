@@ -1,6 +1,5 @@
 package net.opanel.endpoint;
 
-import io.javalin.Javalin;
 import io.javalin.websocket.*;
 import net.opanel.OPanel;
 import net.opanel.terminal.LogListenerManager;
@@ -32,8 +31,8 @@ public class TerminalEndpoint extends BaseEndpoint {
     private static final AtomicBoolean hasLogListenerRegistered = new AtomicBoolean(false);
     private static final AtomicBoolean hasMCDRLogListenerRegistered = new AtomicBoolean(false);
 
-    public TerminalEndpoint(Javalin app, WsConfig ws, OPanel plugin) {
-        super(app, ws, plugin);
+    public TerminalEndpoint(WsConfig ws, OPanel plugin) {
+        super(ws, plugin);
 
         logListenerManager = plugin.getLogListenerManager();
         if(hasLogListenerRegistered.compareAndSet(false, true)) {

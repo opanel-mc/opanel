@@ -2,14 +2,13 @@ package net.opanel.endpoint;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import io.javalin.Javalin;
 import io.javalin.http.HttpStatus;
 import io.javalin.websocket.*;
 import net.opanel.OPanel;
 import net.opanel.common.OPanelServer;
 import net.opanel.web.JwtManager;
+import org.eclipse.jetty.websocket.api.Callback;
 import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.WriteCallback;
 
 import java.lang.reflect.Type;
 import java.nio.channels.WritePendingException;
@@ -26,7 +25,6 @@ public abstract class BaseEndpoint implements Connectable {
     // This bound counts frames, not bytes.
     private static final int MAX_OUTGOING_FRAMES = 1024;
 
-    protected final Javalin app;
     protected final WsConfig ws;
     protected final OPanel plugin;
     protected final OPanelServer server;
@@ -35,8 +33,7 @@ public abstract class BaseEndpoint implements Connectable {
     private final ConcurrentHashMap<Session, Set<Consumer<WsMessageContext>>> sessionListeners = new ConcurrentHashMap<>();
     private final Set<Session> slowConsumerSessions = ConcurrentHashMap.newKeySet();
 
-    public BaseEndpoint(Javalin app, WsConfig ws, OPanel plugin) {
-        this.app = app;
+    public BaseEndpoint(WsConfig ws, OPanel plugin) {
         this.ws = ws;
         this.plugin = plugin;
         server = plugin.getServer();
@@ -55,7 +52,7 @@ public abstract class BaseEndpoint implements Connectable {
                 return;
             }
             // Register session
-            session.getRemote().setMaxOutgoingFrames(MAX_OUTGOING_FRAMES);
+            session.setMaxOutgoingFrames(MAX_OUTGOING_FRAMES);
             sessions.add(session);
             ctx.send(new Packet<>(Packet.CONNECT));
             onConnect(ctx);
@@ -82,12 +79,6 @@ public abstract class BaseEndpoint implements Connectable {
             onClose(ctx);
         });
 
-        app.events(event -> {
-            event.serverStopping(() -> {
-                closeAllSessions();
-                onShutdown();
-            });
-        });
     }
 
     protected void subscribe(Session session, String type, Consumer<WsMessageContext> cb) {
@@ -141,14 +132,14 @@ public abstract class BaseEndpoint implements Connectable {
         if(!session.isOpen() || slowConsumerSessions.contains(session)) return;
 
         try {
-            session.getRemote().sendString(message, new WriteCallback() {
+            session.sendText(message, new Callback() {
                 @Override
-                public void writeFailed(Throwable t) {
+                public void fail(Throwable t) {
                     // Minecraft reroutes System.err into the server log, so the send path must remain silent.
                     if(t instanceof WritePendingException && slowConsumerSessions.add(session)) {
                         CompletableFuture.runAsync(() -> {
                             try {
-                                session.close(1013, "Slow consumer");
+                                session.close(1013, "Slow consumer", Callback.NOOP);
                             } catch (Throwable e) {
                                 try {
                                     session.disconnect();
@@ -161,7 +152,7 @@ public abstract class BaseEndpoint implements Connectable {
                 }
 
                 @Override
-                public void writeSuccess() { }
+                public void succeed() { }
             });
         } catch (Throwable e) {
             //
@@ -183,12 +174,17 @@ public abstract class BaseEndpoint implements Connectable {
     public void closeAllSessions() {
         for(Session session : sessions) {
             if(session.isOpen()) {
-                session.close(1000, "Server is stopping.");
+                session.close(1000, "Server is stopping.", Callback.NOOP);
             }
         }
         sessions.clear();
         sessionListeners.clear();
         slowConsumerSessions.clear();
+    }
+
+    public final void shutdown() {
+        closeAllSessions();
+        onShutdown();
     }
 
     private void cleanupSession(Session session) {

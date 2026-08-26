@@ -1,6 +1,5 @@
 package net.opanel.endpoint;
 
-import io.javalin.Javalin;
 import io.javalin.http.HttpStatus;
 import io.javalin.websocket.WsCloseContext;
 import io.javalin.websocket.WsConfig;
@@ -41,8 +40,8 @@ public class InventoryEndpoint extends BaseEndpoint {
     // Guarded by `this` monitor; held listener reference is reused for off().
     private Consumer<OPanelPlayerInventoryChangeEvent> inventoryChangeListener;
 
-    public InventoryEndpoint(Javalin app, WsConfig ws, OPanel plugin) {
-        super(app, ws, plugin);
+    public InventoryEndpoint(WsConfig ws, OPanel plugin) {
+        super(ws, plugin);
     }
 
     @Override

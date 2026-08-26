@@ -66,7 +66,7 @@ public class AssetsController extends BaseController {
         }
 
         Path assetPath = loadedAssets.get(assetName);
-        ContentType type = ContentType.getContentTypeByExtension(Utils.getFileExtension(assetPath));
+        ContentType type = ContentType.contentTypeByExtension(Utils.getFileExtension(assetPath));
         sendContent(ctx, assetPath, type == null ? ContentType.APPLICATION_OCTET_STREAM : type);
     };
 

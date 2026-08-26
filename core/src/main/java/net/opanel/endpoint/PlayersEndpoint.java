@@ -1,6 +1,5 @@
 package net.opanel.endpoint;
 
-import io.javalin.Javalin;
 import io.javalin.websocket.WsConfig;
 import io.javalin.websocket.WsContext;
 import net.opanel.OPanel;
@@ -46,8 +45,8 @@ public class PlayersEndpoint extends BaseEndpoint {
     private final Consumer<OPanelPlayerMoveEvent> moveListener;
     private final Consumer<OPanelPlayerGameModeChangeEvent> gamemodeChangeListener;
 
-    public PlayersEndpoint(Javalin app, WsConfig ws, OPanel plugin) {
-        super(app, ws, plugin);
+    public PlayersEndpoint(WsConfig ws, OPanel plugin) {
+        super(ws, plugin);
 
         joinListener = (OPanelPlayerJoinEvent event) -> {
             try {

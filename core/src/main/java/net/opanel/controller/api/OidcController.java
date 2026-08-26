@@ -24,9 +24,9 @@ public class OidcController extends BaseController {
     private final ConcurrentHashMap<String, Integer> failedVerifyRecords = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Long> temporaryBannedRecords = new ConcurrentHashMap<>();
 
-    public OidcController(OPanel plugin, OidcManager oidcManager) {
+    public OidcController(OPanel plugin) {
         super(plugin);
-        this.oidcManager = oidcManager;
+        oidcManager = plugin.getOidcManager();
     }
 
     private void ensureInitialized() throws Exception {

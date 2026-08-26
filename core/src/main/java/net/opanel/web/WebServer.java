@@ -3,12 +3,12 @@ package net.opanel.web;
 import com.google.gson.Gson;
 import io.javalin.Javalin;
 import io.javalin.config.SizeUnit;
-import io.javalin.http.ContentType;
 import io.javalin.http.HttpStatus;
 import io.javalin.jetty.JettyServer;
 import io.javalin.json.JavalinGson;
 import io.javalin.util.JavalinLogger;
 import net.opanel.OPanel;
+import net.opanel.common.ServerType;
 import net.opanel.config.OPanelConfiguration;
 import net.opanel.controller.BaseController;
 import net.opanel.controller.BeforeController;
@@ -17,8 +17,12 @@ import net.opanel.controller.ExtensionPageController;
 import net.opanel.controller.api.*;
 import net.opanel.controller.openapi.*;
 import net.opanel.endpoint.*;
+import org.eclipse.jetty.util.resource.ResourceFactory;
+import org.eclipse.jetty.util.resource.URLResourceFactory;
 
 import java.util.HashMap;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
@@ -28,7 +32,9 @@ public class WebServer {
     public final int PORT;
 
     private final OPanel plugin;
+    private final Set<BaseEndpoint> endpoints = ConcurrentHashMap.newKeySet();
     private Javalin app;
+    private boolean isResourceFactoryRegistered = false;
 
     public WebServer(OPanel plugin) {
         this.plugin = plugin;
@@ -46,70 +52,24 @@ public class WebServer {
         return host;
     }
 
-    public void start() throws Exception {
-        app = Javalin.create(config -> {
-            config.showJavalinBanner = false;
+    private void registerEndpoint(BaseEndpoint endpoint) {
+        endpoints.add(endpoint);
+    }
 
-            // HTTP response compression
-            config.compression.gzipOnly(6);
-
-            // Gson configuration
-            config.jsonMapper(new JavalinGson(new Gson()));
-
-            // CORS configuration
-            config.plugins.enableCors(cors -> {
-                cors.add(it -> {
-                    it.path = "/open-api/*";
-                    it.anyHost();
-                });
-                cors.add(it -> {
-                    it.path = "/api/*";
-                    it.allowHost("http://localhost:3001"); // for dev
-                    it.allowCredentials = true;
-                });
-                cors.add(it -> {
-                    it.path = "/assets/*";
-                    it.allowHost("http://localhost:3001"); // for dev
-                    it.allowCredentials = true;
-                });
-                cors.add(it -> {
-                    it.path = "/file/*";
-                    it.allowHost("http://localhost:3001"); // for dev
-                    it.allowCredentials = true;
-                });
-            });
-
-            // Multipart configuration
-            config.jetty.multipartConfig.cacheDirectory(OPanel.TMP_DIR_PATH.toString());
-            config.jetty.multipartConfig.maxInMemoryFileSize(10, SizeUnit.MB);
-
-            // Frontend
-            config.staticFiles.add(staticFiles -> {
-                staticFiles.hostedPath = "/";
-                staticFiles.directory = "/"+ ROOT_PATH;
-                staticFiles.skipFileFunction = request -> (
-                    request.getRequestURI().equals("/panel/ext")
-                    || request.getRequestURI().startsWith("/panel/ext/")
-                );
-                staticFiles.mimeTypes.add("text/x-component", "rsc");
-            });
-        });
-
+    private void buildRoutes() {
         // Websocket
-        app.ws("/socket/players", ws -> new PlayersEndpoint(app, ws, plugin));
-        app.ws("/socket/inventory/{uuid}", ws -> new InventoryEndpoint(app, ws, plugin));
-        app.ws("/socket/terminal", ws -> new TerminalEndpoint(app, ws, plugin));
-        app.ws("/socket/map", ws -> new MapEndpoint(app, ws, plugin));
-        app.ws("/socket/monitor", ws -> new MonitorEndpoint(app, ws, plugin));
+        ws("/socket/players", ws -> registerEndpoint(new PlayersEndpoint(ws, plugin)));
+        ws("/socket/inventory/{uuid}", ws -> registerEndpoint(new InventoryEndpoint(ws, plugin)));
+        ws("/socket/terminal", ws -> registerEndpoint(new TerminalEndpoint(ws, plugin)));
+        ws("/socket/map", ws -> registerEndpoint(new MapEndpoint(ws, plugin)));
+        ws("/socket/monitor", ws -> registerEndpoint(new MonitorEndpoint(ws, plugin)));
 
         // API Controllers
         BeforeController beforeController = new BeforeController(plugin);
-        ErrorController errorController = new ErrorController(plugin);
         AssetsController assetsController = new AssetsController(plugin);
         DownloadController downloadController = new DownloadController(plugin);
         AuthController authController = new AuthController(plugin);
-        OidcManager oidcManager = new OidcManager();
-        OidcController oidcController = new OidcController(plugin, oidcManager);
+        OidcController oidcController = new OidcController(plugin);
         BannedIpsController bannedIpsController = new BannedIpsController(plugin);
         ControlController controlController = new ControlController(plugin);
         GamerulesController gamerulesController = new GamerulesController(plugin);
@@ -132,25 +92,25 @@ public class WebServer {
         ExtensionPageController extensionPageController = new ExtensionPageController(plugin);
 
         // API Routes
-        app.before("/*", beforeController.beforeAll);
-        app.before("/*", beforeController.handleRsc);
-        app.before("/*", beforeController.handleFonts);
-        app.get("/panel/ext", ctx -> ctx.status(HttpStatus.NOT_FOUND));
-        app.get("/panel/ext/", ctx -> ctx.status(HttpStatus.NOT_FOUND));
-        app.get("/panel/ext/{extId}", extensionPageController.getExtensionPage);
-        app.get("/panel/ext/{extId}/", extensionPageController.getExtensionPage);
-        app.get("/panel/ext/{extId}/<resource>", extensionPageController.getExtensionPage);
-        app.routes(() -> path("assets", () -> {
+        before("/*", beforeController.beforeAll);
+        before("/*", beforeController.handleRsc);
+        before("/*", beforeController.handleFonts);
+        get("/panel/ext", ctx -> ctx.status(HttpStatus.NOT_FOUND));
+        get("/panel/ext/", ctx -> ctx.status(HttpStatus.NOT_FOUND));
+        get("/panel/ext/{extId}", extensionPageController.getExtensionPage);
+        get("/panel/ext/{extId}/", extensionPageController.getExtensionPage);
+        get("/panel/ext/{extId}/<resource>", extensionPageController.getExtensionPage);
+        path("assets", () -> {
             before("/upload/*", beforeController.authToken);
             get("/{name}", assetsController.getAsset);
             post("/upload/{name}", assetsController.uploadAsset);
             delete("/reset/{name}", assetsController.resetAsset);
-        }));
-        app.routes(() -> path("file", () -> {
+        });
+        path("file", () -> {
             before("/*", beforeController.authToken);
             get("/{id}/{fileName}", downloadController.downloadFile);
-        }));
-        app.routes(() -> path("api", () -> {
+        });
+        path("api", () -> {
             before("/*", beforeController.authToken);
 
             path("auth", () -> {
@@ -296,7 +256,7 @@ public class WebServer {
                 get("{extId}/<resource>", extensionsController.getExtensionResource);
             });
             before("extension/{extId}/<path>", beforeController.routeExtensionBackend);
-        }));
+        });
 
         // Open API Controllers
         OpenInfoController openInfoController = new OpenInfoController(plugin);
@@ -306,7 +266,7 @@ public class WebServer {
         OpenLogsController openLogsController = new OpenLogsController(plugin);
 
         // Open API Routes
-        app.routes(() -> path("open-api", () -> {
+        path("open-api", () -> {
             before("/*", beforeController.handleOpenAPI);
 
             get("info", openInfoController.getServerInfo);
@@ -324,30 +284,92 @@ public class WebServer {
                 get("{fileName}", openLogsController.getLogContent);
                 get("{fileName}/download", openLogsController.downloadLog);
             });
-        }));
+        });
+    }
 
-        // Not found page
-        app.error(HttpStatus.NOT_FOUND, errorController.notFound);
+    public void start() throws Exception {
+        if(
+            !isResourceFactoryRegistered && (
+                plugin.getServer().getServerType() == ServerType.FORGE
+                || plugin.getServer().getServerType() == ServerType.NEOFORGE
+            )
+        ) {
+            ResourceFactory.registerResourceFactory("union", new URLResourceFactory());
+            isResourceFactoryRegistered = true;
+        }
 
-        // Exception handling
-        app.exception(Exception.class, (e, ctx) -> {
-            e.printStackTrace();
-            ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
+        app = Javalin.create(config -> {
+            config.startup.showJavalinBanner = false;
 
-            HashMap<String, Object> jsonObj = new HashMap<>();
-            jsonObj.put("code", 500);
-            jsonObj.put("error", e.getMessage());
-            ctx.json(jsonObj);
+            // Gson configuration
+            config.jsonMapper(new JavalinGson(new Gson(), false));
+
+            // CORS configuration
+            config.bundledPlugins.enableCors(cors -> {
+                cors.addRule(it -> {
+                    it.path = "/open-api/*";
+                    it.anyHost();
+                });
+                cors.addRule(it -> {
+                    it.path = "/api/*";
+                    it.allowHost("http://localhost:3001"); // for dev
+                    it.allowCredentials = true;
+                });
+                cors.addRule(it -> {
+                    it.path = "/assets/*";
+                    it.allowHost("http://localhost:3001"); // for dev
+                    it.allowCredentials = true;
+                });
+                cors.addRule(it -> {
+                    it.path = "/file/*";
+                    it.allowHost("http://localhost:3001"); // for dev
+                    it.allowCredentials = true;
+                });
+            });
+
+            // Multipart configuration
+            config.jetty.multipartConfig.cacheDirectory(OPanel.TMP_DIR_PATH.toString());
+            config.jetty.multipartConfig.maxInMemoryFileSize(10, SizeUnit.MB);
+
+            // Frontend
+            config.staticFiles.add(staticFiles -> {
+                staticFiles.hostedPath = "/";
+                staticFiles.directory = "/"+ ROOT_PATH;
+                staticFiles.skipFileFunction = request -> (
+                    request.getRequestURI().equals("/panel/ext")
+                    || request.getRequestURI().startsWith("/panel/ext/")
+                );
+                staticFiles.mimeTypes.add("text/x-component", "rsc");
+            });
+
+            // Routes
+            config.routes.apiBuilder(this::buildRoutes);
+
+            // Not found page
+            ErrorController errorController = new ErrorController(plugin);
+            config.routes.error(HttpStatus.NOT_FOUND, errorController.notFound);
+
+            // Exception handling
+            config.routes.exception(Exception.class, (e, ctx) -> {
+                e.printStackTrace();
+                ctx.status(HttpStatus.INTERNAL_SERVER_ERROR);
+
+                HashMap<String, Object> jsonObj = new HashMap<>();
+                jsonObj.put("code", 500);
+                jsonObj.put("error", e.getMessage());
+                ctx.json(jsonObj);
+            });
+
+            config.events.serverStopping(() -> {
+                endpoints.forEach(BaseEndpoint::shutdown);
+                endpoints.clear();
+                BaseController.unregisterAllControllerInstances();
+            });
         });
 
         app.start(HOST, PORT);
         plugin.logger.info("OPanel web server is ready on "+ HOST +":"+ PORT);
         plugin.initializeAccessKey();
-
-        app.events(event -> {
-            event.serverStopping(BaseController::unregisterAllControllerInstances);
-            event.serverStopping(oidcManager::shutdown);
-        });
     }
 
     public void stop() throws Exception {
@@ -362,6 +384,6 @@ public class WebServer {
         if(app == null) return false;
 
         JettyServer jettyServer = app.jettyServer();
-        return jettyServer != null && jettyServer.started;
+        return jettyServer != null && jettyServer.started();
     }
 }
