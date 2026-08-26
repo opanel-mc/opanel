@@ -561,7 +561,8 @@
   "tasks.form.cron.advanced.input.placeholder": "Cron 표현식을 입력하세요...",
   "tasks.form.cron.advanced.input.description": "Cron 표현식 문법은 {0}을(를) 참조해 주세요.",
   "tasks.form.commands.label": "명령어 목록",
-  "tasks.form.commands.description": "줄바꿈으로 구분되며, 위에서부터 순서대로 실행됩니다.",
+  "tasks.form.commands.description1": "줄바꿈으로 구분되며, 위에서부터 순서대로 실행됩니다.",
+  "tasks.form.commands.description2": "예약 작업 명령어 구문 가이드",
   "tasks.form.commands.empty1": "명령어는 비워 둘 수 없습니다",
   "tasks.form.commands.empty2": "최소 하나 이상의 명령어가 필요합니다",
 

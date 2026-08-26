@@ -561,7 +561,8 @@
   "tasks.form.cron.advanced.input.placeholder": "Cron 式を入力してください...",
   "tasks.form.cron.advanced.input.description": "Cron 表現式の文法は {0} を参照してください。",
   "tasks.form.commands.label": "指令リスト",
-  "tasks.form.commands.description": "改行で区切り、順番に実行する。",
+  "tasks.form.commands.description1": "改行で区切り、順番に実行する。",
+  "tasks.form.commands.description2": "定期タスクのコマンド構文ガイド",
   "tasks.form.commands.empty1": "指示は空にできません",
   "tasks.form.commands.empty2": "少なくとも1つの命令が必要です",
 

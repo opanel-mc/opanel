@@ -323,9 +323,12 @@ export function TaskForm({
                   }}
                   onChange={(value) => field.onChange(value ? value.split("\n") : [])}/>
               </FormControl>
-              <FormDescription>
-                {$("tasks.form.commands.description")}
-              </FormDescription>
+              <span className="text-sm text-muted-foreground flex justify-between gap-2">
+                {$("tasks.form.commands.description1")}
+                <Link href="https://opanel.cn/wiki/task-command" target="_blank">
+                  {$("tasks.form.commands.description2")}
+                </Link>
+              </span>
             </FormItem>
           )}/>
 

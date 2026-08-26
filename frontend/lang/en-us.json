@@ -561,7 +561,8 @@
   "tasks.form.cron.advanced.input.placeholder": "Please enter the Cron expression...",
   "tasks.form.cron.advanced.input.description": "Refer to {0} for Cron expression syntax.",
   "tasks.form.commands.label": "Command List",
-  "tasks.form.commands.description": "Separate commands with new lines and they'll be executed in order.",
+  "tasks.form.commands.description1": "Separate commands with new lines and they'll be executed in order.",
+  "tasks.form.commands.description2": "Scheduled task command syntax guide",
   "tasks.form.commands.empty1": "Commands cannot be empty",
   "tasks.form.commands.empty2": "At least one command is required",
 
