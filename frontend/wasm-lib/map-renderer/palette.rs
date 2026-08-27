@@ -22,6 +22,7 @@ static GRASS_COLORS: phf::Map<&str, [u8; 4]> = phf::phf_map! {
     "minecraft:beach"                    => [0x91, 0xbd, 0x59, 0xff],
     "minecraft:sunflower_plains"         => [0x91, 0xbd, 0x59, 0xff],
     "minecraft:deep_dark"                => [0x91, 0xbd, 0x59, 0xff],
+    "minecraft:sulfur_caves"             => [0xab, 0xa6, 0x4f, 0xff],
     "minecraft:dripstone_caves"          => [0x91, 0xbd, 0x59, 0xff],
     "minecraft:forest"                   => [0x79, 0xc0, 0x5a, 0xff],
     "minecraft:flower_forest"            => [0x79, 0xc0, 0x5a, 0xff],
@@ -29,6 +30,7 @@ static GRASS_COLORS: phf::Map<&str, [u8; 4]> = phf::phf_map! {
     "minecraft:pale_garden"              => [0x77, 0x82, 0x72, 0xff],
     "minecraft:birch_forest"             => [0x88, 0xbb, 0x67, 0xff],
     "minecraft:old_growth_birch_forest"  => [0x88, 0xbb, 0x67, 0xff],
+    "minecraft:dappled_forest"           => [0xdf, 0x68, 0x27, 0xff],
     "minecraft:lush_caves"               => [0x8e, 0xb9, 0x71, 0xff],
     "minecraft:the_void"                 => [0x8e, 0xb9, 0x71, 0xff],
     "minecraft:river"                    => [0x8e, 0xb9, 0x71, 0xff],
@@ -73,6 +75,8 @@ static GRASS_COLORS: phf::Map<&str, [u8; 4]> = phf::phf_map! {
 
 /** see https://minecraft.wiki/w/Biome#List_of_biome_climates */
 static WATER_COLORS: phf::Map<&str, [u8; 4]> = phf::phf_map! {
+    "minecraft:sulfur_caves"             => [0x34, 0xbf, 0x89, 0xff],
+    "minecraft:dappled_forest"           => [0x37, 0x51, 0x54, 0xff],
     "minecraft:badlands"                 => [0x3f, 0x76, 0xe4, 0xff],
     "minecraft:wooded_badlands"          => [0x3f, 0x76, 0xe4, 0xff],
     "minecraft:eroded_badlands"          => [0x3f, 0x76, 0xe4, 0xff],
@@ -137,6 +141,7 @@ static WATER_COLORS: phf::Map<&str, [u8; 4]> = phf::phf_map! {
     "minecraft:end_midlands"             => [0x3f, 0x76, 0xe4, 0xff],
     "minecraft:small_end_islands"        => [0x3f, 0x76, 0xe4, 0xff],
     "minecraft:end_barrens"              => [0x3f, 0x76, 0xe4, 0xff],
+    "minecraft:the_void"                 => [0x3f, 0x76, 0xe4, 0xff],
 };
 
 /// Look up a Minecraft block id and return its 4 shading levels of RGBA color
