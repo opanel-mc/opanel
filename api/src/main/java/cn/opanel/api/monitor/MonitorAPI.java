@@ -10,7 +10,7 @@ import java.util.List;
  */
 public interface MonitorAPI {
     /**
-     * Samples current CPU, memory, TPS, and network usage immediately.
+     * Samples current CPU, memory, TPS, network usage, and disk I/O immediately.
      *
      * @return a current performance snapshot
      */

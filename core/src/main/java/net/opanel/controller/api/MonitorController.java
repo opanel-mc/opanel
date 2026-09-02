@@ -25,6 +25,8 @@ public class MonitorController extends BaseController {
         obj.put("tps", data.tps());
         obj.put("networkUpload", data.networkUpload());
         obj.put("networkDownload", data.networkDownload());
+        obj.put("diskRead", data.diskRead());
+        obj.put("diskWrite", data.diskWrite());
         sendResponse(ctx, obj);
     };
 

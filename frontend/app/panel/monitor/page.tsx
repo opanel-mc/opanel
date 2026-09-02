@@ -7,7 +7,7 @@ import { $ } from "@/lib/i18n";
 import { SubPage } from "../sub-page";
 import { InfoContext, MonitorContext } from "@/contexts/api-context";
 import { useMonitor } from "@/hooks/use-monitor";
-import { ActivityMonitorBlock, CpuMonitorBlock, JvmMemoryMonitorBlock, MemoryMonitorBlock, NetworkMonitorBlock, TpsMonitorBlock } from "./monitor-block";
+import { ActivityMonitorBlock, CpuMonitorBlock, DiskIOMonitorBlock, JvmMemoryMonitorBlock, MemoryMonitorBlock, NetworkMonitorBlock, TpsMonitorBlock } from "./monitor-block";
 import { emitter } from "@/lib/emitter";
 import { sendGetRequest, toastError } from "@/lib/api";
 
@@ -43,12 +43,13 @@ export default function Monitor() {
       className="grid grid-cols-2 gap-5">
       <InfoContext.Provider value={info}>
         <MonitorContext.Provider value={monitorDataList}>
+          <ActivityMonitorBlock className="col-span-2"/>
           <CpuMonitorBlock className="col-span-2"/>
           <MemoryMonitorBlock className="max-lg:col-span-2"/>
           <JvmMemoryMonitorBlock className="max-lg:col-span-2"/>
           <TpsMonitorBlock className="max-lg:col-span-2"/>
           <NetworkMonitorBlock className="max-lg:col-span-2"/>
-          <ActivityMonitorBlock className="col-span-2"/>
+          <DiskIOMonitorBlock className="col-span-2"/>
         </MonitorContext.Provider>
       </InfoContext.Provider>
     </SubPage>

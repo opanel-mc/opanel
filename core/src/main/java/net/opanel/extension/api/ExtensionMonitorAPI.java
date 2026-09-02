@@ -53,7 +53,9 @@ public final class ExtensionMonitorAPI implements MonitorAPI {
                 data.jvmMemory(),
                 data.tps(),
                 data.networkUpload(),
-                data.networkDownload()
+                data.networkDownload(),
+                data.diskRead(),
+                data.diskWrite()
         );
     }
 }

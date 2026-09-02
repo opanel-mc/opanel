@@ -25,6 +25,7 @@ public class MonitorManager {
     private final SystemInfo si = new SystemInfo();
     private final CpuSampler cpuSampler = new CpuSampler(si);
     private final NetworkMonitor networkMonitor = new NetworkMonitor(si);
+    private final DiskMonitor diskMonitor = new DiskMonitor(si);
 
     private final ArrayDeque<MonitorData> monitorDataList = new ArrayDeque<>(MAX_HISTORY_SIZE);
     private final Set<Consumer<MonitorData>> updateListeners = new CopyOnWriteArraySet<>();
@@ -48,6 +49,8 @@ public class MonitorManager {
                     0,
                     20,
                     0,
+                    0,
+                    0,
                     0
             ));
         }
@@ -65,13 +68,16 @@ public class MonitorManager {
     private void snapshotMonitor() {
         try {
             NetworkMonitor.NetworkRate networkRate = networkMonitor.sampleRate();
+            DiskMonitor.DiskRate diskRate = diskMonitor.sampleRate();
             MonitorData data = new MonitorData(
                     cpuSampler.sampleRate(),
                     getMemoryRate(si),
                     getJvmMemoryRate(),
                     TPS.getRecentTPS(),
                     networkRate.uploadRate(),
-                    networkRate.downloadRate()
+                    networkRate.downloadRate(),
+                    diskRate.readRate(),
+                    diskRate.writeRate()
             );
 
             lock.writeLock().lock();
@@ -98,13 +104,16 @@ public class MonitorManager {
 
     public MonitorData getSnapshot() {
         NetworkMonitor.NetworkRate networkRate = networkMonitor.sampleRate();
+        DiskMonitor.DiskRate diskRate = diskMonitor.sampleRate();
         return new MonitorData(
                 cpuSampler.sampleRate(),
                 getMemoryRate(si),
                 getJvmMemoryRate(),
                 TPS.getRecentTPS(),
                 networkRate.uploadRate(),
-                networkRate.downloadRate()
+                networkRate.downloadRate(),
+                diskRate.readRate(),
+                diskRate.writeRate()
         );
     }
 
