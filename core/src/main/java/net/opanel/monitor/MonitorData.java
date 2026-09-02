@@ -6,5 +6,7 @@ public record MonitorData(
         double jvmMemory,
         double tps,
         double networkUpload,
-        double networkDownload
+        double networkDownload,
+        double diskRead,
+        double diskWrite
 ) {}

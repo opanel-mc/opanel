@@ -38,6 +38,8 @@ export interface MonitorData {
   tps: number
   networkUpload: number
   networkDownload: number
+  diskRead: number
+  diskWrite: number
 }
 
 export interface Save {

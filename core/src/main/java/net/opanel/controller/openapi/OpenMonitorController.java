@@ -27,6 +27,8 @@ public class OpenMonitorController extends BaseController {
         obj.put("tps", data == null ? 0 : data.tps());
         obj.put("networkUpload", data == null ? 0 : data.networkUpload());
         obj.put("networkDownload", data == null ? 0 : data.networkDownload());
+        obj.put("diskRead", data == null ? 0 : data.diskRead());
+        obj.put("diskWrite", data == null ? 0 : data.diskWrite());
 
         sendResponse(ctx, obj);
     };

@@ -74,6 +74,84 @@ function formatActivityDate(dateText: string | null, options: Intl.DateTimeForma
   return new Intl.DateTimeFormat(undefined, options).format(date);
 }
 
+export const ActivityMonitorBlock = memo(({ className }: {
+  className?: string
+}) => {
+  const info = useContext(InfoContext);
+  const [activities, setActivities] = useState<ActivityData[]>([]);
+
+  const fetchActivity = async () => {
+    try {
+      const { activities } = await sendGetRequest<ActivityResponse>("/api/monitor/activity");
+      setActivities(activities);
+    } catch (e: any) {
+      toastError(e, $("dashboard.error"), [
+        [401, $("common.error.401")],
+        [500, $("common.error.500")]
+      ]);
+    }
+  };
+
+  useEffect(() => {
+    fetchActivity();
+  }, []);
+
+  const activityChartData: ActivityChartData[] = fillActivityData(activities)
+    .map((activity) => ({
+      dateLabel: formatActivityDate(activity.date, { month: "short", day: "numeric" }),
+      fullDateLabel: formatActivityDate(activity.date, { year: "numeric", month: "short", day: "numeric" }),
+      playerCount: activity.players.length
+    }));
+
+  return (
+    <MonitorBlock
+      title={$("monitor.activity.title")}
+      description={$("monitor.activity.description")}
+      className={className}>
+      <ChartContainer
+        config={{
+          playerCount: {
+            label: $("monitor.chart.activity"),
+            color: "var(--color-highlight-primary)"
+          }
+        }}
+        className="w-full h-56">
+        <BarChart
+          accessibilityLayer
+          data={activityChartData}
+          margin={{ top: 10, left: 0, right: 12, bottom: 10 }}>
+          <CartesianGrid vertical={false} stroke="var(--border)"/>
+          <XAxis
+            dataKey="dateLabel"
+            interval={0}
+            tickLine={false}
+            axisLine={false}
+            tickMargin={8}
+            tickFormatter={(value, index) => (
+              (activityChartData.length - 1 - index) % ACTIVITY_DATE_LABEL_INTERVAL === 0
+                ? value
+                : ""
+            )}/>
+          <YAxis hide domain={[0, info ? info.maxPlayerCount : "auto"]}/>
+          <ChartTooltip
+            cursor={false}
+            content={(
+              <ChartTooltipContent
+                labelFormatter={(_, payload) => payload?.[0]?.payload?.fullDateLabel ?? ""}
+                indicator="line"
+                valueFormatter={(value) => value}/>
+            )}/>
+          <Bar
+            dataKey="playerCount"
+            fill="var(--color-playerCount)"
+            radius={[6, 6, 0, 0]}
+            isAnimationActive={false}/>
+        </BarChart>
+      </ChartContainer>
+    </MonitorBlock>
+  );
+});
+
 export function CpuMonitorBlock({ className }: {
   className?: string
 }) {
@@ -392,80 +470,64 @@ export function NetworkMonitorBlock({ className }: {
   );
 }
 
-export const ActivityMonitorBlock = memo(({ className }: {
+export function DiskIOMonitorBlock({ className }: {
   className?: string
-}) => {
-  const info = useContext(InfoContext);
-  const [activities, setActivities] = useState<ActivityData[]>([]);
-
-  const fetchActivity = async () => {
-    try {
-      const { activities } = await sendGetRequest<ActivityResponse>("/api/monitor/activity");
-      setActivities(activities);
-    } catch (e: any) {
-      toastError(e, $("dashboard.error"), [
-        [401, $("common.error.401")],
-        [500, $("common.error.500")]
-      ]);
-    }
-  };
-
-  useEffect(() => {
-    fetchActivity();
-  }, []);
-
-  const activityChartData: ActivityChartData[] = fillActivityData(activities)
-    .map((activity) => ({
-      dateLabel: formatActivityDate(activity.date, { month: "short", day: "numeric" }),
-      fullDateLabel: formatActivityDate(activity.date, { year: "numeric", month: "short", day: "numeric" }),
-      playerCount: activity.players.length
-    }));
+}) {
+  const monitorDataList = useContext(MonitorContext);
+  const latestData = (
+    monitorDataList.length > 0
+    ? monitorDataList[monitorDataList.length - 1]
+    : null
+  );
 
   return (
     <MonitorBlock
-      title={$("monitor.activity.title")}
-      description={$("monitor.activity.description")}
+      title={$("monitor.disk-io.title")}
+      description={$("monitor.disk-io.description")}
+      additionalInfo={
+        <span className={cn("text-xs flex items-center [&>svg]:size-3", googleSansCode.className)}>
+          <span className="mr-2">Read</span>
+          {`${latestData ? formatDataSize(latestData.diskRead) : "0 KB"}/s`}
+          <span className="ml-3 mr-2">Write</span>
+          {`${latestData ? formatDataSize(latestData.diskWrite) : "0KB"}/s`}
+        </span>
+      }
       className={className}>
       <ChartContainer
         config={{
-          playerCount: {
-            label: $("monitor.chart.activity"),
-            color: "var(--color-highlight-primary)"
+          diskRead: {
+            label: $("monitor.chart.disk-read")
+          },
+          diskWrite: {
+            label: $("monitor.chart.disk-write")
           }
         }}
-        className="w-full h-56">
-        <BarChart
+        className="w-full h-24">
+        <AreaChart
           accessibilityLayer
-          data={activityChartData}
-          margin={{ top: 10, left: 0, right: 12, bottom: 10 }}>
+          data={monitorDataList}
+          margin={{ top: 10, left: 0, right: 0, bottom: 10 }}>
           <CartesianGrid vertical={false} stroke="var(--border)"/>
-          <XAxis
-            dataKey="dateLabel"
-            interval={0}
-            tickLine={false}
-            axisLine={false}
-            tickMargin={8}
-            tickFormatter={(value, index) => (
-              (activityChartData.length - 1 - index) % ACTIVITY_DATE_LABEL_INTERVAL === 0
-                ? value
-                : ""
-            )}/>
-          <YAxis hide domain={[0, info ? info.maxPlayerCount : "auto"]}/>
+          <Area
+            dataKey="diskRead"
+            type="monotone"
+            fill="transparent"
+            stroke="var(--color-chart-5)"
+            strokeWidth="2"
+            isAnimationActive={false}/>
+          <Area
+            dataKey="diskWrite"
+            type="monotone"
+            fill="transparent"
+            stroke="var(--color-chart-2)"
+            strokeWidth="2"
+            isAnimationActive={false}/>
+          <YAxis hide domain={["auto", "auto"]}/>
           <ChartTooltip
             cursor={false}
-            content={(
-              <ChartTooltipContent
-                labelFormatter={(_, payload) => payload?.[0]?.payload?.fullDateLabel ?? ""}
-                indicator="line"
-                valueFormatter={(value) => value}/>
-            )}/>
-          <Bar
-            dataKey="playerCount"
-            fill="var(--color-playerCount)"
-            radius={[6, 6, 0, 0]}
-            isAnimationActive={false}/>
-        </BarChart>
+            content={<ChartTooltipContent hideLabel indicator="line" valueFormatter={(value) => `${formatDataSize(parseInt(value))}/s`}/>}/>
+        </AreaChart>
       </ChartContainer>
     </MonitorBlock>
   );
-})
+}

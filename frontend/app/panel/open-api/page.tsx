@@ -111,7 +111,12 @@ export default function OpenAPI() {
               <InterfaceResponse def={`{
   cpu: number
   memory: number
+  jvmMemory: number
   tps: number
+  networkUpload: number
+  networkDownload: number
+  diskRead: number
+  diskWrite: number
 }`}/>
             </Interface>
           </InterfaceSection>
