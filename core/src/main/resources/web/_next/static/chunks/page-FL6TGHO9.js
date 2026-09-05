@@ -1,1 +1,0 @@
-import{r as e}from"./framework-B19KePI3.js";import{q as t}from"./vinext-lD6L2R5n.js";import{t as n}from"./use-check-auth-CKLhw-SF.js";var r=e();function i(){let{push:e}=t();return n(()=>e(`/panel/dashboard`)),(0,r.jsx)(r.Fragment,{})}export{i as default};
