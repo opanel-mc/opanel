@@ -91,7 +91,7 @@
     "tw-animate-css": "^1.3.4",
     "typescript": "^5",
     "vite": "^8.2.0",
-    "vitest": "^4.1.2",
+    "vitest": "^4.1.11",
     "wasm-pack": "^0.15.0",
     "yauzl": "^3.3.0"
   },
