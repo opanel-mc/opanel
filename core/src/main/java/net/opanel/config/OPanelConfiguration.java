@@ -10,6 +10,10 @@ public class OPanelConfiguration {
             25576,
             4,
             1000,
+            true,
+            7,
+            90,
+            365,
             10,
             false,
             false,
@@ -27,6 +31,10 @@ public class OPanelConfiguration {
     public int mcdrSocketPort;
     public int mapPrerenderConcurrent;
     public int monitorSnapshotInterval;
+    public boolean monitorHistoryEnabled;
+    public int monitorHistoryMinuteRetentionDays;
+    public int monitorHistoryQuarterHourRetentionDays;
+    public int monitorHistoryHourlyRetentionDays;
     public int serverRestartDelay;
     public boolean cookieSecure;
     public boolean proxyHeaders;
@@ -44,6 +52,10 @@ public class OPanelConfiguration {
             int mcdrSocketPort,
             int mapPrerenderConcurrent,
             int monitorSnapshotInterval,
+            boolean monitorHistoryEnabled,
+            int monitorHistoryMinuteRetentionDays,
+            int monitorHistoryQuarterHourRetentionDays,
+            int monitorHistoryHourlyRetentionDays,
             int serverRestartDelay,
             boolean cookieSecure,
             boolean proxyHeaders,
@@ -60,6 +72,10 @@ public class OPanelConfiguration {
         this.mcdrSocketPort = mcdrSocketPort;
         this.mapPrerenderConcurrent = mapPrerenderConcurrent;
         this.monitorSnapshotInterval = monitorSnapshotInterval;
+        this.monitorHistoryEnabled = monitorHistoryEnabled;
+        this.monitorHistoryMinuteRetentionDays = monitorHistoryMinuteRetentionDays;
+        this.monitorHistoryQuarterHourRetentionDays = monitorHistoryQuarterHourRetentionDays;
+        this.monitorHistoryHourlyRetentionDays = monitorHistoryHourlyRetentionDays;
         this.serverRestartDelay = serverRestartDelay;
         this.cookieSecure = cookieSecure;
         this.proxyHeaders = proxyHeaders;

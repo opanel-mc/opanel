@@ -24,6 +24,10 @@ public class ConfigManagerImpl implements ConfigManager {
                 configSrc.getInt("mcdrSocketPort"),
                 configSrc.getInt("mapPrerenderConcurrent", OPanelConfiguration.defaultConfig.mapPrerenderConcurrent),
                 configSrc.getInt("monitorSnapshotInterval", OPanelConfiguration.defaultConfig.monitorSnapshotInterval),
+                configSrc.getBoolean("monitorHistoryEnabled", OPanelConfiguration.defaultConfig.monitorHistoryEnabled),
+                configSrc.getInt("monitorHistoryMinuteRetentionDays", OPanelConfiguration.defaultConfig.monitorHistoryMinuteRetentionDays),
+                configSrc.getInt("monitorHistoryQuarterHourRetentionDays", OPanelConfiguration.defaultConfig.monitorHistoryQuarterHourRetentionDays),
+                configSrc.getInt("monitorHistoryHourlyRetentionDays", OPanelConfiguration.defaultConfig.monitorHistoryHourlyRetentionDays),
                 configSrc.getInt("serverRestartDelay", OPanelConfiguration.defaultConfig.serverRestartDelay),
                 configSrc.getBoolean("cookieSecure", OPanelConfiguration.defaultConfig.cookieSecure),
                 configSrc.getBoolean("proxyHeaders", OPanelConfiguration.defaultConfig.proxyHeaders),
@@ -44,6 +48,10 @@ public class ConfigManagerImpl implements ConfigManager {
         configSrc.set("mcdrSocketPort", config.mcdrSocketPort);
         configSrc.set("mapPrerenderConcurrent", config.mapPrerenderConcurrent);
         configSrc.set("monitorSnapshotInterval", config.monitorSnapshotInterval);
+        configSrc.set("monitorHistoryEnabled", config.monitorHistoryEnabled);
+        configSrc.set("monitorHistoryMinuteRetentionDays", config.monitorHistoryMinuteRetentionDays);
+        configSrc.set("monitorHistoryQuarterHourRetentionDays", config.monitorHistoryQuarterHourRetentionDays);
+        configSrc.set("monitorHistoryHourlyRetentionDays", config.monitorHistoryHourlyRetentionDays);
         configSrc.set("serverRestartDelay", config.serverRestartDelay);
         configSrc.set("cookieSecure", config.cookieSecure);
         configSrc.set("proxyHeaders", config.proxyHeaders);

@@ -33,6 +33,14 @@ allprojects {
     }
 }
 
+subprojects {
+    pluginManager.withPlugin('com.gradleup.shadow') {
+        tasks.named('shadowJar') {
+            relocate 'org.h2', 'net.opanel.deps.h2'
+        }
+    }
+}
+
 nmcpAggregation {
     centralPortal {
         username = providers.environmentVariable('CENTRAL_PORTAL_USERNAME')

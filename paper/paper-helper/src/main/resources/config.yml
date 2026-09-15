@@ -7,6 +7,10 @@ webServerPort: 3000
 mcdrSocketPort: 25576
 mapPrerenderConcurrent: 4
 monitorSnapshotInterval: 1000
+monitorHistoryEnabled: true
+monitorHistoryMinuteRetentionDays: 7
+monitorHistoryQuarterHourRetentionDays: 90
+monitorHistoryHourlyRetentionDays: 365
 serverRestartDelay: 10
 cookieSecure: false
 proxyHeaders: false

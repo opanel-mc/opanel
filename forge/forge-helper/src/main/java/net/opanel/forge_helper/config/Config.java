@@ -13,6 +13,10 @@ public class Config {
     public static final ForgeConfigSpec.IntValue MCDR_SOCKET_PORT = BUILDER.defineInRange("mcdrSocketPort", OPanelConfiguration.defaultConfig.mcdrSocketPort, 1, 65535);
     public static final ForgeConfigSpec.IntValue MAP_PRERENDER_CONCURRENT = BUILDER.defineInRange("mapPrerenderConcurrent", OPanelConfiguration.defaultConfig.mapPrerenderConcurrent, 1, Integer.MAX_VALUE);
     public static final ForgeConfigSpec.IntValue MONITOR_SNAPSHOT_INTERVAL = BUILDER.defineInRange("monitorSnapshotInterval", OPanelConfiguration.defaultConfig.monitorSnapshotInterval, 1, Integer.MAX_VALUE);
+    public static final ForgeConfigSpec.BooleanValue MONITOR_HISTORY_ENABLED = BUILDER.define("monitorHistoryEnabled", OPanelConfiguration.defaultConfig.monitorHistoryEnabled);
+    public static final ForgeConfigSpec.IntValue MONITOR_HISTORY_MINUTE_RETENTION_DAYS = BUILDER.defineInRange("monitorHistoryMinuteRetentionDays", OPanelConfiguration.defaultConfig.monitorHistoryMinuteRetentionDays, 1, 30);
+    public static final ForgeConfigSpec.IntValue MONITOR_HISTORY_QUARTER_HOUR_RETENTION_DAYS = BUILDER.defineInRange("monitorHistoryQuarterHourRetentionDays", OPanelConfiguration.defaultConfig.monitorHistoryQuarterHourRetentionDays, 1, 365);
+    public static final ForgeConfigSpec.IntValue MONITOR_HISTORY_HOURLY_RETENTION_DAYS = BUILDER.defineInRange("monitorHistoryHourlyRetentionDays", OPanelConfiguration.defaultConfig.monitorHistoryHourlyRetentionDays, 1, 3650);
     public static final ForgeConfigSpec.IntValue SERVER_RESTART_DELAY = BUILDER.defineInRange("serverRestartDelay", OPanelConfiguration.defaultConfig.serverRestartDelay, 0, Integer.MAX_VALUE);
     public static final ForgeConfigSpec.BooleanValue COOKIE_SECURE = BUILDER.define("cookieSecure", OPanelConfiguration.defaultConfig.cookieSecure);
     public static final ForgeConfigSpec.BooleanValue PROXY_HEADERS = BUILDER.define("proxyHeaders", OPanelConfiguration.defaultConfig.proxyHeaders);

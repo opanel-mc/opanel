@@ -26,6 +26,7 @@ public class MonitorManager {
     private final CpuSampler cpuSampler = new CpuSampler(si);
     private final NetworkMonitor networkMonitor = new NetworkMonitor(si);
     private final DiskMonitor diskMonitor = new DiskMonitor(si);
+    private final MonitorHistoryManager historyManager;
 
     private final ArrayDeque<MonitorData> monitorDataList = new ArrayDeque<>(MAX_HISTORY_SIZE);
     private final Set<Consumer<MonitorData>> updateListeners = new CopyOnWriteArraySet<>();
@@ -40,6 +41,7 @@ public class MonitorManager {
     public MonitorManager(OPanel plugin) {
         this.plugin = plugin;
         snapshotIntervalMs = plugin.getConfig().monitorSnapshotInterval;
+        historyManager = new MonitorHistoryManager(plugin);
 
         // Initialize the data list
         for(int i = 0; i < MAX_HISTORY_SIZE; i++) {
@@ -79,6 +81,7 @@ public class MonitorManager {
                     diskRate.readRate(),
                     diskRate.writeRate()
             );
+            historyManager.recordSample(System.currentTimeMillis(), data);
 
             lock.writeLock().lock();
             try {
@@ -136,6 +139,10 @@ public class MonitorManager {
         }
     }
 
+    public MonitorHistoryQueryResult queryHistory(long from, long to, int maxPoints) {
+        return historyManager.queryHistory(from, to, maxPoints);
+    }
+
     public void addUpdateListener(Consumer<MonitorData> listener) {
         updateListeners.add(listener);
     }
@@ -146,6 +153,14 @@ public class MonitorManager {
 
     public void shutdown() {
         scheduler.shutdownNow();
+        try {
+            if(!scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
+                plugin.logger.warn("Monitor scheduler did not stop cleanly.");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        historyManager.shutdown();
         updateListeners.clear();
     }
 }

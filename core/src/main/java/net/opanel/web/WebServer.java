@@ -180,6 +180,7 @@ public class WebServer {
             });
             path("monitor", () -> {
                 get("/", monitorController.getMonitorSnapshot); // for mcp
+                get("history", monitorController.getHistory);
                 get("activity", monitorController.getActivity);
             });
             path("players", () -> {
