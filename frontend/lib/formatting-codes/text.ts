@@ -1,5 +1,6 @@
 export const secSign = "§";
 
+const validHexCodes = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "A", "B", "C", "D", "E", "F"];
 const colorCodes = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
 const formattingCodes = ["k", "l", "m", "n", "o"];
 
@@ -44,14 +45,38 @@ export function parseTextToHTML(text: string, maxLines = 1, maxCharPerLine = Inf
   let lines = 1;
   let charAmountOfLine = 0; // will be reset when new line
 
+  // temp variable for legacy rgb format
+  let tempRgbStr: string | null = null;
+
   for(let i = 0; i < pure.length; i++) {
     const char = pure[i];
-    if(char === "\n" && lines < maxLines) { // new line
+    if(
+      (char === "\n" && lines < maxLines)
+      || (i !== 0 && char === "n" && pure[i - 1] === "\\")
+    ) { // new line
       currentNode.appendChild(document.createElement("br"));
       lines++;
       charAmountOfLine = 0;
       continue;
     }
+    if(char === "\\") continue;
+
+    if(tempRgbStr !== null && tempRgbStr.length < 6) { // inside rgb format
+      if(char !== secSign) {
+        tempRgbStr += char;
+      }
+      continue;
+    }
+    if(tempRgbStr !== null && tempRgbStr.length === 6) { // end of rgb format
+      currentNode = root;
+      
+      const span = document.createElement("span");
+      span.style.color = "#"+ tempRgbStr;
+      currentNode.appendChild(span);
+      currentNode = span;
+      tempRgbStr = null;
+    }
+
     if(char === secSign) {
       const code = pure[i + 1];
 
@@ -60,6 +85,33 @@ export function parseTextToHTML(text: string, maxLines = 1, maxCharPerLine = Inf
         currentNode = root;
         i++;
         continue;
+      }
+
+      // BungeeCord/Spigot legacy rgb format
+      if(code === "x") {
+        // peek and validate the legacy rgb format string
+        let isValid = true;
+        for(let j = 0; j < 12; j++) {
+          if(i + j + 2 >= pure.length) {
+            isValid = false;
+            break;
+          }
+
+          const peekedChar = pure[i + j + 2];
+          if(
+            (j % 2 === 0 && peekedChar !== secSign)
+            || (j % 2 !== 0 && !validHexCodes.includes(peekedChar))
+          ) {
+            isValid = false;
+            break;
+          }
+        }
+
+        if(isValid) {
+          tempRgbStr = "";
+          i++;
+          continue;
+        }
       }
 
       const isColor = colorCodes.includes(code);
@@ -106,6 +158,27 @@ export function parseTextToANSI(text: string): string {
         activeCodes = [];
         i++;
         continue;
+      }
+
+      // BungeeCord/Spigot legacy rgb format
+      if(code === "x") {
+        let rgb = "";
+        for(let j = 0; j < 6; j++) {
+          const digit = pure[i + 3 + j * 2];
+          if(pure[i + 2 + j * 2] !== secSign || !validHexCodes.includes(digit)) break;
+          rgb += digit;
+        }
+
+        if(rgb.length === 6) {
+          const r = parseInt(rgb.slice(0, 2), 16);
+          const g = parseInt(rgb.slice(2, 4), 16);
+          const b = parseInt(rgb.slice(4, 6), 16);
+          result += "\x1b[0m";
+          activeCodes = [`38;2;${r};${g};${b}`];
+          result += `\x1b[${activeCodes.join(';')}m`;
+          i += 13;
+          continue;
+        }
       }
       
       if(ansiColorMap[code]) {
