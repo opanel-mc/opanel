@@ -1,6 +1,7 @@
 "use client";
 
 import type { APIResponse, InfoResponse } from "@/lib/types";
+import type { PropsWithChildren } from "react";
 import { useContext, useEffect, useState } from "react";
 import { Activity } from "lucide-react";
 import { $ } from "@/lib/i18n";
@@ -20,9 +21,13 @@ import { emitter } from "@/lib/emitter";
 import { sendGetRequest, toastError } from "@/lib/api";
 import { MonitorHistoryProvider } from "./monitor-history-context";
 
+function RealtimeMonitorProvider({ children }: PropsWithChildren) {
+  const monitorDataList = useMonitor(200);
+  return <MonitorContext.Provider value={monitorDataList}>{children}</MonitorContext.Provider>;
+}
+
 export default function Monitor() {
   const [info, setInfo] = useState<APIResponse<InfoResponse>>();
-  const monitorDataList = useMonitor(200);
   const versionInfo = useContext(VersionContext);
   
   const fetchServerInfo = async () => {
@@ -52,7 +57,7 @@ export default function Monitor() {
       icon={<Activity />}
       className="grid grid-cols-2 gap-5">
       <InfoContext.Provider value={info}>
-        <MonitorContext.Provider value={monitorDataList}>
+        <RealtimeMonitorProvider>
           <MonitorHistoryProvider enabled={versionInfo?.monitorHistoryEnabled ?? false}>
             <ActivityMonitorBlock className="col-span-2"/>
             <CpuMonitorBlock className="col-span-2"/>
@@ -62,7 +67,7 @@ export default function Monitor() {
             <NetworkMonitorBlock className="max-lg:col-span-2"/>
             <DiskIOMonitorBlock className="col-span-2"/>
           </MonitorHistoryProvider>
-        </MonitorContext.Provider>
+        </RealtimeMonitorProvider>
       </InfoContext.Provider>
     </SubPage>
   );

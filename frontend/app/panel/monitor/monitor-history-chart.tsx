@@ -27,6 +27,12 @@ import {
 
 export type MonitorChartData = MonitorData | MonitorHistoryChartData;
 
+type MonitorChartRenderer = (
+  data: MonitorChartData[],
+  isHistoryMode: boolean,
+  selectedRange: MonitorHistoryRange | null
+) => ReactNode;
+
 export interface MonitorNavigatorSeries {
   dataKey: MonitorMetric
   label: string
@@ -203,18 +209,18 @@ const MonitorHistoryNavigator = memo(function MonitorHistoryNavigator({
   );
 });
 
+function LiveMonitorChart({ children }: { children: MonitorChartRenderer }) {
+  const liveData = useContext(MonitorContext);
+  return children(liveData, false, null);
+}
+
 export function MonitorHistoryChart({
   series,
   children
 }: {
   series: MonitorNavigatorSeries[]
-  children: (
-    data: MonitorChartData[],
-    isHistory: boolean,
-    selectedRange: MonitorHistoryRange | null
-  ) => ReactNode
+  children: MonitorChartRenderer
 }) {
-  const liveData = useContext(MonitorContext);
   const {
     enabled,
     mode,
@@ -223,14 +229,15 @@ export function MonitorHistoryChart({
     selectedRange,
     retryDetail
   } = useMonitorHistory();
-  const isHistory = mode === "history";
-  const data = isHistory ? detailData : liveData;
+  const isHistoryMode = mode === "history";
 
   return (
     <>
       <div className="relative">
-        {children(data, isHistory, selectedRange)}
-        {isHistory && detailStatus !== "ready" && (
+        {isHistoryMode
+          ? children(detailData, true, selectedRange)
+          : <LiveMonitorChart>{children}</LiveMonitorChart>}
+        {isHistoryMode && detailStatus !== "ready" && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-[1px]">
             <StatusMessage status={detailStatus} retry={retryDetail}/>
           </div>

@@ -435,9 +435,7 @@ export function JvmMemoryMonitorBlock({ className }: {
   );
 }
 
-export function TpsMonitorBlock({ className }: {
-  className?: string
-}) {
+function TpsMonitorStatus() {
   const monitorDataList = useContext(MonitorContext);
   const latestTps = (
     monitorDataList.length > 0
@@ -471,18 +469,24 @@ export function TpsMonitorBlock({ className }: {
   const tpsStatus = getTpsStatus(latestTps);
 
   return (
+    <Badge
+      variant="outline"
+      title={`${latestTps.toFixed(1)} TPS`}
+      className={cn("cursor-help gap-1.5 px-2 py-0.5", tpsStatus.className)}>
+      <div className={cn("w-2 h-2 rounded-full", tpsStatus.dotClassName)}/>
+      {tpsStatus.label}
+    </Badge>
+  );
+}
+
+export function TpsMonitorBlock({ className }: {
+  className?: string
+}) {
+  return (
     <MonitorBlock
       title="TPS"
       description={$("monitor.tps.description")}
-      additionalInfo={
-        <Badge
-          variant="outline"
-          title={`${latestTps.toFixed(1)} TPS`}
-          className={cn("cursor-help gap-1.5 px-2 py-0.5", tpsStatus.className)}>
-          <div className={cn("w-2 h-2 rounded-full", tpsStatus.dotClassName)}/>
-          {tpsStatus.label}
-        </Badge>
-      }
+      additionalInfo={<TpsMonitorStatus />}
       className={className}>
       <MonitorHistoryChart series={TPS_NAVIGATOR_SERIES}>
         {(data, isHistory, range) => (
@@ -546,9 +550,7 @@ export function TpsMonitorBlock({ className }: {
   );
 }
 
-export function NetworkMonitorBlock({ className }: {
-  className?: string
-}) {
+function NetworkMonitorStatus() {
   const monitorDataList = useContext(MonitorContext);
   const latestData = (
     monitorDataList.length > 0
@@ -557,23 +559,29 @@ export function NetworkMonitorBlock({ className }: {
   );
 
   return (
+    <span className={cn("text-xs flex items-center [&>svg]:size-3", googleSansCode.className)}>
+      <MoveUp />
+      {`${latestData ? formatDataSize(latestData.networkUpload) : "0 KB"}/s`}
+      <MoveDown className="ml-2"/>
+      {`${latestData ? formatDataSize(latestData.networkDownload) : "0KB"}/s`}
+      <ArrowUpDown className="ml-2 mr-1"/>
+      {`${
+        latestData
+        ? formatDataSize((latestData.networkUpload + latestData.networkDownload) / 2)
+        : "0KB"
+      }/s`}
+    </span>
+  );
+}
+
+export function NetworkMonitorBlock({ className }: {
+  className?: string
+}) {
+  return (
     <MonitorBlock
       title={$("monitor.network.title")}
       description={$("monitor.network.description")}
-      additionalInfo={
-        <span className={cn("text-xs flex items-center [&>svg]:size-3", googleSansCode.className)}>
-          <MoveUp />
-          {`${latestData ? formatDataSize(latestData.networkUpload) : "0 KB"}/s`}
-          <MoveDown className="ml-2"/>
-          {`${latestData ? formatDataSize(latestData.networkDownload) : "0KB"}/s`}
-          <ArrowUpDown className="ml-2 mr-1"/>
-          {`${
-            latestData
-            ? formatDataSize((latestData.networkUpload + latestData.networkDownload) / 2)
-            : "0KB"
-          }/s`}
-        </span>
-      }
+      additionalInfo={<NetworkMonitorStatus />}
       className={className}>
       <MonitorHistoryChart series={NETWORK_NAVIGATOR_SERIES}>
         {(data, isHistory, range) => (
@@ -639,9 +647,7 @@ export function NetworkMonitorBlock({ className }: {
   );
 }
 
-export function DiskIOMonitorBlock({ className }: {
-  className?: string
-}) {
+function DiskIOMonitorStatus() {
   const monitorDataList = useContext(MonitorContext);
   const latestData = (
     monitorDataList.length > 0
@@ -650,17 +656,23 @@ export function DiskIOMonitorBlock({ className }: {
   );
 
   return (
+    <span className={cn("text-xs flex items-center [&>svg]:size-3", googleSansCode.className)}>
+      <span className="mr-2">Read</span>
+      {`${latestData ? formatDataSize(latestData.diskRead) : "0 KB"}/s`}
+      <span className="ml-3 mr-2">Write</span>
+      {`${latestData ? formatDataSize(latestData.diskWrite) : "0KB"}/s`}
+    </span>
+  );
+}
+
+export function DiskIOMonitorBlock({ className }: {
+  className?: string
+}) {
+  return (
     <MonitorBlock
       title={$("monitor.disk-io.title")}
       description={$("monitor.disk-io.description")}
-      additionalInfo={
-        <span className={cn("text-xs flex items-center [&>svg]:size-3", googleSansCode.className)}>
-          <span className="mr-2">Read</span>
-          {`${latestData ? formatDataSize(latestData.diskRead) : "0 KB"}/s`}
-          <span className="ml-3 mr-2">Write</span>
-          {`${latestData ? formatDataSize(latestData.diskWrite) : "0KB"}/s`}
-        </span>
-      }
+      additionalInfo={<DiskIOMonitorStatus />}
       className={className}>
       <MonitorHistoryChart series={DISK_NAVIGATOR_SERIES}>
         {(data, isHistory, range) => (
