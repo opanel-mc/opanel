@@ -97,9 +97,16 @@ public class FabricWorldRegion extends BaseFabricWorldRegion implements OPanelWo
         if(paletteNbt.isEmpty()) return null;
         List<String> palette = new ArrayList<>();
         for(Tag item : paletteNbt) {
-            if(!(item instanceof CompoundTag)) continue;
+            if(item instanceof StringTag) {
+                palette.add(((StringTag) item).value());
+                continue;
+            }
+            if(!(item instanceof CompoundTag)) return null;
 
-            Optional<String> idOptional = ((CompoundTag) item).getString("Name");
+            CompoundTag state = (CompoundTag) item;
+            Optional<String> idOptional = state.getString("id")
+                .or(() -> state.getString("Name"));
+            if(idOptional.isEmpty()) return null;
             idOptional.ifPresent(palette::add);
         }
 
