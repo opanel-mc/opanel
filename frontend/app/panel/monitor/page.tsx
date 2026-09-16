@@ -1,19 +1,34 @@
 "use client";
 
 import type { APIResponse, InfoResponse } from "@/lib/types";
-import { useEffect, useState } from "react";
+import type { PropsWithChildren } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Activity } from "lucide-react";
 import { $ } from "@/lib/i18n";
 import { SubPage } from "../sub-page";
-import { InfoContext, MonitorContext } from "@/contexts/api-context";
+import { InfoContext, MonitorContext, VersionContext } from "@/contexts/api-context";
 import { useMonitor } from "@/hooks/use-monitor";
-import { ActivityMonitorBlock, CpuMonitorBlock, DiskIOMonitorBlock, JvmMemoryMonitorBlock, MemoryMonitorBlock, NetworkMonitorBlock, TpsMonitorBlock } from "./monitor-block";
+import {
+  ActivityMonitorBlock,
+  CpuMonitorBlock,
+  DiskIOMonitorBlock,
+  JvmMemoryMonitorBlock,
+  MemoryMonitorBlock,
+  NetworkMonitorBlock,
+  TpsMonitorBlock
+} from "./monitor-block";
 import { emitter } from "@/lib/emitter";
 import { sendGetRequest, toastError } from "@/lib/api";
+import { MonitorHistoryProvider } from "./monitor-history-context";
+
+function RealtimeMonitorProvider({ children }: PropsWithChildren) {
+  const monitorDataList = useMonitor(200);
+  return <MonitorContext.Provider value={monitorDataList}>{children}</MonitorContext.Provider>;
+}
 
 export default function Monitor() {
   const [info, setInfo] = useState<APIResponse<InfoResponse>>();
-  const monitorDataList = useMonitor(200);
+  const versionInfo = useContext(VersionContext);
   
   const fetchServerInfo = async () => {
     try {
@@ -42,15 +57,17 @@ export default function Monitor() {
       icon={<Activity />}
       className="grid grid-cols-2 gap-5">
       <InfoContext.Provider value={info}>
-        <MonitorContext.Provider value={monitorDataList}>
-          <ActivityMonitorBlock className="col-span-2"/>
-          <CpuMonitorBlock className="col-span-2"/>
-          <MemoryMonitorBlock className="max-lg:col-span-2"/>
-          <JvmMemoryMonitorBlock className="max-lg:col-span-2"/>
-          <TpsMonitorBlock className="max-lg:col-span-2"/>
-          <NetworkMonitorBlock className="max-lg:col-span-2"/>
-          <DiskIOMonitorBlock className="col-span-2"/>
-        </MonitorContext.Provider>
+        <RealtimeMonitorProvider>
+          <MonitorHistoryProvider enabled={versionInfo?.monitorHistoryEnabled ?? false}>
+            <ActivityMonitorBlock className="col-span-2"/>
+            <CpuMonitorBlock className="col-span-2"/>
+            <MemoryMonitorBlock className="max-lg:col-span-2"/>
+            <JvmMemoryMonitorBlock className="max-lg:col-span-2"/>
+            <TpsMonitorBlock className="max-lg:col-span-2"/>
+            <NetworkMonitorBlock className="max-lg:col-span-2"/>
+            <DiskIOMonitorBlock className="col-span-2"/>
+          </MonitorHistoryProvider>
+        </RealtimeMonitorProvider>
       </InfoContext.Provider>
     </SubPage>
   );

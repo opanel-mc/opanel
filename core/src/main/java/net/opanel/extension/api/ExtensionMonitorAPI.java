@@ -1,11 +1,16 @@
 package net.opanel.extension.api;
 
 import cn.opanel.api.monitor.MonitorAPI;
+import cn.opanel.api.monitor.MonitorHistoryPoint;
 import cn.opanel.api.monitor.MonitorSnapshot;
 import net.opanel.extension.ExtensionContext;
 import net.opanel.monitor.MonitorData;
 import net.opanel.monitor.MonitorManager;
+import net.opanel.monitor.MonitorHistoryData;
+import net.opanel.monitor.MonitorHistoryQueryResult;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +36,35 @@ public final class ExtensionMonitorAPI implements MonitorAPI {
     @Override
     public List<MonitorSnapshot> getHistory(int limit) {
         return ctx.call("get monitor history", () -> toSnapshots(manager().getHistory(limit)));
+    }
+
+    @Override
+    public List<MonitorHistoryPoint> queryHistory(Instant from, Instant to, int maxPoints) {
+        ctx.ensureActive();
+        if(from == null || to == null) throw new IllegalArgumentException("from and to are required.");
+
+        final long fromMillis;
+        final long toMillis;
+        try {
+            fromMillis = from.toEpochMilli();
+            toMillis = to.toEpochMilli();
+        } catch (ArithmeticException e) {
+            throw new IllegalArgumentException("Monitor history range is outside epoch millisecond limits.", e);
+        }
+
+        MonitorHistoryQueryResult result = manager().queryHistory(fromMillis, toMillis, maxPoints);
+        List<MonitorHistoryPoint> points = new ArrayList<>(result.points().size());
+        for(MonitorHistoryData point : result.points()) {
+            points.add(new MonitorHistoryPoint(
+                    Instant.ofEpochMilli(point.timestamp()),
+                    Duration.ofMillis(point.durationMs()),
+                    point.sampleCount(),
+                    toSnapshot(point.average()),
+                    toSnapshot(point.minimum()),
+                    toSnapshot(point.maximum())
+            ));
+        }
+        return Collections.unmodifiableList(points);
     }
 
     private MonitorManager manager() {

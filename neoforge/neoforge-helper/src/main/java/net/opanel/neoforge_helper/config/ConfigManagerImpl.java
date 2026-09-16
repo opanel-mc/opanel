@@ -14,6 +14,10 @@ public class ConfigManagerImpl implements ConfigManager {
                 Config.MCDR_SOCKET_PORT.get(),
                 Config.MAP_PRERENDER_CONCURRENT.get(),
                 Config.MONITOR_SNAPSHOT_INTERVAL.get(),
+                Config.MONITOR_HISTORY_ENABLED.get(),
+                Config.MONITOR_HISTORY_MINUTE_RETENTION_DAYS.get(),
+                Config.MONITOR_HISTORY_QUARTER_HOUR_RETENTION_DAYS.get(),
+                Config.MONITOR_HISTORY_HOURLY_RETENTION_DAYS.get(),
                 Config.SERVER_RESTART_DELAY.get(),
                 Config.COOKIE_SECURE.get(),
                 Config.PROXY_HEADERS.get(),
@@ -34,6 +38,10 @@ public class ConfigManagerImpl implements ConfigManager {
         Config.MCDR_SOCKET_PORT.set(config.mcdrSocketPort);
         Config.MAP_PRERENDER_CONCURRENT.set(config.mapPrerenderConcurrent);
         Config.MONITOR_SNAPSHOT_INTERVAL.set(config.monitorSnapshotInterval);
+        Config.MONITOR_HISTORY_ENABLED.set(config.monitorHistoryEnabled);
+        Config.MONITOR_HISTORY_MINUTE_RETENTION_DAYS.set(config.monitorHistoryMinuteRetentionDays);
+        Config.MONITOR_HISTORY_QUARTER_HOUR_RETENTION_DAYS.set(config.monitorHistoryQuarterHourRetentionDays);
+        Config.MONITOR_HISTORY_HOURLY_RETENTION_DAYS.set(config.monitorHistoryHourlyRetentionDays);
         Config.SERVER_RESTART_DELAY.set(config.serverRestartDelay);
         Config.COOKIE_SECURE.set(config.cookieSecure);
         Config.PROXY_HEADERS.set(config.proxyHeaders);

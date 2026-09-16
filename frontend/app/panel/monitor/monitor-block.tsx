@@ -21,9 +21,61 @@ import { InfoContext, MonitorContext } from "@/contexts/api-context";
 import { googleSansCode } from "@/lib/fonts";
 import { sendGetRequest, toastError } from "@/lib/api";
 import { fillActivityData } from "./activity-data";
+import {
+  formatMonitorHistoryAxisTick,
+  formatMonitorHistoryTooltip
+} from "./history-data";
+import {
+  MonitorHistoryChart,
+  type MonitorNavigatorSeries
+} from "./monitor-history-chart";
 
 const YAXIS_TICKS = [0, 25, 50, 75, 100];
 const ACTIVITY_DATE_LABEL_INTERVAL = 4;
+const CPU_NAVIGATOR_SERIES = [{
+  dataKey: "cpu",
+  label: $("monitor.chart.cpu"),
+  color: "var(--color-foreground)"
+}] satisfies MonitorNavigatorSeries[];
+const MEMORY_NAVIGATOR_SERIES = [{
+  dataKey: "memory",
+  label: $("monitor.chart.memory"),
+  color: "var(--color-chart-2)"
+}] satisfies MonitorNavigatorSeries[];
+const JVM_MEMORY_NAVIGATOR_SERIES = [{
+  dataKey: "jvmMemory",
+  label: $("monitor.chart.jvm-memory"),
+  color: "var(--color-chart-4)"
+}] satisfies MonitorNavigatorSeries[];
+const TPS_NAVIGATOR_SERIES = [{
+  dataKey: "tps",
+  label: "TPS",
+  color: "var(--color-chart-3)"
+}] satisfies MonitorNavigatorSeries[];
+const NETWORK_NAVIGATOR_SERIES = [
+  {
+    dataKey: "networkUpload",
+    label: $("monitor.chart.network-upload"),
+    color: "var(--color-chart-5)"
+  },
+  {
+    dataKey: "networkDownload",
+    label: $("monitor.chart.network-download"),
+    color: "var(--color-chart-2)"
+  }
+] satisfies MonitorNavigatorSeries[];
+const DISK_NAVIGATOR_SERIES = [
+  {
+    dataKey: "diskRead",
+    label: $("monitor.chart.disk-read"),
+    color: "var(--color-chart-5)"
+  },
+  {
+    dataKey: "diskWrite",
+    label: $("monitor.chart.disk-write"),
+    color: "var(--color-chart-2)"
+  }
+] satisfies MonitorNavigatorSeries[];
 
 export function MonitorBlock({
   title,
@@ -156,7 +208,6 @@ export function CpuMonitorBlock({ className }: {
   className?: string
 }) {
   const info = useContext(InfoContext);
-  const monitorDataList = useContext(MonitorContext);
 
   return (
     <MonitorBlock
@@ -164,41 +215,65 @@ export function CpuMonitorBlock({ className }: {
       description={$("monitor.cpu.description")}
       additionalInfo={info?.system.cpuName}
       className={className}>
-      <ChartContainer
-        config={{
-          cpu: {
-            label: $("monitor.chart.cpu")
-          }
-        }}
-        className="w-full h-52">
-        <AreaChart
-          accessibilityLayer
-          data={monitorDataList}
-          margin={{ top: 10, left: 0, right: 0, bottom: 10 }}>
-          <CartesianGrid vertical={false} stroke="var(--border)"/>
-          <Area
-            dataKey="cpu"
-            type="monotone"
-            fill="url(#fillCpu)"
-            stroke="var(--color-foreground)"
-            strokeWidth="2"
-            isAnimationActive={false}/>
-          <YAxis hide domain={[0, 100]} ticks={YAXIS_TICKS}/>
-          <ChartTooltip
-            cursor={false}
-            content={<ChartTooltipContent hideLabel indicator="line" valueFormatter={(value) => `${value}%`}/>}/>
-          <defs>
-            <linearGradient id="fillCpu" x1="0" y1="0" x2="0" y2="1">
-              <stop
-                offset="10%"
-                stopColor="var(--color-foreground)"/>
-              <stop
-                offset="90%"
-                stopColor="var(--color-card)"/>
-            </linearGradient>
-          </defs>
-        </AreaChart>
-      </ChartContainer>
+      <MonitorHistoryChart series={CPU_NAVIGATOR_SERIES}>
+        {(data, isHistory, range) => (
+          <ChartContainer
+            config={{
+              cpu: {
+                label: $("monitor.chart.cpu")
+              }
+            }}
+            className="w-full h-56">
+            <AreaChart
+              accessibilityLayer
+              data={data}
+              margin={{ top: 10, left: 0, right: 8, bottom: 4 }}>
+              <CartesianGrid vertical={false} stroke="var(--border)"/>
+              <Area
+                dataKey="cpu"
+                type="monotone"
+                fill="url(#fillCpu)"
+                stroke="var(--color-foreground)"
+                strokeWidth="2"
+                connectNulls={false}
+                isAnimationActive={false}/>
+              <YAxis hide domain={[0, 100]} ticks={YAXIS_TICKS}/>
+              {isHistory && (
+                <XAxis
+                  dataKey="timestamp"
+                  type="number"
+                  scale="time"
+                  allowDataOverflow
+                  domain={range ? [range.from, range.to] : ["dataMin", "dataMax"]}
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  minTickGap={32}
+                  tickFormatter={(value) => formatMonitorHistoryAxisTick(value, range ? range.to - range.from : 0)}/>
+              )}
+              <ChartTooltip
+                cursor={false}
+                content={(
+                  <ChartTooltipContent
+                    hideLabel={!isHistory}
+                    labelFormatter={(_, payload) => formatMonitorHistoryTooltip(payload)}
+                    indicator="line"
+                    valueFormatter={(value) => `${value}%`}/>
+                )}/>
+              <defs>
+                <linearGradient id="fillCpu" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="10%"
+                    stopColor="var(--color-foreground)"/>
+                  <stop
+                    offset="90%"
+                    stopColor="var(--color-card)"/>
+                </linearGradient>
+              </defs>
+            </AreaChart>
+          </ChartContainer>
+        )}
+      </MonitorHistoryChart>
     </MonitorBlock>
   );
 }
@@ -207,7 +282,6 @@ export function MemoryMonitorBlock({ className }: {
   className?: string
 }) {
   const info = useContext(InfoContext);
-  const monitorDataList = useContext(MonitorContext);
 
   return (
     <MonitorBlock
@@ -215,41 +289,65 @@ export function MemoryMonitorBlock({ className }: {
       description={$("monitor.memory.description")}
       additionalInfo={formatDataSize(info?.system.memory ?? 0)}
       className={className}>
-      <ChartContainer
-        config={{
-          memory: {
-            label: $("monitor.chart.memory")
-          }
-        }}
-        className="w-full h-44">
-        <AreaChart
-          accessibilityLayer
-          data={monitorDataList}
-          margin={{ top: 10, left: 0, right: 0, bottom: 10 }}>
-          <CartesianGrid vertical={false} stroke="var(--border)"/>
-          <Area
-            dataKey="memory"
-            type="monotone"
-            fill="url(#fillMemory)"
-            stroke="var(--color-chart-2)"
-            strokeWidth="2"
-            isAnimationActive={false}/>
-          <YAxis hide domain={[0, 100]} ticks={YAXIS_TICKS}/>
-          <ChartTooltip
-            cursor={false}
-            content={<ChartTooltipContent hideLabel indicator="line" valueFormatter={(value) => `${value}%`}/>}/>
-          <defs>
-            <linearGradient id="fillMemory" x1="0" y1="0" x2="0" y2="1">
-              <stop
-                offset="10%"
-                stopColor="var(--color-chart-2)"/>
-              <stop
-                offset="90%"
-                stopColor="var(--color-card)"/>
-            </linearGradient>
-          </defs>
-        </AreaChart>
-      </ChartContainer>
+      <MonitorHistoryChart series={MEMORY_NAVIGATOR_SERIES}>
+        {(data, isHistory, range) => (
+          <ChartContainer
+            config={{
+              memory: {
+                label: $("monitor.chart.memory")
+              }
+            }}
+            className="w-full h-52">
+            <AreaChart
+              accessibilityLayer
+              data={data}
+              margin={{ top: 10, left: 0, right: 8, bottom: 4 }}>
+              <CartesianGrid vertical={false} stroke="var(--border)"/>
+              <Area
+                dataKey="memory"
+                type="monotone"
+                fill="url(#fillMemory)"
+                stroke="var(--color-chart-2)"
+                strokeWidth="2"
+                connectNulls={false}
+                isAnimationActive={false}/>
+              <YAxis hide domain={[0, 100]} ticks={YAXIS_TICKS}/>
+              {isHistory && (
+                <XAxis
+                  dataKey="timestamp"
+                  type="number"
+                  scale="time"
+                  allowDataOverflow
+                  domain={range ? [range.from, range.to] : ["dataMin", "dataMax"]}
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  minTickGap={32}
+                  tickFormatter={(value) => formatMonitorHistoryAxisTick(value, range ? range.to - range.from : 0)}/>
+              )}
+              <ChartTooltip
+                cursor={false}
+                content={(
+                  <ChartTooltipContent
+                    hideLabel={!isHistory}
+                    labelFormatter={(_, payload) => formatMonitorHistoryTooltip(payload)}
+                    indicator="line"
+                    valueFormatter={(value) => `${value}%`}/>
+                )}/>
+              <defs>
+                <linearGradient id="fillMemory" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="10%"
+                    stopColor="var(--color-chart-2)"/>
+                  <stop
+                    offset="90%"
+                    stopColor="var(--color-card)"/>
+                </linearGradient>
+              </defs>
+            </AreaChart>
+          </ChartContainer>
+        )}
+      </MonitorHistoryChart>
     </MonitorBlock>
   );
 }
@@ -258,7 +356,6 @@ export function JvmMemoryMonitorBlock({ className }: {
   className?: string
 }) {
   const info = useContext(InfoContext);
-  const monitorDataList = useContext(MonitorContext);
 
   return (
     <MonitorBlock
@@ -275,48 +372,70 @@ export function JvmMemoryMonitorBlock({ className }: {
         : undefined
       }
       className={className}>
-      <ChartContainer
-        config={{
-          jvmMemory: {
-            label: $("monitor.chart.jvm-memory")
-          }
-        }}
-        className="w-full h-44">
-        <AreaChart
-          accessibilityLayer
-          data={monitorDataList}
-          margin={{ top: 10, left: 0, right: 0, bottom: 10 }}>
-          <CartesianGrid vertical={false} stroke="var(--border)"/>
-          <Area
-            dataKey="jvmMemory"
-            type="monotone"
-            fill="url(#fillJvmMemory)"
-            stroke="var(--color-chart-4)"
-            strokeWidth="2"
-            isAnimationActive={false}/>
-          <YAxis hide domain={[0, 100]} ticks={YAXIS_TICKS}/>
-          <ChartTooltip
-            cursor={false}
-            content={<ChartTooltipContent hideLabel indicator="line" valueFormatter={(value) => `${value}%`}/>}/>
-          <defs>
-            <linearGradient id="fillJvmMemory" x1="0" y1="0" x2="0" y2="1">
-              <stop
-                offset="10%"
-                stopColor="var(--color-chart-4)"/>
-              <stop
-                offset="90%"
-                stopColor="var(--color-card)"/>
-            </linearGradient>
-          </defs>
-        </AreaChart>
-      </ChartContainer>
+      <MonitorHistoryChart series={JVM_MEMORY_NAVIGATOR_SERIES}>
+        {(data, isHistory, range) => (
+          <ChartContainer
+            config={{
+              jvmMemory: {
+                label: $("monitor.chart.jvm-memory")
+              }
+            }}
+            className="w-full h-52">
+            <AreaChart
+              accessibilityLayer
+              data={data}
+              margin={{ top: 10, left: 0, right: 8, bottom: 4 }}>
+              <CartesianGrid vertical={false} stroke="var(--border)"/>
+              <Area
+                dataKey="jvmMemory"
+                type="monotone"
+                fill="url(#fillJvmMemory)"
+                stroke="var(--color-chart-4)"
+                strokeWidth="2"
+                connectNulls={false}
+                isAnimationActive={false}/>
+              <YAxis hide domain={[0, 100]} ticks={YAXIS_TICKS}/>
+              {isHistory && (
+                <XAxis
+                  dataKey="timestamp"
+                  type="number"
+                  scale="time"
+                  allowDataOverflow
+                  domain={range ? [range.from, range.to] : ["dataMin", "dataMax"]}
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  minTickGap={32}
+                  tickFormatter={(value) => formatMonitorHistoryAxisTick(value, range ? range.to - range.from : 0)}/>
+              )}
+              <ChartTooltip
+                cursor={false}
+                content={(
+                  <ChartTooltipContent
+                    hideLabel={!isHistory}
+                    labelFormatter={(_, payload) => formatMonitorHistoryTooltip(payload)}
+                    indicator="line"
+                    valueFormatter={(value) => `${value}%`}/>
+                )}/>
+              <defs>
+                <linearGradient id="fillJvmMemory" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="10%"
+                    stopColor="var(--color-chart-4)"/>
+                  <stop
+                    offset="90%"
+                    stopColor="var(--color-card)"/>
+                </linearGradient>
+              </defs>
+            </AreaChart>
+          </ChartContainer>
+        )}
+      </MonitorHistoryChart>
     </MonitorBlock>
   );
 }
 
-export function TpsMonitorBlock({ className }: {
-  className?: string
-}) {
+function TpsMonitorStatus() {
   const monitorDataList = useContext(MonitorContext);
   const latestTps = (
     monitorDataList.length > 0
@@ -350,61 +469,185 @@ export function TpsMonitorBlock({ className }: {
   const tpsStatus = getTpsStatus(latestTps);
 
   return (
+    <Badge
+      variant="outline"
+      title={`${latestTps.toFixed(1)} TPS`}
+      className={cn("cursor-help gap-1.5 px-2 py-0.5", tpsStatus.className)}>
+      <div className={cn("w-2 h-2 rounded-full", tpsStatus.dotClassName)}/>
+      {tpsStatus.label}
+    </Badge>
+  );
+}
+
+export function TpsMonitorBlock({ className }: {
+  className?: string
+}) {
+  return (
     <MonitorBlock
       title="TPS"
       description={$("monitor.tps.description")}
-      additionalInfo={
-        <Badge
-          variant="outline"
-          title={`${latestTps.toFixed(1)} TPS`}
-          className={cn("cursor-help gap-1.5 px-2 py-0.5", tpsStatus.className)}>
-          <div className={cn("w-2 h-2 rounded-full", tpsStatus.dotClassName)}/>
-          {tpsStatus.label}
-        </Badge>
-      }
+      additionalInfo={<TpsMonitorStatus />}
       className={className}>
-      <ChartContainer
-        config={{
-          tps: {
-            label: "TPS"
-          }
-        }}
-        className="w-full h-24">
-        <AreaChart
-          accessibilityLayer
-          data={monitorDataList}
-          margin={{ top: 10, left: 0, right: 0, bottom: 10 }}>
-          <CartesianGrid vertical={false} stroke="var(--border)"/>
-          <Area
-            dataKey="tps"
-            type="monotone"
-            fill="url(#fillTps)"
-            stroke="var(--color-chart-3)"
-            strokeWidth="2"
-            isAnimationActive={false}/>
-          <YAxis hide domain={[0, 20]} ticks={[0, 10, 20]}/>
-          <ChartTooltip
-            cursor={false}
-            content={<ChartTooltipContent hideLabel indicator="line"/>}/>
-          <defs>
-            <linearGradient id="fillTps" x1="0" y1="0" x2="0" y2="1">
-              <stop
-                offset="10%"
-                stopColor="var(--color-chart-3)"/>
-              <stop
-                offset="90%"
-                stopColor="var(--color-card)"/>
-            </linearGradient>
-          </defs>
-        </AreaChart>
-      </ChartContainer>
+      <MonitorHistoryChart series={TPS_NAVIGATOR_SERIES}>
+        {(data, isHistory, range) => (
+          <ChartContainer
+            config={{
+              tps: {
+                label: "TPS"
+              }
+            }}
+            className="w-full h-52">
+            <AreaChart
+              accessibilityLayer
+              data={data}
+              margin={{ top: 10, left: 0, right: 8, bottom: 4 }}>
+              <CartesianGrid vertical={false} stroke="var(--border)"/>
+              <Area
+                dataKey="tps"
+                type="monotone"
+                fill="url(#fillTps)"
+                stroke="var(--color-chart-3)"
+                strokeWidth="2"
+                connectNulls={false}
+                isAnimationActive={false}/>
+              <YAxis hide domain={[0, 20]} ticks={[0, 10, 20]}/>
+              {isHistory && (
+                <XAxis
+                  dataKey="timestamp"
+                  type="number"
+                  scale="time"
+                  allowDataOverflow
+                  domain={range ? [range.from, range.to] : ["dataMin", "dataMax"]}
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  minTickGap={32}
+                  tickFormatter={(value) => formatMonitorHistoryAxisTick(value, range ? range.to - range.from : 0)}/>
+              )}
+              <ChartTooltip
+                cursor={false}
+                content={(
+                  <ChartTooltipContent
+                    hideLabel={!isHistory}
+                    labelFormatter={(_, payload) => formatMonitorHistoryTooltip(payload)}
+                    indicator="line"/>
+                )}/>
+              <defs>
+                <linearGradient id="fillTps" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="10%"
+                    stopColor="var(--color-chart-3)"/>
+                  <stop
+                    offset="90%"
+                    stopColor="var(--color-card)"/>
+                </linearGradient>
+              </defs>
+            </AreaChart>
+          </ChartContainer>
+        )}
+      </MonitorHistoryChart>
     </MonitorBlock>
+  );
+}
+
+function NetworkMonitorStatus() {
+  const monitorDataList = useContext(MonitorContext);
+  const latestData = (
+    monitorDataList.length > 0
+    ? monitorDataList[monitorDataList.length - 1]
+    : null
+  );
+
+  return (
+    <span className={cn("text-xs flex items-center [&>svg]:size-3", googleSansCode.className)}>
+      <MoveUp />
+      {`${latestData ? formatDataSize(latestData.networkUpload) : "0 KB"}/s`}
+      <MoveDown className="ml-2"/>
+      {`${latestData ? formatDataSize(latestData.networkDownload) : "0KB"}/s`}
+      <ArrowUpDown className="ml-2 mr-1"/>
+      {`${
+        latestData
+        ? formatDataSize((latestData.networkUpload + latestData.networkDownload) / 2)
+        : "0KB"
+      }/s`}
+    </span>
   );
 }
 
 export function NetworkMonitorBlock({ className }: {
   className?: string
 }) {
+  return (
+    <MonitorBlock
+      title={$("monitor.network.title")}
+      description={$("monitor.network.description")}
+      additionalInfo={<NetworkMonitorStatus />}
+      className={className}>
+      <MonitorHistoryChart series={NETWORK_NAVIGATOR_SERIES}>
+        {(data, isHistory, range) => (
+          <ChartContainer
+            config={{
+              networkUpload: {
+                label: $("monitor.chart.network-upload")
+              },
+              networkDownload: {
+                label: $("monitor.chart.network-download")
+              }
+            }}
+            className="w-full h-52">
+            <AreaChart
+              accessibilityLayer
+              data={data}
+              margin={{ top: 10, left: 0, right: 8, bottom: 4 }}>
+              <CartesianGrid vertical={false} stroke="var(--border)"/>
+              <Area
+                dataKey="networkUpload"
+                type="monotone"
+                fill="transparent"
+                stroke="var(--color-chart-5)"
+                strokeWidth="2"
+                connectNulls={false}
+                isAnimationActive={false}/>
+              <Area
+                dataKey="networkDownload"
+                type="monotone"
+                fill="transparent"
+                stroke="var(--color-chart-2)"
+                strokeWidth="2"
+                connectNulls={false}
+                isAnimationActive={false}/>
+              <YAxis hide domain={["auto", "auto"]}/>
+              {isHistory && (
+                <XAxis
+                  dataKey="timestamp"
+                  type="number"
+                  scale="time"
+                  allowDataOverflow
+                  domain={range ? [range.from, range.to] : ["dataMin", "dataMax"]}
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  minTickGap={32}
+                  tickFormatter={(value) => formatMonitorHistoryAxisTick(value, range ? range.to - range.from : 0)}/>
+              )}
+              <ChartTooltip
+                cursor={false}
+                content={(
+                  <ChartTooltipContent
+                    hideLabel={!isHistory}
+                    labelFormatter={(_, payload) => formatMonitorHistoryTooltip(payload)}
+                    indicator="line"
+                    valueFormatter={(value) => `${formatDataSize(parseInt(value.replaceAll(",", "")))}/s`}/>
+                )}/>
+            </AreaChart>
+          </ChartContainer>
+        )}
+      </MonitorHistoryChart>
+    </MonitorBlock>
+  );
+}
+
+function DiskIOMonitorStatus() {
   const monitorDataList = useContext(MonitorContext);
   const latestData = (
     monitorDataList.length > 0
@@ -413,121 +656,84 @@ export function NetworkMonitorBlock({ className }: {
   );
 
   return (
-    <MonitorBlock
-      title={$("monitor.network.title")}
-      description={$("monitor.network.description")}
-      additionalInfo={
-        <span className={cn("text-xs flex items-center [&>svg]:size-3", googleSansCode.className)}>
-          <MoveUp />
-          {`${latestData ? formatDataSize(latestData.networkUpload) : "0 KB"}/s`}
-          <MoveDown className="ml-2"/>
-          {`${latestData ? formatDataSize(latestData.networkDownload) : "0KB"}/s`}
-          <ArrowUpDown className="ml-2 mr-1"/>
-          {`${
-            latestData
-            ? formatDataSize((latestData.networkUpload + latestData.networkDownload) / 2)
-            : "0KB"
-          }/s`}
-        </span>
-      }
-      className={className}>
-      <ChartContainer
-        config={{
-          networkUpload: {
-            label: $("monitor.chart.network-upload")
-          },
-          networkDownload: {
-            label: $("monitor.chart.network-download")
-          }
-        }}
-        className="w-full h-24">
-        <AreaChart
-          accessibilityLayer
-          data={monitorDataList}
-          margin={{ top: 10, left: 0, right: 0, bottom: 10 }}>
-          <CartesianGrid vertical={false} stroke="var(--border)"/>
-          <Area
-            dataKey="networkUpload"
-            type="monotone"
-            fill="transparent"
-            stroke="var(--color-chart-5)"
-            strokeWidth="2"
-            isAnimationActive={false}/>
-          <Area
-            dataKey="networkDownload"
-            type="monotone"
-            fill="transparent"
-            stroke="var(--color-chart-2)"
-            strokeWidth="2"
-            isAnimationActive={false}/>
-          <YAxis hide domain={["auto", "auto"]}/>
-          <ChartTooltip
-            cursor={false}
-            content={<ChartTooltipContent hideLabel indicator="line" valueFormatter={(value) => `${formatDataSize(parseInt(value))}/s`}/>}/>
-        </AreaChart>
-      </ChartContainer>
-    </MonitorBlock>
+    <span className={cn("text-xs flex items-center [&>svg]:size-3", googleSansCode.className)}>
+      <span className="mr-2">Read</span>
+      {`${latestData ? formatDataSize(latestData.diskRead) : "0 KB"}/s`}
+      <span className="ml-3 mr-2">Write</span>
+      {`${latestData ? formatDataSize(latestData.diskWrite) : "0KB"}/s`}
+    </span>
   );
 }
 
 export function DiskIOMonitorBlock({ className }: {
   className?: string
 }) {
-  const monitorDataList = useContext(MonitorContext);
-  const latestData = (
-    monitorDataList.length > 0
-    ? monitorDataList[monitorDataList.length - 1]
-    : null
-  );
-
   return (
     <MonitorBlock
       title={$("monitor.disk-io.title")}
       description={$("monitor.disk-io.description")}
-      additionalInfo={
-        <span className={cn("text-xs flex items-center [&>svg]:size-3", googleSansCode.className)}>
-          <span className="mr-2">Read</span>
-          {`${latestData ? formatDataSize(latestData.diskRead) : "0 KB"}/s`}
-          <span className="ml-3 mr-2">Write</span>
-          {`${latestData ? formatDataSize(latestData.diskWrite) : "0KB"}/s`}
-        </span>
-      }
+      additionalInfo={<DiskIOMonitorStatus />}
       className={className}>
-      <ChartContainer
-        config={{
-          diskRead: {
-            label: $("monitor.chart.disk-read")
-          },
-          diskWrite: {
-            label: $("monitor.chart.disk-write")
-          }
-        }}
-        className="w-full h-24">
-        <AreaChart
-          accessibilityLayer
-          data={monitorDataList}
-          margin={{ top: 10, left: 0, right: 0, bottom: 10 }}>
-          <CartesianGrid vertical={false} stroke="var(--border)"/>
-          <Area
-            dataKey="diskRead"
-            type="monotone"
-            fill="transparent"
-            stroke="var(--color-chart-5)"
-            strokeWidth="2"
-            isAnimationActive={false}/>
-          <Area
-            dataKey="diskWrite"
-            type="monotone"
-            fill="transparent"
-            stroke="var(--color-chart-2)"
-            strokeWidth="2"
-            isAnimationActive={false}/>
-          <YAxis hide domain={["auto", "auto"]}/>
-          <ChartTooltip
-            cursor={false}
-            content={<ChartTooltipContent hideLabel indicator="line" valueFormatter={(value) => `${formatDataSize(parseInt(value))}/s`}/>}/>
-        </AreaChart>
-      </ChartContainer>
+      <MonitorHistoryChart series={DISK_NAVIGATOR_SERIES}>
+        {(data, isHistory, range) => (
+          <ChartContainer
+            config={{
+              diskRead: {
+                label: $("monitor.chart.disk-read")
+              },
+              diskWrite: {
+                label: $("monitor.chart.disk-write")
+              }
+            }}
+            className="w-full h-52">
+            <AreaChart
+              accessibilityLayer
+              data={data}
+              margin={{ top: 10, left: 0, right: 8, bottom: 4 }}>
+              <CartesianGrid vertical={false} stroke="var(--border)"/>
+              <Area
+                dataKey="diskRead"
+                type="monotone"
+                fill="transparent"
+                stroke="var(--color-chart-5)"
+                strokeWidth="2"
+                connectNulls={false}
+                isAnimationActive={false}/>
+              <Area
+                dataKey="diskWrite"
+                type="monotone"
+                fill="transparent"
+                stroke="var(--color-chart-2)"
+                strokeWidth="2"
+                connectNulls={false}
+                isAnimationActive={false}/>
+              <YAxis hide domain={["auto", "auto"]}/>
+              {isHistory && (
+                <XAxis
+                  dataKey="timestamp"
+                  type="number"
+                  scale="time"
+                  allowDataOverflow
+                  domain={range ? [range.from, range.to] : ["dataMin", "dataMax"]}
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  minTickGap={32}
+                  tickFormatter={(value) => formatMonitorHistoryAxisTick(value, range ? range.to - range.from : 0)}/>
+              )}
+              <ChartTooltip
+                cursor={false}
+                content={(
+                  <ChartTooltipContent
+                    hideLabel={!isHistory}
+                    labelFormatter={(_, payload) => formatMonitorHistoryTooltip(payload)}
+                    indicator="line"
+                    valueFormatter={(value) => `${formatDataSize(parseInt(value.replaceAll(",", "")))}/s`}/>
+                )}/>
+            </AreaChart>
+          </ChartContainer>
+        )}
+      </MonitorHistoryChart>
     </MonitorBlock>
   );
 }

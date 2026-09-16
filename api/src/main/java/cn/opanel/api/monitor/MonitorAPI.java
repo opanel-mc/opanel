@@ -1,5 +1,6 @@
 package cn.opanel.api.monitor;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -31,4 +32,19 @@ public interface MonitorAPI {
      * @return an unmodifiable chronological history list
      */
     List<MonitorSnapshot> getHistory(int limit);
+
+    /**
+     * Queries persisted, aggregated history in the half-open interval
+     * {@code [from, to)}. The returned points are chronological and immutable.
+     *
+     * @param from inclusive start time
+     * @param to exclusive end time
+     * @param maxPoints maximum number of returned points (between 1 and 2000)
+     * @return an unmodifiable list of aggregate history points
+     * @throws IllegalArgumentException if the range or point limit is invalid
+     * @throws IllegalStateException if persistent monitor history is unavailable
+     */
+    default List<MonitorHistoryPoint> queryHistory(Instant from, Instant to, int maxPoints) {
+        throw new IllegalStateException("Persistent monitor history is not supported.");
+    }
 }
