@@ -96,7 +96,7 @@ export function parseTextToHTML(text: string, maxLines = 1, maxCharPerLine = Inf
             isValid = false;
             break;
           }
-          
+
           const peekedChar = pure[i + j + 2];
           if(
             (j % 2 === 0 && peekedChar !== secSign)
@@ -158,6 +158,27 @@ export function parseTextToANSI(text: string): string {
         activeCodes = [];
         i++;
         continue;
+      }
+
+      // BungeeCord/Spigot legacy rgb format
+      if(code === "x") {
+        let rgb = "";
+        for(let j = 0; j < 6; j++) {
+          const digit = pure[i + 3 + j * 2];
+          if(pure[i + 2 + j * 2] !== secSign || !validHexCodes.includes(digit)) break;
+          rgb += digit;
+        }
+
+        if(rgb.length === 6) {
+          const r = parseInt(rgb.slice(0, 2), 16);
+          const g = parseInt(rgb.slice(2, 4), 16);
+          const b = parseInt(rgb.slice(4, 6), 16);
+          result += "\x1b[0m";
+          activeCodes = [`38;2;${r};${g};${b}`];
+          result += `\x1b[${activeCodes.join(';')}m`;
+          i += 13;
+          continue;
+        }
       }
       
       if(ansiColorMap[code]) {
