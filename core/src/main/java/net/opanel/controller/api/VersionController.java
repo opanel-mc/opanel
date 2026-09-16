@@ -28,6 +28,7 @@ public class VersionController extends BaseController {
         obj.put("version", server.getVersion());
         obj.put("map", mapConfig.enabled);
         obj.put("mcdr", OPanel.isMCDRBridgeActive());
+        obj.put("monitorHistoryEnabled", plugin.getMonitorManager().isHistoryAvailable());
         if(server instanceof CodeOfConductFeature) {
             Properties properties = new Properties();
             properties.load(new ByteArrayInputStream(OPanelServer.getPropertiesContent().getBytes()));

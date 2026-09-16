@@ -63,6 +63,7 @@ function Harness({ children }: { children?: ReactNode }) {
   return (
     <div>
       <span data-testid="mode">{history.mode}</span>
+      <span data-testid="enabled">{String(history.enabled)}</span>
       <span data-testid="overview-status">{history.overviewStatus}</span>
       <span data-testid="detail-status">{history.detailStatus}</span>
       <span data-testid="detail-cpu">{history.detailData[0]?.cpu ?? ""}</span>
@@ -93,6 +94,28 @@ describe("MonitorHistoryProvider", () => {
   beforeEach(() => vi.clearAllMocks());
   afterEach(() => {
     cleanup();
+  });
+
+  it("does not load history while the feature is disabled", async () => {
+    const { rerender } = render(
+      <MonitorHistoryProvider enabled={false}>
+        <Harness />
+      </MonitorHistoryProvider>
+    );
+
+    expect(screen.getByTestId("enabled")).toHaveTextContent("false");
+    expect(screen.getByTestId("overview-status")).toHaveTextContent("idle");
+    expect(sendGetRequest).not.toHaveBeenCalled();
+
+    vi.mocked(sendGetRequest).mockResolvedValueOnce(response([10, 20, 30]));
+    rerender(
+      <MonitorHistoryProvider enabled>
+        <Harness />
+      </MonitorHistoryProvider>
+    );
+
+    await waitFor(() => expect(screen.getByTestId("overview-status")).toHaveTextContent("ready"));
+    expect(sendGetRequest).toHaveBeenCalledTimes(1);
   });
 
   it("loads one full overview while keeping the default live mode", async () => {

@@ -76,10 +76,14 @@ function StatusMessage({
   retry: () => void
   compact?: boolean
 }) {
-  if(status === "loading") {
+  if(status === "idle" || status === "loading") {
     return compact
       ? <Skeleton className="h-12 w-full rounded-sm"/>
-      : <div className="flex items-center gap-2 text-sm text-muted-foreground"><Spinner />{$("monitor.history.loading")}</div>;
+      : (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Spinner />{$("monitor.history.loading")}
+        </div>
+      );
   }
 
   const message = (
@@ -212,6 +216,7 @@ export function MonitorHistoryChart({
 }) {
   const liveData = useContext(MonitorContext);
   const {
+    enabled,
     mode,
     detailData,
     detailStatus,
@@ -231,7 +236,7 @@ export function MonitorHistoryChart({
           </div>
         )}
       </div>
-      <MonitorHistoryNavigator series={series}/>
+      {enabled && <MonitorHistoryNavigator series={series}/>}
     </>
   );
 }

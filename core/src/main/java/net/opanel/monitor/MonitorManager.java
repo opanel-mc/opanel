@@ -143,6 +143,10 @@ public class MonitorManager {
         return historyManager.queryHistory(from, to, maxPoints);
     }
 
+    public boolean isHistoryAvailable() {
+        return historyManager.isAvailable();
+    }
+
     public void addUpdateListener(Consumer<MonitorData> listener) {
         updateListeners.add(listener);
     }

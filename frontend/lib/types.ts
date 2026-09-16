@@ -204,6 +204,7 @@ export interface VersionResponse {
   version: string
   map: boolean
   mcdr: boolean
+  monitorHistoryEnabled: boolean
   codeOfConduct: boolean
 }
 

@@ -42,6 +42,7 @@ export interface MonitorHistorySelection {
 }
 
 interface MonitorHistoryContextValue {
+  enabled: boolean
   mode: MonitorHistoryMode
   overviewData: MonitorHistoryChartData[]
   detailData: MonitorHistoryChartData[]
@@ -98,11 +99,16 @@ function historyUrl(from: number, to: number): string {
   return `/api/monitor/history?${params}`;
 }
 
-export function MonitorHistoryProvider({ children }: PropsWithChildren) {
+export function MonitorHistoryProvider({
+  children,
+  enabled = true
+}: PropsWithChildren<{ enabled?: boolean }>) {
   const [mode, setMode] = useState<MonitorHistoryMode>("live");
   const [overviewData, setOverviewData] = useState<MonitorHistoryChartData[]>([]);
   const [detailData, setDetailData] = useState<MonitorHistoryChartData[]>([]);
-  const [overviewStatus, setOverviewStatus] = useState<MonitorHistoryLoadStatus>("loading");
+  const [overviewStatus, setOverviewStatus] = useState<MonitorHistoryLoadStatus>(
+    enabled ? "loading" : "idle"
+  );
   const [detailStatus, setDetailStatus] = useState<MonitorHistoryLoadStatus>("idle");
   const [selection, setSelection] = useState<MonitorHistorySelection>({
     startIndex: 0,
@@ -238,11 +244,14 @@ export function MonitorHistoryProvider({ children }: PropsWithChildren) {
   }, []);
 
   useEffect(() => {
+    if(!enabled) return cancelPendingRequests;
+
     void refreshOverview();
     return cancelPendingRequests;
-  }, [cancelPendingRequests, refreshOverview]);
+  }, [cancelPendingRequests, enabled, refreshOverview]);
 
   const value = useMemo<MonitorHistoryContextValue>(() => ({
+    enabled,
     mode,
     overviewData,
     detailData,
@@ -256,6 +265,7 @@ export function MonitorHistoryProvider({ children }: PropsWithChildren) {
     retryOverview: () => void refreshOverview(),
     retryDetail
   }), [
+    enabled,
     mode,
     overviewData,
     detailData,

@@ -1,11 +1,11 @@
 "use client";
 
 import type { APIResponse, InfoResponse } from "@/lib/types";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Activity } from "lucide-react";
 import { $ } from "@/lib/i18n";
 import { SubPage } from "../sub-page";
-import { InfoContext, MonitorContext } from "@/contexts/api-context";
+import { InfoContext, MonitorContext, VersionContext } from "@/contexts/api-context";
 import { useMonitor } from "@/hooks/use-monitor";
 import {
   ActivityMonitorBlock,
@@ -23,6 +23,7 @@ import { MonitorHistoryProvider } from "./monitor-history-context";
 export default function Monitor() {
   const [info, setInfo] = useState<APIResponse<InfoResponse>>();
   const monitorDataList = useMonitor(200);
+  const versionInfo = useContext(VersionContext);
   
   const fetchServerInfo = async () => {
     try {
@@ -52,7 +53,7 @@ export default function Monitor() {
       className="grid grid-cols-2 gap-5">
       <InfoContext.Provider value={info}>
         <MonitorContext.Provider value={monitorDataList}>
-          <MonitorHistoryProvider>
+          <MonitorHistoryProvider enabled={versionInfo?.monitorHistoryEnabled ?? false}>
             <ActivityMonitorBlock className="col-span-2"/>
             <CpuMonitorBlock className="col-span-2"/>
             <MemoryMonitorBlock className="max-lg:col-span-2"/>
