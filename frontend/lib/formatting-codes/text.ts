@@ -67,13 +67,15 @@ export function parseTextToHTML(text: string, maxLines = 1, maxCharPerLine = Inf
       continue;
     }
     if(tempRgbStr !== null && tempRgbStr.length === 6) { // end of rgb format
+      currentNode = root;
+      
       const span = document.createElement("span");
       span.style.color = "#"+ tempRgbStr;
       currentNode.appendChild(span);
       currentNode = span;
       tempRgbStr = null;
     }
-    
+
     if(char === secSign) {
       const code = pure[i + 1];
 
