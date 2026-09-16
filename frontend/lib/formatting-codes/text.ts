@@ -44,20 +44,49 @@ export function parseTextToHTML(text: string, maxLines = 1, maxCharPerLine = Inf
   let lines = 1;
   let charAmountOfLine = 0; // will be reset when new line
 
+  // temp variable for legacy rgb format
+  let tempRgbStr: string | null = null;
+
   for(let i = 0; i < pure.length; i++) {
     const char = pure[i];
-    if(char === "\n" && lines < maxLines) { // new line
+    if(
+      (char === "\n" && lines < maxLines)
+      || (i !== 0 && char === "n" && pure[i - 1] === "\\")
+    ) { // new line
       currentNode.appendChild(document.createElement("br"));
       lines++;
       charAmountOfLine = 0;
       continue;
     }
+    if(char === "\\") continue;
+
+    if(tempRgbStr !== null && tempRgbStr.length < 6) { // inside rgb format
+      if(char !== secSign) {
+        tempRgbStr += char;
+      }
+      continue;
+    }
+    if(tempRgbStr !== null && tempRgbStr.length === 6) { // end of rgb format
+      const span = document.createElement("span");
+      span.style.color = "#"+ tempRgbStr;
+      currentNode.appendChild(span);
+      currentNode = span;
+      tempRgbStr = null;
+    }
+    
     if(char === secSign) {
       const code = pure[i + 1];
 
       // reset symbol
       if(code === "r") {
         currentNode = root;
+        i++;
+        continue;
+      }
+
+      // BungeeCord/Spigot legacy rgb format
+      if(code === "x") {
+        tempRgbStr = "";
         i++;
         continue;
       }
