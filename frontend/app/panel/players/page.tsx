@@ -28,6 +28,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 
 type ExportPlayer = Omit<Player, "isOnline" | "ping" | "ip" | "joinTime">;
 
@@ -233,10 +234,16 @@ export default function Players() {
         <div className="flex flex-col-reverse items-start gap-2 lg:flex-row lg:justify-between lg:items-end lg:gap-0 xl:flex-col-reverse xl:items-start xl:gap-2 2xl:flex-row 2xl:justify-between 2xl:items-end 2xl:gap-0">
           <TabsList>
             <TabsTrigger value="player-list">
-              {`${$("players.player-list.title")} (${players.filter(({ isOnline }) => isOnline).length} / ${maxPlayerCount})`}
+              {$("players.player-list.title")}
+              <Badge variant="outline">
+                {`${players.filter(({ isOnline }) => isOnline).length} / ${maxPlayerCount}`}
+              </Badge>
             </TabsTrigger>
             <TabsTrigger value="banned-list">
-              {`${$("players.banned-list.title")} (${players.filter(({ isBanned }) => isBanned).length})`}
+              {$("players.banned-list.title")}
+              <Badge variant="outline">
+                {players.filter(({ isBanned }) => isBanned).length}
+              </Badge>
             </TabsTrigger>
           </TabsList>
 

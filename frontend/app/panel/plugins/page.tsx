@@ -1,7 +1,7 @@
 "use client";
 
 import type { Plugin, PluginsResponse } from "@/lib/types";
-import { type DragEvent, useContext, useEffect, useRef, useState } from "react";
+import { type DragEvent, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Blocks, Download, PackageCheck, PackageX, RotateCw, Search, Upload } from "lucide-react";
 import { toast } from "sonner";
 import download from "downloadjs";
@@ -30,6 +30,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 
 const DISABLED_SUFFIX = ".disabled";
 
@@ -77,6 +78,24 @@ export default function Plugins() {
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const dragDepthRef = useRef(0);
+  const enabledPlugins = useMemo(() => [
+    ...plugins.filter(({ name, fileName, enabled }) => (
+      (
+        name.toLowerCase().includes(searchString.toLowerCase())
+        || decodeURIComponent(base64ToString(fileName)).toLowerCase().includes(searchString.toLowerCase())
+      )
+      && (enabled && !fileName.endsWith(DISABLED_SUFFIX))
+    )),
+  ], [plugins, searchString]);
+  const disabledPlugins = useMemo(() => [
+    ...plugins.filter(({ name, fileName, enabled }) => (
+      (
+        name.toLowerCase().includes(searchString.toLowerCase())
+        || decodeURIComponent(base64ToString(fileName)).toLowerCase().includes(searchString.toLowerCase())
+      )
+      && (!enabled || fileName.endsWith(DISABLED_SUFFIX))
+    )),
+  ], [plugins, searchString]);
 
   const hasDraggedFiles = (event: DragEvent<HTMLElement>) => Array.from(event.dataTransfer.types).includes("Files");
 
@@ -253,10 +272,16 @@ export default function Plugins() {
               <TabsTrigger value="enabled-list">
                 <PackageCheck />
                 {$("plugins.enabled-list.title")}
+                <Badge variant="outline">
+                  {enabledPlugins.length}
+                </Badge>
               </TabsTrigger>
               <TabsTrigger value="disabled-list">
                 <PackageX />
                 {$("plugins.disabled-list.title")}
+                <Badge variant="outline">
+                  {disabledPlugins.length}
+                </Badge>
               </TabsTrigger>
             </TabsList>
             <div className="min-w-fit border-b border-b-sidebar-border max-lg:border-b-transparent pb-1 flex gap-2 max-sm:hidden *:cursor-pointer">
@@ -292,15 +317,7 @@ export default function Plugins() {
           <TabsContent value="enabled-list">
             <DataTable
               columns={enabledPluginColumns}
-              data={[
-                ...plugins.filter(({ name, fileName, enabled }) => (
-                  (
-                    name.toLowerCase().includes(searchString.toLowerCase())
-                    || decodeURIComponent(base64ToString(fileName)).toLowerCase().includes(searchString.toLowerCase())
-                  )
-                  && (enabled && !fileName.endsWith(DISABLED_SUFFIX))
-                )),
-              ]}
+              data={enabledPlugins}
               pagination
               paginationQueryKey="page"
               fallbackMessage={$("plugins.empty")}/>
@@ -308,15 +325,7 @@ export default function Plugins() {
           <TabsContent value="disabled-list">
             <DataTable
               columns={disabledPluginColumns}
-              data={[
-                ...plugins.filter(({ name, fileName, enabled }) => (
-                  (
-                    name.toLowerCase().includes(searchString.toLowerCase())
-                    || decodeURIComponent(base64ToString(fileName)).toLowerCase().includes(searchString.toLowerCase())
-                  )
-                  && (!enabled || fileName.endsWith(DISABLED_SUFFIX))
-                )),
-              ]}
+              data={disabledPlugins}
               pagination
               paginationQueryKey="disabled-page"
               fallbackMessage={$("plugins.empty")}/>
