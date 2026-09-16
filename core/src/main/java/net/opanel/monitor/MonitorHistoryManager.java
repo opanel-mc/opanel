@@ -11,13 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 public final class MonitorHistoryManager {
     public static final int DEFAULT_MAX_POINTS = 500;
@@ -180,37 +174,40 @@ public final class MonitorHistoryManager {
         }
 
         try {
-            int sourceResolution = selectSourceResolution(from, clock.millis());
+            long now = clock.millis();
+            int sourceResolution = selectSourceResolution(from, now);
             long outputResolution = selectOutputResolution(from, to, sourceResolution, maxPoints);
-            List<MonitorAggregate> source = store.readRange(sourceResolution, from, to);
+            List<MonitorAggregate> source = readStitchedRange(sourceResolution, from, to, now);
             Map<Long, MonitorAggregate> grouped = new TreeMap<>();
+            Map<Long, Long> groupEnds = new TreeMap<>();
             for(MonitorAggregate aggregate : source) {
                 long outputBucketStart = MonitorHistoryAccumulator.align(
                         aggregate.bucketStart(),
                         outputResolution
                 );
-                MonitorAggregate existing = grouped.get(outputBucketStart);
-                grouped.put(
-                        outputBucketStart,
+                long aggregateEnd = Math.addExact(aggregate.bucketStart(), aggregate.resolutionMillis());
+                groupEnds.merge(outputBucketStart, aggregateEnd, Math::max);
+                grouped.compute(outputBucketStart, (k, existing) -> (
                         existing == null
-                                ? new MonitorAggregate(
-                                        sourceResolution,
-                                        outputBucketStart,
-                                        aggregate.sampleCount(),
-                                        aggregate.sum(),
-                                        aggregate.minimum(),
-                                        aggregate.maximum()
-                                )
-                                : existing.merge(aggregate, sourceResolution, outputBucketStart)
-                );
+                        ? new MonitorAggregate(
+                            sourceResolution,
+                            outputBucketStart,
+                            aggregate.sampleCount(),
+                            aggregate.sum(),
+                            aggregate.minimum(),
+                            aggregate.maximum()
+                        )
+                        : existing.merge(aggregate, sourceResolution, outputBucketStart)
+                ));
             }
 
             List<MonitorHistoryData> points = new ArrayList<>(grouped.size());
             for(Map.Entry<Long, MonitorAggregate> entry : grouped.entrySet()) {
                 MonitorAggregate aggregate = entry.getValue();
+                long duration = Math.min(outputResolution, groupEnds.get(entry.getKey()) - entry.getKey());
                 points.add(new MonitorHistoryData(
                         entry.getKey(),
-                        outputResolution,
+                        duration,
                         aggregate.sampleCount(),
                         aggregate.average(),
                         aggregate.minimum(),
@@ -222,6 +219,62 @@ public final class MonitorHistoryManager {
             handleStoreFailure("query monitor history", e);
             throw new IllegalStateException("Persistent monitor history is unavailable.", e);
         }
+    }
+
+    private List<MonitorAggregate> readStitchedRange(
+            int sourceResolution,
+            long from,
+            long to,
+            long now
+    ) throws SQLException {
+        List<MonitorAggregate> aggregates = new ArrayList<>();
+        long cursor = from;
+        long availableEnd = Math.min(to, now);
+
+        if(sourceResolution == MonitorHistoryStore.HOURLY_RESOLUTION_SECONDS) {
+            long completedHoursEnd = MonitorHistoryAccumulator.align(
+                    availableEnd,
+                    MonitorHistoryStore.HOURLY_RESOLUTION_SECONDS * 1000L
+            );
+            cursor = appendRange(
+                    aggregates,
+                    MonitorHistoryStore.HOURLY_RESOLUTION_SECONDS,
+                    cursor,
+                    Math.min(to, completedHoursEnd)
+            );
+        }
+
+        if(sourceResolution != MonitorHistoryStore.MINUTE_RESOLUTION_SECONDS) {
+            long completedQuarterHoursEnd = MonitorHistoryAccumulator.align(
+                    availableEnd,
+                    MonitorHistoryStore.QUARTER_HOUR_RESOLUTION_SECONDS * 1000L
+            );
+            cursor = appendRange(
+                    aggregates,
+                    MonitorHistoryStore.QUARTER_HOUR_RESOLUTION_SECONDS,
+                    cursor,
+                    Math.min(to, completedQuarterHoursEnd)
+            );
+        }
+
+        appendRange(
+                aggregates,
+                MonitorHistoryStore.MINUTE_RESOLUTION_SECONDS,
+                cursor,
+                availableEnd
+        );
+        return aggregates;
+    }
+
+    private long appendRange(
+            List<MonitorAggregate> destination,
+            int resolutionSeconds,
+            long from,
+            long to
+    ) throws SQLException {
+        if(from >= to) return from;
+        destination.addAll(store.readRange(resolutionSeconds, from, to));
+        return to;
     }
 
     private int selectSourceResolution(long from, long now) {
