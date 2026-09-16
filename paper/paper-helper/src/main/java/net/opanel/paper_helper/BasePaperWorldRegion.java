@@ -195,14 +195,25 @@ public abstract class BasePaperWorldRegion implements OPanelWorldRegion {
         ReadWriteNBT biomes = sectionNbt.getCompound("biomes");
         if(biomes == null) return null;
 
-        ReadWriteNBTCompoundList paletteNbt = blockStates.getCompoundList("palette");
-        if(paletteNbt == null || paletteNbt.isEmpty()) return null;
+        // 26.3 palettes may mix direct string ids with compound block states.
+        ReadWriteNBTList<String> stringPaletteNbt = blockStates.getStringList("palette");
+        ReadWriteNBTCompoundList compoundPaletteNbt = blockStates.getCompoundList("palette");
+        int paletteSize = Math.max(stringPaletteNbt.size(), compoundPaletteNbt.size());
+        if(paletteSize == 0) return null;
+
         List<String> palette = new ArrayList<>();
-        for(ReadWriteNBT item : paletteNbt) {
-            String id = item.getString("Name");
-            if(id != null) {
-                palette.add(id);
+        for(int i = 0; i < paletteSize; i++) {
+            String id = i < stringPaletteNbt.size() ? stringPaletteNbt.get(i) : null;
+            if((id == null || id.isEmpty()) && i < compoundPaletteNbt.size()) {
+                ReadWriteNBT item = compoundPaletteNbt.get(i);
+                id = item.getString("id");
+                if(id == null || id.isEmpty()) {
+                    id = item.getString("Name");
+                }
             }
+
+            if(id == null || id.isEmpty()) return null;
+            palette.add(id);
         }
 
         ReadWriteNBTList<String> biomesPaletteNbt = biomes.getStringList("palette");
