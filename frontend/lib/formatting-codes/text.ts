@@ -1,5 +1,6 @@
 export const secSign = "§";
 
+const validHexCodes = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
 const colorCodes = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
 const formattingCodes = ["k", "l", "m", "n", "o"];
 
@@ -88,9 +89,24 @@ export function parseTextToHTML(text: string, maxLines = 1, maxCharPerLine = Inf
 
       // BungeeCord/Spigot legacy rgb format
       if(code === "x") {
-        tempRgbStr = "";
-        i++;
-        continue;
+        // peek and validate the legacy rgb format string
+        let isValid = true;
+        for(let j = 0; i + j + 2 < pure.length && j < 12; j++) {
+          const peekedChar = pure[i + j + 2];
+          if(
+            (j % 2 === 0 && peekedChar !== secSign)
+            || (j % 2 !== 0 && !validHexCodes.includes(peekedChar))
+          ) {
+            isValid = false;
+            break;
+          }
+        }
+
+        if(isValid) {
+          tempRgbStr = "";
+          i++;
+          continue;
+        }
       }
 
       const isColor = colorCodes.includes(code);
