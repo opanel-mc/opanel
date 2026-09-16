@@ -42,6 +42,22 @@ export interface MonitorData {
   diskWrite: number
 }
 
+export interface MonitorHistoryPoint {
+  timestamp: number
+  durationMs: number
+  sampleCount: number
+  average: MonitorData
+  minimum: MonitorData
+  maximum: MonitorData
+}
+
+export interface MonitorHistoryResponse {
+  from: number
+  to: number
+  resolutionMs: number
+  points: MonitorHistoryPoint[]
+}
+
 export interface Save {
   name: string
   displayName: string // base64

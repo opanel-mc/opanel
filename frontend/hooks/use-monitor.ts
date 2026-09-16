@@ -9,7 +9,9 @@ function createInitialMonitorData(limit: number): MonitorData[] {
     jvmMemory: 0,
     tps: 20,
     networkUpload: 0,
-    networkDownload: 0
+    networkDownload: 0,
+    diskRead: 0,
+    diskWrite: 0
   }));
 }
 
