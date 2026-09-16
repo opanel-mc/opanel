@@ -91,7 +91,12 @@ export function parseTextToHTML(text: string, maxLines = 1, maxCharPerLine = Inf
       if(code === "x") {
         // peek and validate the legacy rgb format string
         let isValid = true;
-        for(let j = 0; i + j + 2 < pure.length && j < 12; j++) {
+        for(let j = 0; j < 12; j++) {
+          if(i + j + 2 >= pure.length) {
+            isValid = false;
+            break;
+          }
+          
           const peekedChar = pure[i + j + 2];
           if(
             (j % 2 === 0 && peekedChar !== secSign)
