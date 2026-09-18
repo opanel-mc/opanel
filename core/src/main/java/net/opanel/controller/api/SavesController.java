@@ -130,12 +130,22 @@ public class SavesController extends BaseController {
             }
 
             final String fileName = file.filename();
+            if(fileName == null || !Utils.isSafeFileName(fileName)) {
+                sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal save file name.");
+                return;
+            }
             if(!fileName.endsWith(".zip")) {
                 sendResponse(ctx, HttpStatus.BAD_REQUEST, "Save file should be a zip.");
                 return;
             }
 
-            final Path targetPath = Paths.get("").resolve(fileName.replaceAll(".zip", ""));
+            final String saveName = fileName.substring(0, fileName.length() - ".zip".length());
+            if(!Utils.isSafeFileName(saveName)) {
+                sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal save name.");
+                return;
+            }
+
+            final Path targetPath = Paths.get("").resolve(saveName);
             if(Files.exists(targetPath)) {
                 sendResponse(ctx, HttpStatus.CONFLICT, "Save name conflict.");
                 return;
