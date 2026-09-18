@@ -11389,7 +11389,7 @@ POM License: MIT - https://spdx.org/licenses/MIT
 
 --------------------------------------------------------------------------------
 
-130. Group: de.tr7zw  Name: item-nbt-api  Version: 2.16.0
+130. Group: de.tr7zw  Name: item-nbt-api  Version: 2.16.1
 
 POM License: MIT License - https://opensource.org/licenses/mit-license.php
 
