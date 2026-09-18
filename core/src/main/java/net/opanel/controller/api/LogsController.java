@@ -8,8 +8,8 @@ import io.javalin.http.ContentType;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 import net.opanel.OPanel;
-import net.opanel.logger.Loggable;
 import net.opanel.controller.BaseController;
+import net.opanel.logger.Loggable;
 
 import java.io.IOException;
 import java.net.URI;
@@ -52,7 +52,7 @@ public class LogsController extends BaseController {
         } catch (NoSuchFileException e) {
             sendResponse(ctx, HttpStatus.NOT_FOUND, "Cannot find the specified log file.");
         } catch (IllegalArgumentException e) {
-            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal file extension.");
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal file name or file extension.");
         } catch (IOException e) {
             sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
@@ -61,9 +61,16 @@ public class LogsController extends BaseController {
     public Handler downloadLog = ctx -> {
         final Loggable logger = plugin.logger;
         final String fileName = ctx.pathParam("fileName");
-        final String downloadedFileName = fileName.endsWith(".log.gz") ? fileName.replace(".log.gz", ".log") : fileName;
-        final String downloadId = downloadController.registerContent(logger.getLogContent(fileName));
-        ctx.redirect("/file/"+ downloadId +"/"+ downloadedFileName);
+
+        try {
+            final String downloadId = downloadController.registerContent(logger.getLogContent(fileName));
+            final String downloadedFileName = fileName.endsWith(".log.gz") ? fileName.replace(".log.gz", ".log") : fileName;
+            ctx.redirect("/file/"+ downloadId +"/"+ downloadedFileName);
+        } catch (IllegalArgumentException e) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal file name.");
+        } catch (IOException e) {
+            sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     };
 
     public Handler clearLogs = ctx -> {
@@ -95,6 +102,8 @@ public class LogsController extends BaseController {
             sendResponse(ctx, HttpStatus.OK);
         } catch (NoSuchFileException e) {
             sendResponse(ctx, HttpStatus.NOT_FOUND, "Cannot find the specified log file.");
+        } catch (IllegalArgumentException e) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal file name.");
         } catch (IOException e) {
             sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }

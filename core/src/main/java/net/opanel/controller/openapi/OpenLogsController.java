@@ -36,7 +36,7 @@ public class OpenLogsController extends BaseController {
         } catch (NoSuchFileException e) {
             sendResponse(ctx, HttpStatus.NOT_FOUND, "Cannot find the specified log file.");
         } catch (IllegalArgumentException e) {
-            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal file extension.");
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal file name or file extension.");
         } catch (IOException e) {
             sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
