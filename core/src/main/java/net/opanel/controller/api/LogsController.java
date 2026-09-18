@@ -10,6 +10,7 @@ import io.javalin.http.HttpStatus;
 import net.opanel.OPanel;
 import net.opanel.logger.Loggable;
 import net.opanel.controller.BaseController;
+import net.opanel.utils.Utils;
 
 import java.io.IOException;
 import java.net.URI;
@@ -47,6 +48,10 @@ public class LogsController extends BaseController {
     public Handler getLogContent = ctx -> {
         final Loggable logger = plugin.logger;
         final String fileName = ctx.pathParam("fileName");
+        if(!Utils.isSafeFileName(fileName)) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal log file name.");
+            return;
+        }
         try {
             sendContent(ctx, logger.getLogContent(fileName).getBytes(StandardCharsets.UTF_8), ContentType.TEXT_PLAIN);
         } catch (NoSuchFileException e) {
@@ -61,6 +66,10 @@ public class LogsController extends BaseController {
     public Handler downloadLog = ctx -> {
         final Loggable logger = plugin.logger;
         final String fileName = ctx.pathParam("fileName");
+        if(!Utils.isSafeFileName(fileName)) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal log file name.");
+            return;
+        }
         final String downloadedFileName = fileName.endsWith(".log.gz") ? fileName.replace(".log.gz", ".log") : fileName;
         final String downloadId = downloadController.registerContent(logger.getLogContent(fileName));
         ctx.redirect("/file/"+ downloadId +"/"+ downloadedFileName);
@@ -85,6 +94,10 @@ public class LogsController extends BaseController {
     public Handler deleteLog = ctx -> {
         final Loggable logger = plugin.logger;
         final String fileName = ctx.pathParam("fileName");
+        if(!Utils.isSafeFileName(fileName)) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal log file name.");
+            return;
+        }
         if(fileName.endsWith(".log")) {
             sendResponse(ctx, HttpStatus.FORBIDDEN, "You cannot delete latest.log or debug.log.");
             return;
@@ -103,6 +116,10 @@ public class LogsController extends BaseController {
     public Handler uploadLogToMclogs = ctx -> {
         final Loggable logger = plugin.logger;
         final String fileName = ctx.pathParam("fileName");
+        if(!Utils.isSafeFileName(fileName)) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal log file name.");
+            return;
+        }
         final String content;
         try {
             content = logger.getLogContent(fileName);
