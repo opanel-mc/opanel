@@ -40,6 +40,10 @@ public abstract class Loggable {
     }
 
     public String getLogContent(String fileName) throws IOException {
+        if(!Utils.isSafeFileName(fileName)) {
+            throw new IllegalArgumentException("Illegal file name.");
+        }
+
         final Path filePath = getLogPath(fileName);
         if(!Files.exists(filePath)) {
             throw new NoSuchFileException("Cannot find the specified log file.");
@@ -54,6 +58,10 @@ public abstract class Loggable {
     }
 
     public void deleteLog(String fileName) throws IOException {
+        if(!Utils.isSafeFileName(fileName)) {
+            throw new IllegalArgumentException("Illegal file name.");
+        }
+
         final Path filePath = getLogPath(fileName);
         if(!Files.exists(filePath)) {
             throw new NoSuchFileException("Cannot find the specified log file.");
