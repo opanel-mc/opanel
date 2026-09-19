@@ -10,4 +10,7 @@ path = "pumpkin/lib.rs"
 crate-type = ["cdylib"]
 
 [dependencies]
-pumpkin-plugin-api = "0.1.0-dev+26.2-26.45"
+pumpkin = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", rev = "c31eb836164038011dc757729800971e838458e7", package = "pumpkin" }
+pumpkin-api-macros = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", rev = "c31eb836164038011dc757729800971e838458e7", package = "pumpkin-api-macros" }
+tokio = "1"
+tracing = "0.1"

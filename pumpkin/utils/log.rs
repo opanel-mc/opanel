@@ -1,17 +1,15 @@
-use pumpkin_plugin_api::logging::{LogLevel::*, log};
-
 pub fn debug(message: &str) {
-    log(Debug, message);
+    tracing::debug!("{message}");
 }
 
 pub fn info(message: &str) {
-    log(Info, message);
+    tracing::info!("{message}");
 }
 
 pub fn warn(message: &str) {
-    log(Warn, message);
+    tracing::warn!("{message}");
 }
 
 pub fn error(message: &str) {
-    log(Error, message);
+    tracing::error!("{message}");
 }
