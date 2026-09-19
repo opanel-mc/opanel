@@ -1,0 +1,13 @@
+[package]
+name = "opanel-pumpkin"
+version = "0.1.0"
+edition = "2024"
+description = "A Minecraft server management panel"
+authors = ["NriotHrreion"]
+
+[lib]
+path = "pumpkin/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+pumpkin-plugin-api = "0.1.0-dev+26.2-26.45"
