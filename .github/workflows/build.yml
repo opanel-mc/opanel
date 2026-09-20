@@ -181,7 +181,6 @@ jobs:
 
   pumpkin-check:
 
-    name: Check and test Pumpkin plugin
     needs: frontend
     if: needs.frontend.outputs.pumpkin_required == 'true'
 
@@ -213,7 +212,6 @@ jobs:
 
   pumpkin:
 
-    name: Build Pumpkin plugin (${{ matrix.target }})
     needs:
       - frontend
       - pumpkin-check
