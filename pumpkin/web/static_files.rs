@@ -5,7 +5,7 @@ use axum::{
     extract::Request,
     http::{
         HeaderMap, HeaderValue, Method, StatusCode,
-        header::{CACHE_CONTROL, CONTENT_LENGTH, CONTENT_TYPE, ETAG, IF_NONE_MATCH, LOCATION},
+        header::{CACHE_CONTROL, CONTENT_LENGTH, CONTENT_TYPE, ETAG, IF_NONE_MATCH},
     },
     response::{IntoResponse, Response},
 };
@@ -28,10 +28,7 @@ pub async fn serve(request: Request) -> Response {
         Ok(path) => path,
         Err(()) => return not_found(request.method()),
     };
-
-    if request.method() == Method::GET && has_rsc_query(request.uri().query()) {
-        return redirect_to_rsc(request.uri());
-    }
+    let is_rsc = is_rsc_request(&asset_path, request.headers());
 
     match assets::get(&asset_path) {
         Some(file) => embedded_response(
@@ -39,6 +36,7 @@ pub async fn serve(request: Request) -> Response {
             request.headers(),
             StatusCode::OK,
             &asset_path,
+            is_rsc,
             file,
         ),
         None => not_found(request.method()),
@@ -99,31 +97,11 @@ fn has_invalid_percent_encoding(value: &str) -> bool {
     false
 }
 
-fn has_rsc_query(query: Option<&str>) -> bool {
-    query.is_some_and(|query| {
-        query.split('&').any(|pair| {
-            let key = pair.split_once('=').map_or(pair, |(key, _)| key);
-            percent_decode_str(key)
-                .decode_utf8()
-                .is_ok_and(|key| key == "_rsc")
-        })
-    })
-}
-
-fn redirect_to_rsc(uri: &axum::http::Uri) -> Response {
-    let path = uri.path().trim_end_matches('/');
-    let path = if path.is_empty() { "/index" } else { path };
-    let location = match uri.query() {
-        Some(query) => format!("{path}.rsc?{query}"),
-        None => format!("{path}.rsc"),
-    };
-
-    let mut response = StatusCode::TEMPORARY_REDIRECT.into_response();
-    if let Ok(location) = HeaderValue::from_str(&location) {
-        response.headers_mut().insert(LOCATION, location);
-    }
-    add_frontend_headers(response.headers_mut(), false);
-    response
+fn is_rsc_request(path: &str, headers: &HeaderMap) -> bool {
+    path.ends_with(".txt")
+        && headers
+            .get("Rsc")
+            .is_some_and(|value| value.as_bytes() == b"1")
 }
 
 fn not_found(method: &Method) -> Response {
@@ -133,6 +111,7 @@ fn not_found(method: &Method) -> Response {
             &HeaderMap::new(),
             StatusCode::NOT_FOUND,
             "404.html",
+            false,
             file,
         ),
         None => StatusCode::NOT_FOUND.into_response(),
@@ -144,6 +123,7 @@ fn embedded_response(
     request_headers: &HeaderMap,
     status: StatusCode,
     path: &str,
+    is_rsc: bool,
     file: assets::EmbeddedAsset,
 ) -> Response {
     let etag = format_etag(file.sha256_hash);
@@ -151,7 +131,7 @@ fn embedded_response(
         let mut response = StatusCode::NOT_MODIFIED.into_response();
         insert_header(response.headers_mut(), ETAG, &etag);
         insert_header(response.headers_mut(), CACHE_CONTROL, cache_control(path));
-        add_frontend_headers(response.headers_mut(), path.ends_with(".rsc"));
+        add_frontend_headers(response.headers_mut(), is_rsc);
         return response;
     }
 
@@ -168,17 +148,17 @@ fn embedded_response(
     *response.status_mut() = status;
 
     let headers = response.headers_mut();
-    let content_type = content_type(path);
+    let content_type = content_type(path, is_rsc);
     insert_header(headers, CONTENT_TYPE, content_type.as_ref());
     insert_header(headers, CONTENT_LENGTH, &content_length.to_string());
     insert_header(headers, ETAG, &etag);
     insert_header(headers, CACHE_CONTROL, cache_control(path));
-    add_frontend_headers(headers, path.ends_with(".rsc"));
+    add_frontend_headers(headers, is_rsc);
     response
 }
 
-fn content_type(path: &str) -> Cow<'static, str> {
-    if path.ends_with(".rsc") {
+fn content_type(path: &str, is_rsc: bool) -> Cow<'static, str> {
+    if is_rsc {
         return Cow::Borrowed(RSC_CONTENT_TYPE);
     }
     if path.ends_with(".ttf") {
@@ -239,7 +219,7 @@ fn add_frontend_headers(headers: &mut HeaderMap, is_rsc: bool) {
     if !build_id.is_empty() {
         insert_header(headers, "x-nextjs-deployment-id", build_id);
         if is_rsc {
-            insert_header(headers, "x-vinext-rsc-compatibility-id", build_id);
+            insert_header(headers, "X-Vinext-RSC-Compatibility-Id", build_id);
         }
     }
 }
@@ -262,6 +242,16 @@ mod tests {
     };
 
     use super::{IMMUTABLE_CACHE, NO_CACHE, assets, serve};
+
+    fn rsc_asset_path() -> String {
+        assets::iter()
+            .find(|path| {
+                path.strip_suffix(".txt")
+                    .is_some_and(|route| assets::get(&format!("{route}.html")).is_some())
+            })
+            .expect("frontend build should contain an RSC asset")
+            .into_owned()
+    }
 
     #[tokio::test]
     async fn serves_the_embedded_index() {
@@ -303,28 +293,11 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn redirects_rsc_queries() {
-        let response = serve(
-            Request::get("/panel/dashboard?_rsc=test")
-                .body(axum::body::Body::empty())
-                .unwrap(),
-        )
-        .await;
-
-        assert_eq!(response.status(), StatusCode::TEMPORARY_REDIRECT);
-        assert_eq!(
-            response.headers()[header::LOCATION],
-            "/panel/dashboard.rsc?_rsc=test"
-        );
-    }
-
-    #[tokio::test]
     async fn serves_rsc_with_compatibility_headers() {
-        let rsc = assets::iter()
-            .find(|path| path.ends_with(".rsc"))
-            .expect("frontend build should contain an RSC asset");
+        let rsc = rsc_asset_path();
         let response = serve(
             Request::get(format!("/{rsc}"))
+                .header("RSC", "1")
                 .body(axum::body::Body::empty())
                 .unwrap(),
         )
@@ -335,6 +308,25 @@ mod tests {
         assert_eq!(
             response.headers()["x-vinext-rsc-compatibility-id"],
             assets::build_id()
+        );
+    }
+
+    #[tokio::test]
+    async fn serves_txt_without_rsc_header_as_regular_text() {
+        let rsc = rsc_asset_path();
+        let response = serve(
+            Request::get(format!("/{rsc}"))
+                .body(axum::body::Body::empty())
+                .unwrap(),
+        )
+        .await;
+
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(response.headers()[header::CONTENT_TYPE], "text/plain");
+        assert!(
+            !response
+                .headers()
+                .contains_key("x-vinext-rsc-compatibility-id")
         );
     }
 
@@ -399,7 +391,8 @@ mod tests {
         assert_eq!(invalid_encoding.status(), StatusCode::NOT_FOUND);
 
         let rsc_traversal = serve(
-            Request::get("/%2e%2e/Cargo.toml?_rsc=test")
+            Request::get("/%2e%2e/Cargo.toml.txt")
+                .header("RSC", "1")
                 .body(axum::body::Body::empty())
                 .unwrap(),
         )
