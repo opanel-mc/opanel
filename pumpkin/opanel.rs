@@ -1,21 +1,43 @@
 use std::sync::Arc;
 
 use pumpkin::plugin::Context;
+use thiserror::Error;
+use tokio_util::sync::CancellationToken;
 
-use crate::config::{ConfigManager, OPanelConfig};
+use crate::{
+    config::OPanelConfig,
+    managers::{ManagerContext, ManagerLifecycleError, Managers},
+};
 
 pub struct OPanel {
-    #[allow(dead_code)]
     context: Arc<Context>,
-    config_manager: ConfigManager,
+    shutdown: CancellationToken,
+    managers: Managers,
+}
+
+#[derive(Debug, Error)]
+pub(crate) enum OPanelInitError {
+    #[error("failed to initialize OPanel managers: {0}")]
+    Managers(#[from] ManagerLifecycleError),
 }
 
 impl OPanel {
-    pub fn new(context: Arc<Context>, config: OPanelConfig) -> Self {
-        Self {
-            context,
-            config_manager: ConfigManager::new(config),
-        }
+    pub(crate) async fn initialize(
+        context: Arc<Context>,
+        config: OPanelConfig,
+    ) -> Result<Arc<Self>, OPanelInitError> {
+        let shutdown = CancellationToken::new();
+        let opanel = Arc::new_cyclic(move |opanel| {
+            let manager_context = ManagerContext::new(opanel.clone(), shutdown.clone());
+            Self {
+                context,
+                shutdown,
+                managers: Managers::new(manager_context, config),
+            }
+        });
+
+        opanel.managers.start().await?;
+        Ok(opanel)
     }
 
     #[allow(dead_code)]
@@ -24,11 +46,22 @@ impl OPanel {
     }
 
     pub fn config(&self) -> Arc<OPanelConfig> {
-        self.config_manager.get()
+        self.managers().config().get()
     }
 
-    #[allow(dead_code)]
-    pub fn config_manager(&self) -> &ConfigManager {
-        &self.config_manager
+    pub(crate) fn managers(&self) -> &Managers {
+        &self.managers
+    }
+
+    pub(crate) async fn shutdown(&self) -> Result<(), ManagerLifecycleError> {
+        self.shutdown.cancel();
+        self.managers.shutdown().await
+    }
+}
+
+impl Drop for OPanel {
+    fn drop(&mut self) {
+        // Wake manager tasks even if the host drops the plugin without completing async shutdown.
+        self.shutdown.cancel();
     }
 }

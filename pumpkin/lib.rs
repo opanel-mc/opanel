@@ -12,15 +12,17 @@ use crate::{config::OPanelConfig, opanel::OPanel, web::WebServer};
 
 mod config;
 mod event;
+mod managers;
 mod map;
 mod monitor;
 mod opanel;
 mod task;
+mod terminal;
 mod utils;
 mod web;
 
 struct PluginRuntime {
-    _opanel: Arc<OPanel>,
+    opanel: Arc<OPanel>,
     web_server: WebServer,
 }
 
@@ -38,21 +40,36 @@ async fn on_load(&self, context: Arc<Context>) -> Result<(), String> {
                 return Err("OPanel is already loaded".to_string());
             }
 
-            let opanel = Arc::new(OPanel::new(context, OPanelConfig::default()));
-            let web_server = WebServer::start(Arc::clone(&opanel))
+            let opanel = OPanel::initialize(context, OPanelConfig::default())
                 .await
-                .map_err(|error| format!("failed to start OPanel web server: {error}"))?;
+                .map_err(|error| error.to_string())?;
+            let web_server = match WebServer::start(Arc::clone(&opanel)).await {
+                Ok(web_server) => web_server,
+                Err(error) => {
+                    return match opanel.shutdown().await {
+                        Ok(()) => Err(format!("failed to start OPanel web server: {error}")),
+                        Err(shutdown_error) => Err(format!(
+                            "failed to start OPanel web server: {error}; manager cleanup also failed: {shutdown_error}"
+                        )),
+                    };
+                }
+            };
 
             let mut runtime = plugin_runtime.lock().await;
             if runtime.is_some() {
                 drop(runtime);
-                web_server.shutdown().await.map_err(|error| {
+                shutdown_runtime(PluginRuntime {
+                    opanel,
+                    web_server,
+                })
+                .await
+                .map_err(|error| {
                     format!("failed to stop duplicate OPanel web server: {error}")
                 })?;
                 return Err("OPanel is already loaded".to_string());
             }
             *runtime = Some(PluginRuntime {
-                _opanel: opanel,
+                opanel,
                 web_server,
             });
 
@@ -71,11 +88,7 @@ async fn on_unload(&self, _context: Arc<Context>) -> Result<(), String> {
         .spawn(async move {
             let runtime = plugin_runtime.lock().await.take();
             if let Some(runtime) = runtime {
-                runtime
-                    .web_server
-                    .shutdown()
-                    .await
-                    .map_err(|error| format!("failed to stop OPanel web server: {error}"))?;
+                shutdown_runtime(runtime).await?;
             }
 
             info!("OPanel unloaded");
@@ -83,6 +96,22 @@ async fn on_unload(&self, _context: Arc<Context>) -> Result<(), String> {
         })
         .await
         .map_err(|error| format!("OPanel unload task failed: {error}"))?
+}
+
+async fn shutdown_runtime(runtime: PluginRuntime) -> Result<(), String> {
+    let web_result = runtime.web_server.shutdown().await;
+    let manager_result = runtime.opanel.shutdown().await;
+
+    match (web_result, manager_result) {
+        (Ok(()), Ok(())) => Ok(()),
+        (Err(web_error), Ok(())) => Err(format!("failed to stop OPanel web server: {web_error}")),
+        (Ok(()), Err(manager_error)) => {
+            Err(format!("failed to stop OPanel managers: {manager_error}"))
+        }
+        (Err(web_error), Err(manager_error)) => Err(format!(
+            "failed to stop OPanel web server: {web_error}; failed to stop OPanel managers: {manager_error}"
+        )),
+    }
 }
 
 #[plugin_impl]

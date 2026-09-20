@@ -2,6 +2,8 @@ use std::sync::Arc;
 
 use arc_swap::ArcSwap;
 
+use crate::managers::{Manager, ManagerContext};
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct OPanelConfig {
     pub host: String,
@@ -18,12 +20,14 @@ impl Default for OPanelConfig {
 }
 
 pub struct ConfigManager {
+    context: ManagerContext,
     config: ArcSwap<OPanelConfig>,
 }
 
 impl ConfigManager {
-    pub fn new(config: OPanelConfig) -> Self {
+    pub(crate) fn new(context: ManagerContext, config: OPanelConfig) -> Self {
         Self {
+            context,
             config: ArcSwap::from_pointee(config),
         }
     }
@@ -38,9 +42,28 @@ impl ConfigManager {
     }
 }
 
+impl Manager for ConfigManager {
+    fn name(&self) -> &'static str {
+        "config"
+    }
+
+    fn context(&self) -> &ManagerContext {
+        &self.context
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    use std::sync::Weak;
+
+    use tokio_util::sync::CancellationToken;
+
     use super::{ConfigManager, OPanelConfig};
+    use crate::managers::ManagerContext;
+
+    fn manager_context() -> ManagerContext {
+        ManagerContext::new(Weak::new(), CancellationToken::new())
+    }
 
     #[test]
     fn default_config_matches_the_web_server_defaults() {
@@ -52,7 +75,7 @@ mod tests {
 
     #[test]
     fn config_manager_replaces_snapshots() {
-        let manager = ConfigManager::new(OPanelConfig::default());
+        let manager = ConfigManager::new(manager_context(), OPanelConfig::default());
         manager.replace(OPanelConfig {
             host: "127.0.0.1".to_string(),
             port: 0,

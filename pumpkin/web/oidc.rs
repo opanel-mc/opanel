@@ -1,18 +1,18 @@
 use crate::managers::{Manager, ManagerContext};
 
-pub(crate) struct MapRenderManager {
+pub(crate) struct OidcManager {
     context: ManagerContext,
 }
 
-impl MapRenderManager {
+impl OidcManager {
     pub(crate) fn new(context: ManagerContext) -> Self {
         Self { context }
     }
 }
 
-impl Manager for MapRenderManager {
+impl Manager for OidcManager {
     fn name(&self) -> &'static str {
-        "map-render"
+        "oidc"
     }
 
     fn context(&self) -> &ManagerContext {
