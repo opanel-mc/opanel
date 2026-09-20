@@ -15,8 +15,6 @@ import net.opanel.web.JwtManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
 
 public class BeforeController extends BaseController {
     private static final String RSC_COMPATIBILITY_ID_RESOURCE = "vinext-rsc-compatibility-id";
@@ -93,24 +91,11 @@ public class BeforeController extends BaseController {
     };
 
     public Handler handleRsc = ctx -> {
-        String reqPath = ctx.path();
-        Map<String, List<String>> queryParamMap = ctx.queryParamMap();
-        if(reqPath.endsWith(".rsc")) {
-            if(rscCompatibilityId != null) {
-                ctx.header("X-Vinext-RSC-Compatibility-Id", rscCompatibilityId);
-            }
-            return;
-        }
-        if(!queryParamMap.containsKey("_rsc")) return;
+        if(!ctx.path().endsWith(".txt") || !"1".equals(ctx.header("Rsc"))) return;
 
-        if(reqPath.endsWith("/")) {
-            reqPath = reqPath.substring(0, reqPath.length() - 1);
+        if(rscCompatibilityId != null) {
+            ctx.header("X-Vinext-RSC-Compatibility-Id", rscCompatibilityId);
         }
-        ctx.redirect((reqPath.isEmpty() ? "index" : reqPath) +".rsc?"+ ctx.queryString());
-        // A redirect does not stop Javalin's task chain. Without clearing it,
-        // the static-file handler can overwrite this response with the route's
-        // index.html, which the vinext client then tries to decode as RSC.
-        clearContextTasks(ctx);
     };
 
     public Handler handleFonts = ctx -> {
