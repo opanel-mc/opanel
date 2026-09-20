@@ -6,7 +6,7 @@ use axum::{
         ws::{CloseFrame, Message, WebSocket},
     },
     response::Response,
-    routing::any,
+    routing::{MethodRouter, any},
 };
 use futures_util::{SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
@@ -17,7 +17,11 @@ use tokio_util::sync::CancellationToken;
 
 use crate::opanel::OPanel;
 
-mod hello;
+mod inventory;
+mod map;
+mod monitor;
+mod players;
+mod terminal;
 
 const CONNECT: &str = "connect";
 const PING: &str = "ping";
@@ -45,6 +49,8 @@ impl<T> Packet<T> {
 
 #[derive(Debug, Error)]
 pub enum EndpointError {
+    #[error("websocket endpoint is not implemented")]
+    NotImplemented,
     #[error("websocket connection is closed")]
     Closed,
     #[error("websocket client is not consuming messages fast enough")]
@@ -100,9 +106,24 @@ pub trait Endpoint: Send + Sync + 'static {
 }
 
 pub fn router(opanel: Arc<OPanel>, shutdown: CancellationToken) -> axum::Router {
-    hello::router(opanel, shutdown)
+    players::router(Arc::clone(&opanel), shutdown.clone())
+        .merge(inventory::router(Arc::clone(&opanel), shutdown.clone()))
+        .merge(terminal::router(Arc::clone(&opanel), shutdown.clone()))
+        .merge(map::router(Arc::clone(&opanel), shutdown.clone()))
+        .merge(monitor::router(opanel, shutdown))
         .route("/", any(super::response::not_found))
         .fallback(super::response::not_found)
+}
+
+pub(super) fn endpoint_route<E>(endpoint: Arc<E>, shutdown: CancellationToken) -> MethodRouter
+where
+    E: Endpoint,
+{
+    any(move |ws: WebSocketUpgrade| {
+        let endpoint = Arc::clone(&endpoint);
+        let shutdown = shutdown.clone();
+        async move { upgrade(ws, endpoint, shutdown) }
+    })
 }
 
 pub fn upgrade<E>(ws: WebSocketUpgrade, endpoint: Arc<E>, shutdown: CancellationToken) -> Response
@@ -200,6 +221,11 @@ where
 async fn handle_endpoint_result(result: Result<(), EndpointError>, session: &WsSession) -> bool {
     match result {
         Ok(()) => false,
+        Err(EndpointError::NotImplemented) => {
+            let _ = session.send(Packet::new(ERROR, 501));
+            session.close(1011, "Endpoint is not implemented.").await;
+            true
+        }
         Err(EndpointError::SlowConsumer) => {
             session.close(1013, "Slow consumer.").await;
             true
@@ -224,32 +250,86 @@ async fn finish_writer(mut writer: JoinHandle<()>) {
 
 #[cfg(test)]
 mod tests {
-    use std::time::Duration;
+    use std::{sync::Arc, time::Duration};
 
+    use axum::Router;
     use futures_util::{SinkExt, StreamExt};
     use serde_json::Value;
     use tokio::{net::TcpListener, time::timeout};
     use tokio_tungstenite::{connect_async, tungstenite::Message};
     use tokio_util::sync::CancellationToken;
 
-    use super::{Packet, hello};
+    use super::{Endpoint, EndpointError, Packet, WsSession, endpoint_route};
+
+    fn test_router(shutdown: CancellationToken) -> Router {
+        struct TestEndpoint;
+
+        impl Endpoint for TestEndpoint {}
+
+        Router::new().route("/test", endpoint_route(Arc::new(TestEndpoint), shutdown))
+    }
 
     #[test]
     fn packet_uses_the_existing_wire_format() {
-        let packet = Packet::new("hello", "Hello, world!");
+        let packet = Packet::new("example", "payload");
         let value = serde_json::to_value(packet).expect("packet should serialize");
 
         assert_eq!(
             value,
             serde_json::json!({
-                "type": "hello",
-                "data": "Hello, world!"
+                "type": "example",
+                "data": "payload"
             })
         );
     }
 
     #[tokio::test]
-    async fn hello_endpoint_supports_packets_and_shutdown() {
+    async fn unimplemented_endpoint_reports_501_and_closes() {
+        struct UnimplementedEndpoint;
+
+        impl Endpoint for UnimplementedEndpoint {
+            async fn on_connect(&self, _session: &WsSession) -> Result<(), EndpointError> {
+                Err(EndpointError::NotImplemented)
+            }
+        }
+
+        let listener = TcpListener::bind("127.0.0.1:0")
+            .await
+            .expect("test listener should bind");
+        let address = listener
+            .local_addr()
+            .expect("test listener should have an address");
+        let shutdown = CancellationToken::new();
+        let server_shutdown = shutdown.clone();
+        let router = Router::new().route(
+            "/stub",
+            endpoint_route(Arc::new(UnimplementedEndpoint), shutdown.clone()),
+        );
+        let server = tokio::spawn(async move {
+            axum::serve(listener, router)
+                .with_graceful_shutdown(async move {
+                    server_shutdown.cancelled().await;
+                })
+                .await
+        });
+
+        let (mut socket, _) = connect_async(format!("ws://{address}/stub"))
+            .await
+            .expect("websocket should connect");
+        assert_packet(&mut socket, "connect", Value::Null).await;
+        assert_packet(&mut socket, "error", Value::from(501)).await;
+        assert_close_code(&mut socket, 1011).await;
+
+        shutdown.cancel();
+        timeout(Duration::from_secs(2), server)
+            .await
+            .expect("server should stop promptly")
+            .expect("server task should join")
+            .expect("server should stop cleanly");
+    }
+
+    #[tokio::test]
+    async fn endpoint_supports_ping_and_shutdown() {
         let listener = TcpListener::bind("127.0.0.1:0")
             .await
             .expect("test listener should bind");
@@ -259,32 +339,17 @@ mod tests {
         let shutdown = CancellationToken::new();
         let server_shutdown = shutdown.clone();
         let server = tokio::spawn(async move {
-            axum::serve(listener, hello::test_router(server_shutdown.clone()))
+            axum::serve(listener, test_router(server_shutdown.clone()))
                 .with_graceful_shutdown(async move {
                     server_shutdown.cancelled().await;
                 })
                 .await
         });
 
-        let (mut socket, _) = connect_async(format!("ws://{address}/hello"))
+        let (mut socket, _) = connect_async(format!("ws://{address}/test"))
             .await
             .expect("websocket should connect");
         assert_packet(&mut socket, "connect", Value::Null).await;
-
-        socket
-            .send(Message::Text(
-                serde_json::json!({"type": "hello", "data": null})
-                    .to_string()
-                    .into(),
-            ))
-            .await
-            .expect("hello packet should send");
-        assert_packet(
-            &mut socket,
-            "hello",
-            Value::String("Hello, world!".to_string()),
-        )
-        .await;
 
         socket
             .send(Message::Text(
@@ -322,14 +387,14 @@ mod tests {
         let shutdown = CancellationToken::new();
         let server_shutdown = shutdown.clone();
         let server = tokio::spawn(async move {
-            axum::serve(listener, hello::test_router(server_shutdown.clone()))
+            axum::serve(listener, test_router(server_shutdown.clone()))
                 .with_graceful_shutdown(async move {
                     server_shutdown.cancelled().await;
                 })
                 .await
         });
 
-        let (mut invalid_json, _) = connect_async(format!("ws://{address}/hello"))
+        let (mut invalid_json, _) = connect_async(format!("ws://{address}/test"))
             .await
             .expect("websocket should connect");
         assert_packet(&mut invalid_json, "connect", Value::Null).await;
@@ -340,7 +405,7 @@ mod tests {
         assert_packet(&mut invalid_json, "error", Value::from(400)).await;
         assert_close_code(&mut invalid_json, 1007).await;
 
-        let (mut binary, _) = connect_async(format!("ws://{address}/hello"))
+        let (mut binary, _) = connect_async(format!("ws://{address}/test"))
             .await
             .expect("second websocket should connect");
         assert_packet(&mut binary, "connect", Value::Null).await;
