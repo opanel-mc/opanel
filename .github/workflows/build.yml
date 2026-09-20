@@ -83,7 +83,7 @@ jobs:
           else
             echo "jar_required=false" >> "$GITHUB_OUTPUT"
           fi
-          if git diff --quiet --no-renames "$BASE_SHA" "$HEAD_SHA" -- pumpkin/ Cargo.toml Cargo.lock; then
+          if git diff --quiet --no-renames "$BASE_SHA" "$HEAD_SHA" -- pumpkin/ Cargo.toml Cargo.lock .github/workflows/; then
             echo "pumpkin_required=false" >> "$GITHUB_OUTPUT"
           else
             echo "pumpkin_required=true" >> "$GITHUB_OUTPUT"
