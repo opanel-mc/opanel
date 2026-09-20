@@ -320,8 +320,11 @@ mod tests {
 
     #[tokio::test]
     async fn serves_rsc_with_compatibility_headers() {
+        let rsc = assets::iter()
+            .find(|path| path.ends_with(".rsc"))
+            .expect("frontend build should contain an RSC asset");
         let response = serve(
-            Request::get("/panel/dashboard.rsc")
+            Request::get(format!("/{rsc}"))
                 .body(axum::body::Body::empty())
                 .unwrap(),
         )
