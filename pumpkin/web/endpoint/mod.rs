@@ -1,4 +1,11 @@
-use std::{future::Future, sync::Arc, time::Duration};
+use std::{
+    future::Future,
+    sync::{
+        Arc,
+        atomic::{AtomicBool, Ordering},
+    },
+    time::Duration,
+};
 
 use axum::{
     extract::{
@@ -29,7 +36,6 @@ const PONG: &str = "pong";
 const ERROR: &str = "error";
 const MAX_OUTGOING_MESSAGES: usize = 1024;
 const MAX_MESSAGE_SIZE: usize = 1024 * 1024;
-const CLOSE_SEND_TIMEOUT: Duration = Duration::from_millis(100);
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Packet<T> {
@@ -62,10 +68,21 @@ pub enum EndpointError {
 #[derive(Clone)]
 pub struct WsSession {
     sender: mpsc::Sender<Message>,
+    close_sender: mpsc::UnboundedSender<CloseRequest>,
+    closing: Arc<AtomicBool>,
+}
+
+struct CloseRequest {
+    final_message: Option<Message>,
+    frame: CloseFrame,
 }
 
 impl WsSession {
     pub fn send<T: Serialize>(&self, packet: Packet<T>) -> Result<(), EndpointError> {
+        if self.closing.load(Ordering::Acquire) {
+            return Err(EndpointError::Closed);
+        }
+
         let message = serde_json::to_string(&packet)?;
         self.sender
             .try_send(Message::Text(message.into()))
@@ -75,12 +92,29 @@ impl WsSession {
             })
     }
 
-    async fn close(&self, code: u16, reason: &'static str) {
-        let close = Message::Close(Some(CloseFrame {
-            code,
-            reason: reason.into(),
-        }));
-        let _ = timeout(CLOSE_SEND_TIMEOUT, self.sender.send(close)).await;
+    fn close(&self, code: u16, reason: &'static str) {
+        self.request_close(None, code, reason);
+    }
+
+    fn close_with_error(&self, error_code: u16, code: u16, reason: &'static str) {
+        let final_message = serde_json::to_string(&Packet::new(ERROR, error_code))
+            .ok()
+            .map(|message| Message::Text(message.into()));
+        self.request_close(final_message, code, reason);
+    }
+
+    fn request_close(&self, final_message: Option<Message>, code: u16, reason: &'static str) {
+        if self.closing.swap(true, Ordering::AcqRel) {
+            return;
+        }
+
+        let _ = self.close_sender.send(CloseRequest {
+            final_message,
+            frame: CloseFrame {
+                code,
+                reason: reason.into(),
+            },
+        });
     }
 }
 
@@ -140,26 +174,57 @@ where
 {
     let (mut socket_sender, mut socket_receiver) = socket.split();
     let (sender, mut receiver) = mpsc::channel(MAX_OUTGOING_MESSAGES);
-    let session = WsSession { sender };
+    let (close_sender, mut close_receiver) = mpsc::unbounded_channel();
+    let session = WsSession {
+        sender,
+        close_sender,
+        closing: Arc::new(AtomicBool::new(false)),
+    };
+
+    let Ok(connect) = serde_json::to_string(&Packet::new(CONNECT, Option::<()>::None)) else {
+        return;
+    };
+    if socket_sender
+        .send(Message::Text(connect.into()))
+        .await
+        .is_err()
+    {
+        return;
+    }
 
     let writer: JoinHandle<()> = tokio::spawn(async move {
-        while let Some(message) = receiver.recv().await {
-            let is_close = matches!(message, Message::Close(_));
-            if socket_sender.send(message).await.is_err() || is_close {
-                break;
+        let mut close_channel_open = true;
+        loop {
+            tokio::select! {
+                biased;
+                close = close_receiver.recv(), if close_channel_open => {
+                    let Some(close) = close else {
+                        close_channel_open = false;
+                        continue;
+                    };
+
+                    receiver.close();
+                    if let Some(message) = close.final_message
+                        && socket_sender.send(message).await.is_err()
+                    {
+                        break;
+                    }
+                    let _ = socket_sender.send(Message::Close(Some(close.frame))).await;
+                    break;
+                }
+                message = receiver.recv() => {
+                    let Some(message) = message else {
+                        break;
+                    };
+                    if socket_sender.send(message).await.is_err() {
+                        break;
+                    }
+                }
             }
         }
     });
 
-    if session
-        .send(Packet::new(CONNECT, Option::<()>::None))
-        .is_err()
-    {
-        writer.abort();
-        return;
-    }
-
-    if handle_endpoint_result(endpoint.on_connect(&session).await, &session).await {
+    if handle_endpoint_result(endpoint.on_connect(&session).await, &session) {
         endpoint.on_disconnect(&session).await;
         drop(session);
         finish_writer(writer).await;
@@ -169,7 +234,7 @@ where
     loop {
         tokio::select! {
             () = shutdown.cancelled() => {
-                session.close(1001, "Server is stopping.").await;
+                session.close(1001, "Server is stopping.");
                 break;
             }
             message = socket_receiver.next() => {
@@ -184,26 +249,24 @@ where
                     Message::Text(text) => {
                         let packet = serde_json::from_str::<Packet<Value>>(&text);
                         let Ok(packet) = packet else {
-                            let _ = session.send(Packet::new(ERROR, 400));
-                            session.close(1007, "Invalid JSON packet.").await;
+                            session.close_with_error(400, 1007, "Invalid JSON packet.");
                             break;
                         };
 
                         if packet.kind == PING {
                             if session.send(Packet::new(PONG, Option::<()>::None)).is_err() {
-                                session.close(1013, "Slow consumer.").await;
+                                session.close(1013, "Slow consumer.");
                                 break;
                             }
                             continue;
                         }
 
-                        if handle_endpoint_result(endpoint.on_packet(&session, packet).await, &session).await {
+                        if handle_endpoint_result(endpoint.on_packet(&session, packet).await, &session) {
                             break;
                         }
                     }
                     Message::Binary(_) => {
-                        let _ = session.send(Packet::new(ERROR, 400));
-                        session.close(1003, "Binary messages are not supported.").await;
+                        session.close_with_error(400, 1003, "Binary messages are not supported.");
                         break;
                     }
                     Message::Close(_) => break,
@@ -218,24 +281,20 @@ where
     finish_writer(writer).await;
 }
 
-async fn handle_endpoint_result(result: Result<(), EndpointError>, session: &WsSession) -> bool {
+fn handle_endpoint_result(result: Result<(), EndpointError>, session: &WsSession) -> bool {
     match result {
         Ok(()) => false,
         Err(EndpointError::NotImplemented) => {
-            let _ = session.send(Packet::new(ERROR, 501));
-            session.close(1011, "Endpoint is not implemented.").await;
+            session.close_with_error(501, 1011, "Endpoint is not implemented.");
             true
         }
         Err(EndpointError::SlowConsumer) => {
-            session.close(1013, "Slow consumer.").await;
+            session.close(1013, "Slow consumer.");
             true
         }
         Err(EndpointError::Closed) => true,
         Err(EndpointError::Serialize(_)) => {
-            let _ = session.send(Packet::new(ERROR, 500));
-            session
-                .close(1011, "Failed to encode server message.")
-                .await;
+            session.close_with_error(500, 1011, "Failed to encode server message.");
             true
         }
     }
@@ -250,7 +309,10 @@ async fn finish_writer(mut writer: JoinHandle<()>) {
 
 #[cfg(test)]
 mod tests {
-    use std::{sync::Arc, time::Duration};
+    use std::{
+        sync::{Arc, atomic::AtomicBool},
+        time::Duration,
+    };
 
     use axum::Router;
     use futures_util::{SinkExt, StreamExt};
@@ -259,7 +321,9 @@ mod tests {
     use tokio_tungstenite::{connect_async, tungstenite::Message};
     use tokio_util::sync::CancellationToken;
 
-    use super::{Endpoint, EndpointError, Packet, WsSession, endpoint_route};
+    use super::{
+        Endpoint, EndpointError, MAX_OUTGOING_MESSAGES, Packet, WsSession, endpoint_route,
+    };
 
     fn test_router(shutdown: CancellationToken) -> Router {
         struct TestEndpoint;
@@ -281,6 +345,41 @@ mod tests {
                 "data": "payload"
             })
         );
+    }
+
+    #[tokio::test]
+    async fn close_bypasses_a_full_outgoing_queue() {
+        let (sender, _receiver) = tokio::sync::mpsc::channel(MAX_OUTGOING_MESSAGES);
+        for _ in 0..MAX_OUTGOING_MESSAGES {
+            sender
+                .try_send(axum::extract::ws::Message::Text("queued".into()))
+                .expect("application queue should have room");
+        }
+
+        let (close_sender, mut close_receiver) = tokio::sync::mpsc::unbounded_channel();
+        let session = WsSession {
+            sender,
+            close_sender,
+            closing: Arc::new(AtomicBool::new(false)),
+        };
+
+        assert!(matches!(
+            session.send(Packet::new("overflow", Option::<()>::None)),
+            Err(EndpointError::SlowConsumer)
+        ));
+
+        session.close(1013, "Slow consumer.");
+
+        let close = timeout(Duration::from_millis(100), close_receiver.recv())
+            .await
+            .expect("close request should bypass the full application queue")
+            .expect("close channel should remain open");
+        assert!(close.final_message.is_none());
+        assert_eq!(close.frame.code, 1013);
+        assert!(matches!(
+            session.send(Packet::new("after-close", Option::<()>::None)),
+            Err(EndpointError::Closed)
+        ));
     }
 
     #[tokio::test]
