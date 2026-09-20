@@ -6,7 +6,6 @@ use axum::{
     http::{HeaderValue, header::HeaderName},
     middleware::{self, Next},
     response::Response,
-    routing::any,
 };
 use thiserror::Error;
 use tokio::{net::TcpListener, task::JoinHandle, time::timeout};
@@ -16,7 +15,7 @@ use tracing::info;
 
 use crate::opanel::OPanel;
 
-use super::{controller, endpoint, response, static_files};
+use super::{controller, endpoint, static_files};
 
 const SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(5);
 
@@ -116,10 +115,8 @@ fn build_router(opanel: Arc<OPanel>, shutdown: CancellationToken) -> Router {
     let endpoint_router = endpoint::router(opanel, shutdown);
 
     Router::new()
-        .nest("/api", controller_router)
+        .merge(controller_router)
         .nest("/socket", endpoint_router)
-        .route("/file", any(response::not_found))
-        .route("/file/{*path}", any(response::not_found))
         .fallback(static_files::serve)
         .layer(middleware::from_fn(common_headers))
         .layer(TraceLayer::new_for_http())
