@@ -16,6 +16,7 @@ mod managers;
 mod map;
 mod monitor;
 mod opanel;
+mod storage;
 mod task;
 mod terminal;
 mod utils;
