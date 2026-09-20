@@ -1,4 +1,9 @@
 import * as monaco from "monaco-editor";
+import {
+  TASK_COMMAND_PATTERNS,
+  TASK_COMMAND_TOKEN,
+  TASK_COMMAND_TOKEN_COLORS
+} from "@/lib/task-command-syntax";
 
 const builtins = [
   { command: "loop", description: "循环执行指定次数", usage: "@loop [n]\n...\n@end" },
@@ -18,11 +23,16 @@ monaco.languages.register({ id: "task-command" });
 monaco.languages.setMonarchTokensProvider("task-command", {
   tokenizer: {
     root: [
-      [/^(@@loop)(\s+)(\d+)/, ["task.command.builtin", "white", "task.loop.count"]],
-      [/^@\w+/, "task.command.builtin"],
-      [/^\w+/, "task.command.server"],
-      [/(@\{)([^{}\r\n]+)(\})/, ["task.variable.fragment", "task.variable", "task.variable.fragment"]],
-      [/^#.*/, "comment"]
+      [TASK_COMMAND_PATTERNS.comment, TASK_COMMAND_TOKEN.COMMENT],
+      // Monarch interprets `@name` in regular expressions as a language attribute.
+      // Escape the literal at-sign so this still matches the task command `@loop`.
+      [/^(@@loop)(\s+)(\d+)/, [TASK_COMMAND_TOKEN.BUILTIN, "", TASK_COMMAND_TOKEN.LOOP_COUNT]],
+      [TASK_COMMAND_PATTERNS.builtin, TASK_COMMAND_TOKEN.BUILTIN],
+      [TASK_COMMAND_PATTERNS.server, TASK_COMMAND_TOKEN.SERVER],
+      [
+        TASK_COMMAND_PATTERNS.variable,
+        [TASK_COMMAND_TOKEN.VARIABLE_FRAGMENT, TASK_COMMAND_TOKEN.VARIABLE, TASK_COMMAND_TOKEN.VARIABLE_FRAGMENT]
+      ]
     ]
   }
 });
@@ -127,13 +137,10 @@ monaco.languages.registerHoverProvider("task-command", {
 monaco.editor.defineTheme("task-command-theme", {
   base: "vs",
   inherit: true,
-  rules: [
-    { token: "task.command.builtin", foreground: "0000FF" },
-    { token: "task.command.server", foreground: "267F99" },
-    { token: "task.loop.count", foreground: "098658" },
-    { token: "task.variable", foreground: "C2410C" },
-    { token: "task.variable.fragment", foreground: "0000FF" },
-  ],
+  rules: Object.entries(TASK_COMMAND_TOKEN_COLORS.light).map(([token, foreground]) => ({
+    token,
+    foreground
+  })),
   colors: {
     "editor.background": "#FFFFFF",
     "editor.selectionBackground": "#d9d9d9ee",
@@ -142,13 +149,10 @@ monaco.editor.defineTheme("task-command-theme", {
 monaco.editor.defineTheme("task-command-theme-dark", {
   base: "vs-dark",
   inherit: true,
-  rules: [
-    { token: "task.command.builtin", foreground: "569CD6" },
-    { token: "task.command.server", foreground: "4EC9B0" },
-    { token: "task.loop.count", foreground: "B5CEA8" },
-    { token: "task.variable", foreground: "FFA657" },
-    { token: "task.variable.fragment", foreground: "569CD6" },
-  ],
+  rules: Object.entries(TASK_COMMAND_TOKEN_COLORS.dark).map(([token, foreground]) => ({
+    token,
+    foreground
+  })),
   colors: {
     "editor.background": "#0a0a0a",
     "editor.selectionBackground": "#3b3b3bee",

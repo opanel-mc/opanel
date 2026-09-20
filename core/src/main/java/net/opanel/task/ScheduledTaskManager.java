@@ -32,10 +32,6 @@ public class ScheduledTaskManager {
     );
     private final CronParser cronParser = new CronParser(CronDefinitionBuilder.instanceDefinitionFor(CronType.UNIX));
 
-    public static final List<ScheduledTask> DEFAULT_TASKS = List.of(
-        new ScheduledTask("restart-server", "定时重启服务器", "0 0 * * *", List.of("@restart"), false)
-    );
-
     /** Future reference and identity token for one cron configuration */
     private static class TaskFutureRef {
         private ScheduledFuture<?> future;

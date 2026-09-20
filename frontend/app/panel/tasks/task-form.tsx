@@ -3,6 +3,7 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useTheme } from "next-themes";
+import { LayoutTemplate } from "lucide-react";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -39,6 +40,7 @@ import { sendPostRequest, toastError } from "@/lib/api";
 import { $ } from "@/lib/i18n";
 import { Text } from "@/components/i18n-text";
 import { Spinner } from "@/components/ui/spinner";
+import { TaskTemplateDialog } from "./task-template-dialog";
 
 const MonacoEditor = dynamic(() => import("@/components/monaco-editor"), { ssr: false });
 
@@ -85,7 +87,12 @@ function cronWeekToValue(week: string): "0" | "1" | "2" | "3" | "4" | "5" | "6" 
 export const formSchema = z.object({
   name: z.string().min(1, $("tasks.form.name.empty")),
   cron: z.string().min(1),
-  commands: z.array(z.string().min(1, $("tasks.form.commands.empty1"))).min(1, $("tasks.form.commands.empty2")),
+  commands: z
+    .array(z.string())
+    .refine(
+      (commands) => commands.some((command) => command.trim().length > 0),
+      $("tasks.form.commands.empty2")
+    ),
 });
 
 export function TaskForm({
@@ -332,13 +339,28 @@ export function TaskForm({
             </FormItem>
           )}/>
 
-        <Button
-          type="submit"
-          className="w-fit mt-auto cursor-pointer"
-          disabled={!ready || loading}>
-          {loading && <Spinner />}
-          {mode === "create" ? $("dialog.create") : $("dialog.save")}
-        </Button>
+        <div className="w-fit mt-auto flex items-center gap-2">
+          <Button
+            type="submit"
+            className="cursor-pointer"
+            disabled={!ready || loading}>
+            {loading && <Spinner />}
+            {mode === "create" ? $("dialog.create") : $("dialog.save")}
+          </Button>
+          {mode === "create" && (
+            <TaskTemplateDialog
+              onSelect={(commands) => form.setValue("commands", commands, {
+                shouldDirty: true,
+                shouldTouch: true,
+                shouldValidate: true
+              })}>
+              <Button type="button" variant="outline" className="cursor-pointer">
+                <LayoutTemplate />
+                {$("tasks.templates.title")}
+              </Button>
+            </TaskTemplateDialog>
+          )}
+        </div>
       </form>
     </Form>
   );
