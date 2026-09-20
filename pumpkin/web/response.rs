@@ -16,6 +16,7 @@ pub struct ApiResponse<T> {
 }
 
 impl<T> ApiResponse<T> {
+    #[allow(dead_code)]
     pub fn ok(payload: T) -> Self {
         Self {
             code: StatusCode::OK.as_u16(),
