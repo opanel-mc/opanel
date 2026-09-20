@@ -7,6 +7,7 @@
     "dev": "npm run prelaunch && vinext dev --port 3001",
     "build": "npm run prelaunch && vinext build",
     "build:pack": "npm run build && npm run bundle",
+    "postbuild": "node scripts/prepare-vinext-build-id",
     "start": "vinext start",
     "test": "vitest run",
     "test:watch": "vitest",
