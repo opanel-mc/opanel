@@ -7,7 +7,6 @@ import net.opanel.config.OidcConfiguration;
 import net.opanel.config.OpenAPIConfiguration;
 import net.opanel.monitor.ActivityData;
 import net.opanel.task.ScheduledTask;
-import net.opanel.task.ScheduledTaskManager;
 
 import java.util.ArrayList;
 import java.io.IOException;
@@ -23,7 +22,7 @@ public class Storage {
         registeredStorageFiles.put(StorageKey.SCHEDULED_TASKS, new StorageFile<>(
             "tasks.json",
             new TypeToken<List<ScheduledTask>>() {}.getType(),
-            ScheduledTaskManager.DEFAULT_TASKS
+            List.of()
         ));
         registeredStorageFiles.put(StorageKey.MCP_CONFIG, new StorageFile<>(
             "mcp-config.json",
