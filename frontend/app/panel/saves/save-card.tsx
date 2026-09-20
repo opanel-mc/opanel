@@ -1,4 +1,5 @@
 import type { DownloadSaveResponse, Save } from "@/lib/types";
+import { format } from "date-format-parse";
 import { Download, FolderPen, Package, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
@@ -35,7 +36,8 @@ export function SaveCard({
 
   const handleDownload = async () => {
     const res = await sendGetRequest<DownloadSaveResponse>(`/api/saves/${name}`);
-    window.location.href = `${apiUrl}/file/${res.download}/${name}.zip`;
+    const archiveName = `${name}_${format(new Date(), "YYYY-MM-DD_HH-mm-ss")}.zip`;
+    window.location.href = `${apiUrl}/file/${res.download}/${archiveName}`;
   };
 
   const handleDelete = async () => {
