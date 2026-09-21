@@ -1,11 +1,11 @@
 use std::sync::Arc;
 
-use axum::Router;
+use axum::extract::State;
 
-use crate::opanel::OPanel;
+use crate::{opanel::OPanel, web::response::ApiError};
 
-use super::super::get_route;
-
-pub(super) fn router() -> Router<Arc<OPanel>> {
-    Router::new().route("/info", get_route())
+pub(in crate::web::controller) async fn get_server_info(
+    State(_opanel): State<Arc<OPanel>>,
+) -> ApiError {
+    ApiError::not_implemented()
 }

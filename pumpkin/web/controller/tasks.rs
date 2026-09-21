@@ -1,15 +1,25 @@
 use std::sync::Arc;
 
-use axum::Router;
+use axum::extract::State;
 
-use crate::opanel::OPanel;
+use crate::{opanel::OPanel, web::response::ApiError};
 
-use super::{get_post_route, post_patch_delete_route};
-use crate::web::response;
+pub(super) async fn get_tasks(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
+}
 
-pub(super) fn router() -> Router<Arc<OPanel>> {
-    Router::new()
-        .route("/", get_post_route())
-        .route("/{id}", post_patch_delete_route())
-        .fallback(response::not_found)
+pub(super) async fn create_task(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
+}
+
+pub(super) async fn edit_task(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
+}
+
+pub(super) async fn toggle_task(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
+}
+
+pub(super) async fn delete_task(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
 }

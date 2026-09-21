@@ -140,11 +140,39 @@ pub trait Endpoint: Send + Sync + 'static {
 }
 
 pub fn router(opanel: Arc<OPanel>, shutdown: CancellationToken) -> axum::Router {
-    players::router(Arc::clone(&opanel), shutdown.clone())
-        .merge(inventory::router(Arc::clone(&opanel), shutdown.clone()))
-        .merge(terminal::router(Arc::clone(&opanel), shutdown.clone()))
-        .merge(map::router(Arc::clone(&opanel), shutdown.clone()))
-        .merge(monitor::router(opanel, shutdown))
+    axum::Router::new()
+        .route(
+            "/players",
+            endpoint_route(
+                Arc::new(players::PlayersEndpoint::new(Arc::clone(&opanel))),
+                shutdown.clone(),
+            ),
+        )
+        .route(
+            "/inventory/{uuid}",
+            endpoint_route(
+                Arc::new(inventory::InventoryEndpoint::new(Arc::clone(&opanel))),
+                shutdown.clone(),
+            ),
+        )
+        .route(
+            "/terminal",
+            endpoint_route(
+                Arc::new(terminal::TerminalEndpoint::new(Arc::clone(&opanel))),
+                shutdown.clone(),
+            ),
+        )
+        .route(
+            "/map",
+            endpoint_route(
+                Arc::new(map::MapEndpoint::new(Arc::clone(&opanel))),
+                shutdown.clone(),
+            ),
+        )
+        .route(
+            "/monitor",
+            endpoint_route(Arc::new(monitor::MonitorEndpoint::new(opanel)), shutdown),
+        )
         .route("/", any(super::response::not_found))
         .fallback(super::response::not_found)
 }

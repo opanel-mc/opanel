@@ -1,15 +1,29 @@
 use std::sync::Arc;
 
-use axum::Router;
+use axum::extract::State;
 
-use crate::opanel::OPanel;
+use crate::{opanel::OPanel, web::response::ApiError};
 
-use super::{get_post_patch_delete_route, get_post_route};
-use crate::web::response;
+pub(super) async fn get_saves(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
+}
 
-pub(super) fn router() -> Router<Arc<OPanel>> {
-    Router::new()
-        .route("/", get_post_route())
-        .route("/{save_name}", get_post_patch_delete_route())
-        .fallback(response::not_found)
+pub(super) async fn download_save(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
+}
+
+pub(super) async fn upload_save(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
+}
+
+pub(super) async fn edit_save(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
+}
+
+pub(super) async fn toggle_save_datapack(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
+}
+
+pub(super) async fn delete_save(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
 }

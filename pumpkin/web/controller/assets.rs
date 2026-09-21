@@ -1,13 +1,17 @@
 use std::sync::Arc;
 
-use axum::Router;
+use axum::extract::State;
 
-use crate::opanel::OPanel;
+use crate::{opanel::OPanel, web::response::ApiError};
 
-use super::{delete_route, get_route, post_route};
-pub(super) fn router() -> Router<Arc<OPanel>> {
-    Router::new()
-        .route("/assets/{name}", get_route())
-        .route("/assets/upload/{name}", post_route())
-        .route("/assets/reset/{name}", delete_route())
+pub(super) async fn get_asset(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
+}
+
+pub(super) async fn upload_asset(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
+}
+
+pub(super) async fn reset_asset(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
 }

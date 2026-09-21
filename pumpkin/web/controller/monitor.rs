@@ -1,16 +1,17 @@
 use std::sync::Arc;
 
-use axum::Router;
+use axum::extract::State;
 
-use crate::opanel::OPanel;
+use crate::{opanel::OPanel, web::response::ApiError};
 
-use super::get_route;
-use crate::web::response;
+pub(super) async fn get_monitor_snapshot(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
+}
 
-pub(super) fn router() -> Router<Arc<OPanel>> {
-    Router::new()
-        .route("/", get_route())
-        .route("/history", get_route())
-        .route("/activity", get_route())
-        .fallback(response::not_found)
+pub(super) async fn get_history(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
+}
+
+pub(super) async fn get_activity(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
 }

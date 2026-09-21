@@ -1,18 +1,33 @@
 use std::sync::Arc;
 
-use axum::Router;
+use axum::extract::State;
 
-use crate::opanel::OPanel;
+use crate::{opanel::OPanel, web::response::ApiError};
 
-use super::{get_post_delete_route, get_route, post_route};
-use crate::web::response;
+pub(super) async fn login(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
+}
 
-pub(super) fn router() -> Router<Arc<OPanel>> {
-    Router::new()
-        .route("/login", get_route())
-        .route("/callback", get_route())
-        .route("/bind-user", post_route())
-        .route("/config", get_route())
-        .route("/allowed-users", get_post_delete_route())
-        .fallback(response::not_found)
+pub(super) async fn callback(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
+}
+
+pub(super) async fn bind_new_user(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
+}
+
+pub(super) async fn get_config(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
+}
+
+pub(super) async fn get_allowed_users(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
+}
+
+pub(super) async fn add_allowed_user(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
+}
+
+pub(super) async fn remove_allowed_user(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
 }

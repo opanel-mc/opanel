@@ -1,15 +1,13 @@
 use std::sync::Arc;
 
-use axum::Router;
+use axum::extract::State;
 
-use crate::opanel::OPanel;
+use crate::{opanel::OPanel, web::response::ApiError};
 
-use super::{get_route, post_route};
-use crate::web::response;
+pub(super) async fn get_server_info(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
+}
 
-pub(super) fn router() -> Router<Arc<OPanel>> {
-    Router::new()
-        .route("/", get_route())
-        .route("/motd", post_route())
-        .fallback(response::not_found)
+pub(super) async fn set_motd(State(_opanel): State<Arc<OPanel>>) -> ApiError {
+    ApiError::not_implemented()
 }

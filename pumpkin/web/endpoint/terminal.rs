@@ -1,26 +1,22 @@
 use std::sync::Arc;
 
-use axum::Router;
-use tokio_util::sync::CancellationToken;
-
 use crate::opanel::OPanel;
 
-use super::{Endpoint, EndpointError, WsSession, endpoint_route};
+use super::{Endpoint, EndpointError, WsSession};
 
-struct TerminalEndpoint {
+pub(super) struct TerminalEndpoint {
     #[allow(dead_code)]
     opanel: Arc<OPanel>,
+}
+
+impl TerminalEndpoint {
+    pub(super) fn new(opanel: Arc<OPanel>) -> Self {
+        Self { opanel }
+    }
 }
 
 impl Endpoint for TerminalEndpoint {
     async fn on_connect(&self, _session: &WsSession) -> Result<(), EndpointError> {
         Err(EndpointError::NotImplemented)
     }
-}
-
-pub(super) fn router(opanel: Arc<OPanel>, shutdown: CancellationToken) -> Router {
-    Router::new().route(
-        "/terminal",
-        endpoint_route(Arc::new(TerminalEndpoint { opanel }), shutdown),
-    )
 }

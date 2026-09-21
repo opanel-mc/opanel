@@ -1,13 +1,17 @@
 use std::sync::Arc;
 
-use axum::Router;
+use axum::extract::State;
 
-use crate::opanel::OPanel;
+use crate::{opanel::OPanel, web::response::ApiError};
 
-use super::super::get_route;
+pub(in crate::web::controller) async fn get_plugins(
+    State(_opanel): State<Arc<OPanel>>,
+) -> ApiError {
+    ApiError::not_implemented()
+}
 
-pub(super) fn router() -> Router<Arc<OPanel>> {
-    Router::new()
-        .route("/", get_route())
-        .route("/icon/{file_name}", get_route())
+pub(in crate::web::controller) async fn get_plugin_icon(
+    State(_opanel): State<Arc<OPanel>>,
+) -> ApiError {
+    ApiError::not_implemented()
 }
