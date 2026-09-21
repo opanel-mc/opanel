@@ -1,4 +1,11 @@
-use std::{future::Future, sync::Arc, time::Duration};
+use std::{
+    future::Future,
+    sync::{
+        Arc,
+        atomic::{AtomicBool, Ordering},
+    },
+    time::Duration,
+};
 
 use axum::{
     extract::{
@@ -6,9 +13,9 @@ use axum::{
         ws::{CloseFrame, Message, WebSocket},
     },
     response::Response,
-    routing::any,
+    routing::{MethodRouter, any},
 };
-use futures_util::{SinkExt, StreamExt};
+use futures_util::{Sink, SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use thiserror::Error;
@@ -17,7 +24,11 @@ use tokio_util::sync::CancellationToken;
 
 use crate::opanel::OPanel;
 
-mod hello;
+mod inventory;
+mod map;
+mod monitor;
+mod players;
+mod terminal;
 
 const CONNECT: &str = "connect";
 const PING: &str = "ping";
@@ -25,7 +36,6 @@ const PONG: &str = "pong";
 const ERROR: &str = "error";
 const MAX_OUTGOING_MESSAGES: usize = 1024;
 const MAX_MESSAGE_SIZE: usize = 1024 * 1024;
-const CLOSE_SEND_TIMEOUT: Duration = Duration::from_millis(100);
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Packet<T> {
@@ -45,6 +55,8 @@ impl<T> Packet<T> {
 
 #[derive(Debug, Error)]
 pub enum EndpointError {
+    #[error("websocket endpoint is not implemented")]
+    NotImplemented,
     #[error("websocket connection is closed")]
     Closed,
     #[error("websocket client is not consuming messages fast enough")]
@@ -56,10 +68,21 @@ pub enum EndpointError {
 #[derive(Clone)]
 pub struct WsSession {
     sender: mpsc::Sender<Message>,
+    close_sender: mpsc::UnboundedSender<CloseRequest>,
+    closing: Arc<AtomicBool>,
+}
+
+struct CloseRequest {
+    final_message: Option<Message>,
+    frame: CloseFrame,
 }
 
 impl WsSession {
     pub fn send<T: Serialize>(&self, packet: Packet<T>) -> Result<(), EndpointError> {
+        if self.closing.load(Ordering::Acquire) {
+            return Err(EndpointError::Closed);
+        }
+
         let message = serde_json::to_string(&packet)?;
         self.sender
             .try_send(Message::Text(message.into()))
@@ -69,12 +92,29 @@ impl WsSession {
             })
     }
 
-    async fn close(&self, code: u16, reason: &'static str) {
-        let close = Message::Close(Some(CloseFrame {
-            code,
-            reason: reason.into(),
-        }));
-        let _ = timeout(CLOSE_SEND_TIMEOUT, self.sender.send(close)).await;
+    fn close(&self, code: u16, reason: &'static str) {
+        self.request_close(None, code, reason);
+    }
+
+    fn close_with_error(&self, error_code: u16, code: u16, reason: &'static str) {
+        let final_message = serde_json::to_string(&Packet::new(ERROR, error_code))
+            .ok()
+            .map(|message| Message::Text(message.into()));
+        self.request_close(final_message, code, reason);
+    }
+
+    fn request_close(&self, final_message: Option<Message>, code: u16, reason: &'static str) {
+        if self.closing.swap(true, Ordering::AcqRel) {
+            return;
+        }
+
+        let _ = self.close_sender.send(CloseRequest {
+            final_message,
+            frame: CloseFrame {
+                code,
+                reason: reason.into(),
+            },
+        });
     }
 }
 
@@ -100,9 +140,52 @@ pub trait Endpoint: Send + Sync + 'static {
 }
 
 pub fn router(opanel: Arc<OPanel>, shutdown: CancellationToken) -> axum::Router {
-    hello::router(opanel, shutdown)
+    axum::Router::new()
+        .route(
+            "/players",
+            endpoint_route(
+                Arc::new(players::PlayersEndpoint::new(Arc::clone(&opanel))),
+                shutdown.clone(),
+            ),
+        )
+        .route(
+            "/inventory/{uuid}",
+            endpoint_route(
+                Arc::new(inventory::InventoryEndpoint::new(Arc::clone(&opanel))),
+                shutdown.clone(),
+            ),
+        )
+        .route(
+            "/terminal",
+            endpoint_route(
+                Arc::new(terminal::TerminalEndpoint::new(Arc::clone(&opanel))),
+                shutdown.clone(),
+            ),
+        )
+        .route(
+            "/map",
+            endpoint_route(
+                Arc::new(map::MapEndpoint::new(Arc::clone(&opanel))),
+                shutdown.clone(),
+            ),
+        )
+        .route(
+            "/monitor",
+            endpoint_route(Arc::new(monitor::MonitorEndpoint::new(opanel)), shutdown),
+        )
         .route("/", any(super::response::not_found))
         .fallback(super::response::not_found)
+}
+
+pub(super) fn endpoint_route<E>(endpoint: Arc<E>, shutdown: CancellationToken) -> MethodRouter
+where
+    E: Endpoint,
+{
+    any(move |ws: WebSocketUpgrade| {
+        let endpoint = Arc::clone(&endpoint);
+        let shutdown = shutdown.clone();
+        async move { upgrade(ws, endpoint, shutdown) }
+    })
 }
 
 pub fn upgrade<E>(ws: WebSocketUpgrade, endpoint: Arc<E>, shutdown: CancellationToken) -> Response
@@ -118,27 +201,29 @@ where
     E: Endpoint,
 {
     let (mut socket_sender, mut socket_receiver) = socket.split();
-    let (sender, mut receiver) = mpsc::channel(MAX_OUTGOING_MESSAGES);
-    let session = WsSession { sender };
+    let (sender, receiver) = mpsc::channel(MAX_OUTGOING_MESSAGES);
+    let (close_sender, close_receiver) = mpsc::unbounded_channel();
+    let session = WsSession {
+        sender,
+        close_sender,
+        closing: Arc::new(AtomicBool::new(false)),
+    };
 
-    let writer: JoinHandle<()> = tokio::spawn(async move {
-        while let Some(message) = receiver.recv().await {
-            let is_close = matches!(message, Message::Close(_));
-            if socket_sender.send(message).await.is_err() || is_close {
-                break;
-            }
-        }
-    });
-
-    if session
-        .send(Packet::new(CONNECT, Option::<()>::None))
+    let Ok(connect) = serde_json::to_string(&Packet::new(CONNECT, Option::<()>::None)) else {
+        return;
+    };
+    if socket_sender
+        .send(Message::Text(connect.into()))
+        .await
         .is_err()
     {
-        writer.abort();
         return;
     }
 
-    if handle_endpoint_result(endpoint.on_connect(&session).await, &session).await {
+    let writer: JoinHandle<()> =
+        tokio::spawn(write_messages(socket_sender, receiver, close_receiver));
+
+    if handle_endpoint_result(endpoint.on_connect(&session).await, &session) {
         endpoint.on_disconnect(&session).await;
         drop(session);
         finish_writer(writer).await;
@@ -148,7 +233,7 @@ where
     loop {
         tokio::select! {
             () = shutdown.cancelled() => {
-                session.close(1001, "Server is stopping.").await;
+                session.close(1001, "Server is stopping.");
                 break;
             }
             message = socket_receiver.next() => {
@@ -163,26 +248,24 @@ where
                     Message::Text(text) => {
                         let packet = serde_json::from_str::<Packet<Value>>(&text);
                         let Ok(packet) = packet else {
-                            let _ = session.send(Packet::new(ERROR, 400));
-                            session.close(1007, "Invalid JSON packet.").await;
+                            session.close_with_error(400, 1007, "Invalid JSON packet.");
                             break;
                         };
 
                         if packet.kind == PING {
                             if session.send(Packet::new(PONG, Option::<()>::None)).is_err() {
-                                session.close(1013, "Slow consumer.").await;
+                                session.close(1013, "Slow consumer.");
                                 break;
                             }
                             continue;
                         }
 
-                        if handle_endpoint_result(endpoint.on_packet(&session, packet).await, &session).await {
+                        if handle_endpoint_result(endpoint.on_packet(&session, packet).await, &session) {
                             break;
                         }
                     }
                     Message::Binary(_) => {
-                        let _ = session.send(Packet::new(ERROR, 400));
-                        session.close(1003, "Binary messages are not supported.").await;
+                        session.close_with_error(400, 1003, "Binary messages are not supported.");
                         break;
                     }
                     Message::Close(_) => break,
@@ -197,19 +280,64 @@ where
     finish_writer(writer).await;
 }
 
-async fn handle_endpoint_result(result: Result<(), EndpointError>, session: &WsSession) -> bool {
+async fn write_messages<S>(
+    mut socket_sender: S,
+    mut receiver: mpsc::Receiver<Message>,
+    mut close_receiver: mpsc::UnboundedReceiver<CloseRequest>,
+) where
+    S: Sink<Message> + Unpin,
+{
+    loop {
+        let close = tokio::select! {
+            biased;
+            close = close_receiver.recv() => close,
+            message = receiver.recv() => {
+                let Some(message) = message else {
+                    break;
+                };
+
+                // A close request must also interrupt a write already waiting on socket backpressure.
+                tokio::select! {
+                    biased;
+                    close = close_receiver.recv() => close,
+                    result = socket_sender.send(message) => {
+                        if result.is_err() {
+                            break;
+                        }
+                        continue;
+                    }
+                }
+            }
+        };
+
+        let Some(close) = close else {
+            break;
+        };
+        receiver.close();
+        if let Some(message) = close.final_message
+            && socket_sender.send(message).await.is_err()
+        {
+            break;
+        }
+        let _ = socket_sender.send(Message::Close(Some(close.frame))).await;
+        break;
+    }
+}
+
+fn handle_endpoint_result(result: Result<(), EndpointError>, session: &WsSession) -> bool {
     match result {
         Ok(()) => false,
+        Err(EndpointError::NotImplemented) => {
+            session.close_with_error(501, 1011, "Endpoint is not implemented.");
+            true
+        }
         Err(EndpointError::SlowConsumer) => {
-            session.close(1013, "Slow consumer.").await;
+            session.close(1013, "Slow consumer.");
             true
         }
         Err(EndpointError::Closed) => true,
         Err(EndpointError::Serialize(_)) => {
-            let _ = session.send(Packet::new(ERROR, 500));
-            session
-                .close(1011, "Failed to encode server message.")
-                .await;
+            session.close_with_error(500, 1011, "Failed to encode server message.");
             true
         }
     }
@@ -224,32 +352,207 @@ async fn finish_writer(mut writer: JoinHandle<()>) {
 
 #[cfg(test)]
 mod tests {
-    use std::time::Duration;
+    use std::{
+        pin::Pin,
+        sync::{Arc, atomic::AtomicBool},
+        task::{Context, Poll},
+        time::Duration,
+    };
 
-    use futures_util::{SinkExt, StreamExt};
+    use axum::{Router, extract::ws::Message as WsMessage};
+    use futures_util::{Sink, SinkExt, StreamExt};
     use serde_json::Value;
-    use tokio::{net::TcpListener, time::timeout};
+    use tokio::{
+        net::TcpListener,
+        sync::{mpsc, oneshot},
+        time::timeout,
+    };
     use tokio_tungstenite::{connect_async, tungstenite::Message};
     use tokio_util::sync::CancellationToken;
 
-    use super::{Packet, hello};
+    use super::{
+        CloseRequest, Endpoint, EndpointError, MAX_OUTGOING_MESSAGES, Packet, WsSession,
+        endpoint_route, write_messages,
+    };
+
+    fn test_router(shutdown: CancellationToken) -> Router {
+        struct TestEndpoint;
+
+        impl Endpoint for TestEndpoint {}
+
+        Router::new().route("/test", endpoint_route(Arc::new(TestEndpoint), shutdown))
+    }
 
     #[test]
     fn packet_uses_the_existing_wire_format() {
-        let packet = Packet::new("hello", "Hello, world!");
+        let packet = Packet::new("example", "payload");
         let value = serde_json::to_value(packet).expect("packet should serialize");
 
         assert_eq!(
             value,
             serde_json::json!({
-                "type": "hello",
-                "data": "Hello, world!"
+                "type": "example",
+                "data": "payload"
             })
         );
     }
 
     #[tokio::test]
-    async fn hello_endpoint_supports_packets_and_shutdown() {
+    async fn close_bypasses_a_full_outgoing_queue() {
+        let (sender, _receiver) = tokio::sync::mpsc::channel(MAX_OUTGOING_MESSAGES);
+        for _ in 0..MAX_OUTGOING_MESSAGES {
+            sender
+                .try_send(axum::extract::ws::Message::Text("queued".into()))
+                .expect("application queue should have room");
+        }
+
+        let (close_sender, mut close_receiver) = tokio::sync::mpsc::unbounded_channel();
+        let session = WsSession {
+            sender,
+            close_sender,
+            closing: Arc::new(AtomicBool::new(false)),
+        };
+
+        assert!(matches!(
+            session.send(Packet::new("overflow", Option::<()>::None)),
+            Err(EndpointError::SlowConsumer)
+        ));
+
+        session.close(1013, "Slow consumer.");
+
+        let close = timeout(Duration::from_millis(100), close_receiver.recv())
+            .await
+            .expect("close request should bypass the full application queue")
+            .expect("close channel should remain open");
+        assert!(close.final_message.is_none());
+        assert_eq!(close.frame.code, 1013);
+        assert!(matches!(
+            session.send(Packet::new("after-close", Option::<()>::None)),
+            Err(EndpointError::Closed)
+        ));
+    }
+
+    struct BlockFirstWrite {
+        started: Option<oneshot::Sender<()>>,
+        writes: mpsc::UnboundedSender<WsMessage>,
+    }
+
+    impl Sink<WsMessage> for BlockFirstWrite {
+        type Error = ();
+
+        fn poll_ready(mut self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Result<(), ()>> {
+            if let Some(started) = self.started.take() {
+                let _ = started.send(());
+                Poll::Pending
+            } else {
+                Poll::Ready(Ok(()))
+            }
+        }
+
+        fn start_send(self: Pin<&mut Self>, message: WsMessage) -> Result<(), ()> {
+            self.writes.send(message).map_err(|_| ())
+        }
+
+        fn poll_flush(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Result<(), ()>> {
+            Poll::Ready(Ok(()))
+        }
+
+        fn poll_close(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Result<(), ()>> {
+            Poll::Ready(Ok(()))
+        }
+    }
+
+    #[tokio::test]
+    async fn close_interrupts_a_blocked_write() {
+        let (sender, receiver) = mpsc::channel(1);
+        let (close_sender, close_receiver) = mpsc::unbounded_channel();
+        let (started_sender, started_receiver) = oneshot::channel();
+        let (writes, mut written) = mpsc::unbounded_channel();
+        let sink = BlockFirstWrite {
+            started: Some(started_sender),
+            writes,
+        };
+        let writer = tokio::spawn(write_messages(sink, receiver, close_receiver));
+
+        sender
+            .try_send(WsMessage::Text("blocked application message".into()))
+            .expect("application queue should have room");
+        timeout(Duration::from_secs(1), started_receiver)
+            .await
+            .expect("application write should start")
+            .expect("writer should report the blocked write");
+
+        close_sender
+            .send(CloseRequest {
+                final_message: Some(WsMessage::Text("error".into())),
+                frame: axum::extract::ws::CloseFrame {
+                    code: 1013,
+                    reason: "Slow consumer.".into(),
+                },
+            })
+            .expect("close channel should remain open");
+
+        timeout(Duration::from_secs(1), writer)
+            .await
+            .expect("close should interrupt the blocked write")
+            .expect("writer should finish cleanly");
+        assert!(matches!(written.recv().await, Some(WsMessage::Text(text)) if text == "error"));
+        assert!(
+            matches!(written.recv().await, Some(WsMessage::Close(Some(frame))) if frame.code == 1013)
+        );
+        assert!(
+            written.recv().await.is_none(),
+            "blocked application message should be discarded"
+        );
+    }
+
+    #[tokio::test]
+    async fn unimplemented_endpoint_reports_501_and_closes() {
+        struct UnimplementedEndpoint;
+
+        impl Endpoint for UnimplementedEndpoint {
+            async fn on_connect(&self, _session: &WsSession) -> Result<(), EndpointError> {
+                Err(EndpointError::NotImplemented)
+            }
+        }
+
+        let listener = TcpListener::bind("127.0.0.1:0")
+            .await
+            .expect("test listener should bind");
+        let address = listener
+            .local_addr()
+            .expect("test listener should have an address");
+        let shutdown = CancellationToken::new();
+        let server_shutdown = shutdown.clone();
+        let router = Router::new().route(
+            "/stub",
+            endpoint_route(Arc::new(UnimplementedEndpoint), shutdown.clone()),
+        );
+        let server = tokio::spawn(async move {
+            axum::serve(listener, router)
+                .with_graceful_shutdown(async move {
+                    server_shutdown.cancelled().await;
+                })
+                .await
+        });
+
+        let (mut socket, _) = connect_async(format!("ws://{address}/stub"))
+            .await
+            .expect("websocket should connect");
+        assert_packet(&mut socket, "connect", Value::Null).await;
+        assert_packet(&mut socket, "error", Value::from(501)).await;
+        assert_close_code(&mut socket, 1011).await;
+
+        shutdown.cancel();
+        timeout(Duration::from_secs(2), server)
+            .await
+            .expect("server should stop promptly")
+            .expect("server task should join")
+            .expect("server should stop cleanly");
+    }
+
+    #[tokio::test]
+    async fn endpoint_supports_ping_and_shutdown() {
         let listener = TcpListener::bind("127.0.0.1:0")
             .await
             .expect("test listener should bind");
@@ -259,32 +562,17 @@ mod tests {
         let shutdown = CancellationToken::new();
         let server_shutdown = shutdown.clone();
         let server = tokio::spawn(async move {
-            axum::serve(listener, hello::test_router(server_shutdown.clone()))
+            axum::serve(listener, test_router(server_shutdown.clone()))
                 .with_graceful_shutdown(async move {
                     server_shutdown.cancelled().await;
                 })
                 .await
         });
 
-        let (mut socket, _) = connect_async(format!("ws://{address}/hello"))
+        let (mut socket, _) = connect_async(format!("ws://{address}/test"))
             .await
             .expect("websocket should connect");
         assert_packet(&mut socket, "connect", Value::Null).await;
-
-        socket
-            .send(Message::Text(
-                serde_json::json!({"type": "hello", "data": null})
-                    .to_string()
-                    .into(),
-            ))
-            .await
-            .expect("hello packet should send");
-        assert_packet(
-            &mut socket,
-            "hello",
-            Value::String("Hello, world!".to_string()),
-        )
-        .await;
 
         socket
             .send(Message::Text(
@@ -322,14 +610,14 @@ mod tests {
         let shutdown = CancellationToken::new();
         let server_shutdown = shutdown.clone();
         let server = tokio::spawn(async move {
-            axum::serve(listener, hello::test_router(server_shutdown.clone()))
+            axum::serve(listener, test_router(server_shutdown.clone()))
                 .with_graceful_shutdown(async move {
                     server_shutdown.cancelled().await;
                 })
                 .await
         });
 
-        let (mut invalid_json, _) = connect_async(format!("ws://{address}/hello"))
+        let (mut invalid_json, _) = connect_async(format!("ws://{address}/test"))
             .await
             .expect("websocket should connect");
         assert_packet(&mut invalid_json, "connect", Value::Null).await;
@@ -340,7 +628,7 @@ mod tests {
         assert_packet(&mut invalid_json, "error", Value::from(400)).await;
         assert_close_code(&mut invalid_json, 1007).await;
 
-        let (mut binary, _) = connect_async(format!("ws://{address}/hello"))
+        let (mut binary, _) = connect_async(format!("ws://{address}/test"))
             .await
             .expect("second websocket should connect");
         assert_packet(&mut binary, "connect", Value::Null).await;
