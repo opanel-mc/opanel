@@ -5,7 +5,7 @@ use axum::{
     extract::Request,
     http::{
         HeaderMap, HeaderValue, Method, StatusCode,
-        header::{CACHE_CONTROL, CONTENT_LENGTH, CONTENT_TYPE, ETAG, IF_NONE_MATCH},
+        header::{CACHE_CONTROL, CONTENT_LENGTH, CONTENT_TYPE, ETAG, IF_NONE_MATCH, VARY},
     },
     response::{IntoResponse, Response},
 };
@@ -16,6 +16,7 @@ use opanel_pumpkin_assets as assets;
 use super::response::ApiError;
 
 const RSC_CONTENT_TYPE: &str = "text/x-component";
+const RSC_HEADER: &str = "Rsc";
 const NO_CACHE: &str = "no-cache, no-store, must-revalidate";
 const IMMUTABLE_CACHE: &str = "public, max-age=31536000, immutable";
 
@@ -100,7 +101,7 @@ fn has_invalid_percent_encoding(value: &str) -> bool {
 fn is_rsc_request(path: &str, headers: &HeaderMap) -> bool {
     path.ends_with(".txt")
         && headers
-            .get("Rsc")
+            .get(RSC_HEADER)
             .is_some_and(|value| value.as_bytes() == b"1")
 }
 
@@ -129,9 +130,11 @@ fn embedded_response(
     let etag = format_etag(file.sha256_hash);
     if status == StatusCode::OK && etag_matches(request_headers, &etag) {
         let mut response = StatusCode::NOT_MODIFIED.into_response();
-        insert_header(response.headers_mut(), ETAG, &etag);
-        insert_header(response.headers_mut(), CACHE_CONTROL, cache_control(path));
-        add_frontend_headers(response.headers_mut(), is_rsc);
+        let headers = response.headers_mut();
+        insert_header(headers, ETAG, &etag);
+        insert_header(headers, CACHE_CONTROL, cache_control(path));
+        add_vary_header(headers, path);
+        add_frontend_headers(headers, is_rsc);
         return response;
     }
 
@@ -153,8 +156,15 @@ fn embedded_response(
     insert_header(headers, CONTENT_LENGTH, &content_length.to_string());
     insert_header(headers, ETAG, &etag);
     insert_header(headers, CACHE_CONTROL, cache_control(path));
+    add_vary_header(headers, path);
     add_frontend_headers(headers, is_rsc);
     response
+}
+
+fn add_vary_header(headers: &mut HeaderMap, path: &str) {
+    if path.ends_with(".txt") {
+        headers.append(VARY, HeaderValue::from_static(RSC_HEADER));
+    }
 }
 
 fn content_type(path: &str, is_rsc: bool) -> Cow<'static, str> {
@@ -241,7 +251,7 @@ mod tests {
         http::{Method, Request, StatusCode, header},
     };
 
-    use super::{IMMUTABLE_CACHE, NO_CACHE, assets, serve};
+    use super::{IMMUTABLE_CACHE, NO_CACHE, RSC_HEADER, assets, serve};
 
     fn rsc_asset_path() -> String {
         assets::iter()
@@ -305,6 +315,7 @@ mod tests {
 
         assert_eq!(response.status(), StatusCode::OK);
         assert_eq!(response.headers()[header::CONTENT_TYPE], "text/x-component");
+        assert_eq!(response.headers()[header::VARY], RSC_HEADER);
         assert_eq!(
             response.headers()["x-vinext-rsc-compatibility-id"],
             assets::build_id()
@@ -323,10 +334,39 @@ mod tests {
 
         assert_eq!(response.status(), StatusCode::OK);
         assert_eq!(response.headers()[header::CONTENT_TYPE], "text/plain");
+        assert_eq!(response.headers()[header::VARY], RSC_HEADER);
         assert!(
             !response
                 .headers()
                 .contains_key("x-vinext-rsc-compatibility-id")
+        );
+    }
+
+    #[tokio::test]
+    async fn varies_not_modified_txt_responses_by_rsc_header() {
+        let rsc = rsc_asset_path();
+        let response = serve(
+            Request::get(format!("/{rsc}"))
+                .body(axum::body::Body::empty())
+                .unwrap(),
+        )
+        .await;
+        let etag = response.headers()[header::ETAG].clone();
+
+        let response = serve(
+            Request::get(format!("/{rsc}"))
+                .header("RSC", "1")
+                .header(header::IF_NONE_MATCH, etag)
+                .body(axum::body::Body::empty())
+                .unwrap(),
+        )
+        .await;
+
+        assert_eq!(response.status(), StatusCode::NOT_MODIFIED);
+        assert_eq!(response.headers()[header::VARY], RSC_HEADER);
+        assert_eq!(
+            response.headers()["x-vinext-rsc-compatibility-id"],
+            assets::build_id()
         );
     }
 
