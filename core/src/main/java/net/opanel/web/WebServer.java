@@ -340,7 +340,6 @@ public class WebServer {
                     request.getRequestURI().equals("/panel/ext")
                     || request.getRequestURI().startsWith("/panel/ext/")
                 );
-                staticFiles.mimeTypes.add("text/x-component", "rsc");
             });
 
             // Routes

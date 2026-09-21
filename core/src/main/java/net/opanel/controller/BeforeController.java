@@ -93,6 +93,7 @@ public class BeforeController extends BaseController {
     public Handler handleRsc = ctx -> {
         if(!ctx.path().endsWith(".txt") || !"1".equals(ctx.header("Rsc"))) return;
 
+        ctx.contentType("text/x-component");
         if(rscCompatibilityId != null) {
             ctx.header("X-Vinext-RSC-Compatibility-Id", rscCompatibilityId);
         }
