@@ -15,7 +15,7 @@ use axum::{
     response::Response,
     routing::{MethodRouter, any},
 };
-use futures_util::{SinkExt, StreamExt};
+use futures_util::{Sink, SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use thiserror::Error;
@@ -201,8 +201,8 @@ where
     E: Endpoint,
 {
     let (mut socket_sender, mut socket_receiver) = socket.split();
-    let (sender, mut receiver) = mpsc::channel(MAX_OUTGOING_MESSAGES);
-    let (close_sender, mut close_receiver) = mpsc::unbounded_channel();
+    let (sender, receiver) = mpsc::channel(MAX_OUTGOING_MESSAGES);
+    let (close_sender, close_receiver) = mpsc::unbounded_channel();
     let session = WsSession {
         sender,
         close_sender,
@@ -220,37 +220,8 @@ where
         return;
     }
 
-    let writer: JoinHandle<()> = tokio::spawn(async move {
-        let mut close_channel_open = true;
-        loop {
-            tokio::select! {
-                biased;
-                close = close_receiver.recv(), if close_channel_open => {
-                    let Some(close) = close else {
-                        close_channel_open = false;
-                        continue;
-                    };
-
-                    receiver.close();
-                    if let Some(message) = close.final_message
-                        && socket_sender.send(message).await.is_err()
-                    {
-                        break;
-                    }
-                    let _ = socket_sender.send(Message::Close(Some(close.frame))).await;
-                    break;
-                }
-                message = receiver.recv() => {
-                    let Some(message) = message else {
-                        break;
-                    };
-                    if socket_sender.send(message).await.is_err() {
-                        break;
-                    }
-                }
-            }
-        }
-    });
+    let writer: JoinHandle<()> =
+        tokio::spawn(write_messages(socket_sender, receiver, close_receiver));
 
     if handle_endpoint_result(endpoint.on_connect(&session).await, &session) {
         endpoint.on_disconnect(&session).await;
@@ -309,6 +280,50 @@ where
     finish_writer(writer).await;
 }
 
+async fn write_messages<S>(
+    mut socket_sender: S,
+    mut receiver: mpsc::Receiver<Message>,
+    mut close_receiver: mpsc::UnboundedReceiver<CloseRequest>,
+) where
+    S: Sink<Message> + Unpin,
+{
+    loop {
+        let close = tokio::select! {
+            biased;
+            close = close_receiver.recv() => close,
+            message = receiver.recv() => {
+                let Some(message) = message else {
+                    break;
+                };
+
+                // A close request must also interrupt a write already waiting on socket backpressure.
+                tokio::select! {
+                    biased;
+                    close = close_receiver.recv() => close,
+                    result = socket_sender.send(message) => {
+                        if result.is_err() {
+                            break;
+                        }
+                        continue;
+                    }
+                }
+            }
+        };
+
+        let Some(close) = close else {
+            break;
+        };
+        receiver.close();
+        if let Some(message) = close.final_message
+            && socket_sender.send(message).await.is_err()
+        {
+            break;
+        }
+        let _ = socket_sender.send(Message::Close(Some(close.frame))).await;
+        break;
+    }
+}
+
 fn handle_endpoint_result(result: Result<(), EndpointError>, session: &WsSession) -> bool {
     match result {
         Ok(()) => false,
@@ -338,19 +353,26 @@ async fn finish_writer(mut writer: JoinHandle<()>) {
 #[cfg(test)]
 mod tests {
     use std::{
+        pin::Pin,
         sync::{Arc, atomic::AtomicBool},
+        task::{Context, Poll},
         time::Duration,
     };
 
-    use axum::Router;
-    use futures_util::{SinkExt, StreamExt};
+    use axum::{Router, extract::ws::Message as WsMessage};
+    use futures_util::{Sink, SinkExt, StreamExt};
     use serde_json::Value;
-    use tokio::{net::TcpListener, time::timeout};
+    use tokio::{
+        net::TcpListener,
+        sync::{mpsc, oneshot},
+        time::timeout,
+    };
     use tokio_tungstenite::{connect_async, tungstenite::Message};
     use tokio_util::sync::CancellationToken;
 
     use super::{
-        Endpoint, EndpointError, MAX_OUTGOING_MESSAGES, Packet, WsSession, endpoint_route,
+        CloseRequest, Endpoint, EndpointError, MAX_OUTGOING_MESSAGES, Packet, WsSession,
+        endpoint_route, write_messages,
     };
 
     fn test_router(shutdown: CancellationToken) -> Router {
@@ -408,6 +430,80 @@ mod tests {
             session.send(Packet::new("after-close", Option::<()>::None)),
             Err(EndpointError::Closed)
         ));
+    }
+
+    struct BlockFirstWrite {
+        started: Option<oneshot::Sender<()>>,
+        writes: mpsc::UnboundedSender<WsMessage>,
+    }
+
+    impl Sink<WsMessage> for BlockFirstWrite {
+        type Error = ();
+
+        fn poll_ready(mut self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Result<(), ()>> {
+            if let Some(started) = self.started.take() {
+                let _ = started.send(());
+                Poll::Pending
+            } else {
+                Poll::Ready(Ok(()))
+            }
+        }
+
+        fn start_send(self: Pin<&mut Self>, message: WsMessage) -> Result<(), ()> {
+            self.writes.send(message).map_err(|_| ())
+        }
+
+        fn poll_flush(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Result<(), ()>> {
+            Poll::Ready(Ok(()))
+        }
+
+        fn poll_close(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Result<(), ()>> {
+            Poll::Ready(Ok(()))
+        }
+    }
+
+    #[tokio::test]
+    async fn close_interrupts_a_blocked_write() {
+        let (sender, receiver) = mpsc::channel(1);
+        let (close_sender, close_receiver) = mpsc::unbounded_channel();
+        let (started_sender, started_receiver) = oneshot::channel();
+        let (writes, mut written) = mpsc::unbounded_channel();
+        let sink = BlockFirstWrite {
+            started: Some(started_sender),
+            writes,
+        };
+        let writer = tokio::spawn(write_messages(sink, receiver, close_receiver));
+
+        sender
+            .try_send(WsMessage::Text("blocked application message".into()))
+            .expect("application queue should have room");
+        timeout(Duration::from_secs(1), started_receiver)
+            .await
+            .expect("application write should start")
+            .expect("writer should report the blocked write");
+
+        close_sender
+            .send(CloseRequest {
+                final_message: Some(WsMessage::Text("error".into())),
+                frame: axum::extract::ws::CloseFrame {
+                    code: 1013,
+                    reason: "Slow consumer.".into(),
+                },
+            })
+            .expect("close channel should remain open");
+
+        timeout(Duration::from_secs(1), writer)
+            .await
+            .expect("close should interrupt the blocked write")
+            .expect("writer should finish cleanly");
+        assert!(matches!(written.recv().await, Some(WsMessage::Text(text)) if text == "error"));
+        assert!(
+            matches!(written.recv().await, Some(WsMessage::Close(Some(frame))) if frame.code == 1013)
+        );
+        assert!(
+            written.recv().await.is_none(),
+            "blocked application message should be discarded"
+        );
     }
 
     #[tokio::test]
