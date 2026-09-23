@@ -34,6 +34,10 @@ public interface PaperConfigFeature {
     }
 
     private Path getPaperWorldConfigPath(String worldName) throws NoSuchFileException {
+        if(!Utils.isSafeFileName(worldName)) {
+            throw new IllegalArgumentException("Illegal world name.");
+        }
+
         Path targetPath = Paths.get("").resolve(worldName).resolve("paper-world.yml");
         if(!Files.exists(targetPath)) {
             throw new NoSuchFileException("Cannot find the config of world "+ worldName);
