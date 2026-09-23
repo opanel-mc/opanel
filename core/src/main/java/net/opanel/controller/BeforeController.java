@@ -59,7 +59,8 @@ public class BeforeController extends BaseController {
         Set<RouteRole> roles = ctx.routeRoles();
         if(roles.size() != 1 || !(roles.iterator().next() instanceof AuthRouteRole role)) {
             plugin.logger.error("Route authorization is not configured for "+ ctx.method() +" "+ ctx.path());
-            reject(ctx, HttpStatus.INTERNAL_SERVER_ERROR, "Route authorization is not configured.");
+            sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, "Route authorization is not configured.");
+            ctx.skipRemainingHandlers();
             return;
         }
 
@@ -69,31 +70,36 @@ public class BeforeController extends BaseController {
         if(role == AuthRouteRole.PANEL_OR_MCP && authorization != null && authorization.startsWith("Bearer ")) {
             String accessToken = authorization.substring(7);
             if(!accessToken.startsWith("o-") || accessToken.length() != 50) {
-                reject(ctx, HttpStatus.BAD_REQUEST, "Authorization header is invalid.");
+                sendResponse(ctx, HttpStatus.BAD_REQUEST, "Authorization header is invalid.");
+                ctx.skipRemainingHandlers();
                 return;
             }
 
             McpConfiguration mcpConfig = Storage.get().getStoredData(StorageKey.MCP_CONFIG);
             if(mcpConfig == null || !mcpConfig.enabled) {
-                reject(ctx, HttpStatus.SERVICE_UNAVAILABLE, "Mcp is not enabled.");
+                sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "Mcp is not enabled.");
+                ctx.skipRemainingHandlers();
                 return;
             }
             if(!constantTimeEquals(accessToken, mcpConfig.accessToken)) {
-                reject(ctx, HttpStatus.UNAUTHORIZED, "Mcp access token is invalid.");
+                sendResponse(ctx, HttpStatus.UNAUTHORIZED, "Mcp access token is invalid.");
+                ctx.skipRemainingHandlers();
             }
             return;
         }
 
         String token = ctx.cookie("token"); // jws
         if(token == null) {
-            reject(ctx, HttpStatus.UNAUTHORIZED, "Token is missing.");
+            sendResponse(ctx, HttpStatus.UNAUTHORIZED, "Token is missing.");
+            ctx.skipRemainingHandlers();
             return;
         }
 
         final String hashedRealKey = plugin.getConfig().accessKey; // hashed 2
         if(!JwtManager.verifyToken(token, hashedRealKey, plugin.getConfig().salt)) {
             ctx.removeCookie("token");
-            reject(ctx, HttpStatus.UNAUTHORIZED, "Token is invalid.");
+            sendResponse(ctx, HttpStatus.UNAUTHORIZED, "Token is invalid.");
+            ctx.skipRemainingHandlers();
         }
     };
 
@@ -184,11 +190,6 @@ public class BeforeController extends BaseController {
                 actual.getBytes(StandardCharsets.UTF_8),
                 expected.getBytes(StandardCharsets.UTF_8)
         );
-    }
-
-    private void reject(Context ctx, HttpStatus status, String message) {
-        sendResponse(ctx, status, message);
-        ctx.skipRemainingHandlers();
     }
 
     private String getOpenAPIInterfaceName(String path) {
