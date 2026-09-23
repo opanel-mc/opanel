@@ -20,10 +20,10 @@ public class InfoController extends BaseController {
         super(plugin);
     }
 
-    public Handler getServerInfo = ctx -> {
+    public Handler getServerInfo = ctx -> ctx.future(() -> server.getMotdAsync().thenAccept(motd -> {
         HashMap<String, Object> obj = new HashMap<>();
         obj.put("favicon", server.getFavicon() != null ? ("/api/icon?t="+ System.currentTimeMillis()) : null);
-        obj.put("motd", Utils.stringToBase64(server.getMotd()));
+        obj.put("motd", Utils.stringToBase64(motd));
         obj.put("port", server.getPort());
         obj.put("maxPlayerCount", server.getMaxPlayerCount());
         obj.put("whitelist", server.isWhitelistEnabled());
@@ -53,7 +53,7 @@ public class InfoController extends BaseController {
         obj.put("system", sysObj);
 
         sendResponse(ctx, obj);
-    };
+    }));
 
     public Handler setMotd = ctx -> {
         try {
