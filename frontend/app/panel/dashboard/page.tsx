@@ -127,8 +127,8 @@ export default function Dashboard() {
                 }
                 {
                   info
-                  ? <TerminalCard className="flex-1 min-h-0 max-xl:min-h-128"/>
-                  : <CardSkeleton className="flex-1 min-h-0 max-xl:min-h-128"/>
+                  ? <TerminalCard className="flex-1 min-h-0 max-xl:h-128 max-xl:flex-none"/>
+                  : <CardSkeleton className="flex-1 min-h-0 max-xl:h-128 max-xl:flex-none"/>
                 }
               </div>
             </MonitorContext.Provider>
