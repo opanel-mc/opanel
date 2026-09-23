@@ -3,6 +3,7 @@ package net.opanel.web;
 import com.google.gson.Gson;
 import io.javalin.Javalin;
 import io.javalin.config.SizeUnit;
+import io.javalin.http.HandlerType;
 import io.javalin.http.HttpStatus;
 import io.javalin.jetty.JettyServer;
 import io.javalin.json.JavalinGson;
@@ -25,6 +26,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
+import static net.opanel.web.AuthRouteRole.*;
 
 public class WebServer {
     public static final String ROOT_PATH = "web";
@@ -95,45 +97,42 @@ public class WebServer {
         before("/*", beforeController.beforeAll);
         before("/*", beforeController.handleRsc);
         before("/*", beforeController.handleFonts);
+        beforeMatched("/*", beforeController.authToken);
         get("/panel/ext", ctx -> ctx.status(HttpStatus.NOT_FOUND));
         get("/panel/ext/", ctx -> ctx.status(HttpStatus.NOT_FOUND));
         get("/panel/ext/{extId}", extensionPageController.getExtensionPage);
         get("/panel/ext/{extId}/", extensionPageController.getExtensionPage);
         get("/panel/ext/{extId}/<resource>", extensionPageController.getExtensionPage);
         path("assets", () -> {
-            before("/upload/*", beforeController.authToken);
-            get("/{name}", assetsController.getAsset);
-            post("/upload/{name}", assetsController.uploadAsset);
-            delete("/reset/{name}", assetsController.resetAsset);
+            get("/{name}", assetsController.getAsset, PUBLIC);
+            post("/upload/{name}", assetsController.uploadAsset, PANEL_OR_MCP);
+            delete("/reset/{name}", assetsController.resetAsset, PANEL_OR_MCP);
         });
-        path("file", () -> {
-            before("/*", beforeController.authToken);
+        path("file", Set.of(PANEL_OR_MCP), () -> {
             get("/{id}/{fileName}", downloadController.downloadFile);
         });
         path("api", () -> {
-            before("/*", beforeController.authToken);
-
             path("auth", () -> {
-                get("/", authController.getCram);
-                post("/", authController.validateCram);
-                post("/check", authController.checkAuth);
-                post("/logout", authController.logout);
+                get("/", authController.getCram, PUBLIC);
+                post("/", authController.validateCram, PUBLIC);
+                post("/check", authController.checkAuth, PUBLIC);
+                post("/logout", authController.logout, PUBLIC);
                 path("oidc", () -> {
-                    get("login", oidcController.login);
-                    get("callback", oidcController.callback);
-                    post("bind-user", oidcController.bindNewUser);
-                    get("config", oidcController.getConfig);
-                    get("allowed-users", oidcController.getAllowedUsers);
-                    post("allowed-users", oidcController.addAllowedUser);
-                    delete("allowed-users", oidcController.removeAllowedUser);
+                    get("login", oidcController.login, PUBLIC);
+                    get("callback", oidcController.callback, PUBLIC);
+                    post("bind-user", oidcController.bindNewUser, PUBLIC);
+                    get("config", oidcController.getConfig, PUBLIC);
+                    get("allowed-users", oidcController.getAllowedUsers, PANEL_OR_MCP);
+                    post("allowed-users", oidcController.addAllowedUser, PANEL_OR_MCP);
+                    delete("allowed-users", oidcController.removeAllowedUser, PANEL_OR_MCP);
                 });
             });
-            path("banned-ips", () -> {
+            path("banned-ips", Set.of(PANEL_OR_MCP), () -> {
                 get("/", bannedIpsController.getBannedIps);
                 post("add", bannedIpsController.banIp);
                 post("remove", bannedIpsController.pardonIp);
             });
-            path("control", () -> {
+            path("control", Set.of(PANEL_OR_MCP), () -> {
                 get("properties", controlController.getServerProperties);
                 post("properties", controlController.setServerProperties);
                 get("code-of-conduct", controlController.getCodeOfConducts);
@@ -150,20 +149,20 @@ public class WebServer {
                 get("launch-command", controlController.getLaunchCommand);
                 post("launch-command", controlController.setLaunchCommand);
             });
-            path("gamerules", () -> {
+            path("gamerules", Set.of(PANEL_OR_MCP), () -> {
                 get("{dimName}", gamerulesController.getGamerules);
                 post("{dimName}", gamerulesController.changeGamerule);
                 patch("{dimName}", gamerulesController.patchGamerule); // for mcp
             });
             path("icon", () -> {
-                get("/", iconController.getFavicon);
-                post("/", iconController.uploadFavicon);
+                get("/", iconController.getFavicon, PUBLIC);
+                post("/", iconController.uploadFavicon, PANEL_OR_MCP);
             });
-            path("info", () -> {
+            path("info", Set.of(PANEL_OR_MCP), () -> {
                 get("/", infoController.getServerInfo);
                 post("motd", infoController.setMotd);
             });
-            path("logs", () -> {
+            path("logs", Set.of(PANEL_OR_MCP), () -> {
                 get("/", logsController.getLogFileList);
                 get("{fileName}", logsController.getLogContent);
                 get("{fileName}/download", logsController.downloadLog);
@@ -171,19 +170,19 @@ public class WebServer {
                 delete("{fileName}", logsController.deleteLog);
                 post("{fileName}/upload-mclogs", logsController.uploadLogToMclogs);
             });
-            path("map", () -> {
+            path("map", Set.of(PANEL_OR_MCP), () -> {
                 get("/", mapController.getMapEnabled);
                 post("/", mapController.toggleMap);
                 get("{saveName}", mapController.getAvailableTiles);
                 post("{saveName}/tiles-range", mapController.getTilesInRange);
                 post("{saveName}/tiles", mapController.getTiles);
             });
-            path("monitor", () -> {
+            path("monitor", Set.of(PANEL_OR_MCP), () -> {
                 get("/", monitorController.getMonitorSnapshot); // for mcp
                 get("history", monitorController.getHistory);
                 get("activity", monitorController.getActivity);
             });
-            path("players", () -> {
+            path("players", Set.of(PANEL_OR_MCP), () -> {
                 get("/", playersController.getPlayersOverview);
                 get("list", playersController.getPlayers); // for mcp
                 delete("/", playersController.deletePlayerData);
@@ -194,7 +193,7 @@ public class WebServer {
                 post("pardon", playersController.pardonPlayer);
                 post("gamemode", playersController.setGamemode);
             });
-            path("saves", () -> {
+            path("saves", Set.of(PANEL_OR_MCP), () -> {
                 get("/", savesController.getSaves);
                 post("/", savesController.uploadSave);
                 get("{saveName}", savesController.downloadSave);
@@ -202,7 +201,7 @@ public class WebServer {
                 patch("{saveName}", savesController.toggleSaveDatapack);
                 delete("{saveName}", savesController.deleteSave);
             });
-            path("plugins", () -> {
+            path("plugins", Set.of(PANEL_OR_MCP), () -> {
                 get("/", pluginsController.getPlugins);
                 get("/icon/{fileName}", pluginsController.getPluginIcon);
                 post("/", pluginsController.uploadPlugin);
@@ -210,13 +209,13 @@ public class WebServer {
                 post("{fileName}", pluginsController.togglePlugin);
                 delete("{fileName}", pluginsController.deletePlugin);
             });
-            path("terminal", () -> {
+            path("terminal", Set.of(PANEL_OR_MCP), () -> {
                 get("/", terminalController.getCommands); // for mcp
                 post("/", terminalController.sendCommand); // for mcp
             });
-            post("security", securityController.updateAccessKey);
-            get("version", versionController.getVersionInfo);
-            path("whitelist", () -> {
+            post("security", securityController.updateAccessKey, PANEL_SESSION);
+            get("version", versionController.getVersionInfo, PANEL_OR_MCP);
+            path("whitelist", Set.of(PANEL_OR_MCP), () -> {
                 get("/", whitelistController.getWhitelist);
                 post("enable", whitelistController.enableWhitelist);
                 post("disable", whitelistController.disableWhitelist);
@@ -224,39 +223,47 @@ public class WebServer {
                 post("add", whitelistController.addWhitelistEntry);
                 post("remove", whitelistController.removeWhitelistEntry);
             });
-            path("tasks", () -> {
+            path("tasks", Set.of(PANEL_OR_MCP), () -> {
                 get("/", tasksController.getTasks);
                 post("/", tasksController.createTask);
                 post("/{id}", tasksController.editTask);
                 patch("/{id}", tasksController.toggleTask);
                 delete("/{id}", tasksController.deleteTask);
             });
-            path("mcp", () -> {
+            path("mcp", Set.of(PANEL_OR_MCP), () -> {
                 get("/", mcpController.getMcpEnabled);
                 post("/", mcpController.toggleMcp);
                 get("/token", mcpController.getMaskedAccessToken);
                 post("/token", mcpController.generateAccessToken);
             });
-            path("open-api", () -> {
+            path("open-api", Set.of(PANEL_OR_MCP), () -> {
                 get("/", openAPIController.getOpenAPIEnabled);
                 post("/", openAPIController.toggleOpenAPI);
                 get("/{interfaceName}", openAPIController.getInterfaceEnabled);
                 post("/{interfaceName}", openAPIController.toggleInterface);
             });
-            path("extensions", () -> {
+            path("extensions", Set.of(PANEL_OR_MCP), () -> {
                 get("/", extensionsController.getExtensions);
                 post("/", extensionsController.uploadExtension);
                 get("{fileName}", extensionsController.downloadExtension);
                 post("{fileName}", extensionsController.toggleExtension);
                 delete("{fileName}", extensionsController.deleteExtension);
             });
-            path("extension-res", () -> {
+            path("extension-res", Set.of(PANEL_OR_MCP), () -> {
                 get("/", extensionsController.getRegisteredExtensionPages);
                 get("{extId}", extensionsController.getExtensionResource);
                 get("{extId}/", extensionsController.getExtensionResource);
                 get("{extId}/<resource>", extensionsController.getExtensionResource);
             });
-            before("extension/{extId}/<path>", beforeController.routeExtensionBackend);
+            String extensionBackendPath = prefixPath("extension/{extId}/<path>");
+            HandlerType.values().stream()
+                    .filter(HandlerType::isHttpMethod)
+                    .forEach(method -> staticInstance().addHttpHandler(
+                            method,
+                            extensionBackendPath,
+                            beforeController.routeExtensionBackend,
+                            PANEL_OR_MCP
+                    ));
         });
 
         // Open API Controllers
