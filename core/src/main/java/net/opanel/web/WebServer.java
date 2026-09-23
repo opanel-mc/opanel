@@ -122,9 +122,9 @@ public class WebServer {
                     get("callback", oidcController.callback, PUBLIC);
                     post("bind-user", oidcController.bindNewUser, PUBLIC);
                     get("config", oidcController.getConfig, PUBLIC);
-                    get("allowed-users", oidcController.getAllowedUsers, PANEL_OR_MCP);
-                    post("allowed-users", oidcController.addAllowedUser, PANEL_OR_MCP);
-                    delete("allowed-users", oidcController.removeAllowedUser, PANEL_OR_MCP);
+                    get("allowed-users", oidcController.getAllowedUsers, PANEL_SESSION);
+                    post("allowed-users", oidcController.addAllowedUser, PANEL_SESSION);
+                    delete("allowed-users", oidcController.removeAllowedUser, PANEL_SESSION);
                 });
             });
             path("banned-ips", Set.of(PANEL_OR_MCP), () -> {
@@ -230,11 +230,11 @@ public class WebServer {
                 patch("/{id}", tasksController.toggleTask);
                 delete("/{id}", tasksController.deleteTask);
             });
-            path("mcp", Set.of(PANEL_OR_MCP), () -> {
-                get("/", mcpController.getMcpEnabled);
-                post("/", mcpController.toggleMcp);
-                get("/token", mcpController.getMaskedAccessToken);
-                post("/token", mcpController.generateAccessToken);
+            path("mcp", () -> {
+                get("/", mcpController.getMcpEnabled, PANEL_OR_MCP);
+                post("/", mcpController.toggleMcp, PANEL_OR_MCP);
+                get("/token", mcpController.getMaskedAccessToken, PANEL_SESSION);
+                post("/token", mcpController.generateAccessToken, PANEL_SESSION);
             });
             path("open-api", Set.of(PANEL_OR_MCP), () -> {
                 get("/", openAPIController.getOpenAPIEnabled);
