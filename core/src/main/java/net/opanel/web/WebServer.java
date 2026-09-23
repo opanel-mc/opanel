@@ -37,6 +37,7 @@ public class WebServer {
     private final Set<BaseEndpoint> endpoints = ConcurrentHashMap.newKeySet();
     private Javalin app;
     private boolean isResourceFactoryRegistered = false;
+    private boolean initialAccessKeyNoticePending = false;
 
     public WebServer(OPanel plugin) {
         this.plugin = plugin;
@@ -296,6 +297,8 @@ public class WebServer {
     }
 
     public void start() throws Exception {
+        initialAccessKeyNoticePending |= plugin.initializeAccessKey();
+
         if(
             !isResourceFactoryRegistered && (
                 plugin.getServer().getServerType() == ServerType.FORGE
@@ -376,7 +379,14 @@ public class WebServer {
 
         app.start(HOST, PORT);
         plugin.logger.info("OPanel web server is ready on "+ HOST +":"+ PORT);
-        plugin.initializeAccessKey();
+        if(initialAccessKeyNoticePending) {
+            plugin.logger.warn("===========================OPanel===========================");
+            plugin.logger.warn("Initial launching detected,");
+            plugin.logger.warn("Check opanel/INITIAL_ACCESS_KEY.txt for the initial access key.");
+            plugin.logger.warn("Remember to delete the file for your server security.");
+            plugin.logger.warn("============================================================");
+            initialAccessKeyNoticePending = false;
+        }
     }
 
     public void stop() throws Exception {

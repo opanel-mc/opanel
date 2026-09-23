@@ -5,6 +5,7 @@ import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 
 import net.opanel.OPanel;
+import net.opanel.config.OPanelConfiguration;
 import net.opanel.utils.Utils;
 import net.opanel.controller.BaseController;
 import net.opanel.web.CramChallengeStore;
@@ -28,14 +29,22 @@ public class AuthController extends BaseController {
         super(plugin);
     }
 
-    private boolean isOidcEnabled() {
-        return plugin.getConfig().oidcEnabled;
+    private boolean isCredentialInitialized(OPanelConfiguration config) {
+        return config.accessKey != null
+                && !config.accessKey.isBlank()
+                && config.salt != null
+                && !config.salt.isBlank();
     }
 
     public Handler getCram = ctx -> {
         ctx.header("Cache-Control", "no-store");
-        if(isOidcEnabled()) {
+        final OPanelConfiguration config = plugin.getConfig();
+        if(config.oidcEnabled) {
             sendResponse(ctx, HttpStatus.FORBIDDEN, "Secret login is disabled when OIDC is enabled.");
+            return;
+        }
+        if(!isCredentialInitialized(config)) {
+            sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "Panel credential is not initialized.");
             return;
         }
 
@@ -66,8 +75,13 @@ public class AuthController extends BaseController {
 
     public Handler validateCram = ctx -> {
         ctx.header("Cache-Control", "no-store");
-        if(isOidcEnabled()) {
+        final OPanelConfiguration config = plugin.getConfig();
+        if(config.oidcEnabled) {
             sendResponse(ctx, HttpStatus.FORBIDDEN, "Secret login is disabled when OIDC is enabled.");
+            return;
+        }
+        if(!isCredentialInitialized(config)) {
+            sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "Panel credential is not initialized.");
             return;
         }
 
@@ -98,7 +112,7 @@ public class AuthController extends BaseController {
         }
 
         final String challengeResult = reqBody.result(); // hashed 3
-        final String storedRealKey = plugin.getConfig().accessKey; // hashed 2
+        final String storedRealKey = config.accessKey; // hashed 2
         final String realResult = Utils.md5(storedRealKey + challenge); // hashed 3
 
         if(MessageDigest.isEqual(
@@ -107,14 +121,14 @@ public class AuthController extends BaseController {
         )) {
             loginAttemptTracker.recordSuccess(reqIp);
 
-            String token = JwtManager.generateToken(storedRealKey, plugin.getConfig().salt);
+            String token = JwtManager.generateToken(storedRealKey, config.salt);
             // Context.cookie() provided by Javalin called List.removeFirst() method.
             // But the method was introduced in Java 21, so if OPanel is running under
             // Java versions lower than 21, this method will throw a NoSuchMethodError.
             //
             // Just simply catch it and do nothing.
             try {
-                ctx.cookie(JwtManager.createCookie("token", token, (int) TimeUnit.DAYS.toSeconds(1), plugin.getConfig().cookieSecure));
+                ctx.cookie(JwtManager.createCookie("token", token, (int) TimeUnit.DAYS.toSeconds(1), config.cookieSecure));
             } catch (NoSuchMethodError e) {
                 //
             }
