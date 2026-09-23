@@ -122,9 +122,9 @@ public class WebServer {
                     get("callback", oidcController.callback, PUBLIC);
                     post("bind-user", oidcController.bindNewUser, PUBLIC);
                     get("config", oidcController.getConfig, PUBLIC);
-                    get("allowed-users", oidcController.getAllowedUsers, PANEL_OR_MCP);
-                    post("allowed-users", oidcController.addAllowedUser, PANEL_OR_MCP);
-                    delete("allowed-users", oidcController.removeAllowedUser, PANEL_OR_MCP);
+                    get("allowed-users", oidcController.getAllowedUsers, PANEL_SESSION);
+                    post("allowed-users", oidcController.addAllowedUser, PANEL_SESSION);
+                    delete("allowed-users", oidcController.removeAllowedUser, PANEL_SESSION);
                 });
             });
             path("banned-ips", Set.of(PANEL_OR_MCP), () -> {
