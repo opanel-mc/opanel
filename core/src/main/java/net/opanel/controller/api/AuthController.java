@@ -8,6 +8,7 @@ import net.opanel.OPanel;
 import net.opanel.utils.Utils;
 import net.opanel.controller.BaseController;
 import net.opanel.web.JwtManager;
+import net.opanel.web.LoginAttemptTracker;
 
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,11 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 public class AuthController extends BaseController {
     private final ConcurrentHashMap<String, String> cramMap = new ConcurrentHashMap<>();
-
-    private static final int maxTries = 5;
-    private static final long bannedPeriod = 10 * 60 * 1000; // 10 min
-    private final ConcurrentHashMap<String, Integer> failedRecords = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, Long> temporaryBannedRecords = new ConcurrentHashMap<>(); // ms
+    private final LoginAttemptTracker loginAttemptTracker = new LoginAttemptTracker();
 
     public AuthController(OPanel plugin) {
         super(plugin);
@@ -76,7 +73,7 @@ public class AuthController extends BaseController {
         cramMap.remove(reqBody.id());
 
         if(challengeResult.equals(realResult)) {
-            removeFailedRecord(reqIp);
+            loginAttemptTracker.recordSuccess(reqIp);
 
             String token = JwtManager.generateToken(storedRealKey, plugin.getConfig().salt);
             // Context.cookie() provided by Javalin called List.removeFirst() method.
@@ -91,12 +88,13 @@ public class AuthController extends BaseController {
             }
             sendResponse(ctx, HttpStatus.OK);
         } else {
-            final int current = incrementFailedCount(reqIp);
-            if(current >= maxTries) {
-                setTemporaryBan(reqIp);
+            LoginAttemptTracker.Result result = loginAttemptTracker.recordFailure(reqIp);
+            if(result.status() != LoginAttemptTracker.Status.ALLOWED) {
+                sendThrottleResponse(ctx, result);
+                return;
             }
 
-            plugin.logger.warn("A failed login request from "+ reqIp +" (Failed for "+ current +" times)");
+            plugin.logger.warn("A failed login request from "+ reqIp +" (Failed for "+ result.failedAttempts() +" times)");
             sendResponse(ctx, HttpStatus.UNAUTHORIZED);
         }
     };
@@ -129,57 +127,20 @@ public class AuthController extends BaseController {
             sendResponse(ctx, HttpStatus.FORBIDDEN, "Cannot determine client IP address.");
             return null;
         }
-        if(checkTemporaryBan(reqIp)) {
-            sendResponse(ctx, HttpStatus.FORBIDDEN, "The Ip is banned temporarily.");
-            return null;
-        }
-        if(checkFailedAndBanIfExceeded(reqIp)) {
-            sendResponse(ctx, HttpStatus.FORBIDDEN, "The Ip is banned temporarily.");
+        LoginAttemptTracker.Result result = loginAttemptTracker.check(reqIp);
+        if(result.status() != LoginAttemptTracker.Status.ALLOWED) {
+            sendThrottleResponse(ctx, result);
             return null;
         }
         return reqIp;
     }
 
-    private int incrementFailedCount(String ip) {
-        return failedRecords.merge(ip, 1, Integer::sum);
-    }
-
-    private int getFailedCount(String ip) {
-        return failedRecords.getOrDefault(ip, 0);
-    }
-
-    private void removeFailedRecord(String ip) {
-        failedRecords.remove(ip);
-    }
-
-    private boolean checkTemporaryBan(String ip) {
-        long currentTime = System.currentTimeMillis();
-        Long banUntil = temporaryBannedRecords.get(ip);
-
-        if(banUntil == null) {
-            return false;
+    private void sendThrottleResponse(Context ctx, LoginAttemptTracker.Result result) {
+        if(result.status() == LoginAttemptTracker.Status.BANNED) {
+            sendResponse(ctx, HttpStatus.FORBIDDEN, "The Ip is banned temporarily.");
+        } else {
+            ctx.header("Retry-After", Long.toString(result.retryAfterSeconds()));
+            sendResponse(ctx, HttpStatus.TOO_MANY_REQUESTS, "Too many login sources are being tracked.");
         }
-
-        if(currentTime < banUntil) {
-            return true;
-        }
-
-        temporaryBannedRecords.remove(ip, banUntil);
-        return false;
-    }
-
-    private void setTemporaryBan(String ip) {
-        temporaryBannedRecords.put(ip, System.currentTimeMillis() + bannedPeriod);
-        failedRecords.put(ip, 0);
-    }
-
-    private boolean checkFailedAndBanIfExceeded(String ip) {
-        int currentCount = getFailedCount(ip);
-        if(currentCount >= maxTries) {
-            setTemporaryBan(ip);
-            removeFailedRecord(ip);
-            return true;
-        }
-        return false;
     }
 }
