@@ -1,7 +1,6 @@
 package net.opanel.web;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 public final class LoginAttemptTracker {
@@ -9,20 +8,21 @@ public final class LoginAttemptTracker {
     private static final int MAX_TRACKED_IPS = 10_000;
     private static final long FAILURE_WINDOW_MILLIS = 10 * 60 * 1000L;
     private static final long BAN_PERIOD_MILLIS = 10 * 60 * 1000L;
+    private static final long CLEANUP_INTERVAL_MILLIS = 60 * 1000L;
     private static final long CAPACITY_RETRY_AFTER_SECONDS = 60;
 
     private final Map<String, AttemptRecord> records = new HashMap<>();
+    private long nextCleanupAt = System.currentTimeMillis() + CLEANUP_INTERVAL_MILLIS;
 
     public synchronized Result check(String ip) {
         long now = System.currentTimeMillis();
-        cleanupExpired(now);
+        cleanupExpiredIfDue(now);
 
-        AttemptRecord record = records.get(ip);
+        AttemptRecord record = getActiveRecord(ip, now);
         if(record == null) {
             if(records.size() >= MAX_TRACKED_IPS) {
                 return Result.capacityFull();
             }
-            records.put(ip, new AttemptRecord(0, now, 0, now));
             return Result.allowed(0);
         }
 
@@ -30,25 +30,19 @@ public final class LoginAttemptTracker {
             return Result.banned(secondsUntil(record.bannedUntil, now));
         }
 
-        records.put(ip, new AttemptRecord(
-                record.failedAttempts,
-                record.windowStartedAt,
-                0,
-                now
-        ));
         return Result.allowed(record.failedAttempts);
     }
 
     public synchronized Result recordFailure(String ip) {
         long now = System.currentTimeMillis();
-        cleanupExpired(now);
+        cleanupExpiredIfDue(now);
 
-        AttemptRecord record = records.get(ip);
+        AttemptRecord record = getActiveRecord(ip, now);
         if(record == null) {
             if(records.size() >= MAX_TRACKED_IPS) {
                 return Result.capacityFull();
             }
-            record = new AttemptRecord(0, now, 0, now);
+            record = new AttemptRecord(0, now, 0);
         }
 
         if(record.bannedUntil > now) {
@@ -58,7 +52,7 @@ public final class LoginAttemptTracker {
         int failedAttempts = record.failedAttempts + 1;
         long windowStartedAt = record.failedAttempts == 0 ? now : record.windowStartedAt;
         long bannedUntil = failedAttempts >= MAX_FAILURES ? now + BAN_PERIOD_MILLIS : 0;
-        records.put(ip, new AttemptRecord(failedAttempts, windowStartedAt, bannedUntil, now));
+        records.put(ip, new AttemptRecord(failedAttempts, windowStartedAt, bannedUntil));
         return Result.allowed(failedAttempts);
     }
 
@@ -66,17 +60,26 @@ public final class LoginAttemptTracker {
         records.remove(ip);
     }
 
-    private void cleanupExpired(long now) {
-        Iterator<AttemptRecord> iterator = records.values().iterator();
-        while(iterator.hasNext()) {
-            AttemptRecord record = iterator.next();
-            boolean expired = record.bannedUntil > 0
-                    ? now >= record.bannedUntil
-                    : record.failedAttempts == 0
-                            ? now - record.lastUpdatedAt >= FAILURE_WINDOW_MILLIS
-                            : now - record.windowStartedAt >= FAILURE_WINDOW_MILLIS;
-            if(expired) iterator.remove();
+    private AttemptRecord getActiveRecord(String ip, long now) {
+        AttemptRecord record = records.get(ip);
+        if(record != null && isExpired(record, now)) {
+            records.remove(ip);
+            return null;
         }
+        return record;
+    }
+
+    private void cleanupExpiredIfDue(long now) {
+        if(now < nextCleanupAt) return;
+
+        records.values().removeIf(record -> isExpired(record, now));
+        nextCleanupAt = now + CLEANUP_INTERVAL_MILLIS;
+    }
+
+    private boolean isExpired(AttemptRecord record, long now) {
+        return record.bannedUntil > 0
+                ? now >= record.bannedUntil
+                : now - record.windowStartedAt >= FAILURE_WINDOW_MILLIS;
     }
 
     private long secondsUntil(long target, long now) {
@@ -86,8 +89,7 @@ public final class LoginAttemptTracker {
     private record AttemptRecord(
             int failedAttempts,
             long windowStartedAt,
-            long bannedUntil,
-            long lastUpdatedAt
+            long bannedUntil
     ) {}
 
     public enum Status {
