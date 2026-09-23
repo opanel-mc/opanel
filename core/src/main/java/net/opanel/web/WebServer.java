@@ -258,7 +258,6 @@ public class WebServer {
             String extensionBackendPath = prefixPath("extension/{extId}/<path>");
             HandlerType.values().stream()
                     .filter(HandlerType::isHttpMethod)
-                    .filter(method -> !method.equals(HandlerType.OPTIONS))
                     .forEach(method -> staticInstance().addHttpHandler(
                             method,
                             extensionBackendPath,
