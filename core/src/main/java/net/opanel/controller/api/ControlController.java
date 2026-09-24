@@ -81,6 +81,10 @@ public class ControlController extends BaseController {
                 sendResponse(ctx, HttpStatus.BAD_REQUEST, "Language is missing.");
                 return;
             }
+            if(!isValidCodeOfConductLanguage(lang)) {
+                sendResponse(ctx, HttpStatus.BAD_REQUEST, "Language is invalid.");
+                return;
+            }
 
             final String content = ctx.body();
             codeOfConductFeature.updateOrCreateCodeOfConduct(lang, !content.isEmpty() ? Utils.base64ToString(content) : "");
@@ -101,6 +105,10 @@ public class ControlController extends BaseController {
             final String lang = ctx.queryParam("lang");
             if(lang == null) {
                 sendResponse(ctx, HttpStatus.BAD_REQUEST, "Language is missing.");
+                return;
+            }
+            if(!isValidCodeOfConductLanguage(lang)) {
+                sendResponse(ctx, HttpStatus.BAD_REQUEST, "Language is invalid.");
                 return;
             }
 
@@ -136,6 +144,10 @@ public class ControlController extends BaseController {
         final String saveName = ctx.queryParam("save");
         if(saveName == null) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Save name is missing.");
+            return;
+        }
+        if(!Utils.isSafeFileName(saveName)) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal save name.");
             return;
         }
 
@@ -221,6 +233,10 @@ public class ControlController extends BaseController {
 
         try {
             final String worldName = ctx.queryParam("world");
+            if(worldName != null && !Utils.isSafeFileName(worldName)) {
+                sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal world name.");
+                return;
+            }
 
             HashMap<String, Object> obj = new HashMap<>();
             if(worldName == null) {
@@ -245,6 +261,11 @@ public class ControlController extends BaseController {
 
         try {
             final String worldName = ctx.queryParam("world");
+            if(worldName != null && !Utils.isSafeFileName(worldName)) {
+                sendResponse(ctx, HttpStatus.BAD_REQUEST, "Illegal world name.");
+                return;
+            }
+
             final String content = ctx.body();
             if(content.isEmpty()) {
                 sendResponse(ctx, HttpStatus.BAD_REQUEST, "Config content is missing.");
@@ -282,4 +303,8 @@ public class ControlController extends BaseController {
             sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     };
+
+    private boolean isValidCodeOfConductLanguage(String lang) {
+        return Utils.isSafeFileName(lang) && Utils.validateLocaleCode(lang);
+    }
 }

@@ -23,6 +23,7 @@ export default function Tasks() {
   const [currentEditing, setCurrentEditing] = useState<string | null>(null);
   const [mode, setMode] = useState<TaskFormMode>("create");
   const [loading, setLoading] = useState(false);
+  const [createFormKey, setCreateFormKey] = useState(0);
   const currentEditingTask = tasks?.find(task => task.id === currentEditing) ?? null;
 
   const fetchTaskList = async () => {
@@ -93,15 +94,20 @@ export default function Tasks() {
                       }}
                       key={task.id}/>
                   ))}
-                  <div
+                  <button
+                    type="button"
                     className={cn(
                       "text-sm border hover:bg-muted transition-colors duration-75 flex justify-center items-center gap-2 cursor-pointer",
                       mode === "create" && "bg-muted"
                     )}
-                    onClick={() => setMode("create")}>
+                    onClick={() => {
+                      setCurrentEditing(null);
+                      setCreateFormKey((key) => key + 1);
+                      setMode("create");
+                    }}>
                     <Plus size={18}/>
                     {$("tasks.create")}
-                  </div>
+                  </button>
                 </>
               )
             }
@@ -110,6 +116,7 @@ export default function Tasks() {
         <FilesEditorContent className="min-lg:max-w-[50%]">
           {(mode === "create" || currentEditingTask) && (
             <TaskForm
+              key={mode === "create" ? `create-${createFormKey}` : currentEditingTask!.id}
               task={
                 mode === "create"
                 ? {

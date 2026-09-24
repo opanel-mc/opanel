@@ -1,7 +1,7 @@
 package net.opanel.controller;
 
 import io.javalin.http.*;
-import io.javalin.http.servlet.JavalinServletContext;
+import io.javalin.security.RouteRole;
 import net.opanel.OPanel;
 import net.opanel.config.McpConfiguration;
 import net.opanel.config.OpenAPIConfiguration;
@@ -10,13 +10,14 @@ import net.opanel.extension.LoadedExtension;
 import net.opanel.storage.Storage;
 import net.opanel.storage.StorageKey;
 import net.opanel.utils.Utils;
+import net.opanel.web.AuthRouteRole;
 import net.opanel.web.JwtManager;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
+import java.security.MessageDigest;
+import java.util.Set;
 
 public class BeforeController extends BaseController {
     private static final String RSC_COMPATIBILITY_ID_RESOURCE = "vinext-rsc-compatibility-id";
@@ -53,26 +54,36 @@ public class BeforeController extends BaseController {
     };
 
     public Handler authToken = ctx -> {
-        if(ctx.path().startsWith("/api/auth") || ctx.path().equals("/api/icon") || ctx.method().equals(HandlerType.OPTIONS)) return;
+        if(ctx.method().equals(HandlerType.OPTIONS) || !isManagedAuthPath(ctx.path())) return;
+
+        Set<RouteRole> roles = ctx.routeRoles();
+        if(roles.size() != 1 || !(roles.iterator().next() instanceof AuthRouteRole role)) {
+            plugin.logger.error("Route authorization is not configured for "+ ctx.method() +" "+ ctx.path());
+            sendResponse(ctx, HttpStatus.INTERNAL_SERVER_ERROR, "Route authorization is not configured.");
+            ctx.skipRemainingHandlers();
+            return;
+        }
+
+        if(role == AuthRouteRole.PUBLIC) return;
 
         String authorization = ctx.header("Authorization");
-        if(authorization != null && authorization.startsWith("Bearer ") && !ctx.path().startsWith("/api/security")) { // auth mcp access token
+        if(role == AuthRouteRole.PANEL_OR_MCP && authorization != null && authorization.startsWith("Bearer ")) {
             String accessToken = authorization.substring(7);
             if(!accessToken.startsWith("o-") || accessToken.length() != 50) {
                 sendResponse(ctx, HttpStatus.BAD_REQUEST, "Authorization header is invalid.");
-                clearContextTasks(ctx);
+                ctx.skipRemainingHandlers();
                 return;
             }
 
             McpConfiguration mcpConfig = Storage.get().getStoredData(StorageKey.MCP_CONFIG);
             if(mcpConfig == null || !mcpConfig.enabled) {
                 sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "Mcp is not enabled.");
-                clearContextTasks(ctx);
+                ctx.skipRemainingHandlers();
                 return;
             }
-            if(!accessToken.equals(mcpConfig.accessToken)) {
+            if(!constantTimeEquals(accessToken, mcpConfig.accessToken)) {
                 sendResponse(ctx, HttpStatus.UNAUTHORIZED, "Mcp access token is invalid.");
-                clearContextTasks(ctx);
+                ctx.skipRemainingHandlers();
             }
             return;
         }
@@ -80,7 +91,7 @@ public class BeforeController extends BaseController {
         String token = ctx.cookie("token"); // jws
         if(token == null) {
             sendResponse(ctx, HttpStatus.UNAUTHORIZED, "Token is missing.");
-            clearContextTasks(ctx);
+            ctx.skipRemainingHandlers();
             return;
         }
 
@@ -88,29 +99,17 @@ public class BeforeController extends BaseController {
         if(!JwtManager.verifyToken(token, hashedRealKey, plugin.getConfig().salt)) {
             ctx.removeCookie("token");
             sendResponse(ctx, HttpStatus.UNAUTHORIZED, "Token is invalid.");
-            clearContextTasks(ctx);
+            ctx.skipRemainingHandlers();
         }
     };
 
     public Handler handleRsc = ctx -> {
-        String reqPath = ctx.path();
-        Map<String, List<String>> queryParamMap = ctx.queryParamMap();
-        if(reqPath.endsWith(".rsc")) {
-            if(rscCompatibilityId != null) {
-                ctx.header("X-Vinext-RSC-Compatibility-Id", rscCompatibilityId);
-            }
-            return;
-        }
-        if(!queryParamMap.containsKey("_rsc")) return;
+        if(!ctx.path().endsWith(".txt") || !"1".equals(ctx.header("Rsc"))) return;
 
-        if(reqPath.endsWith("/")) {
-            reqPath = reqPath.substring(0, reqPath.length() - 1);
+        ctx.contentType("text/x-component");
+        if(rscCompatibilityId != null) {
+            ctx.header("X-Vinext-RSC-Compatibility-Id", rscCompatibilityId);
         }
-        ctx.redirect((reqPath.isEmpty() ? "index" : reqPath) +".rsc?"+ ctx.queryString());
-        // A redirect does not stop Javalin's task chain. Without clearing it,
-        // the static-file handler can overwrite this response with the route's
-        // index.html, which the vinext client then tries to decode as RSC.
-        clearContextTasks(ctx);
     };
 
     public Handler handleFonts = ctx -> {
@@ -128,7 +127,7 @@ public class BeforeController extends BaseController {
         OpenAPIConfiguration openAPIConfig = Storage.get().getStoredData(StorageKey.OPEN_API_CONFIG);
         if(openAPIConfig == null || !openAPIConfig.enabled) {
             sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "Open API is not enabled.");
-            clearContextTasks(ctx);
+            ctx.skipRemainingHandlers();
             return;
         }
 
@@ -142,7 +141,7 @@ public class BeforeController extends BaseController {
         Boolean interfaceEnabled = openAPIConfig.interfaces.get(interfaceName);
         if(interfaceEnabled != null && !interfaceEnabled) {
             sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "Interface '"+ interfaceName +"' is not enabled.");
-            clearContextTasks(ctx);
+            ctx.skipRemainingHandlers();
         }
     };
 
@@ -152,14 +151,12 @@ public class BeforeController extends BaseController {
         String normalizedPath = path.isEmpty() ? "index.html" : Utils.normalizePath(path);
         if(normalizedPath == null) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Invalid extension backend path.");
-            clearContextTasks(ctx);
             return;
         }
 
         ExtensionManager extensionManager = plugin.getExtensionManager();
         if(!extensionManager.hasExtension(extensionId)) {
             sendResponse(ctx, HttpStatus.NOT_FOUND, "Extension not found.");
-            clearContextTasks(ctx);
             return;
         }
 
@@ -167,7 +164,6 @@ public class BeforeController extends BaseController {
         LoadedExtension.BackendRoute route = extension.getBackendRoute(normalizedPath);
         if(route == null || !route.method().equals(ctx.method())) {
             sendResponse(ctx, HttpStatus.NOT_FOUND, "Extension backend path not found.");
-            clearContextTasks(ctx);
             return;
         }
 
@@ -178,9 +174,23 @@ public class BeforeController extends BaseController {
             route.handler().handle(ctx);
         } finally {
             thread.setContextClassLoader(previousClassLoader);
-            clearContextTasks(ctx);
         }
     };
+
+    private boolean isManagedAuthPath(String path) {
+        return path.equals("/api") || path.startsWith("/api/")
+                || path.equals("/assets/upload") || path.startsWith("/assets/upload/")
+                || path.equals("/assets/reset") || path.startsWith("/assets/reset/")
+                || path.equals("/file") || path.startsWith("/file/");
+    }
+
+    private boolean constantTimeEquals(String actual, String expected) {
+        if(actual == null || expected == null) return false;
+        return MessageDigest.isEqual(
+                actual.getBytes(StandardCharsets.UTF_8),
+                expected.getBytes(StandardCharsets.UTF_8)
+        );
+    }
 
     private String getOpenAPIInterfaceName(String path) {
         final String prefix = "/open-api/";
@@ -195,7 +205,4 @@ public class BeforeController extends BaseController {
         return routePath.substring(0, splitIndex);
     }
 
-    private void clearContextTasks(Context ctx) {
-        ((JavalinServletContext) ctx).getTasks().clear();
-    }
 }
