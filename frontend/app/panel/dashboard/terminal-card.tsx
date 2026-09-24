@@ -24,12 +24,12 @@ export function TerminalCard({
       title={$("dashboard.terminal.title")}
       moreLink="/panel/terminal"
       className={className}
-      innerClassName="p-2 pt-0 h-full max-xl:flex-1 flex flex-col gap-2 overflow-hidden">
+      innerClassName="p-2 pt-0 flex-1 min-h-0 flex flex-col gap-2 !overflow-hidden">
       <TerminalViewer
         client={client}
         simple
         levels={getSettings("terminal.log-levels")}
-        className="flex-1"/>
+        className="flex-1 min-h-0"/>
       <Input
         className="w-full rounded-sm cursor-pointer"
         placeholder={$("dashboard.terminal.input.placeholder")}

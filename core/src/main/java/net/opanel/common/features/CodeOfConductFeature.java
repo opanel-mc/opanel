@@ -38,7 +38,7 @@ public interface CodeOfConductFeature {
     }
 
     default void updateOrCreateCodeOfConduct(String lang, String content) throws IOException {
-        Path filePath = codeOfConductPath.resolve(lang +".txt");
+        Path filePath = getCodeOfConductPath(lang);
         if(!Files.exists(filePath)) {
             Files.createFile(filePath);
         }
@@ -46,7 +46,15 @@ public interface CodeOfConductFeature {
     }
 
     default void removeCodeOfConduct(String lang) throws IOException {
-        Path filePath = codeOfConductPath.resolve(lang +".txt");
+        Path filePath = getCodeOfConductPath(lang);
         Files.deleteIfExists(filePath);
+    }
+
+    private Path getCodeOfConductPath(String lang) {
+        if(!Utils.isSafeFileName(lang) || !Utils.validateLocaleCode(lang)) {
+            throw new IllegalArgumentException("Illegal language code.");
+        }
+
+        return codeOfConductPath.resolve(lang +".txt");
     }
 }

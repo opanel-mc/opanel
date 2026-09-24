@@ -5,99 +5,136 @@ import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 
 import net.opanel.OPanel;
+import net.opanel.config.OPanelConfiguration;
 import net.opanel.utils.Utils;
 import net.opanel.controller.BaseController;
+import net.opanel.web.CramChallengeStore;
 import net.opanel.web.JwtManager;
+import net.opanel.web.LoginAttemptTracker;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 public class AuthController extends BaseController {
-    private final ConcurrentHashMap<String, String> cramMap = new ConcurrentHashMap<>();
+    private static final Pattern ID_PATTERN = Pattern.compile("[A-Za-z0-9_-]{1,64}");
+    private static final Pattern RESULT_PATTERN = Pattern.compile("[0-9a-f]{32}");
 
-    private static final int maxTries = 5;
-    private static final long bannedPeriod = 10 * 60 * 1000; // 10 min
-    private final ConcurrentHashMap<String, Integer> failedRecords = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, Long> temporaryBannedRecords = new ConcurrentHashMap<>(); // ms
+    private final CramChallengeStore cramChallengeStore = new CramChallengeStore();
+    private final LoginAttemptTracker loginAttemptTracker = new LoginAttemptTracker();
 
     public AuthController(OPanel plugin) {
         super(plugin);
     }
 
-    private boolean isOidcEnabled() {
-        return plugin.getConfig().oidcEnabled;
+    private boolean isCredentialInitialized(OPanelConfiguration config) {
+        return config.accessKey != null
+                && !config.accessKey.isBlank()
+                && config.salt != null
+                && !config.salt.isBlank();
     }
 
     public Handler getCram = ctx -> {
-        if(isOidcEnabled()) {
+        ctx.header("Cache-Control", "no-store");
+        final OPanelConfiguration config = plugin.getConfig();
+        if(config.oidcEnabled) {
             sendResponse(ctx, HttpStatus.FORBIDDEN, "Secret login is disabled when OIDC is enabled.");
+            return;
+        }
+        if(!isCredentialInitialized(config)) {
+            sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "Panel credential is not initialized.");
             return;
         }
 
         final String id = ctx.queryParam("id");
-        if(id == null) {
-            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Id is missing.");
+        if(id == null || !ID_PATTERN.matcher(id).matches()) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Id is invalid.");
             return;
         }
 
         final String reqIp = getIpAndCheck(ctx);
         if(reqIp == null) return;
 
-        String cramRandomHex = Utils.generateRandomHex(16);
-        while(cramMap.containsValue(cramRandomHex)) {
-            cramRandomHex = Utils.generateRandomHex(16);
+        CramChallengeStore.CreateResult createResult = cramChallengeStore.create(reqIp, id);
+        if(createResult.status() == CramChallengeStore.CreateStatus.DUPLICATE) {
+            sendResponse(ctx, HttpStatus.CONFLICT, "Id is already in use.");
+            return;
         }
-        cramMap.put(id, cramRandomHex);
+        if(createResult.status() == CramChallengeStore.CreateStatus.CAPACITY_FULL) {
+            ctx.header("Retry-After", Long.toString(createResult.retryAfterSeconds()));
+            sendResponse(ctx, HttpStatus.TOO_MANY_REQUESTS, "Too many login challenges are active.");
+            return;
+        }
 
         HashMap<String, Object> res = new HashMap<>();
-        res.put("cram", cramRandomHex);
+        res.put("cram", createResult.challenge());
         sendResponse(ctx, res);
     };
 
     public Handler validateCram = ctx -> {
-        if(isOidcEnabled()) {
+        ctx.header("Cache-Control", "no-store");
+        final OPanelConfiguration config = plugin.getConfig();
+        if(config.oidcEnabled) {
             sendResponse(ctx, HttpStatus.FORBIDDEN, "Secret login is disabled when OIDC is enabled.");
             return;
         }
+        if(!isCredentialInitialized(config)) {
+            sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "Panel credential is not initialized.");
+            return;
+        }
 
-        RequestBodyType reqBody = ctx.bodyAsClass(RequestBodyType.class);
-        if(reqBody.id() == null || reqBody.result() == null) {
-            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Id or result is missing.");
+        RequestBodyType reqBody;
+        try {
+            if(ctx.body().isBlank()) throw new IllegalArgumentException();
+            reqBody = ctx.bodyAsClass(RequestBodyType.class);
+        } catch(Exception e) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Request body is invalid.");
+            return;
+        }
+        if(reqBody == null
+                || reqBody.id() == null
+                || !ID_PATTERN.matcher(reqBody.id()).matches()
+                || reqBody.result() == null
+                || !RESULT_PATTERN.matcher(reqBody.result()).matches()) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Id or result is invalid.");
             return;
         }
 
         final String reqIp = getIpAndCheck(ctx);
         if(reqIp == null) return;
 
+        final String challenge = cramChallengeStore.consume(reqIp, reqBody.id());
+        if(challenge == null) {
+            recordFailedLogin(ctx, reqIp);
+            return;
+        }
+
         final String challengeResult = reqBody.result(); // hashed 3
-        final String storedRealKey = plugin.getConfig().accessKey; // hashed 2
-        final String realResult = Utils.md5(storedRealKey + cramMap.get(reqBody.id())); // hashed 3
-        cramMap.remove(reqBody.id());
+        final String storedRealKey = config.accessKey; // hashed 2
+        final String realResult = Utils.md5(storedRealKey + challenge); // hashed 3
 
-        if(challengeResult.equals(realResult)) {
-            removeFailedRecord(reqIp);
+        if(MessageDigest.isEqual(
+                challengeResult.getBytes(StandardCharsets.US_ASCII),
+                realResult.getBytes(StandardCharsets.US_ASCII)
+        )) {
+            loginAttemptTracker.recordSuccess(reqIp);
 
-            String token = JwtManager.generateToken(storedRealKey, plugin.getConfig().salt);
+            String token = JwtManager.generateToken(storedRealKey, config.salt);
             // Context.cookie() provided by Javalin called List.removeFirst() method.
             // But the method was introduced in Java 21, so if OPanel is running under
             // Java versions lower than 21, this method will throw a NoSuchMethodError.
             //
             // Just simply catch it and do nothing.
             try {
-                ctx.cookie(JwtManager.createCookie("token", token, (int) TimeUnit.DAYS.toSeconds(1), plugin.getConfig().cookieSecure));
+                ctx.cookie(JwtManager.createCookie("token", token, (int) TimeUnit.DAYS.toSeconds(1), config.cookieSecure));
             } catch (NoSuchMethodError e) {
                 //
             }
             sendResponse(ctx, HttpStatus.OK);
         } else {
-            final int current = incrementFailedCount(reqIp);
-            if(current >= maxTries) {
-                setTemporaryBan(reqIp);
-            }
-
-            plugin.logger.warn("A failed login request from "+ reqIp +" (Failed for "+ current +" times)");
-            sendResponse(ctx, HttpStatus.UNAUTHORIZED);
+            recordFailedLogin(ctx, reqIp);
         }
     };
 
@@ -129,57 +166,31 @@ public class AuthController extends BaseController {
             sendResponse(ctx, HttpStatus.FORBIDDEN, "Cannot determine client IP address.");
             return null;
         }
-        if(checkTemporaryBan(reqIp)) {
-            sendResponse(ctx, HttpStatus.FORBIDDEN, "The Ip is banned temporarily.");
-            return null;
-        }
-        if(checkFailedAndBanIfExceeded(reqIp)) {
-            sendResponse(ctx, HttpStatus.FORBIDDEN, "The Ip is banned temporarily.");
+        LoginAttemptTracker.Result result = loginAttemptTracker.check(reqIp);
+        if(result.status() != LoginAttemptTracker.Status.ALLOWED) {
+            sendThrottleResponse(ctx, result);
             return null;
         }
         return reqIp;
     }
 
-    private int incrementFailedCount(String ip) {
-        return failedRecords.merge(ip, 1, Integer::sum);
-    }
-
-    private int getFailedCount(String ip) {
-        return failedRecords.getOrDefault(ip, 0);
-    }
-
-    private void removeFailedRecord(String ip) {
-        failedRecords.remove(ip);
-    }
-
-    private boolean checkTemporaryBan(String ip) {
-        long currentTime = System.currentTimeMillis();
-        Long banUntil = temporaryBannedRecords.get(ip);
-
-        if(banUntil == null) {
-            return false;
+    private void recordFailedLogin(Context ctx, String reqIp) {
+        LoginAttemptTracker.Result result = loginAttemptTracker.recordFailure(reqIp);
+        if(result.status() != LoginAttemptTracker.Status.ALLOWED) {
+            sendThrottleResponse(ctx, result);
+            return;
         }
 
-        if(currentTime < banUntil) {
-            return true;
-        }
-
-        temporaryBannedRecords.remove(ip, banUntil);
-        return false;
+        plugin.logger.warn("A failed login request from "+ reqIp +" (Failed for "+ result.failedAttempts() +" times)");
+        sendResponse(ctx, HttpStatus.UNAUTHORIZED);
     }
 
-    private void setTemporaryBan(String ip) {
-        temporaryBannedRecords.put(ip, System.currentTimeMillis() + bannedPeriod);
-        failedRecords.put(ip, 0);
-    }
-
-    private boolean checkFailedAndBanIfExceeded(String ip) {
-        int currentCount = getFailedCount(ip);
-        if(currentCount >= maxTries) {
-            setTemporaryBan(ip);
-            removeFailedRecord(ip);
-            return true;
+    private void sendThrottleResponse(Context ctx, LoginAttemptTracker.Result result) {
+        if(result.status() == LoginAttemptTracker.Status.BANNED) {
+            sendResponse(ctx, HttpStatus.FORBIDDEN, "The Ip is banned temporarily.");
+        } else {
+            ctx.header("Retry-After", Long.toString(result.retryAfterSeconds()));
+            sendResponse(ctx, HttpStatus.TOO_MANY_REQUESTS, "Too many login sources are being tracked.");
         }
-        return false;
     }
 }
