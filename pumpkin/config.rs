@@ -12,6 +12,7 @@ use arc_swap::ArcSwap;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use tokio::sync::Mutex;
+use tracing::warn;
 
 use crate::{
     managers::{Manager, ManagerContext, OPanelUnavailable},
@@ -87,7 +88,7 @@ impl ConfigManager {
         self.config.load_full()
     }
 
-    /// Persists a complete configuration before publishing its in-memory snapshot.
+    /// Persists the known configuration fields before publishing its in-memory snapshot.
     #[allow(dead_code)]
     pub(crate) async fn replace(&self, config: OPanelConfig) -> Result<(), ConfigManagerError> {
         let storage = self.opanel()?.storage();
@@ -102,31 +103,49 @@ impl ConfigManager {
     }
 
     async fn initialize(&self, storage: &Storage) -> Result<(), ConfigManagerError> {
+        let _replace_access = self.replace_access.lock().await;
+
         // A plaintext key from a prior successful launch must never survive a restart.
         storage.delete_text(&INITIAL_ACCESS_KEY_FILE).await?;
 
-        let mut config = storage.read_json(&CONFIG_FILE).await?;
+        let loaded = storage.load_json(&CONFIG_FILE).await?;
+        let mut config = loaded.value;
+        let mut needs_persist = loaded.needs_persist;
         let mut plaintext_access_key = None;
 
         if config.access_key.is_empty() {
             let access_key = secure_random_string(12)?;
             config.access_key = md5_hex(&md5_hex(&access_key));
             plaintext_access_key = Some(access_key);
+            needs_persist = true;
         }
         if config.salt.is_empty() {
             config.salt = secure_random_string(6)?;
+            needs_persist = true;
         }
 
-        if let Some(access_key) = plaintext_access_key.as_deref() {
-            storage
+        if let Some(access_key) = plaintext_access_key.as_deref()
+            && let Err(error) = storage
                 .write_text(
                     &INITIAL_ACCESS_KEY_FILE,
                     &format!("{INITIAL_ACCESS_KEY_TEMPLATE}{access_key}"),
                 )
-                .await?;
+                .await
+        {
+            // A failed write may still have created or truncated the file. Cleanup is
+            // best-effort and must not hide the original persistence failure.
+            cleanup_initial_access_key(storage).await;
+            return Err(error.into());
         }
 
-        self.replace_in_storage(storage, config).await?;
+        if needs_persist && let Err(error) = storage.merge_json(&CONFIG_FILE, &config).await {
+            if plaintext_access_key.is_some() {
+                cleanup_initial_access_key(storage).await;
+            }
+            return Err(error.into());
+        }
+
+        self.config.store(Arc::new(config));
         self.initial_access_key_notice
             .store(plaintext_access_key.is_some(), Ordering::Release);
         Ok(())
@@ -138,7 +157,7 @@ impl ConfigManager {
         config: OPanelConfig,
     ) -> Result<(), ConfigManagerError> {
         let _replace_access = self.replace_access.lock().await;
-        storage.write_json(&CONFIG_FILE, &config).await?;
+        storage.merge_json(&CONFIG_FILE, &config).await?;
         self.config.store(Arc::new(config));
         Ok(())
     }
@@ -165,6 +184,15 @@ impl Manager for ConfigManager {
     }
 }
 
+async fn cleanup_initial_access_key(storage: &Storage) {
+    if let Err(error) = storage.delete_text(&INITIAL_ACCESS_KEY_FILE).await {
+        warn!(
+            %error,
+            "Failed to clean up the initial access key after configuration persistence failed"
+        );
+    }
+}
+
 fn secure_random_string(length: usize) -> Result<String, getrandom::Error> {
     let mut bytes = vec![0_u8; length];
     getrandom::fill(&mut bytes)?;
@@ -184,7 +212,7 @@ mod tests {
     use std::{
         path::{Path, PathBuf},
         sync::{
-            Weak,
+            Arc, Weak,
             atomic::{AtomicU64, Ordering},
         },
     };
@@ -332,7 +360,10 @@ mod tests {
             .expect("the plaintext file should contain the bilingual warning");
         assert_eq!(access_key.len(), 12);
         assert_eq!(config.access_key, md5_hex(&md5_hex(access_key)));
-        assert_eq!(storage.read_json(&CONFIG_FILE).await.unwrap(), *config);
+        assert_eq!(
+            storage.load_json(&CONFIG_FILE).await.unwrap().value,
+            *config
+        );
         assert!(manager.take_initial_access_key_notice());
         assert!(!manager.take_initial_access_key_notice());
 
@@ -354,10 +385,34 @@ mod tests {
         let first_config = first_manager.get();
         assert!(directory.child("INITIAL_ACCESS_KEY.txt").is_file());
 
+        let config_path = directory.child("config.json");
+        let stored_with_future_field = format!(
+            concat!(
+                "{{\"host\":\"{}\",\"port\":{},\"accessKey\":\"{}\",",
+                "\"salt\":\"{}\",\"cookieSecure\":{},\"proxyHeaders\":{},",
+                "\"futureOption\":{{\"enabled\":true}}}}\n"
+            ),
+            first_config.host,
+            first_config.port,
+            first_config.access_key,
+            first_config.salt,
+            first_config.cookie_secure,
+            first_config.proxy_headers,
+        );
+        tokio::fs::write(&config_path, stored_with_future_field.as_bytes())
+            .await
+            .unwrap();
+        let bytes_before_restart = tokio::fs::read(&config_path).await.unwrap();
+
         let second_manager = ConfigManager::new(manager_context());
         second_manager.initialize(&storage).await.unwrap();
 
         assert_eq!(*second_manager.get(), *first_config);
+        assert_eq!(
+            tokio::fs::read(&config_path).await.unwrap(),
+            bytes_before_restart,
+            "a complete configuration must not be rewritten during startup"
+        );
         assert!(!directory.child("INITIAL_ACCESS_KEY.txt").exists());
         assert!(!second_manager.take_initial_access_key_notice());
     }
@@ -365,18 +420,112 @@ mod tests {
     #[tokio::test]
     async fn fills_only_a_missing_salt_without_exposing_an_access_key() {
         let (directory, storage) = test_storage().await;
-        let original = OPanelConfig {
-            access_key: "stored-access-key".to_string(),
-            ..OPanelConfig::default()
-        };
-        storage.write_json(&CONFIG_FILE, &original).await.unwrap();
+        let config_path = directory.child("config.json");
+        tokio::fs::write(
+            &config_path,
+            br#"{
+                "host": "0.0.0.0",
+                "port": 3000,
+                "accessKey": "stored-access-key",
+                "cookieSecure": false,
+                "proxyHeaders": false,
+                "futureOption": 42
+            }"#,
+        )
+        .await
+        .unwrap();
         let manager = ConfigManager::new(manager_context());
 
         manager.initialize(&storage).await.unwrap();
 
         let config = manager.get();
-        assert_eq!(config.access_key, original.access_key);
+        assert_eq!(config.access_key, "stored-access-key");
         assert_eq!(config.salt.len(), 6);
+        let stored: serde_json::Value =
+            serde_json::from_slice(&tokio::fs::read(config_path).await.unwrap()).unwrap();
+        assert_eq!(stored["futureOption"], 42);
+        assert_eq!(stored["salt"], config.salt);
+        assert!(!directory.child("INITIAL_ACCESS_KEY.txt").exists());
+        assert!(!manager.take_initial_access_key_notice());
+    }
+
+    #[tokio::test]
+    async fn generated_credentials_preserve_unknown_configuration_fields() {
+        let (directory, storage) = test_storage().await;
+        let config_path = directory.child("config.json");
+        tokio::fs::write(
+            &config_path,
+            br#"{
+                "host": "127.0.0.1",
+                "port": 8080,
+                "futureOption": { "enabled": true }
+            }"#,
+        )
+        .await
+        .unwrap();
+        let manager = ConfigManager::new(manager_context());
+
+        manager.initialize(&storage).await.unwrap();
+
+        let stored: serde_json::Value =
+            serde_json::from_slice(&tokio::fs::read(config_path).await.unwrap()).unwrap();
+        assert_eq!(stored["futureOption"], json!({ "enabled": true }));
+        assert_eq!(stored["accessKey"], manager.get().access_key);
+        assert_eq!(stored["salt"], manager.get().salt);
+        assert!(manager.take_initial_access_key_notice());
+    }
+
+    #[tokio::test]
+    async fn replacing_configuration_preserves_unknown_fields() {
+        let (directory, storage) = test_storage().await;
+        let config_path = directory.child("config.json");
+        tokio::fs::write(
+            &config_path,
+            br#"{
+                "host": "0.0.0.0",
+                "port": 3000,
+                "accessKey": "stored-access-key",
+                "salt": "stored-salt",
+                "cookieSecure": false,
+                "proxyHeaders": false,
+                "futureOption": { "enabled": true }
+            }"#,
+        )
+        .await
+        .unwrap();
+        let manager = ConfigManager::new(manager_context());
+        manager.initialize(&storage).await.unwrap();
+        let replacement = OPanelConfig {
+            port: 4000,
+            ..(*manager.get()).clone()
+        };
+
+        manager
+            .replace_in_storage(&storage, replacement.clone())
+            .await
+            .unwrap();
+
+        assert_eq!(*manager.get(), replacement);
+        let stored: serde_json::Value =
+            serde_json::from_slice(&tokio::fs::read(config_path).await.unwrap()).unwrap();
+        assert_eq!(stored["port"], 4000);
+        assert_eq!(stored["futureOption"], json!({ "enabled": true }));
+    }
+
+    #[tokio::test]
+    async fn invalid_json_aborts_initialization_without_overwriting_the_file() {
+        let (directory, storage) = test_storage().await;
+        let config_path = directory.child("config.json");
+        let invalid = b"{\"accessKey\":";
+        tokio::fs::write(&config_path, invalid).await.unwrap();
+        let manager = ConfigManager::new(manager_context());
+
+        assert!(matches!(
+            manager.initialize(&storage).await,
+            Err(super::ConfigManagerError::Storage(_))
+        ));
+        assert_eq!(tokio::fs::read(config_path).await.unwrap(), invalid);
+        assert_eq!(*manager.get(), OPanelConfig::default());
         assert!(!directory.child("INITIAL_ACCESS_KEY.txt").exists());
         assert!(!manager.take_initial_access_key_notice());
     }
@@ -419,10 +568,40 @@ mod tests {
 
         assert!(matches!(
             manager.replace_in_storage(&storage, replacement).await,
-            Err(super::ConfigManagerError::Storage(
-                StorageError::Write { .. }
-            ))
+            Err(super::ConfigManagerError::Storage(_))
         ));
         assert_eq!(*manager.get(), *original);
+    }
+
+    #[tokio::test]
+    async fn concurrent_replacements_keep_disk_and_memory_in_sync() {
+        let (_directory, storage) = test_storage().await;
+        let storage = Arc::new(storage);
+        let manager = Arc::new(ConfigManager::new(manager_context()));
+        manager.initialize(storage.as_ref()).await.unwrap();
+        let original = manager.get();
+        let mut replacements = Vec::new();
+
+        for port in 4_000..4_050 {
+            let storage = Arc::clone(&storage);
+            let manager = Arc::clone(&manager);
+            let config = OPanelConfig {
+                port,
+                ..(*original).clone()
+            };
+            replacements.push(tokio::spawn(async move {
+                manager
+                    .replace_in_storage(storage.as_ref(), config)
+                    .await
+                    .unwrap();
+            }));
+        }
+
+        for replacement in replacements {
+            replacement.await.unwrap();
+        }
+
+        let stored = storage.load_json(&CONFIG_FILE).await.unwrap().value;
+        assert_eq!(*manager.get(), stored);
     }
 }
