@@ -15,6 +15,7 @@ use axum::{
     response::Response,
     routing::{MethodRouter, any},
 };
+use axum_extra::extract::CookieJar;
 use futures_util::{Sink, SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -36,6 +37,8 @@ const PONG: &str = "pong";
 const ERROR: &str = "error";
 const MAX_OUTGOING_MESSAGES: usize = 1024;
 const MAX_MESSAGE_SIZE: usize = 1024 * 1024;
+
+type SessionAuthenticator = Arc<dyn Fn(&CookieJar) -> bool + Send + Sync>;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Packet<T> {
@@ -140,11 +143,14 @@ pub trait Endpoint: Send + Sync + 'static {
 }
 
 pub fn router(opanel: Arc<OPanel>, shutdown: CancellationToken) -> axum::Router {
+    let authenticate = session_authenticator(Arc::clone(&opanel));
+
     axum::Router::new()
         .route(
             "/players",
             endpoint_route(
                 Arc::new(players::PlayersEndpoint::new(Arc::clone(&opanel))),
+                Arc::clone(&authenticate),
                 shutdown.clone(),
             ),
         )
@@ -152,6 +158,7 @@ pub fn router(opanel: Arc<OPanel>, shutdown: CancellationToken) -> axum::Router 
             "/inventory/{uuid}",
             endpoint_route(
                 Arc::new(inventory::InventoryEndpoint::new(Arc::clone(&opanel))),
+                Arc::clone(&authenticate),
                 shutdown.clone(),
             ),
         )
@@ -159,6 +166,7 @@ pub fn router(opanel: Arc<OPanel>, shutdown: CancellationToken) -> axum::Router 
             "/terminal",
             endpoint_route(
                 Arc::new(terminal::TerminalEndpoint::new(Arc::clone(&opanel))),
+                Arc::clone(&authenticate),
                 shutdown.clone(),
             ),
         )
@@ -166,41 +174,85 @@ pub fn router(opanel: Arc<OPanel>, shutdown: CancellationToken) -> axum::Router 
             "/map",
             endpoint_route(
                 Arc::new(map::MapEndpoint::new(Arc::clone(&opanel))),
+                Arc::clone(&authenticate),
                 shutdown.clone(),
             ),
         )
         .route(
             "/monitor",
-            endpoint_route(Arc::new(monitor::MonitorEndpoint::new(opanel)), shutdown),
+            endpoint_route(
+                Arc::new(monitor::MonitorEndpoint::new(opanel)),
+                authenticate,
+                shutdown,
+            ),
         )
         .route("/", any(super::response::not_found))
         .fallback(super::response::not_found)
 }
 
-pub(super) fn endpoint_route<E>(endpoint: Arc<E>, shutdown: CancellationToken) -> MethodRouter
-where
-    E: Endpoint,
-{
-    any(move |ws: WebSocketUpgrade| {
-        let endpoint = Arc::clone(&endpoint);
-        let shutdown = shutdown.clone();
-        async move { upgrade(ws, endpoint, shutdown) }
+fn session_authenticator(opanel: Arc<OPanel>) -> SessionAuthenticator {
+    Arc::new(move |cookies| {
+        let Some(token) = cookies.get("token") else {
+            return false;
+        };
+        let config = opanel.config();
+        opanel
+            .managers()
+            .auth()
+            .verify_token(token.value(), &config.access_key, &config.salt)
     })
 }
 
-pub fn upgrade<E>(ws: WebSocketUpgrade, endpoint: Arc<E>, shutdown: CancellationToken) -> Response
+pub(super) fn endpoint_route<E>(
+    endpoint: Arc<E>,
+    authenticate: SessionAuthenticator,
+    shutdown: CancellationToken,
+) -> MethodRouter
+where
+    E: Endpoint,
+{
+    any(move |ws: WebSocketUpgrade, cookies: CookieJar| {
+        let endpoint = Arc::clone(&endpoint);
+        let authenticate = Arc::clone(&authenticate);
+        let shutdown = shutdown.clone();
+        async move { upgrade(ws, endpoint, authenticate, cookies, shutdown) }
+    })
+}
+
+pub fn upgrade<E>(
+    ws: WebSocketUpgrade,
+    endpoint: Arc<E>,
+    authenticate: SessionAuthenticator,
+    cookies: CookieJar,
+    shutdown: CancellationToken,
+) -> Response
 where
     E: Endpoint,
 {
     ws.max_message_size(MAX_MESSAGE_SIZE)
-        .on_upgrade(move |socket| serve(socket, endpoint, shutdown))
+        .on_upgrade(move |socket| serve(socket, endpoint, authenticate, cookies, shutdown))
 }
 
-async fn serve<E>(socket: WebSocket, endpoint: Arc<E>, shutdown: CancellationToken)
-where
+async fn serve<E>(
+    socket: WebSocket,
+    endpoint: Arc<E>,
+    authenticate: SessionAuthenticator,
+    cookies: CookieJar,
+    shutdown: CancellationToken,
+) where
     E: Endpoint,
 {
     let (mut socket_sender, mut socket_receiver) = socket.split();
+    if !authenticate(&cookies) {
+        let _ = socket_sender
+            .send(Message::Close(Some(CloseFrame {
+                code: 1008,
+                reason: "Unauthorized.".into(),
+            })))
+            .await;
+        return;
+    }
+
     let (sender, receiver) = mpsc::channel(MAX_OUTGOING_MESSAGES);
     let (close_sender, close_receiver) = mpsc::unbounded_channel();
     let session = WsSession {
@@ -354,7 +406,7 @@ async fn finish_writer(mut writer: JoinHandle<()>) {
 mod tests {
     use std::{
         pin::Pin,
-        sync::{Arc, atomic::AtomicBool},
+        sync::{Arc, Weak, atomic::AtomicBool},
         task::{Context, Poll},
         time::Duration,
     };
@@ -367,20 +419,36 @@ mod tests {
         sync::{mpsc, oneshot},
         time::timeout,
     };
-    use tokio_tungstenite::{connect_async, tungstenite::Message};
+    use tokio_tungstenite::{
+        connect_async,
+        tungstenite::{
+            Message,
+            client::IntoClientRequest,
+            http::{HeaderValue, header::COOKIE},
+        },
+    };
     use tokio_util::sync::CancellationToken;
 
+    use crate::{managers::ManagerContext, web::AuthManager};
+
     use super::{
-        CloseRequest, Endpoint, EndpointError, MAX_OUTGOING_MESSAGES, Packet, WsSession,
-        endpoint_route, write_messages,
+        CloseRequest, Endpoint, EndpointError, MAX_OUTGOING_MESSAGES, Packet, SessionAuthenticator,
+        WsSession, endpoint_route, write_messages,
     };
+
+    fn allow_all() -> SessionAuthenticator {
+        Arc::new(|_| true)
+    }
 
     fn test_router(shutdown: CancellationToken) -> Router {
         struct TestEndpoint;
 
         impl Endpoint for TestEndpoint {}
 
-        Router::new().route("/test", endpoint_route(Arc::new(TestEndpoint), shutdown))
+        Router::new().route(
+            "/test",
+            endpoint_route(Arc::new(TestEndpoint), allow_all(), shutdown),
+        )
     }
 
     #[test]
@@ -395,6 +463,82 @@ mod tests {
                 "data": "payload"
             })
         );
+    }
+
+    #[tokio::test]
+    async fn endpoint_authenticates_shared_jwt_after_upgrade_before_connect() {
+        struct TestEndpoint;
+
+        impl Endpoint for TestEndpoint {}
+
+        let listener = TcpListener::bind("127.0.0.1:0")
+            .await
+            .expect("test listener should bind");
+        let address = listener
+            .local_addr()
+            .expect("test listener should have an address");
+        let shutdown = CancellationToken::new();
+        let server_shutdown = shutdown.clone();
+        let auth = Arc::new(AuthManager::new(ManagerContext::new(
+            Weak::new(),
+            CancellationToken::new(),
+        )));
+        let access_key = "0123456789abcdef0123456789abcdef";
+        let salt = "abc123";
+        let valid_token = auth.issue_token(access_key, salt);
+        let authenticate: SessionAuthenticator = Arc::new(move |cookies| {
+            cookies
+                .get("token")
+                .is_some_and(|token| auth.verify_token(token.value(), access_key, salt))
+        });
+        let router = Router::new().route(
+            "/test",
+            endpoint_route(Arc::new(TestEndpoint), authenticate, shutdown.clone()),
+        );
+        let server = tokio::spawn(async move {
+            axum::serve(listener, router)
+                .with_graceful_shutdown(async move {
+                    server_shutdown.cancelled().await;
+                })
+                .await
+        });
+
+        let (mut unauthorized, _) = connect_async(format!("ws://{address}/test"))
+            .await
+            .expect("websocket upgrade should complete");
+        assert_close_code(&mut unauthorized, 1008).await;
+
+        let mut invalid_request = format!("ws://{address}/test")
+            .into_client_request()
+            .expect("websocket request should be valid");
+        invalid_request
+            .headers_mut()
+            .insert(COOKIE, HeaderValue::from_static("token=invalid"));
+        let (mut invalid, _) = connect_async(invalid_request)
+            .await
+            .expect("websocket upgrade should complete");
+        assert_close_code(&mut invalid, 1008).await;
+
+        let mut request = format!("ws://{address}/test")
+            .into_client_request()
+            .expect("websocket request should be valid");
+        request.headers_mut().insert(
+            COOKIE,
+            HeaderValue::from_str(&format!("token={valid_token}"))
+                .expect("signed token should be a valid cookie header"),
+        );
+        let (mut authorized, _) = connect_async(request)
+            .await
+            .expect("authenticated websocket should connect");
+        assert_packet(&mut authorized, "connect", Value::Null).await;
+
+        shutdown.cancel();
+        assert_close_code(&mut authorized, 1001).await;
+        timeout(Duration::from_secs(2), server)
+            .await
+            .expect("server should stop promptly")
+            .expect("server task should join")
+            .expect("server should stop cleanly");
     }
 
     #[tokio::test]
@@ -526,7 +670,11 @@ mod tests {
         let server_shutdown = shutdown.clone();
         let router = Router::new().route(
             "/stub",
-            endpoint_route(Arc::new(UnimplementedEndpoint), shutdown.clone()),
+            endpoint_route(
+                Arc::new(UnimplementedEndpoint),
+                allow_all(),
+                shutdown.clone(),
+            ),
         );
         let server = tokio::spawn(async move {
             axum::serve(listener, router)

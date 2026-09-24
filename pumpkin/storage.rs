@@ -68,6 +68,12 @@ pub(crate) enum StorageError {
         #[source]
         source: std::io::Error,
     },
+    #[error("failed to delete storage file at {path}: {source}")]
+    Delete {
+        path: PathBuf,
+        #[source]
+        source: std::io::Error,
+    },
     #[error("failed to serialize storage file at {path}: {source}")]
     Serialize {
         path: PathBuf,
@@ -142,6 +148,16 @@ impl Storage {
         let _access = self.access.lock().await;
         let path = self.resolve(file.file_name)?;
         write_bytes(&path, value.as_bytes()).await
+    }
+
+    pub(crate) async fn delete_text(&self, file: &TextFile) -> Result<(), StorageError> {
+        let _access = self.access.lock().await;
+        let path = self.resolve(file.file_name)?;
+        match fs::remove_file(&path).await {
+            Ok(()) => Ok(()),
+            Err(source) if source.kind() == std::io::ErrorKind::NotFound => Ok(()),
+            Err(source) => Err(StorageError::Delete { path, source }),
+        }
     }
 
     pub(crate) async fn update_text<R>(
@@ -442,6 +458,10 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(storage.read_text(&NOTES).await.unwrap(), "external");
+
+        storage.delete_text(&NOTES).await.unwrap();
+        assert!(!directory.child("nested/opanel/notes.txt").exists());
+        storage.delete_text(&NOTES).await.unwrap();
     }
 
     #[tokio::test]

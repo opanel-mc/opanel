@@ -9,13 +9,13 @@ use std::{
 use tokio_util::sync::CancellationToken;
 
 use crate::{
-    config::{ConfigManager, OPanelConfig},
+    config::ConfigManager,
     map::MapRenderManager,
     monitor::{ActivityManager, MonitorManager},
     opanel::OPanel,
     task::ScheduledTaskManager,
     terminal::LogListenerManager,
-    web::OidcManager,
+    web::{AuthManager, OidcManager},
 };
 
 type BoxError = Box<dyn Error + Send + Sync + 'static>;
@@ -168,6 +168,7 @@ fn format_failures(formatter: &mut fmt::Formatter<'_>, failures: &[ManagerFailur
 pub(crate) struct Managers {
     shutdown: CancellationToken,
     config: Arc<ConfigManager>,
+    auth: Arc<AuthManager>,
     scheduled_tasks: Arc<ScheduledTaskManager>,
     map_render: Arc<MapRenderManager>,
     monitor: Arc<MonitorManager>,
@@ -177,10 +178,11 @@ pub(crate) struct Managers {
 }
 
 impl Managers {
-    pub(crate) fn new(context: ManagerContext, config: OPanelConfig) -> Self {
+    pub(crate) fn new(context: ManagerContext) -> Self {
         Self {
             shutdown: context.shutdown_token(),
-            config: Arc::new(ConfigManager::new(context.clone(), config)),
+            config: Arc::new(ConfigManager::new(context.clone())),
+            auth: Arc::new(AuthManager::new(context.clone())),
             log_listener: Arc::new(LogListenerManager::new(context.clone())),
             scheduled_tasks: Arc::new(ScheduledTaskManager::new(context.clone())),
             map_render: Arc::new(MapRenderManager::new(context.clone())),
@@ -192,6 +194,10 @@ impl Managers {
 
     pub(crate) fn config(&self) -> Arc<ConfigManager> {
         Arc::clone(&self.config)
+    }
+
+    pub(crate) fn auth(&self) -> Arc<AuthManager> {
+        Arc::clone(&self.auth)
     }
 
     pub(crate) fn scheduled_tasks(&self) -> Arc<ScheduledTaskManager> {
@@ -235,9 +241,10 @@ impl Managers {
         }
     }
 
-    fn lifecycle_order(&self) -> [Arc<dyn Manager>; 7] {
+    fn lifecycle_order(&self) -> [Arc<dyn Manager>; 8] {
         [
             self.config(),
+            self.auth(),
             self.log_listener(),
             self.scheduled_tasks(),
             self.map_render(),
@@ -358,6 +365,7 @@ mod tests {
         assert_send_sync::<OPanel>();
         assert_send_sync::<Managers>();
         assert_send_sync::<ConfigManager>();
+        assert_send_sync::<AuthManager>();
         assert_send_sync::<ScheduledTaskManager>();
         assert_send_sync::<MapRenderManager>();
         assert_send_sync::<MonitorManager>();
@@ -368,12 +376,10 @@ mod tests {
 
     #[test]
     fn manager_accessors_return_stable_arcs() {
-        let managers = Managers::new(
-            test_context(CancellationToken::new()),
-            OPanelConfig::default(),
-        );
+        let managers = Managers::new(test_context(CancellationToken::new()));
 
         assert!(Arc::ptr_eq(&managers.config(), &managers.config()));
+        assert!(Arc::ptr_eq(&managers.auth(), &managers.auth()));
         assert!(Arc::ptr_eq(
             &managers.scheduled_tasks(),
             &managers.scheduled_tasks()
