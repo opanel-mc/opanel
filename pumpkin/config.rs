@@ -113,13 +113,13 @@ impl ConfigManager {
         let mut needs_persist = loaded.needs_persist;
         let mut plaintext_access_key = None;
 
-        if config.access_key.is_empty() {
+        if config.access_key.trim().is_empty() {
             let access_key = secure_random_string(12)?;
             config.access_key = md5_hex(&md5_hex(&access_key));
             plaintext_access_key = Some(access_key);
             needs_persist = true;
         }
-        if config.salt.is_empty() {
+        if config.salt.trim().is_empty() {
             config.salt = secure_random_string(6)?;
             needs_persist = true;
         }
@@ -418,7 +418,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn fills_only_a_missing_salt_without_exposing_an_access_key() {
+    async fn fills_only_a_whitespace_salt_without_exposing_an_access_key() {
         let (directory, storage) = test_storage().await;
         let config_path = directory.child("config.json");
         tokio::fs::write(
@@ -427,6 +427,7 @@ mod tests {
                 "host": "0.0.0.0",
                 "port": 3000,
                 "accessKey": "stored-access-key",
+                "salt": " \t\n",
                 "cookieSecure": false,
                 "proxyHeaders": false,
                 "futureOption": 42
@@ -447,6 +448,44 @@ mod tests {
         assert_eq!(stored["salt"], config.salt);
         assert!(!directory.child("INITIAL_ACCESS_KEY.txt").exists());
         assert!(!manager.take_initial_access_key_notice());
+    }
+
+    #[tokio::test]
+    async fn regenerates_a_whitespace_access_key() {
+        let (directory, storage) = test_storage().await;
+        let config_path = directory.child("config.json");
+        tokio::fs::write(
+            &config_path,
+            br#"{
+                "host": "0.0.0.0",
+                "port": 3000,
+                "accessKey": " \t\n",
+                "salt": "stored-salt",
+                "cookieSecure": false,
+                "proxyHeaders": false,
+                "futureOption": 42
+            }"#,
+        )
+        .await
+        .unwrap();
+        let manager = ConfigManager::new(manager_context());
+
+        manager.initialize(&storage).await.unwrap();
+
+        let config = manager.get();
+        let plaintext = storage.read_text(&INITIAL_ACCESS_KEY_FILE).await.unwrap();
+        let access_key = plaintext
+            .strip_prefix(INITIAL_ACCESS_KEY_TEMPLATE)
+            .expect("the plaintext file should contain the bilingual warning");
+        assert_eq!(access_key.len(), 12);
+        assert_eq!(config.access_key, md5_hex(&md5_hex(access_key)));
+        assert_eq!(config.salt, "stored-salt");
+
+        let stored: serde_json::Value =
+            serde_json::from_slice(&tokio::fs::read(config_path).await.unwrap()).unwrap();
+        assert_eq!(stored["accessKey"], config.access_key);
+        assert_eq!(stored["futureOption"], 42);
+        assert!(manager.take_initial_access_key_notice());
     }
 
     #[tokio::test]
