@@ -26,10 +26,7 @@ pub(crate) enum OPanelInitError {
 }
 
 impl OPanel {
-    pub(crate) async fn initialize(
-        context: Arc<Context>,
-        config: OPanelConfig,
-    ) -> Result<Arc<Self>, OPanelInitError> {
+    pub(crate) async fn initialize(context: Arc<Context>) -> Result<Arc<Self>, OPanelInitError> {
         let storage = Arc::new(Storage::open(PathBuf::from("opanel")).await?);
         let shutdown = CancellationToken::new();
         let opanel = Arc::new_cyclic(move |opanel| {
@@ -38,7 +35,7 @@ impl OPanel {
                 context,
                 storage,
                 shutdown,
-                managers: Managers::new(manager_context, config),
+                managers: Managers::new(manager_context),
             }
         });
 

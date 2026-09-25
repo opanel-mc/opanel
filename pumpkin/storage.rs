@@ -8,11 +8,25 @@ use serde::{Serialize, de::DeserializeOwned};
 use serde_json::Value;
 use thiserror::Error;
 use tokio::{fs, sync::Mutex};
-use tracing::warn;
-
 pub(crate) struct Storage {
     root: PathBuf,
     access: Mutex<()>,
+}
+
+/// A typed JSON value together with whether loading discovered data that still needs saving.
+///
+/// Loading never writes the file. A missing file or fields supplied from the default value set
+/// `needs_persist`, leaving the caller to decide when the completed value should be committed.
+#[derive(Debug)]
+pub(crate) struct LoadedJson<T> {
+    pub(crate) value: T,
+    pub(crate) needs_persist: bool,
+}
+
+struct JsonDocument<T> {
+    value: T,
+    raw: Value,
+    needs_persist: bool,
 }
 
 #[allow(dead_code)]
@@ -62,8 +76,16 @@ pub(crate) enum StorageError {
         #[source]
         source: std::io::Error,
     },
+    #[error("invalid JSON storage file at {path}: {reason}")]
+    InvalidJson { path: PathBuf, reason: String },
     #[error("failed to write storage file at {path}: {source}")]
     Write {
+        path: PathBuf,
+        #[source]
+        source: std::io::Error,
+    },
+    #[error("failed to delete storage file at {path}: {source}")]
+    Delete {
         path: PathBuf,
         #[source]
         source: std::io::Error,
@@ -92,27 +114,40 @@ impl Storage {
         })
     }
 
-    pub(crate) async fn read_json<T>(&self, file: &JsonFile<T>) -> Result<T, StorageError>
+    /// Loads and validates a JSON document without changing it on disk.
+    pub(crate) async fn load_json<T>(
+        &self,
+        file: &JsonFile<T>,
+    ) -> Result<LoadedJson<T>, StorageError>
     where
         T: Serialize + DeserializeOwned,
     {
         let _access = self.access.lock().await;
-        self.read_json_unlocked(file).await
+        let document = self.load_json_document_unlocked(file).await?;
+        Ok(LoadedJson {
+            value: document.value,
+            needs_persist: document.needs_persist,
+        })
     }
 
-    pub(crate) async fn write_json<T>(
+    /// Merges a typed value into the latest JSON document, retaining fields unknown to `T`.
+    pub(crate) async fn merge_json<T>(
         &self,
         file: &JsonFile<T>,
         value: &T,
     ) -> Result<(), StorageError>
     where
-        T: Serialize,
+        T: Serialize + DeserializeOwned,
     {
         let _access = self.access.lock().await;
         let path = self.resolve(file.file_name)?;
-        write_json_value(&path, value).await
+        let mut document = self.load_json_document_unlocked(file).await?;
+        let update = serialize_json_value(&path, value)?;
+        merge_json_values(&mut document.raw, update);
+        write_json_value(&path, &document.raw).await
     }
 
+    /// Applies a read-modify-write operation while retaining fields unknown to `T`.
     pub(crate) async fn update_json<T, R>(
         &self,
         file: &JsonFile<T>,
@@ -122,10 +157,12 @@ impl Storage {
         T: Serialize + DeserializeOwned,
     {
         let _access = self.access.lock().await;
-        let mut value = self.read_json_unlocked(file).await?;
-        let result = update(&mut value);
         let path = self.resolve(file.file_name)?;
-        write_json_value(&path, &value).await?;
+        let mut document = self.load_json_document_unlocked(file).await?;
+        let result = update(&mut document.value);
+        let update = serialize_json_value(&path, &document.value)?;
+        merge_json_values(&mut document.raw, update);
+        write_json_value(&path, &document.raw).await?;
         Ok(result)
     }
 
@@ -144,6 +181,16 @@ impl Storage {
         write_bytes(&path, value.as_bytes()).await
     }
 
+    pub(crate) async fn delete_text(&self, file: &TextFile) -> Result<(), StorageError> {
+        let _access = self.access.lock().await;
+        let path = self.resolve(file.file_name)?;
+        match fs::remove_file(&path).await {
+            Ok(()) => Ok(()),
+            Err(source) if source.kind() == std::io::ErrorKind::NotFound => Ok(()),
+            Err(source) => Err(StorageError::Delete { path, source }),
+        }
+    }
+
     pub(crate) async fn update_text<R>(
         &self,
         file: &TextFile,
@@ -157,58 +204,60 @@ impl Storage {
         Ok(result)
     }
 
-    async fn read_json_unlocked<T>(&self, file: &JsonFile<T>) -> Result<T, StorageError>
+    async fn load_json_document_unlocked<T>(
+        &self,
+        file: &JsonFile<T>,
+    ) -> Result<JsonDocument<T>, StorageError>
     where
         T: Serialize + DeserializeOwned,
     {
         let path = self.resolve(file.file_name)?;
         let default = (file.default)();
-        let default_tree =
-            serde_json::to_value(&default).map_err(|source| StorageError::Serialize {
-                path: path.clone(),
-                source,
-            })?;
+        let default_tree = serialize_json_value(&path, &default)?;
 
         let bytes = match fs::read(&path).await {
             Ok(bytes) => bytes,
             Err(source) if source.kind() == std::io::ErrorKind::NotFound => {
-                write_json_value(&path, &default).await?;
-                return Ok(default);
+                return Ok(JsonDocument {
+                    value: default,
+                    raw: default_tree,
+                    needs_persist: true,
+                });
             }
             Err(source) => {
                 return Err(StorageError::Read { path, source });
             }
         };
 
-        let raw_text = match str::from_utf8(&bytes) {
-            Ok(raw_text) => raw_text,
-            Err(error) => {
-                return restore_json_default(&path, default, error.to_string()).await;
-            }
-        };
-        let mut json = match serde_json::from_str::<Value>(raw_text) {
-            Ok(Value::Null) => {
-                return restore_json_default(&path, default, "the JSON root is null".to_string())
-                    .await;
-            }
-            Ok(json) => json,
-            Err(error) => {
-                return restore_json_default(&path, default, error.to_string()).await;
-            }
-        };
+        let raw_text = str::from_utf8(&bytes).map_err(|error| StorageError::InvalidJson {
+            path: path.clone(),
+            reason: error.to_string(),
+        })?;
+        let mut json =
+            serde_json::from_str::<Value>(raw_text).map_err(|error| StorageError::InvalidJson {
+                path: path.clone(),
+                reason: error.to_string(),
+            })?;
+        if json.is_null() {
+            return Err(StorageError::InvalidJson {
+                path,
+                reason: "the JSON root is null".to_string(),
+            });
+        }
 
         let changed = fill_missing_values(&mut json, &default_tree);
-        let value = match serde_json::from_value::<T>(json.clone()) {
-            Ok(value) => value,
-            Err(error) => {
-                return restore_json_default(&path, default, error.to_string()).await;
+        let value = serde_json::from_value::<T>(json.clone()).map_err(|error| {
+            StorageError::InvalidJson {
+                path,
+                reason: error.to_string(),
             }
-        };
+        })?;
 
-        if changed {
-            write_json_value(&path, &json).await?;
-        }
-        Ok(value)
+        Ok(JsonDocument {
+            value,
+            raw: json,
+            needs_persist: changed,
+        })
     }
 
     async fn read_text_unlocked(&self, file: &TextFile) -> Result<String, StorageError> {
@@ -239,19 +288,6 @@ impl Storage {
     }
 }
 
-async fn restore_json_default<T>(path: &Path, default: T, reason: String) -> Result<T, StorageError>
-where
-    T: Serialize,
-{
-    warn!(
-        path = %path.display(),
-        reason,
-        "Invalid storage JSON; restoring its default value"
-    );
-    write_json_value(path, &default).await?;
-    Ok(default)
-}
-
 async fn write_json_value<T>(path: &Path, value: &T) -> Result<(), StorageError>
 where
     T: Serialize + ?Sized,
@@ -261,6 +297,16 @@ where
         source,
     })?;
     write_bytes(path, json.as_bytes()).await
+}
+
+fn serialize_json_value<T>(path: &Path, value: &T) -> Result<Value, StorageError>
+where
+    T: Serialize + ?Sized,
+{
+    serde_json::to_value(value).map_err(|source| StorageError::Serialize {
+        path: path.to_path_buf(),
+        source,
+    })
 }
 
 async fn write_bytes(path: &Path, value: &[u8]) -> Result<(), StorageError> {
@@ -290,6 +336,26 @@ fn fill_missing_values(target: &mut Value, defaults: &Value) -> bool {
         }
     }
     changed
+}
+
+fn merge_json_values(target: &mut Value, update: Value) {
+    match update {
+        Value::Object(update) => {
+            let Value::Object(target) = target else {
+                *target = Value::Object(update);
+                return;
+            };
+            for (key, update_value) in update {
+                match target.get_mut(&key) {
+                    Some(target_value) => merge_json_values(target_value, update_value),
+                    None => {
+                        target.insert(key, update_value);
+                    }
+                }
+            }
+        }
+        update => *target = update,
+    }
 }
 
 #[cfg(test)]
@@ -389,21 +455,20 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn creates_root_and_missing_files_with_defaults() {
+    async fn creates_root_without_persisting_missing_json_defaults() {
         let (directory, storage) = test_storage().await;
         assert!(directory.child("nested/opanel").is_dir());
 
-        assert_eq!(
-            storage.read_json(&SETTINGS).await.unwrap(),
-            default_settings()
-        );
+        let loaded = storage.load_json(&SETTINGS).await.unwrap();
+        assert_eq!(loaded.value, default_settings());
+        assert!(loaded.needs_persist);
         assert_eq!(storage.read_text(&NOTES).await.unwrap(), "default notes");
-        assert!(directory.child("nested/opanel/settings.json").is_file());
+        assert!(!directory.child("nested/opanel/settings.json").exists());
         assert!(directory.child("nested/opanel/notes.txt").is_file());
     }
 
     #[tokio::test]
-    async fn reads_writes_and_updates_json_and_text() {
+    async fn merges_and_updates_json_and_text() {
         let (directory, storage) = test_storage().await;
         let settings = TestSettings {
             enabled: true,
@@ -412,8 +477,10 @@ mod tests {
                 retry_count: 8,
             },
         };
-        storage.write_json(&SETTINGS, &settings).await.unwrap();
-        assert_eq!(storage.read_json(&SETTINGS).await.unwrap(), settings);
+        storage.merge_json(&SETTINGS, &settings).await.unwrap();
+        let loaded = storage.load_json(&SETTINGS).await.unwrap();
+        assert_eq!(loaded.value, settings);
+        assert!(!loaded.needs_persist);
 
         storage
             .update_json(&SETTINGS, |settings| {
@@ -423,9 +490,10 @@ mod tests {
             .unwrap();
         assert_eq!(
             storage
-                .read_json(&SETTINGS)
+                .load_json(&SETTINGS)
                 .await
                 .unwrap()
+                .value
                 .nested
                 .retry_count,
             9
@@ -442,22 +510,23 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(storage.read_text(&NOTES).await.unwrap(), "external");
+
+        storage.delete_text(&NOTES).await.unwrap();
+        assert!(!directory.child("nested/opanel/notes.txt").exists());
+        storage.delete_text(&NOTES).await.unwrap();
     }
 
     #[tokio::test]
-    async fn fills_missing_json_fields_and_preserves_unknown_fields() {
+    async fn load_fills_missing_fields_without_writing_and_merge_preserves_unknown_fields() {
         let (directory, storage) = test_storage().await;
         let path = directory.child("nested/opanel/settings.json");
-        tokio::fs::write(
-            &path,
-            r#"{"enabled":true,"nested":{"name":"custom"},"unknown":42}"#,
-        )
-        .await
-        .unwrap();
+        let original =
+            r#"{"enabled":true,"nested":{"name":"custom","futureNested":true},"unknown":42}"#;
+        tokio::fs::write(&path, original).await.unwrap();
 
-        let settings = storage.read_json(&SETTINGS).await.unwrap();
+        let loaded = storage.load_json(&SETTINGS).await.unwrap();
         assert_eq!(
-            settings,
+            loaded.value,
             TestSettings {
                 enabled: true,
                 nested: NestedSettings {
@@ -466,15 +535,20 @@ mod tests {
                 },
             }
         );
+        assert!(loaded.needs_persist);
+        assert_eq!(tokio::fs::read_to_string(&path).await.unwrap(), original);
+
+        storage.merge_json(&SETTINGS, &loaded.value).await.unwrap();
 
         let stored: serde_json::Value =
             serde_json::from_slice(&tokio::fs::read(path).await.unwrap()).unwrap();
         assert_eq!(stored["unknown"], 42);
+        assert_eq!(stored["nested"]["futureNested"], true);
         assert_eq!(stored["nested"]["retryCount"], 3);
     }
 
     #[tokio::test]
-    async fn restores_invalid_json_to_the_default() {
+    async fn invalid_json_returns_an_error_without_overwriting() {
         let (directory, storage) = test_storage().await;
         let path = directory.child("nested/opanel/settings.json");
         let invalid_values: &[&[u8]] = &[
@@ -486,14 +560,95 @@ mod tests {
 
         for invalid in invalid_values {
             tokio::fs::write(&path, invalid).await.unwrap();
-            assert_eq!(
-                storage.read_json(&SETTINGS).await.unwrap(),
-                default_settings()
-            );
-            let stored: serde_json::Value =
-                serde_json::from_slice(&tokio::fs::read(&path).await.unwrap()).unwrap();
-            assert_eq!(stored, json!(default_settings()));
+            let error = storage.load_json(&SETTINGS).await.unwrap_err();
+            match error {
+                StorageError::InvalidJson {
+                    path: error_path,
+                    reason,
+                } => {
+                    assert_eq!(error_path, path);
+                    assert!(!reason.is_empty());
+                }
+                error => panic!("expected invalid JSON error, got {error:?}"),
+            }
+            assert_eq!(tokio::fs::read(&path).await.unwrap(), *invalid);
         }
+    }
+
+    #[tokio::test]
+    async fn merge_and_update_reject_invalid_json_without_overwriting() {
+        let (directory, storage) = test_storage().await;
+        let path = directory.child("nested/opanel/settings.json");
+        let invalid = br#"{"enabled":"yes","nested":{}}"#;
+        tokio::fs::write(&path, invalid).await.unwrap();
+
+        assert!(matches!(
+            storage.merge_json(&SETTINGS, &default_settings()).await,
+            Err(StorageError::InvalidJson { .. })
+        ));
+        assert_eq!(tokio::fs::read(&path).await.unwrap(), invalid);
+
+        assert!(matches!(
+            storage.update_json(&SETTINGS, |_| ()).await,
+            Err(StorageError::InvalidJson { .. })
+        ));
+        assert_eq!(tokio::fs::read(path).await.unwrap(), invalid);
+    }
+
+    #[tokio::test]
+    async fn update_json_preserves_unknown_fields() {
+        let (directory, storage) = test_storage().await;
+        let path = directory.child("nested/opanel/counter.json");
+        tokio::fs::write(&path, r#"{"value":4,"future":{"enabled":true}}"#)
+            .await
+            .unwrap();
+
+        storage
+            .update_json(&COUNTER, |counter| counter.value += 1)
+            .await
+            .unwrap();
+
+        let stored: serde_json::Value =
+            serde_json::from_slice(&tokio::fs::read(path).await.unwrap()).unwrap();
+        assert_eq!(stored["value"], 5);
+        assert_eq!(stored["future"]["enabled"], true);
+    }
+
+    #[test]
+    fn recursively_merges_objects_and_replaces_arrays_and_scalars() {
+        let mut target = json!({
+            "scalar": 1,
+            "array": [1, 2],
+            "nested": {
+                "known": "old",
+                "unknown": true
+            },
+            "topLevelUnknown": 42
+        });
+
+        super::merge_json_values(
+            &mut target,
+            json!({
+                "scalar": 2,
+                "array": [3],
+                "nested": {
+                    "known": "new"
+                }
+            }),
+        );
+
+        assert_eq!(
+            target,
+            json!({
+                "scalar": 2,
+                "array": [3],
+                "nested": {
+                    "known": "new",
+                    "unknown": true
+                },
+                "topLevelUnknown": 42
+            })
+        );
     }
 
     #[tokio::test]
@@ -547,7 +702,7 @@ mod tests {
             update.await.unwrap();
         }
 
-        assert_eq!(storage.read_json(&COUNTER).await.unwrap().value, 50);
+        assert_eq!(storage.load_json(&COUNTER).await.unwrap().value.value, 50);
         assert!(directory.child("nested/opanel/counter.json").is_file());
     }
 

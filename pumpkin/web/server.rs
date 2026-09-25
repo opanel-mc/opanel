@@ -1,7 +1,7 @@
 use std::{io, net::SocketAddr, sync::Arc, time::Duration};
 
 use axum::{
-    Router,
+    Extension, Router,
     extract::Request,
     http::{HeaderValue, header::HeaderName},
     middleware::{self, Next},
@@ -14,7 +14,7 @@ use tower_http::{
     cors::{AllowCredentials, AllowHeaders, AllowMethods, AllowOrigin, CorsLayer},
     trace::TraceLayer,
 };
-use tracing::info;
+use tracing::{info, warn};
 
 use crate::opanel::OPanel;
 
@@ -65,17 +65,27 @@ impl WebServer {
             })?;
 
         let shutdown = CancellationToken::new();
-        let router = build_router(opanel, shutdown.clone());
+        let router = build_router(Arc::clone(&opanel), shutdown.clone());
         let graceful_shutdown = shutdown.clone();
         let task = tokio::spawn(async move {
-            axum::serve(listener, router)
-                .with_graceful_shutdown(async move {
-                    graceful_shutdown.cancelled().await;
-                })
-                .await
+            axum::serve(
+                listener,
+                router.into_make_service_with_connect_info::<SocketAddr>(),
+            )
+            .with_graceful_shutdown(async move {
+                graceful_shutdown.cancelled().await;
+            })
+            .await
         });
 
         info!("OPanel web server is ready on {local_addr}");
+        if opanel.managers().config().take_initial_access_key_notice() {
+            warn!("===========================OPanel===========================");
+            warn!("Initial launching detected,");
+            warn!("Check opanel/INITIAL_ACCESS_KEY.txt for the initial access key.");
+            warn!("Remember to delete the file for your server security.");
+            warn!("============================================================");
+        }
         Ok(Self {
             local_addr,
             shutdown,
@@ -118,7 +128,7 @@ fn build_router(opanel: Arc<OPanel>, shutdown: CancellationToken) -> Router {
     let controller_router = controller::router()
         .layer(cors_layer())
         .with_state(Arc::clone(&opanel));
-    let endpoint_router = endpoint::router(opanel, shutdown);
+    let endpoint_router = endpoint::router(Arc::clone(&opanel), shutdown);
 
     Router::new()
         .merge(controller_router)
@@ -126,6 +136,7 @@ fn build_router(opanel: Arc<OPanel>, shutdown: CancellationToken) -> Router {
         .fallback(static_files::serve)
         .layer(middleware::from_fn(common_headers))
         .layer(TraceLayer::new_for_http())
+        .layer(Extension(opanel))
 }
 
 fn cors_layer() -> CorsLayer {

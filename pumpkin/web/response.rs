@@ -63,6 +63,10 @@ impl ApiError {
     pub fn not_implemented() -> Self {
         Self::new(StatusCode::NOT_IMPLEMENTED, "Not Implemented")
     }
+
+    pub fn from_status(status: StatusCode) -> Self {
+        Self::new(status, status.canonical_reason().unwrap_or_default())
+    }
 }
 
 impl IntoResponse for ApiError {

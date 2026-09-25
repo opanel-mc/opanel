@@ -8,7 +8,7 @@ use pumpkin_api_macros::{plugin_impl, plugin_method};
 use tokio::sync::Mutex;
 use tracing::info;
 
-use crate::{config::OPanelConfig, opanel::OPanel, web::WebServer};
+use crate::{opanel::OPanel, web::WebServer};
 
 mod config;
 mod event;
@@ -41,7 +41,7 @@ async fn on_load(&self, context: Arc<Context>) -> Result<(), String> {
                 return Err("OPanel is already loaded".to_string());
             }
 
-            let opanel = OPanel::initialize(context, OPanelConfig::default())
+            let opanel = OPanel::initialize(context)
                 .await
                 .map_err(|error| error.to_string())?;
             let web_server = match WebServer::start(Arc::clone(&opanel)).await {
