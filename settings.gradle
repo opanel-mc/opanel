@@ -60,7 +60,8 @@ if (!apiOnly) {
             'forge-1.21.8',
             'forge-1.21.9',
             'forge-1.21.11',
-            'forge-26.1'
+            'forge-26.1',
+            'forge-26.3'
         ],
         neoforge: [
             'neoforge-helper',
