@@ -8,6 +8,11 @@ on:
         required: true
         type: boolean
         default: true
+      build_pumpkin:
+        description: Build Pumpkin plugin
+        required: true
+        type: boolean
+        default: true
   push:
     branches:
       - main
@@ -42,6 +47,7 @@ jobs:
 
     outputs:
       jar_required: ${{ steps.changes.outputs.jar_required }}
+      pumpkin_required: ${{ steps.changes.outputs.pumpkin_required }}
 
     defaults:
       run:
@@ -49,22 +55,26 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
-    - name: Determine whether jar build is required
+    - name: Determine required builds
       id: changes
       working-directory: .
       env:
         EVENT_NAME: ${{ github.event_name }}
         BUILD_JAR: ${{ inputs.build_jar }}
+        BUILD_PUMPKIN: ${{ inputs.build_pumpkin }}
         BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
         HEAD_SHA: ${{ github.sha }}
       run: |
         if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
           echo "jar_required=$BUILD_JAR" >> "$GITHUB_OUTPUT"
+          echo "pumpkin_required=$BUILD_PUMPKIN" >> "$GITHUB_OUTPUT"
         elif [[ -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then
           echo "jar_required=true" >> "$GITHUB_OUTPUT"
+          echo "pumpkin_required=true" >> "$GITHUB_OUTPUT"
         else
           if ! git fetch --no-tags --depth=1 origin "$BASE_SHA"; then
             echo "jar_required=true" >> "$GITHUB_OUTPUT"
+            echo "pumpkin_required=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           changed_files=$(git diff --name-only --no-renames "$BASE_SHA" "$HEAD_SHA" -- . ':(exclude)frontend/**')
@@ -72,6 +82,11 @@ jobs:
             echo "jar_required=true" >> "$GITHUB_OUTPUT"
           else
             echo "jar_required=false" >> "$GITHUB_OUTPUT"
+          fi
+          if git diff --quiet --no-renames "$BASE_SHA" "$HEAD_SHA" -- pumpkin/ Cargo.toml Cargo.lock .github/workflows/; then
+            echo "pumpkin_required=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "pumpkin_required=true" >> "$GITHUB_OUTPUT"
           fi
         fi
     
@@ -97,12 +112,19 @@ jobs:
 
     - name: Build and bundle frontend
       run: npm run build:pack
-    - name: Upload bundled frontend
+    - name: Upload bundled frontend for jars
       if: steps.changes.outputs.jar_required == 'true'
       uses: actions/upload-artifact@v7
       with:
         name: frontend-build
         path: core/src/main/resources/web
+        if-no-files-found: error
+    - name: Upload frontend build for Pumpkin
+      if: steps.changes.outputs.pumpkin_required == 'true'
+      uses: actions/upload-artifact@v7
+      with:
+        name: pumpkin-frontend-build
+        path: frontend/dist
         if-no-files-found: error
 
   jar:
@@ -156,3 +178,89 @@ jobs:
         npm init -y >/dev/null
         npm i @actions/artifact@^2
         node upload-jars.mjs
+
+  pumpkin-check:
+
+    needs: frontend
+    if: needs.frontend.outputs.pumpkin_required == 'true'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Download frontend build
+      uses: actions/download-artifact@v8
+      with:
+        name: pumpkin-frontend-build
+        path: frontend/dist
+
+    - name: Set up Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: rustfmt, clippy
+    - name: Cache Rust build
+      uses: Swatinem/rust-cache@v2
+      with:
+        shared-key: pumpkin-check
+
+    - name: Check formatting
+      run: cargo fmt --all -- --check
+    - name: Run Clippy
+      run: cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
+    - name: Run unit tests
+      run: cargo test --workspace --all-features --locked
+
+  pumpkin:
+
+    needs:
+      - frontend
+      - pumpkin-check
+    if: needs.frontend.outputs.pumpkin_required == 'true'
+
+    runs-on: ${{ matrix.runner }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+            library: libopanel_pumpkin.so
+          - runner: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+            library: libopanel_pumpkin.so
+          - runner: windows-latest
+            target: x86_64-pc-windows-msvc
+            library: opanel_pumpkin.dll
+          - runner: macos-15-intel
+            target: x86_64-apple-darwin
+            library: libopanel_pumpkin.dylib
+          - runner: macos-latest
+            target: aarch64-apple-darwin
+            library: libopanel_pumpkin.dylib
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Download frontend build
+      uses: actions/download-artifact@v8
+      with:
+        name: pumpkin-frontend-build
+        path: frontend/dist
+
+    - name: Set up Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: ${{ matrix.target }}
+    - name: Cache Rust build
+      uses: Swatinem/rust-cache@v2
+      with:
+        shared-key: pumpkin-${{ matrix.target }}
+
+    - name: Build Pumpkin plugin
+      run: cargo build --release --locked --target ${{ matrix.target }}
+    - name: Upload Pumpkin plugin
+      uses: actions/upload-artifact@v7
+      with:
+        name: opanel-pumpkin-${{ matrix.target }}
+        path: target/${{ matrix.target }}/release/${{ matrix.library }}
+        if-no-files-found: error

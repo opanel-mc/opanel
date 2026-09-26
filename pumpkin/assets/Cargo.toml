@@ -1,0 +1,10 @@
+[package]
+name = "opanel-pumpkin-assets"
+version = "0.1.0"
+edition = "2024"
+description = "Embedded frontend assets for OPanel's Pumpkin plugin"
+publish = false
+build = "build.rs"
+
+[dependencies]
+rust-embed = { version = "8", features = ["compression", "debug-embed", "deterministic-timestamps"] }

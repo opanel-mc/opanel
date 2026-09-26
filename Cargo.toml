@@ -1,0 +1,49 @@
+[package]
+name = "opanel-pumpkin"
+version = "0.1.0"
+edition = "2024"
+description = "A Minecraft server management panel"
+authors = ["NriotHrreion"]
+
+[lib]
+path = "pumpkin/lib.rs"
+crate-type = ["cdylib"]
+
+[workspace]
+members = ["pumpkin/assets"]
+exclude = ["frontend/wasm-lib"]
+resolver = "3"
+
+[dependencies]
+arc-swap = "1"
+axum = { version = "0.8", features = ["http1", "json", "tokio", "ws"] }
+axum-extra = { version = "0.10", features = ["cookie"] }
+base64 = "0.22"
+futures-util = "0.3"
+getrandom = "0.3"
+hmac = "0.12"
+md5 = "0.8"
+mime_guess = "2"
+opanel-pumpkin-assets = { path = "pumpkin/assets" }
+percent-encoding = "2"
+pumpkin = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", rev = "c31eb836164038011dc757729800971e838458e7", package = "pumpkin" }
+pumpkin-api-macros = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", rev = "c31eb836164038011dc757729800971e838458e7", package = "pumpkin-api-macros" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+subtle = "2"
+thiserror = "2"
+time = "0.3"
+tokio = { version = "1", features = ["fs", "macros", "net", "rt-multi-thread", "sync", "time"] }
+tokio-util = { version = "0.7", features = ["rt"] }
+tower = { version = "0.5", features = ["util"] }
+tower-http = { version = "0.6", features = ["cors", "trace"] }
+tracing = "0.1"
+
+[dev-dependencies]
+tokio-tungstenite = "0.29"
+
+# Pumpkin's debug rlib exceeds MSVC's 4 GiB COFF archive limit when full debug
+# information is enabled. OPanel itself keeps the normal dev profile.
+[profile.dev.package.pumpkin]
+debug = 0
