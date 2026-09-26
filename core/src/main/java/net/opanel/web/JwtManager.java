@@ -67,8 +67,8 @@ public class JwtManager {
 
     private static Claims getVerifiedClaims(String token, String hashedAccessKey, String salt) {
         final String access = Utils.md5(salt + hashedAccessKey); // salted hashed 3
-        Date current = new Date();
-        cleanupExpiredSessions(current.getTime());
+        long currentTime = System.currentTimeMillis();
+        cleanupExpiredSessions(currentTime);
 
         try {
             Jws<Claims> jws = Jwts.parser()
@@ -88,12 +88,11 @@ public class JwtManager {
             }
             if(!"accessKey".equals(jws.getHeader().getKeyId())) return null;
             if(!issuer.equals(payload.getIssuer())) return null;
-            if(current.after(payload.getExpiration())) return null;
             if(!access.equals(payload.get("access"))) return null;
 
             Long sessionExpiration = ACTIVE_SESSIONS.get(payload.getId());
             if(sessionExpiration == null) return null;
-            if(current.getTime() >= sessionExpiration) {
+            if(currentTime >= sessionExpiration) {
                 ACTIVE_SESSIONS.remove(payload.getId(), sessionExpiration);
                 return null;
             }
