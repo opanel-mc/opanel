@@ -12,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 public interface OPanelServer {
     Path serverPropertiesPath = Paths.get("").resolve("server.properties");
@@ -34,9 +33,6 @@ public interface OPanelServer {
     }
 
     String getMotd();
-    default CompletableFuture<String> getMotdAsync() {
-        return CompletableFuture.completedFuture(getMotd());
-    }
     void setMotd(String motd) throws IOException;
     String getVersion();
     int getPort();

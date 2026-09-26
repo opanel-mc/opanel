@@ -6,6 +6,7 @@ import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelPlugin;
 import net.opanel.common.OPanelServer;
 import net.opanel.common.ServerType;
+import net.opanel.common.features.PaperRealtimeMotdFeature;
 import org.bukkit.*;
 import org.bukkit.help.HelpTopic;
 import org.bukkit.plugin.Plugin;
@@ -23,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 @SuppressWarnings("deprecation")
-public abstract class BasePaperServer implements OPanelServer {
+public abstract class BasePaperServer implements OPanelServer, PaperRealtimeMotdFeature {
     protected final JavaPlugin plugin;
     protected final TaskRunner runner;
     protected final Server server;
