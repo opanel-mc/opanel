@@ -4,6 +4,7 @@ import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 import net.opanel.OPanel;
 import net.opanel.common.OPanelDimension;
+import net.opanel.common.features.PaperRealtimeMotdFeature;
 import net.opanel.time.TPS;
 import net.opanel.utils.Utils;
 import net.opanel.controller.BaseController;
@@ -51,6 +52,14 @@ public class InfoController extends BaseController {
         sysObj.put("gpus", si.getHardware().getGraphicsCards().stream().map(gpu -> gpu.getName().trim()).toArray());
         sysObj.put("java", System.getProperty("java.version"));
         obj.put("system", sysObj);
+
+        if(server instanceof PaperRealtimeMotdFeature feature) {
+            ctx.future(() -> feature.getMotdAsync().thenAccept(realtimeMotd -> {
+                obj.put("realtimeMotd", Utils.stringToBase64(realtimeMotd));
+                sendResponse(ctx, obj);
+            }));
+            return;
+        }
 
         sendResponse(ctx, obj);
     };

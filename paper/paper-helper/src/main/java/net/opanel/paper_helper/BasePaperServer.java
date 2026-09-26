@@ -1,10 +1,12 @@
 package net.opanel.paper_helper;
 
+import net.opanel.paper_helper.utils.MotdQueryCache;
 import net.opanel.paper_helper.utils.PaperUtils;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.common.OPanelPlugin;
 import net.opanel.common.OPanelServer;
 import net.opanel.common.ServerType;
+import net.opanel.common.features.PaperRealtimeMotdFeature;
 import org.bukkit.*;
 import org.bukkit.help.HelpTopic;
 import org.bukkit.plugin.Plugin;
@@ -18,18 +20,21 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 @SuppressWarnings("deprecation")
-public abstract class BasePaperServer implements OPanelServer {
+public abstract class BasePaperServer implements OPanelServer, PaperRealtimeMotdFeature {
     protected final JavaPlugin plugin;
     protected final TaskRunner runner;
     protected final Server server;
+    private final MotdQueryCache motdQueryCache;
 
     public BasePaperServer(JavaPlugin plugin, Server server) {
         this.plugin = plugin;
         runner = (TaskRunner) plugin;
         this.server = server;
+        motdQueryCache = new MotdQueryCache(plugin, server);
     }
 
     @Override
@@ -43,6 +48,11 @@ public abstract class BasePaperServer implements OPanelServer {
     @Override
     public String getMotd() {
         return server.getMotd();
+    }
+
+    @Override
+    public CompletableFuture<String> getMotdAsync() {
+        return motdQueryCache.getMotdAsync();
     }
 
     @Override
