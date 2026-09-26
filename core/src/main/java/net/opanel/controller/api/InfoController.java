@@ -13,7 +13,6 @@ import oshi.SystemInfo;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.concurrent.CompletableFuture;
 
 public class InfoController extends BaseController {
     private final SystemInfo si = new SystemInfo();
@@ -22,48 +21,48 @@ public class InfoController extends BaseController {
         super(plugin);
     }
 
-    public Handler getServerInfo = ctx -> ctx.future(() -> {
-        CompletableFuture<String> motdFuture = (
-            server instanceof PaperRealtimeMotdFeature feature
-            ? feature.getMotdAsync()
-            : CompletableFuture.completedFuture(server.getMotd())
-        );
+    public Handler getServerInfo = ctx -> {
+        HashMap<String, Object> obj = new HashMap<>();
+        obj.put("favicon", server.getFavicon() != null ? ("/api/icon?t="+ System.currentTimeMillis()) : null);
+        obj.put("motd", Utils.stringToBase64(server.getMotd()));
+        obj.put("port", server.getPort());
+        obj.put("maxPlayerCount", server.getMaxPlayerCount());
+        obj.put("whitelist", server.isWhitelistEnabled());
+        obj.put("uptime", plugin.getUptimer().getCurrent());
 
-        return motdFuture.thenAccept(motd -> {
-            HashMap<String, Object> obj = new HashMap<>();
-            obj.put("favicon", server.getFavicon() != null ? ("/api/icon?t="+ System.currentTimeMillis()) : null);
-            obj.put("motd", Utils.stringToBase64(motd));
-            obj.put("port", server.getPort());
-            obj.put("maxPlayerCount", server.getMaxPlayerCount());
-            obj.put("whitelist", server.isWhitelistEnabled());
-            obj.put("uptime", plugin.getUptimer().getCurrent());
+        HashMap<String, Object> ingameTimeObj = new HashMap<>();
+        ingameTimeObj.put("current", server.getIngameTime());
+        ingameTimeObj.put("doDaylightCycle", (
+            server.getGamerules(OPanelDimension.OVERWORLD).get("doDaylightCycle") != null
+            ? server.getGamerules(OPanelDimension.OVERWORLD).get("doDaylightCycle")
+            : server.getGamerules(OPanelDimension.OVERWORLD).get("advance_time")
+        ));
+        ingameTimeObj.put("paused", TPS.isPaused());
+        ingameTimeObj.put("mspt", TPS.getRecentMSPT());
+        obj.put("ingameTime", ingameTimeObj);
 
-            HashMap<String, Object> ingameTimeObj = new HashMap<>();
-            ingameTimeObj.put("current", server.getIngameTime());
-            ingameTimeObj.put("doDaylightCycle", (
-                server.getGamerules(OPanelDimension.OVERWORLD).get("doDaylightCycle") != null
-                ? server.getGamerules(OPanelDimension.OVERWORLD).get("doDaylightCycle")
-                : server.getGamerules(OPanelDimension.OVERWORLD).get("advance_time")
-            ));
-            ingameTimeObj.put("paused", TPS.isPaused());
-            ingameTimeObj.put("mspt", TPS.getRecentMSPT());
-            obj.put("ingameTime", ingameTimeObj);
+        HashMap<String, Object> sysObj = new HashMap<>();
+        sysObj.put("os", si.getOperatingSystem().toString());
+        sysObj.put("arch", System.getProperty("os.arch"));
+        sysObj.put("cpuName", si.getHardware().getProcessor().getProcessorIdentifier().getName().trim());
+        sysObj.put("cpuCore", si.getHardware().getProcessor().getPhysicalProcessorCount());
+        sysObj.put("cpuThread", si.getHardware().getProcessor().getLogicalProcessorCount());
+        sysObj.put("memory", si.getHardware().getMemory().getTotal());
+        sysObj.put("jvmMemory", Runtime.getRuntime().maxMemory());
+        sysObj.put("gpus", si.getHardware().getGraphicsCards().stream().map(gpu -> gpu.getName().trim()).toArray());
+        sysObj.put("java", System.getProperty("java.version"));
+        obj.put("system", sysObj);
 
-            HashMap<String, Object> sysObj = new HashMap<>();
-            sysObj.put("os", si.getOperatingSystem().toString());
-            sysObj.put("arch", System.getProperty("os.arch"));
-            sysObj.put("cpuName", si.getHardware().getProcessor().getProcessorIdentifier().getName().trim());
-            sysObj.put("cpuCore", si.getHardware().getProcessor().getPhysicalProcessorCount());
-            sysObj.put("cpuThread", si.getHardware().getProcessor().getLogicalProcessorCount());
-            sysObj.put("memory", si.getHardware().getMemory().getTotal());
-            sysObj.put("jvmMemory", Runtime.getRuntime().maxMemory());
-            sysObj.put("gpus", si.getHardware().getGraphicsCards().stream().map(gpu -> gpu.getName().trim()).toArray());
-            sysObj.put("java", System.getProperty("java.version"));
-            obj.put("system", sysObj);
+        if(server instanceof PaperRealtimeMotdFeature feature) {
+            ctx.future(() -> feature.getMotdAsync().thenAccept(realtimeMotd -> {
+                obj.put("realtimeMotd", Utils.stringToBase64(realtimeMotd));
+                sendResponse(ctx, obj);
+            }));
+            return;
+        }
 
-            sendResponse(ctx, obj);
-        });
-    });
+        sendResponse(ctx, obj);
+    };
 
     public Handler setMotd = ctx -> {
         try {

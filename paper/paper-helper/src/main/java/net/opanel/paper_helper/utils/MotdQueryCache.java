@@ -46,21 +46,6 @@ public final class MotdQueryCache {
         refreshAsync(server.getMotd(), true);
     }
 
-    public String getMotd() {
-        String baseMotd = server.getMotd();
-        Snapshot current = snapshot;
-        boolean baseMotdChanged = current != null && !Objects.equals(current.baseMotd(), baseMotd);
-
-        if(current == null || baseMotdChanged || isExpired(current)) {
-            refreshAsync(baseMotd, baseMotdChanged);
-        }
-
-        if(current == null || baseMotdChanged) {
-            return baseMotd;
-        }
-        return current.effectiveMotd();
-    }
-
     public CompletableFuture<String> getMotdAsync() {
         String baseMotd = server.getMotd();
         Snapshot current = snapshot;

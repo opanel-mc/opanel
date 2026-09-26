@@ -47,7 +47,7 @@ public abstract class BasePaperServer implements OPanelServer, PaperRealtimeMotd
 
     @Override
     public String getMotd() {
-        return motdQueryCache.getMotd();
+        return server.getMotd();
     }
 
     @Override
