@@ -26,7 +26,8 @@ public final class MotdQueryCache {
     private static final int QUERY_TIMEOUT_MILLIS = 1500;
     private static final int MAX_RESPONSE_LENGTH = 1024 * 1024;
     private static final long CACHE_TTL_MILLIS = 5000L;
-    private static final String LOOPBACK_ADDRESS = "127.0.0.1";
+    private static final String IPV4_LOOPBACK_ADDRESS = "127.0.0.1";
+    private static final String IPV6_LOOPBACK_ADDRESS = "::1";
     private static final Gson GSON = new Gson();
     private static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer.builder()
             .character('§')
@@ -120,8 +121,11 @@ public final class MotdQueryCache {
 
     private String getConnectHost() {
         String serverIp = server.getIp();
-        if(serverIp == null || serverIp.isBlank() || serverIp.equals("0.0.0.0") || serverIp.equals("::")) {
-            return LOOPBACK_ADDRESS;
+        if(serverIp == null || serverIp.isBlank() || serverIp.equals("0.0.0.0")) {
+            return IPV4_LOOPBACK_ADDRESS;
+        }
+        if(serverIp.equals("::") || serverIp.equals("0:0:0:0:0:0:0:0")) {
+            return IPV6_LOOPBACK_ADDRESS;
         }
         return serverIp;
     }
