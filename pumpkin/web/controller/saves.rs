@@ -325,6 +325,11 @@ pub(super) async fn edit_save(
             hardcore: false,
         }
     };
+    let server = &opanel.context().server;
+    let is_running = server.basic_config.default_level_name == save_name;
+    if is_running && let Err(error) = server.save_all().await {
+        return internal_error("failed to save the running world before editing it", error);
+    }
     let metadata_path = save_path.clone();
     match tokio::task::spawn_blocking(move || {
         edit_save_metadata(&metadata_path, &display_name, settings)
@@ -336,7 +341,6 @@ pub(super) async fn edit_save(
         Err(error) => return internal_error("save metadata task failed", error),
     }
 
-    let server = &opanel.context().server;
     let (configured_save, _) = configured_save_configuration(settings).await;
     let configured_save =
         configured_save.unwrap_or_else(|| server.basic_config.default_level_name.clone());
@@ -345,12 +349,18 @@ pub(super) async fn edit_save(
     {
         return internal_error("failed to update Pumpkin save settings", error);
     }
-    if server.basic_config.default_level_name == save_name {
-        let mut level_info = (**server.level_info.load()).clone();
-        level_info.level_name = read_save_display_name(&save_path).unwrap_or(save_name);
-        level_info.difficulty = settings.difficulty;
-        level_info.difficulty_locked = settings.difficulty_locked;
-        server.level_info.store(Arc::new(level_info));
+    if is_running {
+        let level_info = server.level_info.load();
+        let difficulty_changed = level_info.difficulty != settings.difficulty;
+        let difficulty_lock_changed = level_info.difficulty_locked != settings.difficulty_locked;
+        drop(level_info);
+
+        if difficulty_changed {
+            server.set_difficulty(settings.difficulty, true);
+        }
+        if difficulty_lock_changed {
+            server.set_difficulty_locked(settings.difficulty_locked);
+        }
     }
 
     ApiResponse::ok(EmptyPayload {}).into_response()
@@ -613,9 +623,42 @@ fn read_level_data(path: &Path) -> Result<NbtCompound, String> {
 fn write_level_data(path: &Path, root: NbtCompound) -> Result<(), String> {
     let level_data_path = path.join(LEVEL_DATA_FILE);
     let backup_path = path.join("level.dat_old");
-    fs::copy(&level_data_path, backup_path).map_err(|error| error.to_string())?;
-    let file = File::create(level_data_path).map_err(|error| error.to_string())?;
-    write_gzip_compound_tag(root, file).map_err(|error| error.to_string())
+    let temporary_path =
+        random_temporary_path(path, "level.dat.tmp").map_err(|error| error.to_string())?;
+    let result = (|| {
+        let mut file = File::create(&temporary_path).map_err(|error| error.to_string())?;
+        write_gzip_compound_tag(root, &mut file).map_err(|error| error.to_string())?;
+        file.sync_all().map_err(|error| error.to_string())?;
+        drop(file);
+
+        fs::copy(&level_data_path, &backup_path).map_err(|error| error.to_string())?;
+        replace_level_data(&temporary_path, &level_data_path, &backup_path)
+    })();
+    if result.is_err() {
+        let _ = fs::remove_file(temporary_path);
+    }
+    result
+}
+
+fn replace_level_data(temporary: &Path, target: &Path, backup: &Path) -> Result<(), String> {
+    #[cfg(not(windows))]
+    {
+        fs::rename(temporary, target).map_err(|error| error.to_string())
+    }
+
+    #[cfg(windows)]
+    {
+        fs::remove_file(target).map_err(|error| error.to_string())?;
+        if let Err(error) = fs::rename(temporary, target) {
+            return match fs::copy(backup, target) {
+                Ok(_) => Err(error.to_string()),
+                Err(restore_error) => Err(format!(
+                    "{error}; failed to restore level.dat from backup: {restore_error}"
+                )),
+            };
+        }
+        Ok(())
+    }
 }
 
 fn data_compound_mut(root: &mut NbtCompound) -> Result<&mut NbtCompound, String> {
@@ -623,14 +666,6 @@ fn data_compound_mut(root: &mut NbtCompound) -> Result<&mut NbtCompound, String>
         Some(NbtTag::Compound(data)) => Ok(data),
         _ => Err("level.dat is missing the Data compound".to_string()),
     }
-}
-
-fn read_save_display_name(path: &Path) -> Option<String> {
-    read_level_data(path)
-        .ok()?
-        .get_compound("Data")?
-        .get_string("LevelName")
-        .map(ToOwned::to_owned)
 }
 
 fn strings_from_nbt(tags: Option<&[NbtTag]>) -> Vec<String> {
@@ -979,7 +1014,19 @@ mod tests {
         assert_eq!(modern.get_string("difficulty"), Some("hard"));
         assert_eq!(modern.get_bool("locked"), Some(true));
         assert_eq!(modern.get_bool("hardcore"), Some(true));
-        assert!(directory.join("level.dat_old").is_file());
+        let backup =
+            read_gzip_compound_tag(File::open(directory.join("level.dat_old")).unwrap()).unwrap();
+        assert_eq!(
+            backup.get_compound("Data").unwrap().get_string("LevelName"),
+            Some("Original")
+        );
+        assert!(!fs::read_dir(&directory).unwrap().any(|entry| {
+            entry
+                .unwrap()
+                .file_name()
+                .to_string_lossy()
+                .ends_with(".level.dat.tmp")
+        }));
         fs::remove_dir_all(directory).unwrap();
     }
 
