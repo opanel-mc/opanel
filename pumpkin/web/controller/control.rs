@@ -1,8 +1,4 @@
-use std::{
-    path::{Component, Path},
-    process::Command,
-    sync::Arc,
-};
+use std::{path::Path, process::Command, sync::Arc};
 
 use axum::{
     body::Bytes,
@@ -14,12 +10,13 @@ use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64_STANDARD};
 use pumpkin::data::datapack::DatapackManager;
 use serde::{Deserialize, Serialize};
 use tokio::fs;
-use toml_edit::{DocumentMut, Item, value};
+use toml_edit::DocumentMut;
 use tracing::error;
 
 use crate::{
     opanel::OPanel,
     storage::TextFile,
+    utils::file::is_safe_file_name,
     web::response::{ApiError, ApiResponse},
 };
 
@@ -178,7 +175,7 @@ pub(super) async fn restart_server(State(opanel): State<Arc<OPanel>>) -> Respons
 }
 
 pub(super) async fn switch_save(
-    State(_opanel): State<Arc<OPanel>>,
+    State(opanel): State<Arc<OPanel>>,
     Query(query): Query<SwitchSaveQuery>,
 ) -> Response {
     let Some(save_name) = query.save else {
@@ -192,7 +189,16 @@ pub(super) async fn switch_save(
         return ApiError::new(StatusCode::NOT_FOUND, "Cannot find the save.").into_response();
     }
 
-    match update_current_save(PUMPKIN_CONFIG_PATH, &save_name).await {
+    let server = &opanel.context().server;
+    match super::saves::select_save(
+        &save_name,
+        server.basic_config.default_gamemode,
+        server.basic_config.default_difficulty,
+        server.level_info.load().difficulty_locked,
+        server.basic_config.hardcore,
+    )
+    .await
+    {
         Ok(()) => ApiResponse::ok(EmptyPayload {}).into_response(),
         Err(error) => {
             error!(%error, save = save_name, "failed to switch Pumpkin save");
@@ -266,38 +272,6 @@ fn unsupported_paper_config() -> ApiError {
     )
 }
 
-fn is_safe_file_name(file_name: &str) -> bool {
-    let path = Path::new(file_name);
-    let mut components = path.components();
-    !file_name.is_empty()
-        && !file_name.contains(['/', '\\', '\0'])
-        && matches!(components.next(), Some(Component::Normal(_)))
-        && components.next().is_none()
-}
-
-async fn update_current_save(path: &str, save_name: &str) -> Result<(), std::io::Error> {
-    let contents = fs::read_to_string(path).await?;
-    let updated = set_default_level_name(&contents, save_name)
-        .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))?;
-    fs::write(path, updated).await
-}
-
-fn set_default_level_name(contents: &str, save_name: &str) -> Result<String, toml_edit::TomlError> {
-    let mut document = contents.parse::<DocumentMut>()?;
-    let level_name = document
-        .as_table_mut()
-        .entry("default_level_name")
-        .or_insert_with(|| value(save_name));
-    let decor = level_name
-        .as_value()
-        .map(|existing_value| existing_value.decor().clone());
-    *level_name = Item::Value(save_name.into());
-    if let (Some(decor), Some(updated_value)) = (decor, level_name.as_value_mut()) {
-        *updated_value.decor_mut() = decor;
-    }
-    Ok(document.to_string())
-}
-
 fn restart_command(launch_command: &str, delay_seconds: u64) -> RestartCommand {
     let delay_seconds = if delay_seconds == 0 {
         10
@@ -331,36 +305,6 @@ fn restart_command(launch_command: &str, delay_seconds: u64) -> RestartCommand {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn save_names_must_be_single_safe_path_components() {
-        for valid in ["world", "My World", "世界-1"] {
-            assert!(is_safe_file_name(valid), "{valid:?} should be valid");
-        }
-        for invalid in ["", ".", "..", "../world", "world/nether", "world\\nether"] {
-            assert!(!is_safe_file_name(invalid), "{invalid:?} should be invalid");
-        }
-    }
-
-    #[test]
-    fn changing_the_current_save_preserves_other_pumpkin_settings() {
-        let source = r#"# server
-default_level_name = "world" # keep this comment
-
-[networking.java]
-motd = "Hello"
-"#;
-
-        let updated = set_default_level_name(source, "new world").unwrap();
-        let document = updated.parse::<DocumentMut>().unwrap();
-
-        assert_eq!(document["default_level_name"].as_str(), Some("new world"));
-        assert_eq!(
-            document["networking"]["java"]["motd"].as_str(),
-            Some("Hello")
-        );
-        assert!(updated.contains("# keep this comment"));
-    }
 
     #[test]
     fn restart_command_enforces_a_positive_delay_and_keeps_the_launch_command() {

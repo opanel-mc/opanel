@@ -16,7 +16,7 @@ resolver = "3"
 
 [dependencies]
 arc-swap = "1"
-axum = { version = "0.8", features = ["http1", "json", "tokio", "ws"] }
+axum = { version = "0.8", features = ["http1", "json", "multipart", "tokio", "ws"] }
 axum-extra = { version = "0.10", features = ["cookie"] }
 base64 = "0.22"
 futures-util = "0.3"
@@ -29,6 +29,7 @@ percent-encoding = "2"
 pumpkin = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", rev = "c31eb836164038011dc757729800971e838458e7", package = "pumpkin" }
 pumpkin-api-macros = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", rev = "c31eb836164038011dc757729800971e838458e7", package = "pumpkin-api-macros" }
 pumpkin-data = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", rev = "c31eb836164038011dc757729800971e838458e7", package = "pumpkin-data" }
+pumpkin-nbt = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", rev = "c31eb836164038011dc757729800971e838458e7", package = "pumpkin-nbt" }
 pumpkin-util = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", rev = "c31eb836164038011dc757729800971e838458e7", package = "pumpkin-util" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
@@ -37,12 +38,13 @@ subtle = "2"
 sysinfo = { version = "0.39", default-features = false, features = ["system"] }
 thiserror = "2"
 time = "0.3"
-tokio = { version = "1", features = ["fs", "macros", "net", "rt-multi-thread", "sync", "time"] }
-tokio-util = { version = "0.7", features = ["rt"] }
+tokio = { version = "1", features = ["fs", "io-util", "macros", "net", "rt-multi-thread", "sync", "time"] }
+tokio-util = { version = "0.7", features = ["io", "rt"] }
 toml_edit = "0.25"
 tower = { version = "0.5", features = ["util"] }
 tower-http = { version = "0.6", features = ["cors", "trace"] }
 tracing = "0.1"
+zip = { version = "6", default-features = false, features = ["deflate"] }
 
 [dev-dependencies]
 tokio-tungstenite = "0.29"

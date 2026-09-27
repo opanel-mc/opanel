@@ -6,6 +6,7 @@ use tokio_util::sync::CancellationToken;
 
 use crate::{
     config::OPanelConfig,
+    downloads::DownloadRegistry,
     managers::{ManagerContext, ManagerLifecycleError, Managers},
     storage::{Storage, StorageError},
     utils::time::Uptimer,
@@ -17,6 +18,7 @@ pub struct OPanel {
     uptimer: Uptimer,
     shutdown: CancellationToken,
     managers: Managers,
+    downloads: DownloadRegistry,
 }
 
 #[derive(Debug, Error)]
@@ -40,6 +42,7 @@ impl OPanel {
                 uptimer,
                 shutdown,
                 managers: Managers::new(manager_context),
+                downloads: DownloadRegistry::default(),
             }
         });
 
@@ -67,6 +70,10 @@ impl OPanel {
 
     pub(crate) fn managers(&self) -> &Managers {
         &self.managers
+    }
+
+    pub(crate) fn downloads(&self) -> &DownloadRegistry {
+        &self.downloads
     }
 
     pub(crate) async fn shutdown(&self) -> Result<(), ManagerLifecycleError> {

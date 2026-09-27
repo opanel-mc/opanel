@@ -2,6 +2,7 @@ use std::{convert::Infallible, sync::Arc};
 
 use axum::{
     Extension, Router,
+    extract::DefaultBodyLimit,
     http::Method,
     middleware,
     routing::{MethodRouter, any, get, post},
@@ -589,14 +590,16 @@ fn api_router() -> Router<Arc<OPanel>> {
             with_role(
                 get(saves::get_saves).post(saves::upload_save),
                 AuthRouteRole::PanelOrMcp,
-            ),
+            )
+            .layer(DefaultBodyLimit::disable()),
         )
         .route(
             "/saves/",
             with_role(
                 get(saves::get_saves).post(saves::upload_save),
                 AuthRouteRole::PanelOrMcp,
-            ),
+            )
+            .layer(DefaultBodyLimit::disable()),
         )
         .nest(
             "/saves",
