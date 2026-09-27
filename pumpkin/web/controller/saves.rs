@@ -28,14 +28,13 @@ use zip::{ZipArchive, ZipWriter, write::SimpleFileOptions};
 
 use crate::{
     opanel::OPanel,
-    utils::file::is_safe_file_name,
+    utils::{file::is_safe_file_name, pumpkin_config},
     web::{
         controller::control::EmptyPayload,
         response::{ApiError, ApiResponse},
     },
 };
 
-const PUMPKIN_CONFIG_PATH: &str = "config/pumpkin.toml";
 const LEVEL_DATA_FILE: &str = "level.dat";
 
 #[derive(Debug, Serialize)]
@@ -819,19 +818,18 @@ pub(super) async fn select_save(
         .await
         .map_err(std::io::Error::other)?
         .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))?;
-    let contents = tokio::fs::read_to_string(PUMPKIN_CONFIG_PATH).await?;
-    let mut document = contents
-        .parse::<DocumentMut>()
+    let contents = pumpkin_config::read_to_string().await?;
+    let mut document = pumpkin_config::parse(&contents)
         .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))?;
     set_save_configuration(&mut document, Some(save_name), metadata.settings());
-    tokio::fs::write(PUMPKIN_CONFIG_PATH, document.to_string()).await
+    pumpkin_config::write(document.to_string()).await
 }
 
 async fn configured_save_configuration(fallback: SaveSettings) -> (Option<String>, SaveSettings) {
-    let Ok(contents) = tokio::fs::read_to_string(PUMPKIN_CONFIG_PATH).await else {
+    let Ok(contents) = pumpkin_config::read_to_string().await else {
         return (None, fallback);
     };
-    let Ok(document) = contents.parse::<DocumentMut>() else {
+    let Ok(document) = pumpkin_config::parse(&contents) else {
         return (None, fallback);
     };
     let save_name = document
@@ -864,12 +862,11 @@ async fn configured_save_configuration(fallback: SaveSettings) -> (Option<String
 }
 
 async fn update_pumpkin_save_settings(settings: SaveSettings) -> Result<(), std::io::Error> {
-    let contents = tokio::fs::read_to_string(PUMPKIN_CONFIG_PATH).await?;
-    let mut document = contents
-        .parse::<DocumentMut>()
+    let contents = pumpkin_config::read_to_string().await?;
+    let mut document = pumpkin_config::parse(&contents)
         .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))?;
     set_save_configuration(&mut document, None, settings);
-    tokio::fs::write(PUMPKIN_CONFIG_PATH, document.to_string()).await
+    pumpkin_config::write(document.to_string()).await
 }
 
 fn set_save_configuration(

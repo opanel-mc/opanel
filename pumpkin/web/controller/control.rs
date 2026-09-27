@@ -9,18 +9,15 @@ use axum::{
 use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64_STANDARD};
 use pumpkin::data::datapack::DatapackManager;
 use serde::{Deserialize, Serialize};
-use tokio::fs;
-use toml_edit::DocumentMut;
 use tracing::error;
 
 use crate::{
     opanel::OPanel,
     storage::TextFile,
-    utils::file::is_safe_file_name,
+    utils::{file::is_safe_file_name, pumpkin_config},
     web::response::{ApiError, ApiResponse},
 };
 
-const PUMPKIN_CONFIG_PATH: &str = "pumpkin.toml";
 const LAUNCH_COMMAND_FILE: TextFile = TextFile::new("launch-command.txt", "");
 
 #[derive(Debug, Serialize)]
@@ -49,13 +46,13 @@ struct RestartCommand {
 }
 
 pub(super) async fn get_server_properties(State(_opanel): State<Arc<OPanel>>) -> Response {
-    match fs::read(PUMPKIN_CONFIG_PATH).await {
+    match pumpkin_config::read().await {
         Ok(properties) => ApiResponse::ok(PropertiesPayload {
             properties: BASE64_STANDARD.encode(properties),
         })
         .into_response(),
         Err(error) => {
-            error!(%error, path = PUMPKIN_CONFIG_PATH, "failed to read Pumpkin configuration");
+            error!(%error, path = pumpkin_config::PUMPKIN_CONFIG_PATH, "failed to read Pumpkin configuration");
             ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, error.to_string()).into_response()
         }
     }
@@ -95,16 +92,16 @@ pub(super) async fn set_server_properties(
             .into_response();
         }
     };
-    if let Err(error) = configuration.parse::<DocumentMut>() {
+    if let Err(error) = pumpkin_config::parse(&configuration) {
         error!(%error, "invalid Pumpkin configuration");
         return ApiError::new(StatusCode::BAD_REQUEST, "Invalid Pumpkin configuration.")
             .into_response();
     }
 
-    match fs::write(PUMPKIN_CONFIG_PATH, configuration).await {
+    match pumpkin_config::write(configuration).await {
         Ok(()) => ApiResponse::ok(EmptyPayload {}).into_response(),
         Err(error) => {
-            error!(%error, path = PUMPKIN_CONFIG_PATH, "failed to write Pumpkin configuration");
+            error!(%error, path = pumpkin_config::PUMPKIN_CONFIG_PATH, "failed to write Pumpkin configuration");
             ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, error.to_string()).into_response()
         }
     }
