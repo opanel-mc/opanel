@@ -23,7 +23,7 @@ use crate::{
     web::response::{ApiError, ApiResponse},
 };
 
-const PUMPKIN_CONFIG_PATH: &str = "config/pumpkin.toml";
+const PUMPKIN_CONFIG_PATH: &str = "pumpkin.toml";
 const LAUNCH_COMMAND_FILE: TextFile = TextFile::new("launch-command.txt", "");
 
 #[derive(Debug, Serialize)]
