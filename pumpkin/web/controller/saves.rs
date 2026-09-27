@@ -350,6 +350,9 @@ pub(super) async fn edit_save(
         return internal_error("failed to update Pumpkin save settings", error);
     }
     if is_running {
+        // Pumpkin currently has no runtime API for changing hardcore mode. The value has
+        // already been persisted to level.dat and pumpkin.toml above, but the running
+        // server continues using basic_config.hardcore until it is restarted.
         let level_info = server.level_info.load();
         let difficulty_changed = level_info.difficulty != settings.difficulty;
         let difficulty_lock_changed = level_info.difficulty_locked != settings.difficulty_locked;
