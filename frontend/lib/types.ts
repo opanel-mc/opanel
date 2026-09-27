@@ -212,6 +212,7 @@ export interface VersionResponse {
 export interface InfoResponse {
   favicon: string | null
   motd: string // base64
+  realtimeMotd?: string // base64, Paper only
   port: number
   maxPlayerCount: number
   whitelist: boolean

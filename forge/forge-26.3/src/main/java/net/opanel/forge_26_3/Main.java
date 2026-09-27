@@ -1,0 +1,104 @@
+package net.opanel.forge_26_3;
+
+import com.cozooo.dlc_fileops_helper.FileOpsHelperBootstrap;
+import com.mojang.logging.LogUtils;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
+import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.opanel.OPanel;
+import net.opanel.forge_26_3.command.OPanelCommand;
+import net.opanel.forge_26_3.terminal.LogListenerManagerImpl;
+import net.opanel.forge_helper.config.Config;
+import net.opanel.forge_helper.config.ConfigManagerImpl;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.slf4j.Logger;
+
+import java.nio.file.Paths;
+
+@Mod(Main.MODID)
+@OnlyIn(Dist.DEDICATED_SERVER)
+public class Main {
+    public static final String MODID = "opanel";
+    public static final Logger LOGGER = LogUtils.getLogger();
+    public OPanel instance;
+
+    private LogListenerManagerImpl logListenerAppender;
+
+    public Main(FMLJavaModLoadingContext ctx) {
+        Configurator.setLevel("net.opanel.deps.jetty", Level.INFO);
+        FileOpsHelperBootstrap.initialize(Paths.get(""), OPanel.TMP_DIR_PATH);
+
+        ctx.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        MinecraftForge.EVENT_BUS.register(this);
+        MinecraftForge.EVENT_BUS.register(new ForgeListener());
+
+        initLogListenerAppender();
+    }
+
+    @SubscribeEvent
+    public void onServerStarting(ServerStartingEvent event) {
+        instance = new OPanel(new ConfigManagerImpl(), new LoggerImpl(LOGGER));
+        instance.setLogListenerManager(logListenerAppender);
+
+        OPanelCommand.instance = instance;
+    }
+
+    private void initLogListenerAppender() {
+        final org.apache.logging.log4j.core.Logger logger = (org.apache.logging.log4j.core.Logger) LogManager.getRootLogger();
+        logListenerAppender = LogListenerManagerImpl.createAppender("LogListenerAppender", true);
+        logListenerAppender.start();
+        logger.addAppender(logListenerAppender);
+    }
+
+    private void disposeLogListenerAppender() {
+        final org.apache.logging.log4j.core.Logger logger = (org.apache.logging.log4j.core.Logger) LogManager.getRootLogger();
+        logger.removeAppender(logListenerAppender);
+        logListenerAppender.clearListeners();
+    }
+
+    @SubscribeEvent
+    public void onServerStart(ServerStartedEvent event) {
+        if(instance == null) throw new NullPointerException("OPanel is not initialized.");
+
+        instance.setServer(new ForgeServer(event.getServer()));
+
+        try {
+            instance.getWebServer().start(); // default port 3000
+            instance.getMapRenderManager().init();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @SubscribeEvent
+    public void onServerStop(ServerStoppingEvent event) {
+        try {
+            if(logListenerAppender != null) disposeLogListenerAppender();
+        } catch (Exception e) {
+            LOGGER.error("Failed to dispose log listener appender: " + e.getMessage());
+        }
+        
+        try {
+            if(instance != null) instance.stop();
+        } catch (Exception e) {
+            LOGGER.error("Failed to stop OPanel instance: " + e.getMessage());
+        }
+    }
+
+    @SubscribeEvent
+    public void onServerTick(TickEvent.ServerTickEvent.Post event) {
+        if(instance == null) throw new NullPointerException("OPanel is not initialized.");
+
+        instance.onTick();
+    }
+}

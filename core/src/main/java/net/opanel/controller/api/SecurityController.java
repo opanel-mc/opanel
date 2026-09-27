@@ -34,6 +34,7 @@ public class SecurityController extends BaseController {
 
         // Save new access key
         OPanelConfiguration config = plugin.getConfig();
+        JwtManager.revokeAllTokens();
         config.accessKey = Utils.md5(newKey);
         plugin.setConfig(config);
 

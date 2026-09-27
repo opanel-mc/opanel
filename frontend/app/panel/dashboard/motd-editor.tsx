@@ -75,9 +75,7 @@ export function MotdEditor({
             <DialogHeader>
               <DialogTitle>{$("dashboard.motd.title")}</DialogTitle>
               <DialogDescription>
-                <Text
-                  id="dashboard.motd.description.line"
-                  className="[&>span]:text-red-700 dark:[&>span]:text-red-400"/>
+                {$("dashboard.motd.description.line")}
               </DialogDescription>
             </DialogHeader>
             <FormField

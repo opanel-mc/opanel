@@ -189,7 +189,7 @@ export function InfoCard({
                 maxLines={2}
                 maxCharPerLine={45}
                 className="whitespace-nowrap truncate">
-                {"§7"+ base64ToString(ctx.motd)}
+                {"§7"+ base64ToString(ctx.realtimeMotd ?? ctx.motd)}
               </MinecraftText>
             )}
           </div>

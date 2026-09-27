@@ -2,6 +2,8 @@ package net.opanel.controller.openapi;
 
 import io.javalin.http.Handler;
 import net.opanel.OPanel;
+import net.opanel.common.ServerType;
+import net.opanel.common.features.PaperRealtimeMotdFeature;
 import net.opanel.controller.BaseController;
 import oshi.SystemInfo;
 
@@ -34,6 +36,14 @@ public class OpenInfoController extends BaseController {
         sysObj.put("gpus", si.getHardware().getGraphicsCards().stream().map(gpu -> gpu.getName().trim()).toArray());
         sysObj.put("java", System.getProperty("java.version"));
         obj.put("system", sysObj);
+
+        if(server instanceof PaperRealtimeMotdFeature feature) {
+            ctx.future(() -> feature.getMotdAsync().thenAccept(realtimeMotd -> {
+                obj.put("realtimeMotd", realtimeMotd);
+                sendResponse(ctx, obj);
+            }));
+            return;
+        }
 
         sendResponse(ctx, obj);
     };

@@ -154,6 +154,11 @@ public class AuthController extends BaseController {
     };
 
     public Handler logout = ctx -> {
+        String token = ctx.cookie("token");
+        if(token != null) {
+            OPanelConfiguration config = plugin.getConfig();
+            JwtManager.revokeToken(token, config.accessKey, config.salt);
+        }
         ctx.removeCookie("token");
         sendResponse(ctx, HttpStatus.OK);
     };
