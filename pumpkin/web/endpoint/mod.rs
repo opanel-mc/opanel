@@ -8,6 +8,7 @@ use std::{
 };
 
 use axum::{
+    body::Bytes,
     extract::{
         WebSocketUpgrade,
         ws::{CloseFrame, Message, WebSocket},
@@ -20,7 +21,11 @@ use futures_util::{Sink, SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use thiserror::Error;
-use tokio::{sync::mpsc, task::JoinHandle, time::timeout};
+use tokio::{
+    sync::mpsc,
+    task::JoinHandle,
+    time::{Instant, interval_at, timeout},
+};
 use tokio_util::sync::CancellationToken;
 
 use crate::opanel::OPanel;
@@ -32,11 +37,11 @@ mod players;
 mod terminal;
 
 const CONNECT: &str = "connect";
-const PING: &str = "ping";
-const PONG: &str = "pong";
 const ERROR: &str = "error";
 const MAX_OUTGOING_MESSAGES: usize = 1024;
 const MAX_MESSAGE_SIZE: usize = 1024 * 1024;
+const AUTOMATIC_PING_INTERVAL: Duration = Duration::from_secs(15);
+const AUTOMATIC_PING_PAYLOAD: &[u8] = &[0, 0, 0];
 
 type SessionAuthenticator = Arc<dyn Fn(&CookieJar) -> bool + Send + Sync>;
 
@@ -60,8 +65,10 @@ impl<T> Packet<T> {
 pub enum EndpointError {
     #[error("websocket endpoint is not implemented")]
     NotImplemented,
+    #[allow(dead_code)]
     #[error("websocket connection is closed")]
     Closed,
+    #[allow(dead_code)]
     #[error("websocket client is not consuming messages fast enough")]
     SlowConsumer,
     #[error("failed to serialize websocket packet: {0}")]
@@ -70,6 +77,7 @@ pub enum EndpointError {
 
 #[derive(Clone)]
 pub struct WsSession {
+    #[allow(dead_code)]
     sender: mpsc::Sender<Message>,
     close_sender: mpsc::UnboundedSender<CloseRequest>,
     closing: Arc<AtomicBool>,
@@ -81,6 +89,7 @@ struct CloseRequest {
 }
 
 impl WsSession {
+    #[allow(dead_code)]
     pub fn send<T: Serialize>(&self, packet: Packet<T>) -> Result<(), EndpointError> {
         if self.closing.load(Ordering::Acquire) {
             return Err(EndpointError::Closed);
@@ -304,14 +313,6 @@ async fn serve<E>(
                             break;
                         };
 
-                        if packet.kind == PING {
-                            if session.send(Packet::new(PONG, Option::<()>::None)).is_err() {
-                                session.close(1013, "Slow consumer.");
-                                break;
-                            }
-                            continue;
-                        }
-
                         if handle_endpoint_result(endpoint.on_packet(&session, packet).await, &session) {
                             break;
                         }
@@ -333,12 +334,31 @@ async fn serve<E>(
 }
 
 async fn write_messages<S>(
-    mut socket_sender: S,
-    mut receiver: mpsc::Receiver<Message>,
-    mut close_receiver: mpsc::UnboundedReceiver<CloseRequest>,
+    socket_sender: S,
+    receiver: mpsc::Receiver<Message>,
+    close_receiver: mpsc::UnboundedReceiver<CloseRequest>,
 ) where
     S: Sink<Message> + Unpin,
 {
+    write_messages_with_ping_interval(
+        socket_sender,
+        receiver,
+        close_receiver,
+        AUTOMATIC_PING_INTERVAL,
+    )
+    .await;
+}
+
+async fn write_messages_with_ping_interval<S>(
+    mut socket_sender: S,
+    mut receiver: mpsc::Receiver<Message>,
+    mut close_receiver: mpsc::UnboundedReceiver<CloseRequest>,
+    ping_interval: Duration,
+) where
+    S: Sink<Message> + Unpin,
+{
+    let mut automatic_pings = interval_at(Instant::now() + ping_interval, ping_interval);
+
     loop {
         let close = tokio::select! {
             biased;
@@ -353,6 +373,18 @@ async fn write_messages<S>(
                     biased;
                     close = close_receiver.recv() => close,
                     result = socket_sender.send(message) => {
+                        if result.is_err() {
+                            break;
+                        }
+                        continue;
+                    }
+                }
+            }
+            _ = automatic_pings.tick() => {
+                tokio::select! {
+                    biased;
+                    close = close_receiver.recv() => close,
+                    result = socket_sender.send(Message::Ping(Bytes::from_static(AUTOMATIC_PING_PAYLOAD))) => {
                         if result.is_err() {
                             break;
                         }
@@ -432,8 +464,9 @@ mod tests {
     use crate::{managers::ManagerContext, web::AuthManager};
 
     use super::{
-        CloseRequest, Endpoint, EndpointError, MAX_OUTGOING_MESSAGES, Packet, SessionAuthenticator,
-        WsSession, endpoint_route, write_messages,
+        AUTOMATIC_PING_PAYLOAD, CloseRequest, Endpoint, EndpointError, MAX_OUTGOING_MESSAGES,
+        Packet, SessionAuthenticator, WsSession, endpoint_route, write_messages,
+        write_messages_with_ping_interval,
     };
 
     fn allow_all() -> SessionAuthenticator {
@@ -607,6 +640,38 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn writer_sends_native_ping_frames_automatically() {
+        let (sender, receiver) = mpsc::channel(1);
+        let (close_sender, close_receiver) = mpsc::unbounded_channel();
+        let (writes, mut written) = mpsc::unbounded_channel();
+        let sink = BlockFirstWrite {
+            started: None,
+            writes,
+        };
+        let writer = tokio::spawn(write_messages_with_ping_interval(
+            sink,
+            receiver,
+            close_receiver,
+            Duration::from_millis(10),
+        ));
+
+        let ping = timeout(Duration::from_secs(1), written.recv())
+            .await
+            .expect("automatic ping should be sent promptly")
+            .expect("writer should remain open");
+        assert!(
+            matches!(ping, WsMessage::Ping(payload) if payload.as_ref() == AUTOMATIC_PING_PAYLOAD)
+        );
+
+        drop(sender);
+        drop(close_sender);
+        timeout(Duration::from_secs(1), writer)
+            .await
+            .expect("writer should stop when its channels close")
+            .expect("writer should finish cleanly");
+    }
+
+    #[tokio::test]
     async fn close_interrupts_a_blocked_write() {
         let (sender, receiver) = mpsc::channel(1);
         let (close_sender, close_receiver) = mpsc::unbounded_channel();
@@ -700,7 +765,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn endpoint_supports_ping_and_shutdown() {
+    async fn endpoint_supports_native_ping_pong_and_shutdown() {
         let listener = TcpListener::bind("127.0.0.1:0")
             .await
             .expect("test listener should bind");
@@ -723,14 +788,15 @@ mod tests {
         assert_packet(&mut socket, "connect", Value::Null).await;
 
         socket
-            .send(Message::Text(
-                serde_json::json!({"type": "ping", "data": null})
-                    .to_string()
-                    .into(),
-            ))
+            .send(Message::Ping(vec![1, 2, 3].into()))
             .await
-            .expect("ping packet should send");
-        assert_packet(&mut socket, "pong", Value::Null).await;
+            .expect("native ping should send");
+        let pong = timeout(Duration::from_secs(2), socket.next())
+            .await
+            .expect("server should respond to ping promptly")
+            .expect("websocket should yield a pong")
+            .expect("pong should be valid");
+        assert_eq!(pong, Message::Pong(vec![1, 2, 3].into()));
 
         shutdown.cancel();
         let close = timeout(Duration::from_secs(2), socket.next())
