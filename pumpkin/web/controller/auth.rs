@@ -191,8 +191,16 @@ pub(super) async fn check_auth(State(opanel): State<Arc<OPanel>>, jar: CookieJar
 }
 
 pub(super) async fn logout(State(opanel): State<Arc<OPanel>>, jar: CookieJar) -> Response {
+    let config = opanel.config();
+    if let Some(token) = jar.get(TOKEN_COOKIE_NAME).map(|cookie| cookie.value()) {
+        opanel
+            .managers()
+            .auth()
+            .revoke_token(token, &config.access_key, &config.salt);
+    }
+
     (
-        remove_token_cookie(jar, opanel.config().cookie_secure),
+        remove_token_cookie(jar, config.cookie_secure),
         ApiResponse::ok(EmptyPayload {}),
     )
         .into_response()

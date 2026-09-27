@@ -1,5 +1,5 @@
 use std::{
-    collections::HashMap,
+    collections::{HashMap, hash_map::Entry},
     sync::{Mutex, MutexGuard, PoisonError},
     time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
@@ -26,9 +26,11 @@ const LOGIN_CAPACITY_RETRY_AFTER_SECONDS: u64 = 60;
 const JWT_ISSUER: &str = "opanel";
 const JWT_KEY_ID: &str = "accessKey";
 const JWT_LIFETIME_SECONDS: u64 = 24 * 60 * 60;
+const JWT_SESSION_CLEANUP_INTERVAL_SECONDS: u64 = 60;
 const JWT_ALGORITHM: &str = "HS256";
 const JWT_TYPE: &str = "JWT";
 const JWT_SIGNING_KEY_BYTES: usize = 32;
+const JWT_SESSION_ID_BYTES: usize = 16;
 
 type HmacSha256 = Hmac<Sha256>;
 
@@ -39,6 +41,7 @@ type HmacSha256 = Hmac<Sha256>;
 pub(crate) struct AuthManager {
     context: ManagerContext,
     signing_key: [u8; JWT_SIGNING_KEY_BYTES],
+    active_sessions: Mutex<SessionStore>,
     challenges: Mutex<ChallengeStore>,
     login_attempts: Mutex<LoginAttemptTracker>,
 }
@@ -69,6 +72,7 @@ impl AuthManager {
         Self {
             context,
             signing_key,
+            active_sessions: Mutex::new(SessionStore::default()),
             challenges: Mutex::new(ChallengeStore::default()),
             login_attempts: Mutex::new(LoginAttemptTracker::new(Instant::now())),
         }
@@ -110,69 +114,115 @@ impl AuthManager {
         self.verify_token_at(token, access_key, salt, unix_timestamp())
     }
 
+    pub(crate) fn revoke_token(&self, token: &str, access_key: &str, salt: &str) -> bool {
+        if access_key.is_empty() || salt.is_empty() {
+            return false;
+        }
+        self.revoke_token_at(token, access_key, salt, unix_timestamp())
+    }
+
+    #[allow(dead_code)] // Used once access-key updates are implemented by the security controller.
+    pub(crate) fn revoke_all_tokens(&self) {
+        lock_or_recover(&self.active_sessions).revoke_all();
+    }
+
     fn issue_token_at(&self, access_key: &str, salt: &str, issued_at: u64) -> String {
         let header = JwtHeader {
             algorithm: JWT_ALGORITHM,
             key_id: JWT_KEY_ID,
             token_type: JWT_TYPE,
         };
-        let claims = JwtClaims {
-            issuer: JWT_ISSUER.to_owned(),
-            issued_at,
-            expiration: issued_at.saturating_add(JWT_LIFETIME_SECONDS),
-            access: access_claim(access_key, salt),
-        };
+        let expiration = issued_at.saturating_add(JWT_LIFETIME_SECONDS);
 
-        let encoded_header = encode_json(&header);
-        let encoded_claims = encode_json(&claims);
-        let signing_input = format!("{encoded_header}.{encoded_claims}");
-        let signature = self.sign(signing_input.as_bytes());
+        loop {
+            let session_id = random_session_id();
+            let claims = JwtClaims {
+                issuer: JWT_ISSUER.to_owned(),
+                session_id: session_id.clone(),
+                issued_at,
+                expiration,
+                access: access_claim(access_key, salt),
+            };
 
-        format!("{signing_input}.{}", URL_SAFE_NO_PAD.encode(signature))
+            let encoded_header = encode_json(&header);
+            let encoded_claims = encode_json(&claims);
+            let signing_input = format!("{encoded_header}.{encoded_claims}");
+            let signature = self.sign(signing_input.as_bytes());
+            let token = format!("{signing_input}.{}", URL_SAFE_NO_PAD.encode(signature));
+
+            if lock_or_recover(&self.active_sessions).register(session_id, expiration, issued_at) {
+                return token;
+            }
+        }
     }
 
     fn verify_token_at(&self, token: &str, access_key: &str, salt: &str, now: u64) -> bool {
+        self.verified_claims_at(token, access_key, salt, now)
+            .is_some()
+    }
+
+    fn revoke_token_at(&self, token: &str, access_key: &str, salt: &str, now: u64) -> bool {
+        let Some(claims) = self.verified_claims_at(token, access_key, salt, now) else {
+            return false;
+        };
+
+        lock_or_recover(&self.active_sessions).revoke(&claims.session_id, claims.expiration)
+    }
+
+    fn verified_claims_at(
+        &self,
+        token: &str,
+        access_key: &str,
+        salt: &str,
+        now: u64,
+    ) -> Option<JwtClaims> {
+        lock_or_recover(&self.active_sessions).cleanup_expired_if_due(now);
+
         let mut segments = token.split('.');
         let (Some(encoded_header), Some(encoded_claims), Some(encoded_signature)) =
             (segments.next(), segments.next(), segments.next())
         else {
-            return false;
+            return None;
         };
         if segments.next().is_some()
             || encoded_header.is_empty()
             || encoded_claims.is_empty()
             || encoded_signature.is_empty()
         {
-            return false;
+            return None;
         }
 
         let Ok(signature) = URL_SAFE_NO_PAD.decode(encoded_signature) else {
-            return false;
+            return None;
         };
         let signing_input = format!("{encoded_header}.{encoded_claims}");
         if !self.verify_signature(signing_input.as_bytes(), &signature) {
-            return false;
+            return None;
         }
 
-        let Some(header) = decode_json::<JwtHeaderOwned>(encoded_header) else {
-            return false;
-        };
+        let header = decode_json::<JwtHeaderOwned>(encoded_header)?;
         if header.algorithm != JWT_ALGORITHM || header.key_id != JWT_KEY_ID {
-            return false;
+            return None;
         }
 
-        let Some(claims) = decode_json::<JwtClaims>(encoded_claims) else {
-            return false;
-        };
+        let claims = decode_json::<JwtClaims>(encoded_claims)?;
         if claims.issuer != JWT_ISSUER
             || claims.issued_at > claims.expiration
             || now >= claims.expiration
         {
-            return false;
+            return None;
         }
 
         let expected_access = access_claim(access_key, salt);
-        bool::from(claims.access.as_bytes().ct_eq(expected_access.as_bytes()))
+        if !bool::from(claims.access.as_bytes().ct_eq(expected_access.as_bytes())) {
+            return None;
+        }
+
+        if !lock_or_recover(&self.active_sessions).is_active(&claims.session_id, now) {
+            return None;
+        }
+
+        Some(claims)
     }
 
     fn sign(&self, input: &[u8]) -> [u8; 32] {
@@ -400,6 +450,63 @@ impl LoginAttemptTracker {
     }
 }
 
+#[derive(Default)]
+struct SessionStore {
+    sessions: HashMap<String, u64>,
+    next_cleanup_at: u64,
+}
+
+impl SessionStore {
+    fn register(&mut self, session_id: String, expiration: u64, now: u64) -> bool {
+        self.cleanup_expired_if_due(now);
+        match self.sessions.entry(session_id) {
+            Entry::Vacant(entry) => {
+                entry.insert(expiration);
+                true
+            }
+            Entry::Occupied(_) => false,
+        }
+    }
+
+    fn is_active(&mut self, session_id: &str, now: u64) -> bool {
+        self.cleanup_expired_if_due(now);
+        let Some(expiration) = self.sessions.get(session_id).copied() else {
+            return false;
+        };
+        if now >= expiration {
+            self.sessions.remove(session_id);
+            return false;
+        }
+
+        true
+    }
+
+    fn revoke(&mut self, session_id: &str, expiration: u64) -> bool {
+        if !matches!(
+            self.sessions.get(session_id),
+            Some(stored_expiration) if *stored_expiration == expiration
+        ) {
+            return false;
+        }
+
+        self.sessions.remove(session_id);
+        true
+    }
+
+    fn revoke_all(&mut self) {
+        self.sessions.clear();
+    }
+
+    fn cleanup_expired_if_due(&mut self, now: u64) {
+        if now < self.next_cleanup_at {
+            return;
+        }
+
+        self.sessions.retain(|_, expiration| *expiration > now);
+        self.next_cleanup_at = now.saturating_add(JWT_SESSION_CLEANUP_INTERVAL_SECONDS);
+    }
+}
+
 #[derive(Serialize)]
 struct JwtHeader<'a> {
     #[serde(rename = "alg")]
@@ -422,6 +529,8 @@ struct JwtHeaderOwned {
 struct JwtClaims {
     #[serde(rename = "iss")]
     issuer: String,
+    #[serde(rename = "jti")]
+    session_id: String,
     #[serde(rename = "iat")]
     issued_at: u64,
     #[serde(rename = "exp")]
@@ -433,6 +542,13 @@ fn random_challenge() -> String {
     let mut random = [0_u8; 16];
     getrandom::fill(&mut random)
         .expect("the operating system must provide randomness for login challenges");
+    to_lower_hex(&random)
+}
+
+fn random_session_id() -> String {
+    let mut random = [0_u8; JWT_SESSION_ID_BYTES];
+    getrandom::fill(&mut random)
+        .expect("the operating system must provide randomness for JWT session identifiers");
     to_lower_hex(&random)
 }
 
@@ -681,6 +797,10 @@ mod tests {
         assert_eq!(header["kid"], JWT_KEY_ID);
         assert_eq!(header["typ"], JWT_TYPE);
         assert_eq!(claims["iss"], JWT_ISSUER);
+        let session_id = claims["jti"].as_str().unwrap().to_owned();
+        assert_eq!(session_id.len(), JWT_SESSION_ID_BYTES * 2);
+        assert!(session_id.bytes().all(|byte| byte.is_ascii_hexdigit()));
+        assert_eq!(session_id, session_id.to_ascii_lowercase());
         assert_eq!(claims["iat"], issued_at);
         assert_eq!(claims["exp"], issued_at + JWT_LIFETIME_SECONDS);
         assert_eq!(claims["access"], access_claim(TEST_ACCESS_KEY, TEST_SALT));
@@ -696,12 +816,48 @@ mod tests {
             TEST_SALT,
             issued_at + JWT_LIFETIME_SECONDS
         ));
+        assert!(!auth.verify_token_at(
+            &token,
+            TEST_ACCESS_KEY,
+            TEST_SALT,
+            issued_at + JWT_LIFETIME_SECONDS + JWT_SESSION_CLEANUP_INTERVAL_SECONDS
+        ));
+        assert!(
+            !lock_or_recover(&auth.active_sessions)
+                .sessions
+                .contains_key(&session_id)
+        );
+    }
+
+    #[test]
+    fn jwt_sessions_are_unique_and_can_be_revoked_independently() {
+        let auth = manager_with_key(6);
+        let issued_at = 1_700_000_000;
+        let first = auth.issue_token_at(TEST_ACCESS_KEY, TEST_SALT, issued_at);
+        let second = auth.issue_token_at(TEST_ACCESS_KEY, TEST_SALT, issued_at);
+
+        assert_ne!(first, second);
+        assert!(auth.verify_token_at(&first, TEST_ACCESS_KEY, TEST_SALT, issued_at));
+        assert!(auth.verify_token_at(&second, TEST_ACCESS_KEY, TEST_SALT, issued_at));
+
+        assert!(!auth.revoke_token_at(&first, "wrong", TEST_SALT, issued_at));
+        assert!(auth.verify_token_at(&first, TEST_ACCESS_KEY, TEST_SALT, issued_at));
+        assert!(auth.revoke_token_at(&first, TEST_ACCESS_KEY, TEST_SALT, issued_at));
+        assert!(!auth.verify_token_at(&first, TEST_ACCESS_KEY, TEST_SALT, issued_at));
+        assert!(auth.verify_token_at(&second, TEST_ACCESS_KEY, TEST_SALT, issued_at));
+        assert!(!auth.revoke_token_at(&first, TEST_ACCESS_KEY, TEST_SALT, issued_at));
+
+        auth.revoke_all_tokens();
+        assert!(!auth.verify_token_at(&second, TEST_ACCESS_KEY, TEST_SALT, issued_at));
+
+        let replacement = auth.issue_token_at(TEST_ACCESS_KEY, TEST_SALT, issued_at);
+        assert!(auth.verify_token_at(&replacement, TEST_ACCESS_KEY, TEST_SALT, issued_at));
     }
 
     #[test]
     fn jwt_rejects_tampering_config_changes_and_restart_keys() {
-        let auth = manager_with_key(6);
-        let restarted = manager_with_key(7);
+        let auth = manager_with_key(7);
+        let restarted = manager_with_key(8);
         let issued_at = 1_700_000_000;
         let token = auth.issue_token_at(TEST_ACCESS_KEY, TEST_SALT, issued_at);
 
