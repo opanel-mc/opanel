@@ -639,6 +639,8 @@
   "open-api.toggle.enable.error": "启用开放API失败",
   "open-api.toggle.disable.error": "禁用开放API失败",
   "open-api.item.enabled": "启用开放API",
+  "open-api.prompt.copy": "复制提示词",
+  "open-api.prompt.description": "请根据以下 OPanel 开放 API 接口说明协助我完成任务。仅可使用下方列出的已启用接口。",
   "open-api.interfaces.title": "接口说明",
   "open-api.interfaces.request": "请求格式",
   "open-api.interfaces.response": "响应格式",
