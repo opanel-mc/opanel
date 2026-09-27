@@ -54,12 +54,9 @@ public abstract class BaseEndpoint implements Connectable {
             // Register session
             session.setMaxOutgoingFrames(MAX_OUTGOING_FRAMES);
             sessions.add(session);
+            ctx.enableAutomaticPings();
             ctx.send(new Packet<>(Packet.CONNECT));
             onConnect(ctx);
-
-            subscribe(session, Packet.PING, msgCtx -> {
-                msgCtx.send(new Packet<>(Packet.PONG));
-            });
         });
 
         ws.onMessage(ctx -> {

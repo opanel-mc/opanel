@@ -1,18 +1,14 @@
 import { toast } from "sonner";
 import { checkAuth, wsUrl } from "../api";
 
-type MessageType<M extends string> = M | "connect" | "ping" | "pong" | "error";
+type MessageType<M extends string> = M | "connect" | "error";
 interface Packet<M extends string, D> {
   type: MessageType<M>
   data: D
 }
 
-const heartbeatInterval = 20000; // 20s
-
 export abstract class WebSocketClient<M extends string> {
   private socket: WebSocket | null = null;
-
-  private heartbeatTimer: NodeJS.Timeout | null = null;
 
   constructor(route: string) {
     checkAuth().then((res) => {
@@ -35,16 +31,6 @@ export abstract class WebSocketClient<M extends string> {
 
     this.subscribe("connect", () => {
       this.onOpen();
-
-      // Start heartbeat
-      this.send("ping", null);
-    });
-
-    // Heartbeat to keep connection alive
-    this.subscribe("pong", () => {
-      this.heartbeatTimer = setTimeout(() => {
-        this.send("ping", null);
-      }, heartbeatInterval);
     });
 
     this.subscribe("error", (err) => {
@@ -86,7 +72,6 @@ export abstract class WebSocketClient<M extends string> {
   }
 
   public close() {
-    if(this.heartbeatTimer) clearTimeout(this.heartbeatTimer);
     if(this.socket) {
       this.socket.close();
       this.socket = null;
