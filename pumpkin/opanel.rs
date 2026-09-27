@@ -8,11 +8,13 @@ use crate::{
     config::OPanelConfig,
     managers::{ManagerContext, ManagerLifecycleError, Managers},
     storage::{Storage, StorageError},
+    utils::time::Uptimer,
 };
 
 pub struct OPanel {
     context: Arc<Context>,
     storage: Arc<Storage>,
+    uptimer: Uptimer,
     shutdown: CancellationToken,
     managers: Managers,
 }
@@ -27,6 +29,7 @@ pub(crate) enum OPanelInitError {
 
 impl OPanel {
     pub(crate) async fn initialize(context: Arc<Context>) -> Result<Arc<Self>, OPanelInitError> {
+        let uptimer = Uptimer::new();
         let storage = Arc::new(Storage::open(PathBuf::from("opanel")).await?);
         let shutdown = CancellationToken::new();
         let opanel = Arc::new_cyclic(move |opanel| {
@@ -34,6 +37,7 @@ impl OPanel {
             Self {
                 context,
                 storage,
+                uptimer,
                 shutdown,
                 managers: Managers::new(manager_context),
             }
@@ -55,6 +59,10 @@ impl OPanel {
     #[allow(dead_code)]
     pub(crate) fn storage(&self) -> Arc<Storage> {
         Arc::clone(&self.storage)
+    }
+
+    pub(crate) fn uptimer(&self) -> &Uptimer {
+        &self.uptimer
     }
 
     pub(crate) fn managers(&self) -> &Managers {
