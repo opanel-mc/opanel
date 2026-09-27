@@ -865,9 +865,13 @@ mod tests {
         assert!(!auth.verify_token_at(&token, TEST_ACCESS_KEY, "wrong", issued_at));
         assert!(!restarted.verify_token_at(&token, TEST_ACCESS_KEY, TEST_SALT, issued_at));
 
+        let signature_start = token.rfind('.').expect("issued JWT must have a signature") + 1;
         let mut tampered = token.into_bytes();
-        let index = tampered.len() - 1;
-        tampered[index] = if tampered[index] == b'A' { b'B' } else { b'A' };
+        tampered[signature_start] = if tampered[signature_start] == b'A' {
+            b'B'
+        } else {
+            b'A'
+        };
         assert!(!auth.verify_token_at(
             std::str::from_utf8(&tampered).unwrap(),
             TEST_ACCESS_KEY,
