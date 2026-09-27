@@ -9,7 +9,7 @@ export type APIResponse<T> = {
   error: string
 } & T;
 
-export type ServerType = "Paper" | "Fabric" | "Forge" | "NeoForge" | "Folia" | "Leaves";
+export type ServerType = "Paper" | "Fabric" | "Forge" | "NeoForge" | "Folia" | "Leaves" | "Pumpkin";
 
 export enum GameMode {
   ADVENTURE = "adventure",
