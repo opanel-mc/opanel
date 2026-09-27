@@ -1,7 +1,4 @@
-use std::{
-    sync::TryLockError,
-    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
-};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use pumpkin::server::Server;
 use serde::Serialize;
@@ -52,19 +49,18 @@ impl IngameTime {
             .iter()
             .find(|world| world.dimension.minecraft_name == OVERWORLD_NAME)
             .or_else(|| worlds.first());
-        let world_time = overworld.and_then(|world| {
+        let world_time = overworld.map(|world| {
             let do_daylight_cycle = world.level_info.load().game_rules.advance_time;
-            let level_time = match world.level_time.try_lock() {
-                Ok(level_time) => level_time,
-                Err(TryLockError::Poisoned(error)) => error.into_inner(),
-                Err(TryLockError::WouldBlock) => return None,
-            };
+            let level_time = world
+                .level_time
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
 
-            Some(WorldTimeSnapshot {
+            WorldTimeSnapshot {
                 current: level_time.time_of_day,
                 do_daylight_cycle,
                 paused: level_time.paused,
-            })
+            }
         });
 
         Self::from_snapshot(
