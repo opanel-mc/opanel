@@ -121,7 +121,6 @@ impl AuthManager {
         self.revoke_token_at(token, access_key, salt, unix_timestamp())
     }
 
-    #[allow(dead_code)] // Used once access-key updates are implemented by the security controller.
     pub(crate) fn revoke_all_tokens(&self) {
         lock_or_recover(&self.active_sessions).revoke_all();
     }
