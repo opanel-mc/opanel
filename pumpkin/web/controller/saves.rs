@@ -111,7 +111,12 @@ pub(super) async fn get_saves(State(opanel): State<Arc<OPanel>>) -> Response {
         hardcore: server.basic_config.hardcore,
     };
     let (configured_save, configured_settings) =
-        configured_save_configuration(runtime_settings).await;
+        match configured_save_configuration(runtime_settings).await {
+            Ok(configuration) => configuration,
+            Err(error) => {
+                return internal_error("failed to read Pumpkin save configuration", error);
+            }
+        };
     let current_save = configured_save.unwrap_or_else(|| running_save.clone());
 
     let scan = |running_save: String, current_save: String| {
@@ -326,6 +331,12 @@ pub(super) async fn edit_save(
         }
     };
     let server = &opanel.context().server;
+    let (configured_save, _) = match configured_save_configuration(settings).await {
+        Ok(configuration) => configuration,
+        Err(error) => return internal_error("failed to read Pumpkin save configuration", error),
+    };
+    let configured_save =
+        configured_save.unwrap_or_else(|| server.basic_config.default_level_name.clone());
     let is_running = server.basic_config.default_level_name == save_name;
     if is_running && let Err(error) = server.save_all().await {
         return internal_error("failed to save the running world before editing it", error);
@@ -341,9 +352,6 @@ pub(super) async fn edit_save(
         Err(error) => return internal_error("save metadata task failed", error),
     }
 
-    let (configured_save, _) = configured_save_configuration(settings).await;
-    let configured_save =
-        configured_save.unwrap_or_else(|| server.basic_config.default_level_name.clone());
     if configured_save == save_name
         && let Err(error) = update_pumpkin_save_settings(settings).await
     {
@@ -433,13 +441,17 @@ pub(super) async fn delete_save(
         Err(error) => return error.into_response(),
     };
     let server = &opanel.context().server;
-    let (configured_save, _) = configured_save_configuration(SaveSettings {
+    let (configured_save, _) = match configured_save_configuration(SaveSettings {
         game_mode: server.basic_config.default_gamemode,
         difficulty: server.basic_config.default_difficulty,
         difficulty_locked: server.level_info.load().difficulty_locked,
         hardcore: server.basic_config.hardcore,
     })
-    .await;
+    .await
+    {
+        Ok(configuration) => configuration,
+        Err(error) => return internal_error("failed to read Pumpkin save configuration", error),
+    };
     let configured_save =
         configured_save.unwrap_or_else(|| server.basic_config.default_level_name.clone());
     if server.basic_config.default_level_name == save_name || configured_save == save_name {
@@ -863,13 +875,12 @@ pub(super) async fn select_save(
     pumpkin_config::write(document.to_string()).await
 }
 
-async fn configured_save_configuration(fallback: SaveSettings) -> (Option<String>, SaveSettings) {
-    let Ok(contents) = pumpkin_config::read_to_string().await else {
-        return (None, fallback);
-    };
-    let Ok(document) = pumpkin_config::parse(&contents) else {
-        return (None, fallback);
-    };
+async fn configured_save_configuration(
+    fallback: SaveSettings,
+) -> Result<(Option<String>, SaveSettings), std::io::Error> {
+    let contents = pumpkin_config::read_to_string().await?;
+    let document = pumpkin_config::parse(&contents)
+        .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))?;
     let save_name = document
         .get("default_level_name")
         .and_then(Item::as_str)
@@ -888,7 +899,7 @@ async fn configured_save_configuration(fallback: SaveSettings) -> (Option<String
         .get("hardcore")
         .and_then(Item::as_bool)
         .unwrap_or(fallback.hardcore);
-    (
+    Ok((
         save_name,
         SaveSettings {
             game_mode,
@@ -896,7 +907,7 @@ async fn configured_save_configuration(fallback: SaveSettings) -> (Option<String
             difficulty_locked: fallback.difficulty_locked,
             hardcore,
         },
-    )
+    ))
 }
 
 async fn update_pumpkin_save_settings(settings: SaveSettings) -> Result<(), std::io::Error> {
