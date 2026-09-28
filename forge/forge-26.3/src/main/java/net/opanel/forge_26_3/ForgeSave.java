@@ -82,7 +82,7 @@ public class ForgeSave extends BaseForgeSave implements OPanelSave {
 
     @Override
     public OPanelDifficulty getDifficulty() throws IOException {
-        if(isCurrent()) return OPanelDifficulty.fromId(getCurrentWorld().getDifficulty().getId());
+        if(isRunning()) return OPanelDifficulty.fromId(getCurrentWorld().getDifficulty().getId());
 
         String difficulty = difficultySettingsNbt.getStringOr("difficulty", "easy");
         return OPanelDifficulty.fromString(difficulty);
@@ -90,7 +90,7 @@ public class ForgeSave extends BaseForgeSave implements OPanelSave {
 
     @Override
     public void setDifficulty(OPanelDifficulty difficulty) throws IOException {
-        if(isCurrent()) server.setDifficulty(Difficulty.byName(difficulty.getName()), true);
+        if(isRunning()) server.setDifficulty(Difficulty.byName(difficulty.getName()), true);
 
         difficultySettingsNbt.putString("difficulty", difficulty.getName());
         saveDifficultySettings();
@@ -98,14 +98,14 @@ public class ForgeSave extends BaseForgeSave implements OPanelSave {
 
     @Override
     public boolean isDifficultyLocked() throws IOException {
-        if(isCurrent()) return getCurrentWorld().getLevelData().isDifficultyLocked();
+        if(isRunning()) return getCurrentWorld().getLevelData().isDifficultyLocked();
 
         return difficultySettingsNbt.getByteOr("locked", (byte) 0) == 1;
     }
 
     @Override
     public void setDifficultyLocked(boolean locked) throws IOException {
-        if(isCurrent()) server.setDifficultyLocked(locked);
+        if(isRunning()) server.setDifficultyLocked(locked);
 
         difficultySettingsNbt.putByte("locked", (byte) (locked ? 1 : 0));
         saveDifficultySettings();
@@ -113,14 +113,14 @@ public class ForgeSave extends BaseForgeSave implements OPanelSave {
 
     @Override
     public boolean isHardcore() throws IOException {
-        if(isCurrent()) return server.isHardcore();
+        if(isRunning()) return server.isHardcore();
 
         return difficultySettingsNbt.getByteOr("hardcore", (byte) 0) == 1;
     }
 
     @Override
     public void setHardcoreEnabled(boolean enabled) throws IOException {
-        if(isCurrent()) {
+        if(isRunning()) {
             net.minecraft.world.level.storage.
             PrimaryLevelData worldData = (PrimaryLevelData) getCurrentWorld().getLevelData();
             LevelSettings currentSettings = worldData.getLevelSettings();
@@ -174,7 +174,7 @@ public class ForgeSave extends BaseForgeSave implements OPanelSave {
         if(currentEnabled == null || currentEnabled == enabled) return;
         if(id.equals("vanilla")) return;
 
-        if(isCurrent()) {
+        if(isRunning()) {
             server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), "datapack "+ (enabled ? "enable" : "disable") +" \""+ id +"\"");
         }
 

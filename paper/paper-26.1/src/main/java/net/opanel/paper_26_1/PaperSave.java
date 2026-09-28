@@ -46,7 +46,7 @@ public class PaperSave extends BasePaperSave implements OPanelSave {
     @Rewrite
     @Override
     public OPanelDifficulty getDifficulty() throws IOException {
-        if(isCurrent()) return OPanelDifficulty.fromId(getCurrentWorld().getDifficulty().getValue());
+        if(isRunning()) return OPanelDifficulty.fromId(getCurrentWorld().getDifficulty().getValue());
 
         String difficulty = difficultySettingsNbt.getString("difficulty");
         return OPanelDifficulty.fromString(difficulty);
@@ -55,7 +55,7 @@ public class PaperSave extends BasePaperSave implements OPanelSave {
     @Rewrite
     @Override
     public void setDifficulty(OPanelDifficulty difficulty) throws IOException {
-        if(isCurrent()) {
+        if(isRunning()) {
             runner.runTask(() -> {
                 switch(difficulty) {
                     case PEACEFUL -> getCurrentWorld().setDifficulty(Difficulty.PEACEFUL);
@@ -86,7 +86,7 @@ public class PaperSave extends BasePaperSave implements OPanelSave {
     @Rewrite
     @Override
     public boolean isHardcore() throws IOException {
-        if(isCurrent()) return getCurrentWorld().isHardcore();
+        if(isRunning()) return getCurrentWorld().isHardcore();
 
         return difficultySettingsNbt.getByte("hardcore") == 1;
     }
@@ -94,7 +94,7 @@ public class PaperSave extends BasePaperSave implements OPanelSave {
     @Rewrite
     @Override
     public void setHardcoreEnabled(boolean enabled) throws IOException {
-        if(isCurrent()) {
+        if(isRunning()) {
             runner.runTask(() -> getCurrentWorld().setHardcore(enabled));
         }
 
