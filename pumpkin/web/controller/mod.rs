@@ -272,7 +272,9 @@ fn file_router() -> Router<Arc<OPanel>> {
         Router::new()
             .route(
                 "/{id}/{file_name}",
-                with_method_fallback(get(download::download_file)),
+                with_method_fallback(
+                    get(download::download_file).head(response::method_not_allowed),
+                ),
             )
             .fallback(response::not_found),
         AuthRouteRole::PanelOrMcp,
