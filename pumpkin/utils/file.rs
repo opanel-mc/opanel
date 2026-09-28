@@ -1,4 +1,11 @@
-use std::path::{Component, Path};
+use std::{
+    io,
+    path::{Component, Path},
+};
+
+pub(crate) fn absolute_path_string(path: &Path) -> io::Result<String> {
+    std::path::absolute(path).map(|path| path.to_string_lossy().into_owned())
+}
 
 pub(crate) fn is_safe_file_name(file_name: &str) -> bool {
     let path = Path::new(file_name);
@@ -11,7 +18,17 @@ pub(crate) fn is_safe_file_name(file_name: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::is_safe_file_name;
+    use std::path::Path;
+
+    use super::{absolute_path_string, is_safe_file_name};
+
+    #[test]
+    fn returns_absolute_path_strings() {
+        let path = absolute_path_string(Path::new("world")).unwrap();
+
+        assert!(Path::new(&path).is_absolute());
+        assert!(Path::new(&path).ends_with("world"));
+    }
 
     #[test]
     fn accepts_only_single_safe_path_components() {

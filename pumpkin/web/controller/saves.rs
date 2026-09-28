@@ -28,7 +28,10 @@ use zip::{ZipArchive, ZipWriter, write::SimpleFileOptions};
 
 use crate::{
     opanel::OPanel,
-    utils::{file::is_safe_file_name, pumpkin_config},
+    utils::{
+        file::{absolute_path_string, is_safe_file_name},
+        pumpkin_config,
+    },
     web::{
         controller::control::EmptyPayload,
         response::{ApiError, ApiResponse},
@@ -491,7 +494,7 @@ fn scan_saves(
         }
         saves.push(SavePayload {
             display_name: BASE64_STANDARD.encode(metadata.display_name),
-            path: name.clone(),
+            path: absolute_path_string(&path).map_err(|error| error.to_string())?,
             size: directory_size(&path).map_err(|error| error.to_string())?,
             is_running,
             is_current,
