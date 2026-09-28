@@ -26,11 +26,11 @@ md5 = "0.8"
 mime_guess = "2"
 opanel-pumpkin-assets = { path = "pumpkin/assets" }
 percent-encoding = "2"
-pumpkin = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", rev = "c31eb836164038011dc757729800971e838458e7", package = "pumpkin" }
-pumpkin-api-macros = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", rev = "c31eb836164038011dc757729800971e838458e7", package = "pumpkin-api-macros" }
-pumpkin-data = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", rev = "c31eb836164038011dc757729800971e838458e7", package = "pumpkin-data" }
-pumpkin-nbt = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", rev = "c31eb836164038011dc757729800971e838458e7", package = "pumpkin-nbt" }
-pumpkin-util = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", rev = "c31eb836164038011dc757729800971e838458e7", package = "pumpkin-util" }
+pumpkin = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", tag = "0.2.0+26.3-26.51", package = "pumpkin" }
+pumpkin-api-macros = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", tag = "0.2.0+26.3-26.51", package = "pumpkin-api-macros" }
+pumpkin-data = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", tag = "0.2.0+26.3-26.51", package = "pumpkin-data" }
+pumpkin-nbt = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", tag = "0.2.0+26.3-26.51", package = "pumpkin-nbt" }
+pumpkin-util = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", tag = "0.2.0+26.3-26.51", package = "pumpkin-util" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"

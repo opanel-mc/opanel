@@ -3221,8 +3221,8 @@ dependencies = [
 
 [[package]]
 name = "pumpkin"
-version = "0.1.0+26.3-26.51"
-source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?rev=c31eb836164038011dc757729800971e838458e7#c31eb836164038011dc757729800971e838458e7"
+version = "0.2.0+26.3-26.51"
+source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?tag=0.2.0%2B26.3-26.51#204a94ed895f041a845630d5a23c094705a0704e"
 dependencies = [
  "aes 0.9.3",
  "arc-swap",
@@ -3283,8 +3283,8 @@ dependencies = [
  "tracing-serde-structured",
  "tracing-subscriber",
  "uuid",
- "wasm-encoder",
- "wasmparser",
+ "wasm-encoder 0.259.0",
+ "wasmparser 0.259.0",
  "wasmtime",
  "wasmtime-wasi",
  "wasmtime-wasi-http",
@@ -3294,8 +3294,8 @@ dependencies = [
 
 [[package]]
 name = "pumpkin-api-macros"
-version = "0.1.0+26.3-26.51"
-source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?rev=c31eb836164038011dc757729800971e838458e7#c31eb836164038011dc757729800971e838458e7"
+version = "0.2.0+26.3-26.51"
+source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?tag=0.2.0%2B26.3-26.51#204a94ed895f041a845630d5a23c094705a0704e"
 dependencies = [
  "proc-macro-error2",
  "proc-macro2",
@@ -3305,8 +3305,8 @@ dependencies = [
 
 [[package]]
 name = "pumpkin-auth"
-version = "0.1.0+26.3-26.51"
-source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?rev=c31eb836164038011dc757729800971e838458e7#c31eb836164038011dc757729800971e838458e7"
+version = "0.2.0+26.3-26.51"
+source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?tag=0.2.0%2B26.3-26.51#204a94ed895f041a845630d5a23c094705a0704e"
 dependencies = [
  "base64 0.23.1",
  "crypto-bigint 0.7.5",
@@ -3326,8 +3326,8 @@ dependencies = [
 
 [[package]]
 name = "pumpkin-codecs"
-version = "0.1.0+26.3-26.51"
-source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?rev=c31eb836164038011dc757729800971e838458e7#c31eb836164038011dc757729800971e838458e7"
+version = "0.2.0+26.3-26.51"
+source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?tag=0.2.0%2B26.3-26.51#204a94ed895f041a845630d5a23c094705a0704e"
 dependencies = [
  "serde_json",
  "tracing",
@@ -3335,8 +3335,8 @@ dependencies = [
 
 [[package]]
 name = "pumpkin-command"
-version = "0.1.0+26.3-26.51"
-source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?rev=c31eb836164038011dc757729800971e838458e7#c31eb836164038011dc757729800971e838458e7"
+version = "0.2.0+26.3-26.51"
+source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?tag=0.2.0%2B26.3-26.51#204a94ed895f041a845630d5a23c094705a0704e"
 dependencies = [
  "pumpkin-codecs",
  "pumpkin-data",
@@ -3351,8 +3351,8 @@ dependencies = [
 
 [[package]]
 name = "pumpkin-config"
-version = "0.1.0+26.3-26.51"
-source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?rev=c31eb836164038011dc757729800971e838458e7#c31eb836164038011dc757729800971e838458e7"
+version = "0.2.0+26.3-26.51"
+source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?tag=0.2.0%2B26.3-26.51#204a94ed895f041a845630d5a23c094705a0704e"
 dependencies = [
  "pumpkin-util",
  "serde",
@@ -3363,8 +3363,8 @@ dependencies = [
 
 [[package]]
 name = "pumpkin-data"
-version = "0.1.0+26.3-26.51"
-source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?rev=c31eb836164038011dc757729800971e838458e7#c31eb836164038011dc757729800971e838458e7"
+version = "0.2.0+26.3-26.51"
+source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?tag=0.2.0%2B26.3-26.51#204a94ed895f041a845630d5a23c094705a0704e"
 dependencies = [
  "crc-fast",
  "phf",
@@ -3376,8 +3376,8 @@ dependencies = [
 
 [[package]]
 name = "pumpkin-gametest"
-version = "0.1.0+26.3-26.51"
-source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?rev=c31eb836164038011dc757729800971e838458e7#c31eb836164038011dc757729800971e838458e7"
+version = "0.2.0+26.3-26.51"
+source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?tag=0.2.0%2B26.3-26.51#204a94ed895f041a845630d5a23c094705a0704e"
 dependencies = [
  "async-trait",
  "pumpkin-data",
@@ -3392,16 +3392,16 @@ dependencies = [
 
 [[package]]
 name = "pumpkin-host-bindings"
-version = "0.1.0+26.3-26.51"
-source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?rev=c31eb836164038011dc757729800971e838458e7#c31eb836164038011dc757729800971e838458e7"
+version = "0.2.0+26.3-26.51"
+source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?tag=0.2.0%2B26.3-26.51#204a94ed895f041a845630d5a23c094705a0704e"
 dependencies = [
  "wasmtime",
 ]
 
 [[package]]
 name = "pumpkin-inventory"
-version = "0.1.0+26.3-26.51"
-source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?rev=c31eb836164038011dc757729800971e838458e7#c31eb836164038011dc757729800971e838458e7"
+version = "0.2.0+26.3-26.51"
+source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?tag=0.2.0%2B26.3-26.51#204a94ed895f041a845630d5a23c094705a0704e"
 dependencies = [
  "pumpkin-data",
  "pumpkin-nbt",
@@ -3415,8 +3415,8 @@ dependencies = [
 
 [[package]]
 name = "pumpkin-macros"
-version = "0.1.0+26.3-26.51"
-source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?rev=c31eb836164038011dc757729800971e838458e7#c31eb836164038011dc757729800971e838458e7"
+version = "0.2.0+26.3-26.51"
+source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?tag=0.2.0%2B26.3-26.51#204a94ed895f041a845630d5a23c094705a0704e"
 dependencies = [
  "heck",
  "proc-macro-error2",
@@ -3427,8 +3427,8 @@ dependencies = [
 
 [[package]]
 name = "pumpkin-nbt"
-version = "0.1.0+26.3-26.51"
-source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?rev=c31eb836164038011dc757729800971e838458e7#c31eb836164038011dc757729800971e838458e7"
+version = "0.2.0+26.3-26.51"
+source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?tag=0.2.0%2B26.3-26.51#204a94ed895f041a845630d5a23c094705a0704e"
 dependencies = [
  "bytes",
  "cesu8",
@@ -3441,8 +3441,8 @@ dependencies = [
 
 [[package]]
 name = "pumpkin-plugin-runtime"
-version = "0.1.0+26.3-26.51"
-source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?rev=c31eb836164038011dc757729800971e838458e7#c31eb836164038011dc757729800971e838458e7"
+version = "0.2.0+26.3-26.51"
+source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?tag=0.2.0%2B26.3-26.51#204a94ed895f041a845630d5a23c094705a0704e"
 dependencies = [
  "futures",
  "thiserror 2.0.20",
@@ -3453,8 +3453,8 @@ dependencies = [
 
 [[package]]
 name = "pumpkin-protocol"
-version = "0.1.0+26.3-26.51"
-source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?rev=c31eb836164038011dc757729800971e838458e7#c31eb836164038011dc757729800971e838458e7"
+version = "0.2.0+26.3-26.51"
+source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?tag=0.2.0%2B26.3-26.51#204a94ed895f041a845630d5a23c094705a0704e"
 dependencies = [
  "aes 0.9.3",
  "async-compression",
@@ -3478,8 +3478,8 @@ dependencies = [
 
 [[package]]
 name = "pumpkin-util"
-version = "0.1.0+26.3-26.51"
-source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?rev=c31eb836164038011dc757729800971e838458e7#c31eb836164038011dc757729800971e838458e7"
+version = "0.2.0+26.3-26.51"
+source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?tag=0.2.0%2B26.3-26.51#204a94ed895f041a845630d5a23c094705a0704e"
 dependencies = [
  "bytes",
  "colored",
@@ -3497,8 +3497,8 @@ dependencies = [
 
 [[package]]
 name = "pumpkin-world"
-version = "0.1.0+26.3-26.51"
-source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?rev=c31eb836164038011dc757729800971e838458e7#c31eb836164038011dc757729800971e838458e7"
+version = "0.2.0+26.3-26.51"
+source = "git+https://github.com/Pumpkin-MC/Pumpkin.git?tag=0.2.0%2B26.3-26.51#204a94ed895f041a845630d5a23c094705a0704e"
 dependencies = [
  "arc-swap",
  "bitflags 2.13.2",
@@ -5360,7 +5360,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e974fe6821a8cf64575d51ea2194e2c8f77e7b66e9afe7419ce8a97f9ee0d251"
 dependencies = [
  "leb128fmt",
- "wasmparser",
+ "wasmparser 0.258.0",
+]
+
+[[package]]
+name = "wasm-encoder"
+version = "0.259.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1d0246511d901aacf25d2dc9111f0054947de5e093fe662099e709ff7530dc3"
+dependencies = [
+ "leb128fmt",
+ "wasmparser 0.259.0",
 ]
 
 [[package]]
@@ -5371,8 +5381,8 @@ checksum = "18a11585adb92fe9b55ad1d760e8d8fb5d87e0d2e303cb8eed57f078d54293a2"
 dependencies = [
  "anyhow",
  "indexmap",
- "wasm-encoder",
- "wasmparser",
+ "wasm-encoder 0.258.0",
+ "wasmparser 0.258.0",
 ]
 
 [[package]]
@@ -5389,6 +5399,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "wasmparser"
+version = "0.259.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0f7c12eac7bb587801590f6a67ff0bc84d0748513864b71108e4b311cc3df694"
+dependencies = [
+ "bitflags 2.13.2",
+ "indexmap",
+ "semver",
+]
+
+[[package]]
 name = "wasmprinter"
 version = "0.258.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5396,7 +5417,7 @@ checksum = "3a65e30fb2cd3cc5cb7761a6064787b2abf017e6566d8d0dedf2bb7f55ad5383"
 dependencies = [
  "anyhow",
  "termcolor",
- "wasmparser",
+ "wasmparser 0.258.0",
 ]
 
 [[package]]
@@ -5426,7 +5447,7 @@ dependencies = [
  "serde_derive",
  "smallvec",
  "target-lexicon",
- "wasmparser",
+ "wasmparser 0.258.0",
  "wasmtime-environ",
  "wasmtime-internal-cache",
  "wasmtime-internal-component-macro",
@@ -5464,8 +5485,8 @@ dependencies = [
  "sha2 0.10.9",
  "smallvec",
  "target-lexicon",
- "wasm-encoder",
- "wasmparser",
+ "wasm-encoder 0.258.0",
+ "wasmparser 0.258.0",
  "wasmprinter",
  "wasmtime-internal-component-util",
  "wasmtime-internal-core",
@@ -5537,7 +5558,7 @@ dependencies = [
  "smallvec",
  "target-lexicon",
  "thiserror 2.0.20",
- "wasmparser",
+ "wasmparser 0.258.0",
  "wasmtime-environ",
  "wasmtime-internal-core",
  "wasmtime-internal-unwinder",
@@ -6059,9 +6080,9 @@ dependencies = [
  "serde",
  "serde_derive",
  "serde_json",
- "wasm-encoder",
+ "wasm-encoder 0.258.0",
  "wasm-metadata",
- "wasmparser",
+ "wasmparser 0.258.0",
  "wit-parser",
 ]
 
@@ -6081,7 +6102,7 @@ dependencies = [
  "serde_derive",
  "serde_json",
  "unicode-ident",
- "wasmparser",
+ "wasmparser 0.258.0",
 ]
 
 [[package]]
