@@ -125,8 +125,12 @@ public class ForgeSave extends BaseForgeSave implements OPanelSave {
             } catch (ReflectiveOperationException e) {
                 //
             }
+            ForgeUtils.setRuntimeHardcore((DedicatedServer) server, enabled, true);
+        }
+
+        // Persist the startup setting only for the save selected in server.properties.
+        if(isCurrent()) {
             OPanelServer.writePropertiesContent(OPanelServer.getPropertiesContent().replaceAll("hardcore=.+", "hardcore="+ enabled));
-            ForgeUtils.forceUpdateProperties((DedicatedServer) server, true);
         }
 
         nbt.putByte("hardcore", (byte) (enabled ? 1 : 0));

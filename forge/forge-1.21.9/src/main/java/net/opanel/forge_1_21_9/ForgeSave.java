@@ -2,13 +2,11 @@ package net.opanel.forge_1_21_9;
 
 import net.minecraft.nbt.*;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.storage.PrimaryLevelData;
 import net.opanel.common.*;
 import net.opanel.forge_helper.BaseForgeSave;
-import net.opanel.forge_helper.utils.ForgeUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -127,8 +125,11 @@ public class ForgeSave extends BaseForgeSave implements OPanelSave {
             } catch (ReflectiveOperationException e) {
                 //
             }
+        }
+
+        // Persist the startup setting only for the save selected in server.properties.
+        if(isCurrent()) {
             OPanelServer.writePropertiesContent(OPanelServer.getPropertiesContent().replaceAll("hardcore=.+", "hardcore="+ enabled));
-            ForgeUtils.forceUpdateProperties((DedicatedServer) server, false);
         }
 
         nbt.putByte("hardcore", (byte) (enabled ? 1 : 0));

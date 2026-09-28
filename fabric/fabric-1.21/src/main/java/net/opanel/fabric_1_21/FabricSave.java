@@ -125,8 +125,12 @@ public class FabricSave extends BaseFabricSave implements OPanelSave {
             } catch (ReflectiveOperationException e) {
                 //
             }
+            FabricUtils.setRuntimeHardcore((MinecraftDedicatedServer) server, enabled);
+        }
+
+        // Persist the startup setting only for the save selected in server.properties.
+        if(isCurrent()) {
             OPanelServer.writePropertiesContent(OPanelServer.getPropertiesContent().replaceAll("hardcore=.+", "hardcore="+ enabled));
-            FabricUtils.forceUpdateProperties((MinecraftDedicatedServer) server);
         }
 
         nbt.putByte("hardcore", (byte) (enabled ? 1 : 0));

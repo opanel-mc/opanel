@@ -1,5 +1,6 @@
 package net.opanel.fabric_helper.utils;
 
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -14,11 +15,25 @@ import net.opanel.event.EventManager;
 import net.opanel.event.EventType;
 import net.opanel.event.OPanelChunkDirtyEvent;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FabricUtils {
+    public static void setRuntimeHardcore(MinecraftDedicatedServer server, boolean enabled) throws IOException {
+        // Update only the cached value; loading server.properties could apply another save's settings.
+        String fieldName = FabricLoader.getInstance().getMappingResolver()
+                .mapFieldName("intermediary", "net.minecraft.class_3806", "field_16838", "Z");
+        try {
+            Field hardcoreField = ServerPropertiesHandler.class.getDeclaredField(fieldName);
+            hardcoreField.setAccessible(true);
+            hardcoreField.setBoolean(server.getProperties(), enabled);
+        } catch (ReflectiveOperationException e) {
+            throw new IOException("Cannot update runtime hardcore setting", e);
+        }
+    }
+
     public static boolean forceUpdateProperties(MinecraftDedicatedServer server) {
         try {
             Field propertiesLoaderField = MinecraftDedicatedServer.class.getDeclaredField("propertiesLoader");

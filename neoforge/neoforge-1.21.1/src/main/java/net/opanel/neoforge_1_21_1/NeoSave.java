@@ -4,7 +4,6 @@ import net.minecraft.nbt.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.dedicated.DedicatedServerProperties;
-import net.minecraft.server.dedicated.DedicatedServerSettings;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.LevelSettings;
@@ -128,15 +127,18 @@ public class NeoSave extends BaseNeoSave implements OPanelSave {
             } catch (ReflectiveOperationException e) {
                 //
             }
-            OPanelServer.writePropertiesContent(OPanelServer.getPropertiesContent().replaceAll("hardcore=.+", "hardcore="+ enabled));
             try {
-                Field serverSettingsField = DedicatedServer.class.getDeclaredField("settings");
-                serverSettingsField.setAccessible(true);
-                DedicatedServerSettings serverSettings = (DedicatedServerSettings) serverSettingsField.get(server);
-                serverSettings.update(p -> DedicatedServerProperties.fromFile(OPanelServer.serverPropertiesPath));
+                Field hardcoreField = DedicatedServerProperties.class.getDeclaredField("hardcore");
+                hardcoreField.setAccessible(true);
+                hardcoreField.setBoolean(((DedicatedServer) server).getProperties(), enabled);
             } catch (ReflectiveOperationException e) {
-                //
+                throw new IOException("Cannot update runtime hardcore setting", e);
             }
+        }
+
+        // Persist the startup setting only for the save selected in server.properties.
+        if(isCurrent()) {
+            OPanelServer.writePropertiesContent(OPanelServer.getPropertiesContent().replaceAll("hardcore=.+", "hardcore="+ enabled));
         }
 
         nbt.putByte("hardcore", (byte) (enabled ? 1 : 0));

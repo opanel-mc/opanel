@@ -2,9 +2,6 @@ package net.opanel.neoforge_1_21_5;
 
 import net.minecraft.nbt.*;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.dedicated.DedicatedServer;
-import net.minecraft.server.dedicated.DedicatedServerProperties;
-import net.minecraft.server.dedicated.DedicatedServerSettings;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.storage.PrimaryLevelData;
@@ -125,15 +122,11 @@ public class NeoSave extends BaseNeoSave implements OPanelSave {
             } catch (ReflectiveOperationException e) {
                 //
             }
+        }
+
+        // Persist the startup setting only for the save selected in server.properties.
+        if(isCurrent()) {
             OPanelServer.writePropertiesContent(OPanelServer.getPropertiesContent().replaceAll("hardcore=.+", "hardcore="+ enabled));
-            try {
-                Field serverSettingsField = DedicatedServer.class.getDeclaredField("settings");
-                serverSettingsField.setAccessible(true);
-                DedicatedServerSettings serverSettings = (DedicatedServerSettings) serverSettingsField.get(server);
-                serverSettings.update(p -> DedicatedServerProperties.fromFile(OPanelServer.serverPropertiesPath));
-            } catch (ReflectiveOperationException e) {
-                //
-            }
         }
 
         nbt.putByte("hardcore", (byte) (enabled ? 1 : 0));

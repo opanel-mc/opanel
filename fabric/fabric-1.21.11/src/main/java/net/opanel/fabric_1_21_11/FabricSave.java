@@ -2,13 +2,11 @@ package net.opanel.fabric_1_21_11;
 
 import net.minecraft.nbt.*;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.dedicated.MinecraftDedicatedServer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.LevelInfo;
 import net.minecraft.world.level.LevelProperties;
 import net.opanel.common.*;
 import net.opanel.fabric_helper.BaseFabricSave;
-import net.opanel.fabric_helper.utils.FabricUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -127,8 +125,11 @@ public class FabricSave extends BaseFabricSave implements OPanelSave {
             } catch (ReflectiveOperationException e) {
                 //
             }
+        }
+
+        // Persist the startup setting only for the save selected in server.properties.
+        if(isCurrent()) {
             OPanelServer.writePropertiesContent(OPanelServer.getPropertiesContent().replaceAll("hardcore=.+", "hardcore="+ enabled));
-            FabricUtils.forceUpdateProperties((MinecraftDedicatedServer) server);
         }
 
         nbt.putByte("hardcore", (byte) (enabled ? 1 : 0));
