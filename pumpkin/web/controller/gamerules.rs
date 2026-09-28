@@ -6,7 +6,6 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
 };
-use pumpkin::server::Server;
 use pumpkin_data::game_rules::{GameRule, GameRuleRegistry, GameRuleValue};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -69,13 +68,11 @@ pub(super) async fn change_gamerule(
     let server = &opanel.context().server;
     let current_info = server.level_info.load();
     let mut updated = (**current_info).clone();
-    let spectators_changed = match apply_gamerules(&mut updated.game_rules, &changes) {
-        Ok(changed) => changed,
-        Err(error) => return bad_request(error),
-    };
+    if let Err(error) = apply_gamerules(&mut updated.game_rules, &changes) {
+        return bad_request(error);
+    }
     drop(current_info);
     server.level_info.store(Arc::new(updated));
-    apply_gamerule_side_effects(server, spectators_changed);
 
     ApiResponse::ok(EmptyPayload {}).into_response()
 }
@@ -107,13 +104,11 @@ pub(super) async fn patch_gamerule(
     };
     let mut updated = (**current_info).clone();
     let changes = BTreeMap::from([(key, value)]);
-    let spectators_changed = match apply_gamerules(&mut updated.game_rules, &changes) {
-        Ok(changed) => changed,
-        Err(error) => return bad_request(error),
-    };
+    if let Err(error) = apply_gamerules(&mut updated.game_rules, &changes) {
+        return bad_request(error);
+    }
     drop(current_info);
     server.level_info.store(Arc::new(updated));
-    apply_gamerule_side_effects(server, spectators_changed);
 
     ApiResponse::ok(EmptyPayload {}).into_response()
 }
@@ -134,8 +129,7 @@ fn gamerules_payload(registry: &GameRuleRegistry) -> BTreeMap<String, Value> {
 fn apply_gamerules(
     registry: &mut GameRuleRegistry,
     changes: &BTreeMap<String, Value>,
-) -> Result<bool, String> {
-    let mut spectators_changed = false;
+) -> Result<(), String> {
     for (key, value) in changes {
         let rule =
             find_gamerule(key).ok_or_else(|| format!("Cannot find the gamerule '{key}'."))?;
@@ -144,10 +138,7 @@ fn apply_gamerules(
                 let Some(value) = value.as_bool() else {
                     return Err(format!("Gamerule '{key}' requires a boolean value."));
                 };
-                if *target != value {
-                    *target = value;
-                    spectators_changed |= rule == GameRule::SpectatorsGenerateChunks;
-                }
+                *target = value;
             }
             GameRuleValue::Int(target) => {
                 let value = json_integer(value)
@@ -156,7 +147,7 @@ fn apply_gamerules(
             }
         }
     }
-    Ok(spectators_changed)
+    Ok(())
 }
 
 fn parse_query_value(
@@ -190,19 +181,6 @@ fn find_gamerule(key: &str) -> Option<GameRule> {
         .cloned()
 }
 
-fn apply_gamerule_side_effects(server: &Arc<Server>, spectators_changed: bool) {
-    if !spectators_changed {
-        return;
-    }
-    for world in server.worlds.load().iter() {
-        for player in world.players.load().iter() {
-            if player.is_spectator() {
-                player.update_chunk_tickets_for_gamemode();
-            }
-        }
-    }
-}
-
 fn is_dimension_name(name: &str) -> bool {
     matches!(name, "overworld" | "nether" | "the_end")
 }
@@ -232,7 +210,7 @@ mod tests {
             ("random_tick_speed".to_string(), Value::from(6)),
         ]);
 
-        assert!(!apply_gamerules(&mut registry, &changes).unwrap());
+        apply_gamerules(&mut registry, &changes).unwrap();
         assert!(registry.keep_inventory);
         assert_eq!(registry.random_tick_speed, 6);
         assert!(
