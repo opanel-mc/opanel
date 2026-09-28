@@ -1,4 +1,4 @@
-use std::{path::Path, process::Command, sync::Arc};
+use std::{process::Command, sync::Arc};
 
 use axum::{
     body::Bytes,
@@ -13,8 +13,9 @@ use tracing::error;
 
 use crate::{
     opanel::OPanel,
+    save::{Save, SaveError},
     storage::TextFile,
-    utils::{file::is_safe_file_name, pumpkin_config},
+    utils::pumpkin_config,
     web::response::{ApiError, ApiResponse},
 };
 
@@ -178,24 +179,21 @@ pub(super) async fn switch_save(
     let Some(save_name) = query.save else {
         return ApiError::new(StatusCode::BAD_REQUEST, "Save name is missing.").into_response();
     };
-    if !is_safe_file_name(&save_name) {
-        return ApiError::new(StatusCode::BAD_REQUEST, "Illegal save name.").into_response();
-    }
-
-    if !Path::new(&save_name).join("level.dat").is_file() {
-        return ApiError::new(StatusCode::NOT_FOUND, "Cannot find the save.").into_response();
-    }
-
-    let server = &opanel.context().server;
-    match super::saves::select_save(
-        &save_name,
-        server.basic_config.default_gamemode,
-        server.basic_config.default_difficulty,
-        server.level_info.load().difficulty_locked,
-        server.basic_config.hardcore,
-    )
-    .await
-    {
+    let save = match Save::open(Arc::clone(&opanel.context().server), &save_name).await {
+        Ok(save) => save,
+        Err(SaveError::InvalidName) => {
+            return ApiError::new(StatusCode::BAD_REQUEST, "Illegal save name.").into_response();
+        }
+        Err(SaveError::NotFound) => {
+            return ApiError::new(StatusCode::NOT_FOUND, "Cannot find the save.").into_response();
+        }
+        Err(error) => {
+            error!(%error, save = save_name, "failed to open Pumpkin save");
+            return ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
+                .into_response();
+        }
+    };
+    match save.set_current().await {
         Ok(()) => ApiResponse::ok(EmptyPayload {}).into_response(),
         Err(error) => {
             error!(%error, save = save_name, "failed to switch Pumpkin save");

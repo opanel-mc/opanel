@@ -13,32 +13,21 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64_STANDARD};
-use pumpkin::data::datapack::DatapackManager;
-use pumpkin_nbt::{
-    compound::NbtCompound,
-    nbt_compress::{read_gzip_compound_tag, write_gzip_compound_tag},
-    tag::NbtTag,
-};
 use pumpkin_util::{Difficulty, GameMode};
 use serde::{Deserialize, Serialize};
 use tokio::io::AsyncWriteExt;
-use toml_edit::{DocumentMut, Item, Value, value};
 use tracing::{error, warn};
-use zip::{ZipArchive, ZipWriter, write::SimpleFileOptions};
+use zip::ZipArchive;
 
 use crate::{
     opanel::OPanel,
-    utils::{
-        file::{absolute_path_string, is_safe_file_name},
-        pumpkin_config,
-    },
+    save::{LEVEL_DATA_FILE, Save, SaveEdit, SaveError, SaveSnapshot},
+    utils::file::{is_safe_file_name, random_temporary_path},
     web::{
         controller::control::EmptyPayload,
         response::{ApiError, ApiResponse},
     },
 };
-
-const LEVEL_DATA_FILE: &str = "level.dat";
 
 #[derive(Debug, Serialize)]
 struct SavesPayload {
@@ -59,6 +48,24 @@ struct SavePayload {
     is_difficulty_locked: bool,
     is_hardcore: bool,
     datapacks: BTreeMap<String, bool>,
+}
+
+impl From<SaveSnapshot> for SavePayload {
+    fn from(snapshot: SaveSnapshot) -> Self {
+        Self {
+            name: snapshot.name,
+            display_name: BASE64_STANDARD.encode(snapshot.display_name),
+            path: snapshot.path,
+            size: snapshot.size,
+            is_running: snapshot.is_running,
+            is_current: snapshot.is_current,
+            default_game_mode: snapshot.game_mode.name().to_string(),
+            difficulty: snapshot.difficulty.name().to_string(),
+            is_difficulty_locked: snapshot.difficulty_locked,
+            is_hardcore: snapshot.hardcore,
+            datapacks: snapshot.datapacks,
+        }
+    }
 }
 
 #[derive(Debug, Serialize)]
@@ -82,14 +89,6 @@ pub(super) struct DatapackQuery {
     enabled: Option<String>,
 }
 
-#[derive(Clone, Copy, Debug)]
-struct SaveSettings {
-    game_mode: GameMode,
-    difficulty: Difficulty,
-    difficulty_locked: bool,
-    hardcore: bool,
-}
-
 #[derive(Debug, thiserror::Error)]
 enum ArchiveError {
     #[error(transparent)]
@@ -105,68 +104,36 @@ enum ArchiveError {
 }
 
 pub(super) async fn get_saves(State(opanel): State<Arc<OPanel>>) -> Response {
-    let server = &opanel.context().server;
-    let running_save = server.basic_config.default_level_name.clone();
-    let runtime_settings = SaveSettings {
-        game_mode: server.basic_config.default_gamemode,
-        difficulty: server.basic_config.default_difficulty,
-        difficulty_locked: server.level_info.load().difficulty_locked,
-        hardcore: server.basic_config.hardcore,
-    };
-    let (configured_save, configured_settings) =
-        match configured_save_configuration(runtime_settings).await {
-            Ok(configuration) => configuration,
-            Err(error) => {
-                return internal_error("failed to read Pumpkin save configuration", error);
-            }
-        };
-    let current_save = configured_save.unwrap_or_else(|| running_save.clone());
-
-    let scan = |running_save: String, current_save: String| {
-        tokio::task::spawn_blocking(move || {
-            scan_saves(
-                &running_save,
-                &current_save,
-                configured_settings,
-                runtime_settings,
-            )
-        })
-    };
-    let mut saves = match scan(running_save.clone(), current_save.clone()).await {
-        Ok(Ok(saves)) => saves,
-        Ok(Err(error)) => return internal_error("failed to scan saves", error),
-        Err(error) => return internal_error("save scan task failed", error),
+    let server = Arc::clone(&opanel.context().server);
+    let mut saves = match Save::list(Arc::clone(&server)).await {
+        Ok(saves) => saves,
+        Err(error) => return save_error("failed to scan saves", error),
     };
 
     if saves.is_empty() {
         if let Err(error) = server.save_all().await {
             warn!(%error, "failed to save Pumpkin worlds before retrying save discovery");
         }
-        saves = match scan(running_save, current_save).await {
-            Ok(Ok(saves)) => saves,
-            Ok(Err(error)) => return internal_error("failed to scan saves", error),
-            Err(error) => return internal_error("save scan task failed", error),
+        saves = match Save::list(server).await {
+            Ok(saves) => saves,
+            Err(error) => return save_error("failed to scan saves", error),
         };
     }
 
-    ApiResponse::ok(SavesPayload { saves }).into_response()
+    ApiResponse::ok(SavesPayload {
+        saves: saves.into_iter().map(SavePayload::from).collect(),
+    })
+    .into_response()
 }
 
 pub(super) async fn download_save(
     State(opanel): State<Arc<OPanel>>,
     AxumPath(save_name): AxumPath<String>,
 ) -> Response {
-    let save_path = match validated_save_path(&save_name) {
-        Ok(path) => path,
-        Err(error) => return error.into_response(),
+    let save = match open_save(&opanel, &save_name).await {
+        Ok(save) => save,
+        Err(error) => return save_error("failed to open save", error),
     };
-    let server = &opanel.context().server;
-    if server.basic_config.default_level_name == save_name
-        && let Err(error) = server.save_all().await
-    {
-        return internal_error("failed to save the running world", error);
-    }
-
     let temporary_directory = std::env::temp_dir().join("opanel");
     if let Err(error) = tokio::fs::create_dir_all(&temporary_directory).await {
         return internal_error("failed to create the temporary directory", error);
@@ -175,20 +142,9 @@ pub(super) async fn download_save(
         Ok(path) => path,
         Err(error) => return internal_error("failed to create an archive name", error),
     };
-    let archive_source = save_path.clone();
-    let archive_target = archive_path.clone();
-    match tokio::task::spawn_blocking(move || create_save_archive(&archive_source, &archive_target))
-        .await
-    {
-        Ok(Ok(())) => {}
-        Ok(Err(error)) => {
-            let _ = tokio::fs::remove_file(&archive_path).await;
-            return internal_error("failed to archive save", error);
-        }
-        Err(error) => {
-            let _ = tokio::fs::remove_file(&archive_path).await;
-            return internal_error("save archive task failed", error);
-        }
+    if let Err(error) = save.archive_to(&archive_path).await {
+        let _ = tokio::fs::remove_file(&archive_path).await;
+        return save_error("failed to archive save", error);
     }
 
     let download = match opanel
@@ -299,9 +255,9 @@ pub(super) async fn edit_save(
     AxumPath(save_name): AxumPath<String>,
     body: Bytes,
 ) -> Response {
-    let save_path = match validated_save_path(&save_name) {
-        Ok(path) => path,
-        Err(error) => return error.into_response(),
+    let save = match open_save(&opanel, &save_name).await {
+        Ok(save) => save,
+        Err(error) => return save_error("failed to open save", error),
     };
     let request: SaveEditRequest = match serde_json::from_slice(&body) {
         Ok(request) => request,
@@ -315,74 +271,26 @@ pub(super) async fn edit_save(
         Ok(display_name) => display_name,
         Err(error) => return bad_request(format!("Invalid display name: {error}")),
     };
-    let requested_game_mode = match GameMode::from_str(&request.default_game_mode) {
+    let game_mode = match GameMode::from_str(&request.default_game_mode) {
         Ok(game_mode) => game_mode,
         Err(_) => return bad_request("Invalid default game mode."),
     };
-    let requested_difficulty = match Difficulty::from_str(&request.difficulty) {
+    let difficulty = match Difficulty::from_str(&request.difficulty) {
         Ok(difficulty) => difficulty,
         Err(_) => return bad_request("Invalid difficulty."),
     };
-    let settings = if request.is_hardcore {
-        SaveSettings {
-            game_mode: GameMode::Survival,
-            difficulty: Difficulty::Hard,
-            difficulty_locked: true,
-            hardcore: true,
-        }
-    } else {
-        SaveSettings {
-            game_mode: requested_game_mode,
-            difficulty: requested_difficulty,
-            difficulty_locked: request.is_difficulty_locked,
-            hardcore: false,
-        }
-    };
-    let server = &opanel.context().server;
-    let (configured_save, _) = match configured_save_configuration(settings).await {
-        Ok(configuration) => configuration,
-        Err(error) => return internal_error("failed to read Pumpkin save configuration", error),
-    };
-    let configured_save =
-        configured_save.unwrap_or_else(|| server.basic_config.default_level_name.clone());
-    let is_running = server.basic_config.default_level_name == save_name;
-    if is_running && let Err(error) = server.save_all().await {
-        return internal_error("failed to save the running world before editing it", error);
-    }
-    let metadata_path = save_path.clone();
-    match tokio::task::spawn_blocking(move || {
-        edit_save_metadata(&metadata_path, &display_name, settings)
-    })
-    .await
-    {
-        Ok(Ok(())) => {}
-        Ok(Err(error)) => return internal_error("failed to edit save metadata", error),
-        Err(error) => return internal_error("save metadata task failed", error),
-    }
+    let edit = SaveEdit::new(
+        display_name,
+        game_mode,
+        difficulty,
+        request.is_difficulty_locked,
+        request.is_hardcore,
+    );
 
-    if configured_save == save_name
-        && let Err(error) = update_pumpkin_save_settings(settings).await
-    {
-        return internal_error("failed to update Pumpkin save settings", error);
+    match save.apply_edit(edit).await {
+        Ok(()) => ApiResponse::ok(EmptyPayload {}).into_response(),
+        Err(error) => save_error("failed to edit save", error),
     }
-    if is_running {
-        // Pumpkin currently has no runtime API for changing hardcore mode. The value has
-        // already been persisted to level.dat and pumpkin.toml above, but the running
-        // server continues using basic_config.hardcore until it is restarted.
-        let level_info = server.level_info.load();
-        let difficulty_changed = level_info.difficulty != settings.difficulty;
-        let difficulty_lock_changed = level_info.difficulty_locked != settings.difficulty_locked;
-        drop(level_info);
-
-        if difficulty_changed {
-            server.set_difficulty(settings.difficulty, true);
-        }
-        if difficulty_lock_changed {
-            server.set_difficulty_locked(settings.difficulty_locked);
-        }
-    }
-
-    ApiResponse::ok(EmptyPayload {}).into_response()
 }
 
 pub(super) async fn toggle_save_datapack(
@@ -390,9 +298,9 @@ pub(super) async fn toggle_save_datapack(
     AxumPath(save_name): AxumPath<String>,
     Query(query): Query<DatapackQuery>,
 ) -> Response {
-    let save_path = match validated_save_path(&save_name) {
-        Ok(path) => path,
-        Err(error) => return error.into_response(),
+    let save = match open_save(&opanel, &save_name).await {
+        Ok(save) => save,
+        Err(error) => return save_error("failed to open save", error),
     };
     let (Some(datapack), Some(enabled)) = (query.datapack, query.enabled) else {
         return bad_request("Datapack id or status is missing.");
@@ -402,397 +310,29 @@ pub(super) async fn toggle_save_datapack(
             .into_response();
     }
     let enable = enabled == "1";
-    let metadata_path = save_path;
-    let metadata_datapack = datapack.clone();
-    let changed = match tokio::task::spawn_blocking(move || {
-        toggle_datapack(&metadata_path, &metadata_datapack, enable)
-    })
-    .await
-    {
-        Ok(Ok(changed)) => changed,
-        Ok(Err(error)) => return internal_error("failed to toggle save datapack", error),
-        Err(error) => return internal_error("datapack task failed", error),
-    };
 
-    let server = &opanel.context().server;
-    if changed && server.basic_config.default_level_name == save_name {
-        let mut level_info = (**server.level_info.load()).clone();
-        let source = if enable {
-            &mut level_info.data_packs.disabled
-        } else {
-            &mut level_info.data_packs.enabled
-        };
-        source.retain(|entry| entry != &datapack);
-        let target = if enable {
-            &mut level_info.data_packs.enabled
-        } else {
-            &mut level_info.data_packs.disabled
-        };
-        if !target.contains(&datapack) {
-            target.push(datapack);
-        }
-        server.level_info.store(Arc::new(level_info));
-        if let Err(error) = DatapackManager::reload(server) {
-            return internal_error("failed to reload Pumpkin datapacks", error);
-        }
+    match save.toggle_datapack(datapack, enable).await {
+        Ok(()) => ApiResponse::ok(EmptyPayload {}).into_response(),
+        Err(error) => save_error("failed to toggle save datapack", error),
     }
-
-    ApiResponse::ok(EmptyPayload {}).into_response()
 }
 
 pub(super) async fn delete_save(
     State(opanel): State<Arc<OPanel>>,
     AxumPath(save_name): AxumPath<String>,
 ) -> Response {
-    let save_path = match validated_save_path(&save_name) {
-        Ok(path) => path,
-        Err(error) => return error.into_response(),
+    let save = match open_save(&opanel, &save_name).await {
+        Ok(save) => save,
+        Err(error) => return save_error("failed to open save", error),
     };
-    let server = &opanel.context().server;
-    let (configured_save, _) = match configured_save_configuration(SaveSettings {
-        game_mode: server.basic_config.default_gamemode,
-        difficulty: server.basic_config.default_difficulty,
-        difficulty_locked: server.level_info.load().difficulty_locked,
-        hardcore: server.basic_config.hardcore,
-    })
-    .await
-    {
-        Ok(configuration) => configuration,
-        Err(error) => return internal_error("failed to read Pumpkin save configuration", error),
-    };
-    let configured_save =
-        configured_save.unwrap_or_else(|| server.basic_config.default_level_name.clone());
-    if server.basic_config.default_level_name == save_name || configured_save == save_name {
-        return ApiError::new(StatusCode::FORBIDDEN, "You cannot delete current save.")
-            .into_response();
-    }
-
-    match tokio::task::spawn_blocking(move || fs::remove_dir_all(save_path)).await {
-        Ok(Ok(())) => ApiResponse::ok(EmptyPayload {}).into_response(),
-        Ok(Err(error)) => internal_error("failed to delete save", error),
-        Err(error) => internal_error("save deletion task failed", error),
+    match save.delete().await {
+        Ok(()) => ApiResponse::ok(EmptyPayload {}).into_response(),
+        Err(error) => save_error("failed to delete save", error),
     }
 }
 
-fn scan_saves(
-    running_save: &str,
-    current_save: &str,
-    fallback: SaveSettings,
-    runtime_settings: SaveSettings,
-) -> Result<Vec<SavePayload>, String> {
-    let mut saves = Vec::new();
-    for entry in fs::read_dir(".").map_err(|error| error.to_string())? {
-        let entry = entry.map_err(|error| error.to_string())?;
-        let path = entry.path();
-        let file_type = entry.file_type().map_err(|error| error.to_string())?;
-        if !file_type.is_dir() || file_type.is_symlink() || !path.join(LEVEL_DATA_FILE).is_file() {
-            continue;
-        }
-        let Some(name) = entry.file_name().to_str().map(ToOwned::to_owned) else {
-            continue;
-        };
-        let mut metadata = read_save_metadata(&path, fallback)?;
-        let is_running = name == running_save;
-        let is_current = name == current_save;
-        if is_running {
-            metadata.game_mode = runtime_settings.game_mode;
-            metadata.hardcore = runtime_settings.hardcore;
-        }
-        saves.push(SavePayload {
-            display_name: BASE64_STANDARD.encode(metadata.display_name),
-            path: absolute_path_string(&path).map_err(|error| error.to_string())?,
-            size: directory_size(&path).map_err(|error| error.to_string())?,
-            is_running,
-            is_current,
-            default_game_mode: metadata.game_mode.name().to_string(),
-            difficulty: metadata.difficulty.name().to_string(),
-            is_difficulty_locked: metadata.difficulty_locked,
-            is_hardcore: metadata.hardcore,
-            datapacks: metadata.datapacks,
-            name,
-        });
-    }
-    saves.sort_by(|left, right| left.name.cmp(&right.name));
-    Ok(saves)
-}
-
-#[derive(Debug)]
-struct SaveMetadata {
-    display_name: String,
-    game_mode: GameMode,
-    difficulty: Difficulty,
-    difficulty_locked: bool,
-    hardcore: bool,
-    datapacks: BTreeMap<String, bool>,
-}
-
-impl SaveMetadata {
-    const fn settings(&self) -> SaveSettings {
-        SaveSettings {
-            game_mode: self.game_mode,
-            difficulty: self.difficulty,
-            difficulty_locked: self.difficulty_locked,
-            hardcore: self.hardcore,
-        }
-    }
-}
-
-fn read_save_metadata(path: &Path, fallback: SaveSettings) -> Result<SaveMetadata, String> {
-    let root = read_level_data(path)?;
-    let data = root
-        .get_compound("Data")
-        .ok_or_else(|| "level.dat is missing the Data compound".to_string())?;
-    let display_name = data
-        .get_string("LevelName")
-        .map(ToOwned::to_owned)
-        .or_else(|| path.file_name()?.to_str().map(ToOwned::to_owned))
-        .unwrap_or_default();
-    let game_mode = data
-        .get_int("GameType")
-        .and_then(|value| GameMode::try_from(value).ok())
-        .unwrap_or(fallback.game_mode);
-    let modern_difficulty = data.get_compound("difficulty_settings");
-    let difficulty = modern_difficulty
-        .and_then(|settings| settings.get_string("difficulty"))
-        .and_then(|value| Difficulty::from_str(value).ok())
-        .or_else(|| {
-            data.get_byte("Difficulty")
-                .and_then(|value| difficulty_from_id(value).ok())
-        })
-        .unwrap_or(fallback.difficulty);
-    let difficulty_locked = modern_difficulty
-        .and_then(|settings| settings.get_bool("locked"))
-        .or_else(|| data.get_bool("DifficultyLocked"))
-        .unwrap_or(fallback.difficulty_locked);
-    let hardcore = modern_difficulty
-        .and_then(|settings| settings.get_bool("hardcore"))
-        .or_else(|| data.get_bool("hardcore"))
-        .unwrap_or(fallback.hardcore);
-    let mut datapacks = BTreeMap::new();
-    if let Some(packs) = data.get_compound("DataPacks") {
-        for datapack in strings_from_nbt(packs.get_list("Disabled")) {
-            datapacks.insert(datapack, false);
-        }
-        for datapack in strings_from_nbt(packs.get_list("Enabled")) {
-            datapacks.insert(datapack, true);
-        }
-    }
-    Ok(SaveMetadata {
-        display_name,
-        game_mode,
-        difficulty,
-        difficulty_locked,
-        hardcore,
-        datapacks,
-    })
-}
-
-fn edit_save_metadata(
-    path: &Path,
-    display_name: &str,
-    settings: SaveSettings,
-) -> Result<(), String> {
-    let mut root = read_level_data(path)?;
-    let data = data_compound_mut(&mut root)?;
-    data.put_string("LevelName", display_name.to_string());
-    data.put_int("GameType", settings.game_mode as i32);
-    data.put_byte("Difficulty", settings.difficulty as i8);
-    data.put_bool("DifficultyLocked", settings.difficulty_locked);
-    data.put_bool("hardcore", settings.hardcore);
-    let mut modern = data
-        .get_compound("difficulty_settings")
-        .cloned()
-        .unwrap_or_default();
-    modern.put_string("difficulty", settings.difficulty.name().to_string());
-    modern.put_bool("locked", settings.difficulty_locked);
-    modern.put_bool("hardcore", settings.hardcore);
-    data.put_compound("difficulty_settings", modern);
-    write_level_data(path, root)
-}
-
-fn toggle_datapack(path: &Path, datapack: &str, enable: bool) -> Result<bool, String> {
-    let mut root = read_level_data(path)?;
-    let data = data_compound_mut(&mut root)?;
-    let mut packs = data.get_compound("DataPacks").cloned().unwrap_or_default();
-    let mut enabled = strings_from_nbt(packs.get_list("Enabled"));
-    let mut disabled = strings_from_nbt(packs.get_list("Disabled"));
-    let exists = enabled.iter().any(|entry| entry == datapack)
-        || disabled.iter().any(|entry| entry == datapack);
-    if !exists {
-        return Ok(false);
-    }
-    let already_enabled = enabled.iter().any(|entry| entry == datapack);
-    if already_enabled == enable {
-        return Ok(false);
-    }
-    enabled.retain(|entry| entry != datapack);
-    disabled.retain(|entry| entry != datapack);
-    if enable {
-        enabled.push(datapack.to_string());
-    } else {
-        disabled.push(datapack.to_string());
-    }
-    packs.put_list("Enabled", strings_to_nbt(&enabled));
-    packs.put_list("Disabled", strings_to_nbt(&disabled));
-    data.put_compound("DataPacks", packs);
-    write_level_data(path, root)?;
-    Ok(true)
-}
-
-fn read_level_data(path: &Path) -> Result<NbtCompound, String> {
-    let file = File::open(path.join(LEVEL_DATA_FILE)).map_err(|error| error.to_string())?;
-    read_gzip_compound_tag(file).map_err(|error| error.to_string())
-}
-
-fn write_level_data(path: &Path, root: NbtCompound) -> Result<(), String> {
-    let level_data_path = path.join(LEVEL_DATA_FILE);
-    let backup_path = path.join("level.dat_old");
-    let temporary_path =
-        random_temporary_path(path, "level.dat.tmp").map_err(|error| error.to_string())?;
-    let result = (|| {
-        let mut file = File::create(&temporary_path).map_err(|error| error.to_string())?;
-        write_gzip_compound_tag(root, &mut file).map_err(|error| error.to_string())?;
-        file.sync_all().map_err(|error| error.to_string())?;
-        drop(file);
-
-        fs::copy(&level_data_path, &backup_path).map_err(|error| error.to_string())?;
-        replace_level_data(&temporary_path, &level_data_path, &backup_path)
-    })();
-    if result.is_err() {
-        let _ = fs::remove_file(temporary_path);
-    }
-    result
-}
-
-fn replace_level_data(temporary: &Path, target: &Path, _backup: &Path) -> Result<(), String> {
-    #[cfg(not(windows))]
-    {
-        fs::rename(temporary, target).map_err(|error| error.to_string())
-    }
-
-    #[cfg(windows)]
-    {
-        fs::remove_file(target).map_err(|error| error.to_string())?;
-        if let Err(error) = fs::rename(temporary, target) {
-            return match fs::copy(_backup, target) {
-                Ok(_) => Err(error.to_string()),
-                Err(restore_error) => Err(format!(
-                    "{error}; failed to restore level.dat from backup: {restore_error}"
-                )),
-            };
-        }
-        Ok(())
-    }
-}
-
-fn data_compound_mut(root: &mut NbtCompound) -> Result<&mut NbtCompound, String> {
-    match root.child_tags.get_mut("Data") {
-        Some(NbtTag::Compound(data)) => Ok(data),
-        _ => Err("level.dat is missing the Data compound".to_string()),
-    }
-}
-
-fn strings_from_nbt(tags: Option<&[NbtTag]>) -> Vec<String> {
-    tags.unwrap_or_default()
-        .iter()
-        .filter_map(|tag| tag.extract_string().map(ToOwned::to_owned))
-        .collect()
-}
-
-fn strings_to_nbt(values: &[String]) -> Vec<NbtTag> {
-    values
-        .iter()
-        .map(|value| NbtTag::from(value.as_str()))
-        .collect()
-}
-
-fn difficulty_from_id(value: i8) -> Result<Difficulty, ()> {
-    match value {
-        0 => Ok(Difficulty::Peaceful),
-        1 => Ok(Difficulty::Easy),
-        2 => Ok(Difficulty::Normal),
-        3 => Ok(Difficulty::Hard),
-        _ => Err(()),
-    }
-}
-
-fn validated_save_path(save_name: &str) -> Result<PathBuf, ApiError> {
-    if !is_safe_file_name(save_name) {
-        return Err(ApiError::new(StatusCode::BAD_REQUEST, "Illegal save name."));
-    }
-    let path = PathBuf::from(save_name);
-    let valid = fs::symlink_metadata(&path)
-        .map(|metadata| metadata.is_dir() && !metadata.file_type().is_symlink())
-        .unwrap_or(false)
-        && path.join(LEVEL_DATA_FILE).is_file();
-    if !valid {
-        return Err(ApiError::new(
-            StatusCode::NOT_FOUND,
-            "Cannot find the specified save.",
-        ));
-    }
-    Ok(path)
-}
-
-fn directory_size(path: &Path) -> std::io::Result<u64> {
-    let mut size = 0;
-    for entry in fs::read_dir(path)? {
-        let entry = entry?;
-        let metadata = fs::symlink_metadata(entry.path())?;
-        if metadata.file_type().is_symlink() {
-            continue;
-        }
-        if metadata.is_dir() {
-            size += directory_size(&entry.path())?;
-        } else if metadata.is_file() {
-            size += metadata.len();
-        }
-    }
-    Ok(size)
-}
-
-fn create_save_archive(source: &Path, target: &Path) -> Result<(), ArchiveError> {
-    let root_name = source
-        .file_name()
-        .and_then(|name| name.to_str())
-        .ok_or(ArchiveError::InvalidSave)?;
-    let file = File::create(target)?;
-    let mut writer = ZipWriter::new(file);
-    add_directory_to_archive(&mut writer, source, root_name)?;
-    writer.finish()?;
-    Ok(())
-}
-
-fn add_directory_to_archive(
-    writer: &mut ZipWriter<File>,
-    directory: &Path,
-    archive_prefix: &str,
-) -> Result<(), ArchiveError> {
-    let options = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
-    for entry in fs::read_dir(directory)? {
-        let entry = entry?;
-        let name = entry.file_name();
-        let Some(name) = name.to_str() else {
-            continue;
-        };
-        if name.ends_with("session.lock") {
-            continue;
-        }
-        let metadata = fs::symlink_metadata(entry.path())?;
-        if metadata.file_type().is_symlink() {
-            continue;
-        }
-        let archive_name = format!("{archive_prefix}/{name}");
-        if metadata.is_dir() {
-            writer.add_directory(format!("{archive_name}/"), options)?;
-            add_directory_to_archive(writer, &entry.path(), &archive_name)?;
-        } else if metadata.is_file() {
-            writer.start_file(archive_name, options)?;
-            let mut input = File::open(entry.path())?;
-            std::io::copy(&mut input, writer)?;
-        }
-    }
-    Ok(())
+async fn open_save(opanel: &OPanel, save_name: &str) -> Result<Save, SaveError> {
+    Save::open(Arc::clone(&opanel.context().server), save_name).await
 }
 
 fn extract_save_archive(
@@ -852,121 +392,16 @@ fn extract_save_archive_inner(
     Ok(())
 }
 
-fn random_temporary_path(directory: &Path, extension: &str) -> std::io::Result<PathBuf> {
-    let mut random = [0_u8; 16];
-    getrandom::fill(&mut random).map_err(std::io::Error::other)?;
-    let name: String = random.iter().map(|byte| format!("{byte:02x}")).collect();
-    Ok(directory.join(format!("{name}.{extension}")))
-}
-
-pub(super) async fn select_save(
-    save_name: &str,
-    fallback_game_mode: GameMode,
-    fallback_difficulty: Difficulty,
-    fallback_difficulty_locked: bool,
-    fallback_hardcore: bool,
-) -> Result<(), std::io::Error> {
-    let save_path = PathBuf::from(save_name);
-    let fallback = SaveSettings {
-        game_mode: fallback_game_mode,
-        difficulty: fallback_difficulty,
-        difficulty_locked: fallback_difficulty_locked,
-        hardcore: fallback_hardcore,
-    };
-    let metadata = tokio::task::spawn_blocking(move || read_save_metadata(&save_path, fallback))
-        .await
-        .map_err(std::io::Error::other)?
-        .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))?;
-    let contents = pumpkin_config::read_to_string().await?;
-    let mut document = pumpkin_config::parse(&contents)
-        .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))?;
-    set_save_configuration(&mut document, Some(save_name), metadata.settings());
-    pumpkin_config::write(document.to_string()).await
-}
-
-async fn configured_save_configuration(
-    fallback: SaveSettings,
-) -> Result<(Option<String>, SaveSettings), std::io::Error> {
-    let contents = pumpkin_config::read_to_string().await?;
-    let document = pumpkin_config::parse(&contents)
-        .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))?;
-    let save_name = document
-        .get("default_level_name")
-        .and_then(Item::as_str)
-        .map(ToOwned::to_owned);
-    let game_mode = document
-        .get("default_gamemode")
-        .and_then(Item::as_str)
-        .and_then(parse_config_game_mode)
-        .unwrap_or(fallback.game_mode);
-    let difficulty = document
-        .get("default_difficulty")
-        .and_then(Item::as_str)
-        .and_then(parse_config_difficulty)
-        .unwrap_or(fallback.difficulty);
-    let hardcore = document
-        .get("hardcore")
-        .and_then(Item::as_bool)
-        .unwrap_or(fallback.hardcore);
-    Ok((
-        save_name,
-        SaveSettings {
-            game_mode,
-            difficulty,
-            difficulty_locked: fallback.difficulty_locked,
-            hardcore,
-        },
-    ))
-}
-
-async fn update_pumpkin_save_settings(settings: SaveSettings) -> Result<(), std::io::Error> {
-    let contents = pumpkin_config::read_to_string().await?;
-    let mut document = pumpkin_config::parse(&contents)
-        .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))?;
-    set_save_configuration(&mut document, None, settings);
-    pumpkin_config::write(document.to_string()).await
-}
-
-fn set_save_configuration(
-    document: &mut DocumentMut,
-    save_name: Option<&str>,
-    settings: SaveSettings,
-) {
-    if let Some(save_name) = save_name {
-        set_toml_value(document, "default_level_name", Value::from(save_name));
-    }
-    set_toml_value(
-        document,
-        "default_gamemode",
-        Value::from(settings.game_mode.to_str()),
-    );
-    let difficulty = match settings.difficulty {
-        Difficulty::Peaceful => "Peaceful",
-        Difficulty::Easy => "Easy",
-        Difficulty::Normal => "Normal",
-        Difficulty::Hard => "Hard",
-    };
-    set_toml_value(document, "default_difficulty", Value::from(difficulty));
-    set_toml_value(document, "hardcore", Value::from(settings.hardcore));
-}
-
-fn parse_config_game_mode(value: &str) -> Option<GameMode> {
-    GameMode::from_str(&value.to_ascii_lowercase()).ok()
-}
-
-fn parse_config_difficulty(value: &str) -> Option<Difficulty> {
-    Difficulty::from_str(&value.to_ascii_lowercase()).ok()
-}
-
-fn set_toml_value(document: &mut DocumentMut, key: &str, new_value: Value) {
-    let item = document
-        .as_table_mut()
-        .entry(key)
-        .or_insert_with(|| value(new_value.clone()));
-    let decor = item.as_value().map(|old_value| old_value.decor().clone());
-    *item = Item::Value(new_value);
-    if let (Some(decor), Some(value)) = (decor, item.as_value_mut()) {
-        *value.decor_mut() = decor;
+fn save_error(context: &str, error: SaveError) -> Response {
+    match error {
+        SaveError::InvalidName => bad_request("Illegal save name."),
+        SaveError::NotFound => {
+            ApiError::new(StatusCode::NOT_FOUND, "Cannot find the specified save.").into_response()
+        }
+        SaveError::ActiveSave => {
+            ApiError::new(StatusCode::FORBIDDEN, "You cannot delete current save.").into_response()
+        }
+        error => internal_error(context, error),
     }
 }
 
@@ -983,6 +418,8 @@ fn internal_error(context: &str, error: impl std::fmt::Display) -> Response {
 mod tests {
     use std::io::Write;
 
+    use zip::{ZipWriter, write::SimpleFileOptions};
+
     use super::*;
 
     fn temporary_directory(label: &str) -> PathBuf {
@@ -991,90 +428,30 @@ mod tests {
         path
     }
 
-    fn write_test_level_data(path: &Path) {
-        fs::create_dir_all(path).unwrap();
-        let mut data = NbtCompound::new();
-        data.put_string("LevelName", "Original".to_string());
-        data.put_int("GameType", GameMode::Creative as i32);
-        data.put_byte("Difficulty", Difficulty::Easy as i8);
-        data.put_bool("DifficultyLocked", false);
-        data.put_bool("hardcore", false);
-        data.put_long("UnknownField", 42);
-        let mut packs = NbtCompound::new();
-        packs.put_list(
-            "Enabled",
-            vec![NbtTag::from("vanilla"), NbtTag::from("file/example")],
-        );
-        packs.put_list("Disabled", vec![NbtTag::from("file/disabled")]);
-        data.put_compound("DataPacks", packs);
-        let mut root = NbtCompound::new();
-        root.put_compound("Data", data);
-        write_gzip_compound_tag(root, File::create(path.join(LEVEL_DATA_FILE)).unwrap()).unwrap();
-    }
-
     #[test]
-    fn editing_metadata_preserves_unknown_fields_and_enforces_hardcore_settings() {
-        let directory = temporary_directory("save-metadata");
-        write_test_level_data(&directory);
-        let settings = SaveSettings {
-            game_mode: GameMode::Survival,
-            difficulty: Difficulty::Hard,
-            difficulty_locked: true,
-            hardcore: true,
-        };
+    fn extraction_accepts_an_archive_with_a_nested_save_folder() {
+        let directory = temporary_directory("archive-target");
+        let archive_path = directory.join("world.zip");
+        let mut writer = ZipWriter::new(File::create(&archive_path).unwrap());
+        writer
+            .start_file("world/level.dat", SimpleFileOptions::default())
+            .unwrap();
+        writer.write_all(b"level data").unwrap();
+        writer
+            .start_file("world/notes.txt", SimpleFileOptions::default())
+            .unwrap();
+        writer.write_all(b"hello").unwrap();
+        writer.finish().unwrap();
+        let target = directory.join("world");
 
-        edit_save_metadata(&directory, "Renamed", settings).unwrap();
-
-        let root = read_level_data(&directory).unwrap();
-        let data = root.get_compound("Data").unwrap();
-        assert_eq!(data.get_string("LevelName"), Some("Renamed"));
-        assert_eq!(data.get_int("GameType"), Some(0));
-        assert_eq!(data.get_byte("Difficulty"), Some(3));
-        assert_eq!(data.get_bool("DifficultyLocked"), Some(true));
-        assert_eq!(data.get_bool("hardcore"), Some(true));
-        assert_eq!(data.get_long("UnknownField"), Some(42));
-        let modern = data.get_compound("difficulty_settings").unwrap();
-        assert_eq!(modern.get_string("difficulty"), Some("hard"));
-        assert_eq!(modern.get_bool("locked"), Some(true));
-        assert_eq!(modern.get_bool("hardcore"), Some(true));
-        let backup =
-            read_gzip_compound_tag(File::open(directory.join("level.dat_old")).unwrap()).unwrap();
-        assert_eq!(
-            backup.get_compound("Data").unwrap().get_string("LevelName"),
-            Some("Original")
-        );
-        assert!(!fs::read_dir(&directory).unwrap().any(|entry| {
-            entry
-                .unwrap()
-                .file_name()
-                .to_string_lossy()
-                .ends_with(".level.dat.tmp")
-        }));
-        fs::remove_dir_all(directory).unwrap();
-    }
-
-    #[test]
-    fn archive_round_trip_accepts_a_nested_save_folder_and_skips_session_lock() {
-        let source_parent = temporary_directory("archive-source");
-        let source = source_parent.join("world");
-        write_test_level_data(&source);
-        fs::write(source.join("notes.txt"), "hello").unwrap();
-        fs::write(source.join("session.lock"), "locked").unwrap();
-        let archive = source_parent.join("world.zip");
-        create_save_archive(&source, &archive).unwrap();
-
-        let extraction_parent = temporary_directory("archive-target");
-        let target = extraction_parent.join("world");
-        extract_save_archive(&archive, &target, "world").unwrap();
+        extract_save_archive(&archive_path, &target, "world").unwrap();
 
         assert!(target.join(LEVEL_DATA_FILE).is_file());
         assert_eq!(
             fs::read_to_string(target.join("notes.txt")).unwrap(),
             "hello"
         );
-        assert!(!target.join("session.lock").exists());
-        fs::remove_dir_all(source_parent).unwrap();
-        fs::remove_dir_all(extraction_parent).unwrap();
+        fs::remove_dir_all(directory).unwrap();
     }
 
     #[test]
@@ -1095,64 +472,5 @@ mod tests {
         assert!(!target.exists());
         assert!(!directory.join("outside.txt").exists());
         fs::remove_dir_all(directory).unwrap();
-    }
-
-    #[test]
-    fn toggling_a_known_datapack_moves_it_between_lists() {
-        let directory = temporary_directory("datapack");
-        write_test_level_data(&directory);
-
-        assert!(toggle_datapack(&directory, "file/example", false).unwrap());
-        assert!(!toggle_datapack(&directory, "file/missing", true).unwrap());
-
-        let metadata = read_save_metadata(
-            &directory,
-            SaveSettings {
-                game_mode: GameMode::Survival,
-                difficulty: Difficulty::Normal,
-                difficulty_locked: false,
-                hardcore: false,
-            },
-        )
-        .unwrap();
-        assert_eq!(metadata.datapacks.get("file/example"), Some(&false));
-        assert_eq!(metadata.datapacks.get("vanilla"), Some(&true));
-        fs::remove_dir_all(directory).unwrap();
-    }
-
-    #[test]
-    fn selected_save_configuration_preserves_unrelated_settings_and_comments() {
-        let source = r#"# server
-default_level_name = "world" # keep this comment
-default_gamemode = "Survival"
-default_difficulty = "Normal"
-hardcore = false
-
-[networking.java]
-motd = "Hello"
-"#;
-        let mut document = source.parse::<DocumentMut>().unwrap();
-        set_save_configuration(
-            &mut document,
-            Some("new world"),
-            SaveSettings {
-                game_mode: GameMode::Adventure,
-                difficulty: Difficulty::Hard,
-                difficulty_locked: true,
-                hardcore: true,
-            },
-        );
-        let updated = document.to_string();
-        let document = updated.parse::<DocumentMut>().unwrap();
-
-        assert_eq!(document["default_level_name"].as_str(), Some("new world"));
-        assert_eq!(document["default_gamemode"].as_str(), Some("Adventure"));
-        assert_eq!(document["default_difficulty"].as_str(), Some("Hard"));
-        assert_eq!(document["hardcore"].as_bool(), Some(true));
-        assert_eq!(
-            document["networking"]["java"]["motd"].as_str(),
-            Some("Hello")
-        );
-        assert!(updated.contains("# keep this comment"));
     }
 }
