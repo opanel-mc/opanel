@@ -124,7 +124,12 @@ pub(super) async fn get_saves(State(opanel): State<Arc<OPanel>>) -> Response {
 
     let scan = |running_save: String, current_save: String| {
         tokio::task::spawn_blocking(move || {
-            scan_saves(&running_save, &current_save, configured_settings)
+            scan_saves(
+                &running_save,
+                &current_save,
+                configured_settings,
+                runtime_settings,
+            )
         })
     };
     let mut saves = match scan(running_save.clone(), current_save.clone()).await {
@@ -473,6 +478,7 @@ fn scan_saves(
     running_save: &str,
     current_save: &str,
     fallback: SaveSettings,
+    runtime_settings: SaveSettings,
 ) -> Result<Vec<SavePayload>, String> {
     let mut saves = Vec::new();
     for entry in fs::read_dir(".").map_err(|error| error.to_string())? {
@@ -488,9 +494,9 @@ fn scan_saves(
         let mut metadata = read_save_metadata(&path, fallback)?;
         let is_running = name == running_save;
         let is_current = name == current_save;
-        if is_current {
-            metadata.game_mode = fallback.game_mode;
-            metadata.hardcore = fallback.hardcore;
+        if is_running {
+            metadata.game_mode = runtime_settings.game_mode;
+            metadata.hardcore = runtime_settings.hardcore;
         }
         saves.push(SavePayload {
             display_name: BASE64_STANDARD.encode(metadata.display_name),
