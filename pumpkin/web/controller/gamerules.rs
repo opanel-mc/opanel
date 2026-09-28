@@ -6,6 +6,7 @@ use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
 };
+use pumpkin::command::CommandSender;
 use pumpkin_data::game_rules::{GameRule, GameRuleRegistry, GameRuleValue};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -67,12 +68,14 @@ pub(super) async fn change_gamerule(
 
     let server = &opanel.context().server;
     let current_info = server.level_info.load();
-    let mut updated = (**current_info).clone();
-    if let Err(error) = apply_gamerules(&mut updated.game_rules, &changes) {
-        return bad_request(error);
-    }
+    let commands = match gamerule_commands(&current_info.game_rules, &changes) {
+        Ok(commands) => commands,
+        Err(error) => return bad_request(error),
+    };
     drop(current_info);
-    server.level_info.store(Arc::new(updated));
+    if let Err(error) = execute_gamerule_commands(server, &commands) {
+        return ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, error).into_response();
+    }
 
     ApiResponse::ok(EmptyPayload {}).into_response()
 }
@@ -102,13 +105,15 @@ pub(super) async fn patch_gamerule(
         Ok(value) => value,
         Err(error) => return bad_request(error),
     };
-    let mut updated = (**current_info).clone();
     let changes = BTreeMap::from([(key, value)]);
-    if let Err(error) = apply_gamerules(&mut updated.game_rules, &changes) {
-        return bad_request(error);
-    }
+    let commands = match gamerule_commands(&current_info.game_rules, &changes) {
+        Ok(commands) => commands,
+        Err(error) => return bad_request(error),
+    };
     drop(current_info);
-    server.level_info.store(Arc::new(updated));
+    if let Err(error) = execute_gamerule_commands(server, &commands) {
+        return ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, error).into_response();
+    }
 
     ApiResponse::ok(EmptyPayload {}).into_response()
 }
@@ -126,26 +131,46 @@ fn gamerules_payload(registry: &GameRuleRegistry) -> BTreeMap<String, Value> {
         .collect()
 }
 
-fn apply_gamerules(
-    registry: &mut GameRuleRegistry,
+fn gamerule_commands(
+    registry: &GameRuleRegistry,
     changes: &BTreeMap<String, Value>,
-) -> Result<(), String> {
+) -> Result<Vec<String>, String> {
+    let mut commands = Vec::new();
     for (key, value) in changes {
         let rule =
             find_gamerule(key).ok_or_else(|| format!("Cannot find the gamerule '{key}'."))?;
-        match registry.get_mut(&rule) {
-            GameRuleValue::Bool(target) => {
+        match registry.get(&rule) {
+            GameRuleValue::Bool(current) => {
                 let Some(value) = value.as_bool() else {
                     return Err(format!("Gamerule '{key}' requires a boolean value."));
                 };
-                *target = value;
+                if *current != value {
+                    commands.push(format!("gamerule {rule} {value}"));
+                }
             }
-            GameRuleValue::Int(target) => {
+            GameRuleValue::Int(current) => {
                 let value = json_integer(value)
                     .ok_or_else(|| format!("Gamerule '{key}' requires a numeric value."))?;
-                *target = value;
+                if *current != value {
+                    commands.push(format!("gamerule {rule} {value}"));
+                }
             }
         }
+    }
+    Ok(commands)
+}
+
+fn execute_gamerule_commands(
+    server: &Arc<pumpkin::server::Server>,
+    commands: &[String],
+) -> Result<(), String> {
+    let source = CommandSender::Dummy.into_source(server);
+    let dispatcher = server.command_dispatcher.load();
+
+    for command in commands {
+        dispatcher
+            .execute_input(command, &source)
+            .map_err(|error| error.message.get_text())?;
     }
     Ok(())
 }
@@ -204,29 +229,50 @@ mod tests {
 
     #[test]
     fn batch_updates_are_typed_and_reject_unknown_rules() {
-        let mut registry = GameRuleRegistry::default();
+        let registry = GameRuleRegistry::default();
         let changes = BTreeMap::from([
             ("keep_inventory".to_string(), Value::Bool(true)),
             ("random_tick_speed".to_string(), Value::from(6)),
         ]);
 
-        apply_gamerules(&mut registry, &changes).unwrap();
-        assert!(registry.keep_inventory);
-        assert_eq!(registry.random_tick_speed, 6);
+        assert_eq!(
+            gamerule_commands(&registry, &changes).unwrap(),
+            [
+                "gamerule keep_inventory true",
+                "gamerule random_tick_speed 6"
+            ]
+        );
         assert!(
-            apply_gamerules(
-                &mut registry,
+            gamerule_commands(
+                &registry,
                 &BTreeMap::from([("missing".to_string(), Value::Bool(true))])
             )
             .is_err()
         );
         assert!(
-            apply_gamerules(
-                &mut registry,
+            gamerule_commands(
+                &registry,
                 &BTreeMap::from([("keep_inventory".to_string(), Value::from(1))])
             )
             .is_err()
         );
+    }
+
+    #[test]
+    fn unchanged_gamerules_do_not_generate_commands() {
+        let registry = GameRuleRegistry::default();
+        let changes = BTreeMap::from([
+            (
+                "keep_inventory".to_string(),
+                Value::Bool(registry.keep_inventory),
+            ),
+            (
+                "random_tick_speed".to_string(),
+                Value::from(registry.random_tick_speed),
+            ),
+        ]);
+
+        assert!(gamerule_commands(&registry, &changes).unwrap().is_empty());
     }
 
     #[test]
