@@ -18,17 +18,17 @@ use pumpkin_util::text::TextComponent;
 use serde::Serialize;
 use sysinfo::{CpuRefreshKind, MemoryRefreshKind, RefreshKind, System};
 use thiserror::Error;
-use tokio::fs;
-use toml_edit::{DocumentMut, Item, Table, value};
+use toml_edit::{Item, Table, value};
 use tracing::error;
 
 use crate::{
     opanel::OPanel,
-    utils::time::{IngameTime, unix_time_millis},
+    utils::{
+        pumpkin_config::{self, PUMPKIN_CONFIG_PATH},
+        time::{IngameTime, unix_time_millis},
+    },
     web::response::{ApiError, ApiResponse},
 };
-
-const PUMPKIN_CONFIG_PATH: &str = "pumpkin.toml";
 
 const BASE64_ENGINE: GeneralPurpose = GeneralPurpose::new(
     &alphabet::STANDARD,
@@ -206,17 +206,17 @@ fn collect_system_info() -> SystemInfo {
 }
 
 async fn persist_motd(motd: &str) -> Result<(), PersistMotdError> {
-    let contents = fs::read_to_string(PUMPKIN_CONFIG_PATH)
+    let contents = pumpkin_config::read_to_string()
         .await
         .map_err(PersistMotdError::Read)?;
     let updated = update_motd_document(&contents, motd).map_err(PersistMotdError::InvalidConfig)?;
-    fs::write(PUMPKIN_CONFIG_PATH, updated)
+    pumpkin_config::write(updated)
         .await
         .map_err(PersistMotdError::Write)
 }
 
 fn update_motd_document(contents: &str, motd: &str) -> Result<String, UpdateMotdDocumentError> {
-    let mut document = contents.parse::<DocumentMut>()?;
+    let mut document = pumpkin_config::parse(contents)?;
     let networking_item = document
         .as_table_mut()
         .entry("networking")

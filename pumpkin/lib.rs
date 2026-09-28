@@ -11,11 +11,13 @@ use tracing::info;
 use crate::{opanel::OPanel, web::WebServer};
 
 mod config;
+mod downloads;
 mod event;
 mod managers;
 mod map;
 mod monitor;
 mod opanel;
+mod save;
 mod storage;
 mod task;
 mod terminal;

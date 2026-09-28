@@ -1,8 +1,4 @@
-use std::{
-    path::{Component, Path},
-    process::Command,
-    sync::Arc,
-};
+use std::{process::Command, sync::Arc};
 
 use axum::{
     body::Bytes,
@@ -13,17 +9,16 @@ use axum::{
 use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64_STANDARD};
 use pumpkin::data::datapack::DatapackManager;
 use serde::{Deserialize, Serialize};
-use tokio::fs;
-use toml_edit::{DocumentMut, Item, value};
 use tracing::error;
 
 use crate::{
     opanel::OPanel,
+    save::{Save, SaveError},
     storage::TextFile,
+    utils::pumpkin_config,
     web::response::{ApiError, ApiResponse},
 };
 
-const PUMPKIN_CONFIG_PATH: &str = "pumpkin.toml";
 const LAUNCH_COMMAND_FILE: TextFile = TextFile::new("launch-command.txt", "");
 
 #[derive(Debug, Serialize)]
@@ -52,13 +47,13 @@ struct RestartCommand {
 }
 
 pub(super) async fn get_server_properties(State(_opanel): State<Arc<OPanel>>) -> Response {
-    match fs::read(PUMPKIN_CONFIG_PATH).await {
+    match pumpkin_config::read().await {
         Ok(properties) => ApiResponse::ok(PropertiesPayload {
             properties: BASE64_STANDARD.encode(properties),
         })
         .into_response(),
         Err(error) => {
-            error!(%error, path = PUMPKIN_CONFIG_PATH, "failed to read Pumpkin configuration");
+            error!(%error, path = pumpkin_config::PUMPKIN_CONFIG_PATH, "failed to read Pumpkin configuration");
             ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, error.to_string()).into_response()
         }
     }
@@ -98,16 +93,16 @@ pub(super) async fn set_server_properties(
             .into_response();
         }
     };
-    if let Err(error) = configuration.parse::<DocumentMut>() {
+    if let Err(error) = pumpkin_config::parse(&configuration) {
         error!(%error, "invalid Pumpkin configuration");
         return ApiError::new(StatusCode::BAD_REQUEST, "Invalid Pumpkin configuration.")
             .into_response();
     }
 
-    match fs::write(PUMPKIN_CONFIG_PATH, configuration).await {
+    match pumpkin_config::write(configuration).await {
         Ok(()) => ApiResponse::ok(EmptyPayload {}).into_response(),
         Err(error) => {
-            error!(%error, path = PUMPKIN_CONFIG_PATH, "failed to write Pumpkin configuration");
+            error!(%error, path = pumpkin_config::PUMPKIN_CONFIG_PATH, "failed to write Pumpkin configuration");
             ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, error.to_string()).into_response()
         }
     }
@@ -178,21 +173,27 @@ pub(super) async fn restart_server(State(opanel): State<Arc<OPanel>>) -> Respons
 }
 
 pub(super) async fn switch_save(
-    State(_opanel): State<Arc<OPanel>>,
+    State(opanel): State<Arc<OPanel>>,
     Query(query): Query<SwitchSaveQuery>,
 ) -> Response {
     let Some(save_name) = query.save else {
         return ApiError::new(StatusCode::BAD_REQUEST, "Save name is missing.").into_response();
     };
-    if !is_safe_file_name(&save_name) {
-        return ApiError::new(StatusCode::BAD_REQUEST, "Illegal save name.").into_response();
-    }
-
-    if !Path::new(&save_name).join("level.dat").is_file() {
-        return ApiError::new(StatusCode::NOT_FOUND, "Cannot find the save.").into_response();
-    }
-
-    match update_current_save(PUMPKIN_CONFIG_PATH, &save_name).await {
+    let save = match Save::open(Arc::clone(&opanel.context().server), &save_name).await {
+        Ok(save) => save,
+        Err(SaveError::InvalidName) => {
+            return ApiError::new(StatusCode::BAD_REQUEST, "Illegal save name.").into_response();
+        }
+        Err(SaveError::NotFound) => {
+            return ApiError::new(StatusCode::NOT_FOUND, "Cannot find the save.").into_response();
+        }
+        Err(error) => {
+            error!(%error, save = save_name, "failed to open Pumpkin save");
+            return ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
+                .into_response();
+        }
+    };
+    match save.set_current().await {
         Ok(()) => ApiResponse::ok(EmptyPayload {}).into_response(),
         Err(error) => {
             error!(%error, save = save_name, "failed to switch Pumpkin save");
@@ -266,38 +267,6 @@ fn unsupported_paper_config() -> ApiError {
     )
 }
 
-fn is_safe_file_name(file_name: &str) -> bool {
-    let path = Path::new(file_name);
-    let mut components = path.components();
-    !file_name.is_empty()
-        && !file_name.contains(['/', '\\', '\0'])
-        && matches!(components.next(), Some(Component::Normal(_)))
-        && components.next().is_none()
-}
-
-async fn update_current_save(path: &str, save_name: &str) -> Result<(), std::io::Error> {
-    let contents = fs::read_to_string(path).await?;
-    let updated = set_default_level_name(&contents, save_name)
-        .map_err(|error| std::io::Error::new(std::io::ErrorKind::InvalidData, error))?;
-    fs::write(path, updated).await
-}
-
-fn set_default_level_name(contents: &str, save_name: &str) -> Result<String, toml_edit::TomlError> {
-    let mut document = contents.parse::<DocumentMut>()?;
-    let level_name = document
-        .as_table_mut()
-        .entry("default_level_name")
-        .or_insert_with(|| value(save_name));
-    let decor = level_name
-        .as_value()
-        .map(|existing_value| existing_value.decor().clone());
-    *level_name = Item::Value(save_name.into());
-    if let (Some(decor), Some(updated_value)) = (decor, level_name.as_value_mut()) {
-        *updated_value.decor_mut() = decor;
-    }
-    Ok(document.to_string())
-}
-
 fn restart_command(launch_command: &str, delay_seconds: u64) -> RestartCommand {
     let delay_seconds = if delay_seconds == 0 {
         10
@@ -331,36 +300,6 @@ fn restart_command(launch_command: &str, delay_seconds: u64) -> RestartCommand {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn save_names_must_be_single_safe_path_components() {
-        for valid in ["world", "My World", "世界-1"] {
-            assert!(is_safe_file_name(valid), "{valid:?} should be valid");
-        }
-        for invalid in ["", ".", "..", "../world", "world/nether", "world\\nether"] {
-            assert!(!is_safe_file_name(invalid), "{invalid:?} should be invalid");
-        }
-    }
-
-    #[test]
-    fn changing_the_current_save_preserves_other_pumpkin_settings() {
-        let source = r#"# server
-default_level_name = "world" # keep this comment
-
-[networking.java]
-motd = "Hello"
-"#;
-
-        let updated = set_default_level_name(source, "new world").unwrap();
-        let document = updated.parse::<DocumentMut>().unwrap();
-
-        assert_eq!(document["default_level_name"].as_str(), Some("new world"));
-        assert_eq!(
-            document["networking"]["java"]["motd"].as_str(),
-            Some("Hello")
-        );
-        assert!(updated.contains("# keep this comment"));
-    }
 
     #[test]
     fn restart_command_enforces_a_positive_delay_and_keeps_the_launch_command() {
