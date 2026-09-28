@@ -36,6 +36,7 @@ pub struct OPanelConfig {
     pub salt: String,
     pub cookie_secure: bool,
     pub proxy_headers: bool,
+    pub server_restart_delay: u64,
 }
 
 impl Default for OPanelConfig {
@@ -47,6 +48,7 @@ impl Default for OPanelConfig {
             salt: String::new(),
             cookie_secure: false,
             proxy_headers: false,
+            server_restart_delay: 10,
         }
     }
 }
@@ -295,6 +297,7 @@ mod tests {
         assert!(config.salt.is_empty());
         assert!(!config.cookie_secure);
         assert!(!config.proxy_headers);
+        assert_eq!(config.server_restart_delay, 10);
         assert_eq!(
             serde_json::to_value(config).unwrap(),
             json!({
@@ -304,6 +307,7 @@ mod tests {
                 "salt": "",
                 "cookieSecure": false,
                 "proxyHeaders": false,
+                "serverRestartDelay": 10,
             })
         );
     }
@@ -322,6 +326,7 @@ mod tests {
         assert!(config.salt.is_empty());
         assert!(!config.cookie_secure);
         assert!(!config.proxy_headers);
+        assert_eq!(config.server_restart_delay, 10);
     }
 
     #[test]
@@ -390,6 +395,7 @@ mod tests {
             concat!(
                 "{{\"host\":\"{}\",\"port\":{},\"accessKey\":\"{}\",",
                 "\"salt\":\"{}\",\"cookieSecure\":{},\"proxyHeaders\":{},",
+                "\"serverRestartDelay\":{},",
                 "\"futureOption\":{{\"enabled\":true}}}}\n"
             ),
             first_config.host,
@@ -398,6 +404,7 @@ mod tests {
             first_config.salt,
             first_config.cookie_secure,
             first_config.proxy_headers,
+            first_config.server_restart_delay,
         );
         tokio::fs::write(&config_path, stored_with_future_field.as_bytes())
             .await
