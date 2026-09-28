@@ -643,7 +643,7 @@ fn write_level_data(path: &Path, root: NbtCompound) -> Result<(), String> {
     result
 }
 
-fn replace_level_data(temporary: &Path, target: &Path, backup: &Path) -> Result<(), String> {
+fn replace_level_data(temporary: &Path, target: &Path, _backup: &Path) -> Result<(), String> {
     #[cfg(not(windows))]
     {
         fs::rename(temporary, target).map_err(|error| error.to_string())
@@ -653,7 +653,7 @@ fn replace_level_data(temporary: &Path, target: &Path, backup: &Path) -> Result<
     {
         fs::remove_file(target).map_err(|error| error.to_string())?;
         if let Err(error) = fs::rename(temporary, target) {
-            return match fs::copy(backup, target) {
+            return match fs::copy(_backup, target) {
                 Ok(_) => Err(error.to_string()),
                 Err(restore_error) => Err(format!(
                     "{error}; failed to restore level.dat from backup: {restore_error}"
