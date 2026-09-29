@@ -100,6 +100,10 @@ pub(crate) enum StorageError {
 
 #[allow(dead_code)]
 impl Storage {
+    pub(crate) fn root(&self) -> &Path {
+        &self.root
+    }
+
     pub(crate) async fn open(root: PathBuf) -> Result<Self, StorageError> {
         fs::create_dir_all(&root)
             .await

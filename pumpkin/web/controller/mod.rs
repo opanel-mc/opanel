@@ -39,6 +39,8 @@ mod terminal;
 mod version;
 mod whitelist;
 
+pub(super) use assets::initialize as initialize_assets;
+
 pub fn router() -> Router<Arc<OPanel>> {
     let managed_router = Router::new()
         .nest("/assets", assets_router())

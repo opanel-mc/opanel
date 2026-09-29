@@ -48,6 +48,7 @@ pub enum WebServerError {
 
 impl WebServer {
     pub async fn start(opanel: Arc<OPanel>) -> Result<Self, WebServerError> {
+        controller::initialize_assets(&opanel).await;
         let config = opanel.config();
         let address = format!("{}:{}", config.host, config.port);
         let listener =
