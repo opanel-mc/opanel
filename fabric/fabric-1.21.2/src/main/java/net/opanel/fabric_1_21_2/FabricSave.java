@@ -3,6 +3,7 @@ package net.opanel.fabric_1_21_2;
 import net.minecraft.nbt.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.GameMode;
 import net.minecraft.world.level.LevelInfo;
 import net.minecraft.world.level.LevelProperties;
 import net.opanel.common.*;
@@ -54,12 +55,16 @@ public class FabricSave extends BaseFabricSave implements OPanelSave {
 
     @Override
     public OPanelGameMode getDefaultGameMode() {
+        if(isRunning()) return OPanelGameMode.fromId(server.getDefaultGameMode().getId());
+
         int gamemode = nbt.getInt("GameType");
         return OPanelGameMode.fromId(gamemode);
     }
 
     @Override
     public void setDefaultGameMode(OPanelGameMode gamemode) throws IOException {
+        if(isRunning()) server.setDefaultGameMode(GameMode.byId(gamemode.getId()));
+
         nbt.putInt("GameType", gamemode.getId());
         saveNbt();
     }

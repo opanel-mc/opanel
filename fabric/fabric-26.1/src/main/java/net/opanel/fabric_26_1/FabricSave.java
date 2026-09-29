@@ -7,6 +7,7 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.storage.PrimaryLevelData;
 import net.opanel.common.*;
@@ -73,12 +74,16 @@ public class FabricSave extends BaseFabricSave implements OPanelSave {
 
     @Override
     public OPanelGameMode getDefaultGameMode() {
+        if(isRunning()) return OPanelGameMode.fromId(server.getDefaultGameType().getId());
+
         int gamemode = nbt.getIntOr("GameType", 0);
         return OPanelGameMode.fromId(gamemode);
     }
 
     @Override
     public void setDefaultGameMode(OPanelGameMode gamemode) throws IOException {
+        if(isRunning()) server.setDefaultGameType(GameType.byId(gamemode.getId()));
+
         nbt.putInt("GameType", gamemode.getId());
         saveNbt();
     }

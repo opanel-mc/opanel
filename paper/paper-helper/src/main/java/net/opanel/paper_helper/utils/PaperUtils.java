@@ -9,25 +9,72 @@ import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.World;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PaperUtils {
     private static final boolean leaves = Utils.hasClass("org.leavesmc.leaves.LeavesConfig");
 
+    private static Object getWorldData(World world) throws ReflectiveOperationException {
+        Object handle = world.getClass().getMethod("getHandle").invoke(world);
+        // Paper 1.20.5+ uses Mojang names; older releases use Spigot/obfuscated names.
+        // getLevelData: 1.19.4 = n_, 1.20/1.20.1 = u_, 1.20.2 = z_, 1.20.3/1.20.4 = B_.
+        for(String name : new String[] {"getLevelData", "getWorldData", "n_", "u_", "z_", "B_"}) {
+            try {
+                Method method = handle.getClass().getMethod(name);
+                if(method.getReturnType().getPackageName().equals("net.minecraft.world.level.storage")) {
+                    return method.invoke(handle);
+                }
+            } catch (NoSuchMethodException e) {
+                // Try the mapping used by another supported server version.
+            }
+        }
+        throw new NoSuchMethodException("Cannot find the running world's level data");
+    }
+
+    public static boolean isDifficultyLocked(World world) throws IOException {
+        try {
+            Object worldData = getWorldData(world);
+            Method method;
+            try {
+                method = worldData.getClass().getMethod("isDifficultyLocked");
+            } catch (NoSuchMethodException e) {
+                method = worldData.getClass().getMethod("t"); // 1.19.4 - 1.20.4
+            }
+            return (boolean) method.invoke(worldData);
+        } catch (ReflectiveOperationException e) {
+            throw new IOException("Cannot read runtime difficulty lock", e);
+        }
+    }
+
+    public static void setDifficultyLocked(World world, boolean locked) throws IOException {
+        try {
+            Object worldData = getWorldData(world);
+            Method method;
+            try {
+                method = worldData.getClass().getMethod("setDifficultyLocked", boolean.class);
+            } catch (NoSuchMethodException e) {
+                method = worldData.getClass().getMethod("d", boolean.class); // 1.19.4 - 1.20.4
+            }
+            method.invoke(worldData, locked);
+        } catch (ReflectiveOperationException e) {
+            throw new IOException("Cannot update runtime difficulty lock", e);
+        }
+    }
+
     public static Object getDedicatedServer() throws ReflectiveOperationException {
         Server craftServer = Bukkit.getServer();
         return craftServer.getClass().getMethod("getServer").invoke(craftServer);
     }
 
-    /** Not compatible with <= 1.16.5 */
     public static CommandDispatcher<?> getCommandDispatcher(boolean obf) throws ReflectiveOperationException {
         Object dedicatedServer = getDedicatedServer();
         Object manager = dedicatedServer.getClass().getMethod(obf ? "aC" : "getCommands").invoke(dedicatedServer); // aC -> getCommands
         return (CommandDispatcher<?>) manager.getClass().getMethod(obf ? "a" : "getDispatcher").invoke(manager); // a -> getDispatcher
     }
 
-    /** Not compatible with <= 1.16.5 */
     public static void performCommand(String command, boolean obf) throws ReflectiveOperationException {
         Object dedicatedServer = PaperUtils.getDedicatedServer();
         Object manager = dedicatedServer.getClass().getMethod(obf ? "aC" : "getCommands").invoke(dedicatedServer); // aC -> getCommands
@@ -69,12 +116,10 @@ public class PaperUtils {
         return Bukkit.getWorlds().get(0);
     }
 
-    /** Not compatible with <= 1.16.5 */
     public static int getMinY(Server server) {
         return getMinY(server.getWorlds().get(0));
     }
 
-    /** Not compatible with <= 1.16.5 */
     public static int getMinY(World world) {
         try {
             return (int) world.getClass().getMethod("getMinHeight").invoke(world);

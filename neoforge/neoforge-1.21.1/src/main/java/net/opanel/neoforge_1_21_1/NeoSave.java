@@ -6,6 +6,7 @@ import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.dedicated.DedicatedServerProperties;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.PrimaryLevelData;
@@ -58,12 +59,16 @@ public class NeoSave extends BaseNeoSave implements OPanelSave {
 
     @Override
     public OPanelGameMode getDefaultGameMode() {
+        if(isRunning()) return OPanelGameMode.fromId(server.getDefaultGameType().getId());
+
         int gamemode = nbt.getInt("GameType");
         return OPanelGameMode.fromId(gamemode);
     }
 
     @Override
     public void setDefaultGameMode(OPanelGameMode gamemode) throws IOException {
+        if(isRunning()) server.setDefaultGameType(GameType.byId(gamemode.getId()));
+
         nbt.putInt("GameType", gamemode.getId());
         saveNbt();
     }

@@ -3,6 +3,7 @@ package net.opanel.forge_1_21_3;
 import net.minecraft.nbt.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.storage.PrimaryLevelData;
 import net.opanel.common.*;
@@ -54,12 +55,16 @@ public class ForgeSave extends BaseForgeSave implements OPanelSave {
 
     @Override
     public OPanelGameMode getDefaultGameMode() {
+        if(isRunning()) return OPanelGameMode.fromId(server.getDefaultGameType().getId());
+
         int gamemode = nbt.getInt("GameType");
         return OPanelGameMode.fromId(gamemode);
     }
 
     @Override
     public void setDefaultGameMode(OPanelGameMode gamemode) throws IOException {
+        if(isRunning()) server.setDefaultGameType(GameType.byId(gamemode.getId()));
+
         nbt.putInt("GameType", gamemode.getId());
         saveNbt();
     }

@@ -4,6 +4,7 @@ import de.tr7zw.changeme.nbtapi.handler.NBTHandlers;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 import net.opanel.annotation.Rewrite;
 import net.opanel.paper_helper.BasePaperSave;
+import net.opanel.paper_helper.utils.PaperUtils;
 import net.opanel.common.OPanelDifficulty;
 import net.opanel.common.OPanelSave;
 import net.opanel.common.OPanelWorldRegion;
@@ -72,13 +73,17 @@ public class PaperSave extends BasePaperSave implements OPanelSave {
 
     @Rewrite
     @Override
-    public boolean isDifficultyLocked() {
+    public boolean isDifficultyLocked() throws IOException {
+        if(isRunning()) return PaperUtils.isDifficultyLocked(getCurrentWorld());
+
         return difficultySettingsNbt.getByte("locked") == 1;
     }
 
     @Rewrite
     @Override
     public void setDifficultyLocked(boolean locked) throws IOException {
+        if(isRunning()) setRuntimeDifficultyLocked(locked);
+
         difficultySettingsNbt.setByte("locked", (byte) (locked ? 1 : 0));
         saveDifficultySettings();
     }
