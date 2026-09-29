@@ -1,10 +1,11 @@
 "use client";
 
+import type { APIResponse, VersionResponse } from "@/lib/types";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Fragment, useContext } from "react";
+import { useContext } from "react";
 import { compare } from "semver";
-import { Activity, Blocks, Box, ClockFading, Earth, Gauge, HeartHandshake, MapIcon, PaintBucket, PencilRuler, ScrollText, Settings, SquareTerminal, Unplug, Users } from "lucide-react";
+import { type LucideIcon, Activity, Blocks, Box, ClockFading, Earth, Gauge, HeartHandshake, MapIcon, PaintBucket, PencilRuler, ScrollText, Settings, SquareTerminal, Unplug, Users } from "lucide-react";
 import { SiModelcontextprotocol } from "@icons-pack/react-simple-icons";
 import {
   Sidebar,
@@ -27,7 +28,14 @@ import { Logo } from "./logo";
 import { ExtensionsContext, VersionContext } from "@/contexts/api-context";
 import { $ } from "@/lib/i18n";
 
-const serverGroupItems = [
+type SidebarItemDef = {
+  name: string
+  url: string
+  icon: LucideIcon
+  condition?: (versionCtx: APIResponse<VersionResponse>) => boolean
+};
+
+const serverGroupItems: SidebarItemDef[] = [
   {
     name: $("sidebar.server.dashboard"),
     url: "/panel/dashboard",
@@ -46,11 +54,12 @@ const serverGroupItems = [
   {
     name: $("sidebar.server.map"),
     url: "/panel/map",
-    icon: MapIcon
+    icon: MapIcon,
+    condition: ({ map }) => map
   }
 ];
 
-const managementGroupItems = [
+const managementGroupItems: SidebarItemDef[] = [
   {
     name: $("sidebar.management.saves"),
     url: "/panel/saves",
@@ -80,11 +89,11 @@ const managementGroupItems = [
     name: $("sidebar.management.code-of-conduct"),
     url: "/panel/code-of-conduct",
     icon: HeartHandshake,
-    minVersion: "1.21.9"
+    condition: ({ version }) => compare(version, "1.21.9") >= 0
   }
 ];
 
-const configurationGroupItems = [
+const configurationGroupItems: SidebarItemDef[] = [
   {
     name: $("sidebar.config.tasks"),
     url: "/panel/tasks",
@@ -93,7 +102,8 @@ const configurationGroupItems = [
   {
     name: $("sidebar.config.paper-config"),
     url: "/panel/paper-config",
-    icon: PaintBucket
+    icon: PaintBucket,
+    condition: ({ serverType }) => isPaperSeries(serverType)
   },
   {
     name: "MCP",
@@ -107,9 +117,30 @@ const configurationGroupItems = [
   }
 ];
 
-export function AppSidebar() {
+function ItemRenderer(item: SidebarItemDef) {
   const pathname = usePathname();
   const versionCtx = useContext(VersionContext);
+
+  if(item.condition && (!versionCtx || !item.condition(versionCtx))) {
+    return <></>;
+  }
+
+  return (
+    <SidebarMenuItem>
+      <SidebarMenuButton
+        isActive={pathname.startsWith(item.url)}
+        asChild>
+        <Link href={item.url} className="pl-3">
+          {pathname.startsWith(item.url) && <SidebarIndicator className="left-2"/>}
+          <item.icon />
+          <span className="whitespace-nowrap">{item.name}</span>
+        </Link>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  );
+}
+
+export function AppSidebar() {
   const extensionPages = useContext(ExtensionsContext);
 
   return (
@@ -124,21 +155,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {serverGroupItems.map((item, i) => (
-                item.url === "/panel/map" && !versionCtx?.map
-                ? null
-                : (
-                  <SidebarMenuItem key={i}>
-                    <SidebarMenuButton
-                      isActive={pathname.startsWith(item.url)}
-                      asChild>
-                      <Link href={item.url} className="pl-3">
-                        {pathname.startsWith(item.url) && <SidebarIndicator className="left-2"/>}
-                        <item.icon />
-                        <span className="whitespace-nowrap">{item.name}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )
+                <ItemRenderer {...item} key={i}/>
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
@@ -147,18 +164,8 @@ export function AppSidebar() {
           <SidebarGroupLabel>{$("sidebar.management")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {managementGroupItems.map((item, i) => (!item.minVersion || (versionCtx && compare(versionCtx.version, item.minVersion) >= 0)) && (
-                <SidebarMenuItem key={i}>
-                  <SidebarMenuButton
-                    isActive={pathname.startsWith(item.url)}
-                    asChild>
-                    <Link href={item.url} className="pl-3">
-                      {pathname.startsWith(item.url) && <SidebarIndicator className="left-2"/>}
-                      <item.icon />
-                      <span className="whitespace-nowrap">{item.name}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+              {managementGroupItems.map((item, i) => (
+                <ItemRenderer {...item} key={i}/>
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
@@ -168,21 +175,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {configurationGroupItems.map((item, i) => (
-                (item.url === "/panel/paper-config" && (!versionCtx || !isPaperSeries(versionCtx.serverType)))
-                ? <Fragment key={i}/>
-                : (
-                  <SidebarMenuItem key={i}>
-                    <SidebarMenuButton
-                      isActive={pathname.startsWith(item.url)}
-                      asChild>
-                      <Link href={item.url} className="pl-3">
-                        {pathname.startsWith(item.url) && <SidebarIndicator className="left-2"/>}
-                        <item.icon />
-                        <span className="whitespace-nowrap">{item.name}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )
+                <ItemRenderer {...item} key={i}/>
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
@@ -193,17 +186,7 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 {extensionPages.map((item, i) => (
-                  <SidebarMenuItem key={i}>
-                    <SidebarMenuButton
-                      isActive={pathname.startsWith(item.url)}
-                      asChild>
-                      <Link href={item.url} className="pl-3">
-                        {pathname.startsWith(item.url) && <SidebarIndicator className="left-2"/>}
-                        <Box />
-                        <span className="whitespace-nowrap">{item.name}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  <ItemRenderer {...item} icon={Box} key={i}/>
                 ))}
               </SidebarMenu>
             </SidebarGroupContent>
