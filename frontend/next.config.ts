@@ -13,10 +13,7 @@ const nextConfig: NextConfig = {
   deploymentId,
   generateBuildId: async () => deploymentId,
   output: "export",
-  // vinext beta currently follows its own trailing-slash redirect as a
-  // dynamic response while prerendering. The bundle step restores the
-  // route/index.html layout expected by Javalin.
-  trailingSlash: false,
+  trailingSlash: true,
 };
 
 export default nextConfig;
