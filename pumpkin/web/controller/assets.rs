@@ -26,9 +26,13 @@ const IMAGE_EXTENSIONS: [&str; 4] = ["png", "jpg", "jpeg", "webp"];
 const LOGIN_BANNER: &[u8] =
     include_bytes!("../../../core/src/main/resources/default-login-banner.png");
 
+const KNOWN_ASSETS: &[(&str, &[u8])] = &[("login-banner", LOGIN_BANNER)];
+
 pub(crate) async fn initialize(opanel: &OPanel) {
-    if let Err(error) = load_asset(opanel.storage().root(), "login-banner").await {
-        error!(%error, "failed to load the login banner");
+    for &(name, default_resource) in KNOWN_ASSETS {
+        if let Err(error) = load_asset(opanel.storage().root(), name, default_resource).await {
+            error!(%error, asset = name, "failed to load panel asset");
+        }
     }
 }
 
@@ -63,18 +67,20 @@ pub(super) async fn reset_asset(
     State(opanel): State<Arc<OPanel>>,
     AxumPath(name): AxumPath<String>,
 ) -> Result<ApiResponse<EmptyPayload>, ApiError> {
-    require_known_asset(&name, "Asset not found.")?;
-    replace_asset(opanel.storage().root(), &name, "png", LOGIN_BANNER)
+    let default_resource = require_known_asset(&name, "Asset not found.")?;
+    replace_asset(opanel.storage().root(), &name, "png", default_resource)
         .await
         .map_err(asset_error)?;
     Ok(ApiResponse::ok(EmptyPayload {}))
 }
 
-fn require_known_asset(name: &str, message: &'static str) -> Result<(), ApiError> {
-    if name != "login-banner" {
-        return Err(ApiError::new(StatusCode::NOT_FOUND, message));
-    }
-    Ok(())
+fn require_known_asset(name: &str, message: &'static str) -> Result<&'static [u8], ApiError> {
+    KNOWN_ASSETS
+        .iter()
+        .find_map(|&(known_name, default_resource)| {
+            (name == known_name).then_some(default_resource)
+        })
+        .ok_or_else(|| ApiError::new(StatusCode::NOT_FOUND, message))
 }
 
 fn image_extension(file_name: &str) -> Result<&str, ApiError> {
@@ -91,8 +97,10 @@ fn image_extension(file_name: &str) -> Result<&str, ApiError> {
 }
 
 async fn asset_response(directory: &Path, name: &str) -> Result<Response, ApiError> {
-    require_known_asset(name, "Asset not found.")?;
-    let path = load_asset(directory, name).await.map_err(asset_error)?;
+    let default_resource = require_known_asset(name, "Asset not found.")?;
+    let path = load_asset(directory, name, default_resource)
+        .await
+        .map_err(asset_error)?;
     let file = fs::File::open(&path).await.map_err(asset_error)?;
     let content_type = mime_guess::from_path(&path).first_or_octet_stream();
     Ok((
@@ -102,7 +110,7 @@ async fn asset_response(directory: &Path, name: &str) -> Result<Response, ApiErr
         .into_response())
 }
 
-async fn load_asset(directory: &Path, name: &str) -> io::Result<PathBuf> {
+async fn load_asset(directory: &Path, name: &str, default_resource: &[u8]) -> io::Result<PathBuf> {
     for extension in IMAGE_EXTENSIONS {
         let path = directory.join(format!("{name}.{extension}"));
         if fs::try_exists(&path).await? {
@@ -110,7 +118,7 @@ async fn load_asset(directory: &Path, name: &str) -> io::Result<PathBuf> {
         }
     }
     let path = directory.join(format!("{name}.png"));
-    fs::write(&path, LOGIN_BANNER).await?;
+    fs::write(&path, default_resource).await?;
     Ok(path)
 }
 
@@ -151,23 +159,21 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn extracts_and_restores_the_default_banner() {
+    async fn extracts_and_restores_the_default_assets() {
         let directory = temporary_directory().await;
-        for _ in 0..2 {
-            let response = asset_response(&directory, "login-banner").await.unwrap();
-            assert_eq!(response.status(), StatusCode::OK);
-            assert_eq!(response.headers()[CONTENT_TYPE], "image/png");
-            assert_eq!(
-                to_bytes(response.into_body(), usize::MAX).await.unwrap(),
-                LOGIN_BANNER
-            );
-            assert_eq!(
-                fs::read(directory.join("login-banner.png")).await.unwrap(),
-                LOGIN_BANNER
-            );
-            fs::remove_file(directory.join("login-banner.png"))
-                .await
-                .unwrap();
+        for &(name, default_resource) in KNOWN_ASSETS {
+            let path = directory.join(format!("{name}.png"));
+            for _ in 0..2 {
+                let response = asset_response(&directory, name).await.unwrap();
+                assert_eq!(response.status(), StatusCode::OK);
+                assert_eq!(response.headers()[CONTENT_TYPE], "image/png");
+                assert_eq!(
+                    to_bytes(response.into_body(), usize::MAX).await.unwrap(),
+                    default_resource
+                );
+                assert_eq!(fs::read(&path).await.unwrap(), default_resource);
+                fs::remove_file(&path).await.unwrap();
+            }
         }
         fs::remove_dir_all(directory).await.unwrap();
     }
@@ -200,9 +206,13 @@ mod tests {
         assert!(!directory.join("login-banner.webp").exists());
         assert!(!directory.join("login-banner.jpg").exists());
         assert_eq!(
-            fs::read(load_asset(&directory, "login-banner").await.unwrap())
-                .await
-                .unwrap(),
+            fs::read(
+                load_asset(&directory, "login-banner", LOGIN_BANNER)
+                    .await
+                    .unwrap()
+            )
+            .await
+            .unwrap(),
             LOGIN_BANNER
         );
         fs::remove_dir_all(directory).await.unwrap();
