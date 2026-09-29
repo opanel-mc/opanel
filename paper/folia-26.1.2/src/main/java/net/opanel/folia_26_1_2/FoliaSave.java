@@ -6,6 +6,7 @@ import net.opanel.annotation.Rewrite;
 import net.opanel.paper_helper.BasePaperSave;
 import net.opanel.paper_helper.utils.PaperUtils;
 import net.opanel.common.OPanelDifficulty;
+import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelSave;
 import net.opanel.common.OPanelWorldRegion;
 import org.bukkit.Difficulty;
@@ -105,6 +106,11 @@ public class FoliaSave extends BasePaperSave implements OPanelSave {
 
         difficultySettingsNbt.setByte("hardcore", (byte) (enabled ? 1 : 0));
         saveDifficultySettings();
+    }
+
+    @Override
+    protected void setRuntimeDefaultGameMode(OPanelGameMode gamemode) {
+        runner.runTask(() -> super.setRuntimeDefaultGameMode(gamemode));
     }
 
     @Override

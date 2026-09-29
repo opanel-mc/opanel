@@ -115,10 +115,14 @@ public abstract class BasePaperSave implements OPanelSave, PaperDimensionFeature
 
     @Override
     public void setDefaultGameMode(OPanelGameMode gamemode) throws IOException {
-        if(isRunning()) server.setDefaultGameMode(GameMode.valueOf(gamemode.name()));
+        if(isRunning()) setRuntimeDefaultGameMode(gamemode);
 
         nbt.setInteger("GameType", gamemode.getId());
         saveNbt();
+    }
+
+    protected void setRuntimeDefaultGameMode(OPanelGameMode gamemode) {
+        server.setDefaultGameMode(GameMode.valueOf(gamemode.name()));
     }
 
     @Override
