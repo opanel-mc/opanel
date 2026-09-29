@@ -20,6 +20,8 @@ use super::control::EmptyPayload;
 
 const ICON_PATH: &str = "server-icon.png";
 const DATA_URI_PREFIX: &str = "data:image/png;base64,";
+// Allow decoder working memory while keeping the budget small for a 64x64 icon.
+const ICON_DECODE_MAX_ALLOC: u64 = 8 * 1024 * 1024;
 
 pub(super) async fn get_favicon(State(opanel): State<Arc<OPanel>>) -> Result<Response, ApiError> {
     let context = opanel.context();
@@ -85,7 +87,9 @@ fn validate_favicon(file_name: &str, bytes: &[u8]) -> Result<(), ApiError> {
         ));
     }
     // Match Java's ImageIO behavior: the suffix is checked separately from decoding.
-    let dimensions = image::dimensions(bytes)
+    let mut limits = ::image::Limits::default();
+    limits.max_alloc = Some(ICON_DECODE_MAX_ALLOC);
+    let dimensions = image::dimensions(bytes, limits.clone())
         .map_err(|_| ApiError::new(StatusCode::BAD_REQUEST, "Illegal image bytes"))?;
     if dimensions != (64, 64) {
         return Err(ApiError::new(
@@ -93,7 +97,11 @@ fn validate_favicon(file_name: &str, bytes: &[u8]) -> Result<(), ApiError> {
             "Server favicon should be 64*64 sized.",
         ));
     }
-    Ok(())
+    // Decode only after checking dimensions, so damaged pixel data is still rejected.
+    limits.max_image_width = Some(64);
+    limits.max_image_height = Some(64);
+    image::validate(bytes, limits)
+        .map_err(|_| ApiError::new(StatusCode::BAD_REQUEST, "Illegal image bytes"))
 }
 
 fn update_favicon_document(contents: &str) -> Result<String, ApiError> {
@@ -180,6 +188,46 @@ mod tests {
                 StatusCode::BAD_REQUEST
             );
         }
+    }
+
+    #[tokio::test]
+    async fn rejects_large_dimensions_before_decoding_pixel_data() {
+        // PNG header for a 10000x10000 RGB8 image, ending at the IDAT header.
+        // No large pixel buffer is needed to construct or inspect this fixture.
+        let bytes = [
+            137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 39, 16, 0, 0, 39,
+            16, 8, 2, 0, 0, 0, 53, 44, 245, 112, 0, 0, 0, 0, 73, 68, 65, 84,
+        ];
+        let response = validate_favicon("icon.png", &bytes)
+            .unwrap_err()
+            .into_response();
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        assert_eq!(
+            serde_json::from_slice::<serde_json::Value>(&body).unwrap()["error"],
+            "Server favicon should be 64*64 sized."
+        );
+    }
+
+    #[tokio::test]
+    async fn rejects_damaged_pixel_data_even_when_dimensions_are_valid() {
+        let mut bytes = image_bytes(64, 64, ImageFormat::Png);
+        let idat = bytes.windows(4).position(|chunk| chunk == b"IDAT").unwrap();
+        bytes.truncate(idat + 4);
+        assert_eq!(
+            image::dimensions(&bytes, ::image::Limits::default()).unwrap(),
+            (64, 64)
+        );
+
+        let response = validate_favicon("icon.png", &bytes)
+            .unwrap_err()
+            .into_response();
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+        let body = to_bytes(response.into_body(), usize::MAX).await.unwrap();
+        assert_eq!(
+            serde_json::from_slice::<serde_json::Value>(&body).unwrap()["error"],
+            "Illegal image bytes"
+        );
     }
 
     #[tokio::test]
