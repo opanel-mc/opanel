@@ -74,7 +74,7 @@ fn resolve_asset_path(request_path: &str) -> Result<String, ()> {
     let mut path = segments.join("/");
     let last_segment = segments.last().ok_or(())?;
     if !last_segment.contains('.') {
-        path.push_str(".html");
+        path.push_str("/index.html");
     }
     Ok(path)
 }
@@ -283,15 +283,16 @@ mod tests {
 
     #[tokio::test]
     async fn serves_nested_pages_and_caches_hashed_assets() {
-        let nested = serve(
-            Request::get("/panel/dashboard")
-                .body(axum::body::Body::empty())
-                .unwrap(),
-        )
-        .await;
-        assert_eq!(nested.status(), StatusCode::OK);
-        assert_eq!(nested.headers()[header::CONTENT_TYPE], "text/html");
-        assert_eq!(nested.headers()[header::CACHE_CONTROL], NO_CACHE);
+        for path in [
+            "/panel/dashboard",
+            "/panel/dashboard/",
+            "/panel/dashboard/index.html",
+        ] {
+            let nested = serve(Request::get(path).body(axum::body::Body::empty()).unwrap()).await;
+            assert_eq!(nested.status(), StatusCode::OK, "{path}");
+            assert_eq!(nested.headers()[header::CONTENT_TYPE], "text/html");
+            assert_eq!(nested.headers()[header::CACHE_CONTROL], NO_CACHE);
+        }
 
         let asset = assets::iter()
             .find(|path| path.starts_with("_next/static/"))
