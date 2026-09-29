@@ -112,6 +112,8 @@ describe("test terminal page", () => {
       expect(wsRef.current?.client.send).toHaveBeenCalledWith("command", "say test");
     });
 
+    expect(screen.queryByRole("button", { name: "say test" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "[terminal.history]" }));
     expect(screen.getByRole("button", { name: "say test" })).toBeInTheDocument();
     expect(changeSettingsSpy).toHaveBeenCalledWith(
       "state.terminal.history",
@@ -145,18 +147,20 @@ describe("test terminal page", () => {
       ["help", "say one", "say two", "say three"]
     );
 
+    fireEvent.click(screen.getByRole("button", { name: "[terminal.history]" }));
     expect(screen.getByRole("button", { name: "say one" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "say two" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "say three" })).toBeInTheDocument();
   });
 
-  it("should focus input and fill command from history on click, then execute on double click", async () => {
+  it("should fill command from history on click, then execute and focus input on double click", async () => {
     settingsRef.current = createTerminalSettingsState({
       history: ["say from history"],
       shortcuts: [{ name: "Set Day", command: "time set day" }]
     });
     render(<Terminal />);
 
+    fireEvent.click(screen.getByRole("button", { name: "[terminal.history]" }));
     const historyButton = screen.getByRole("button", { name: "say from history" });
     const input = screen.getByTestId("terminal-input") as HTMLInputElement;
     input.blur();
@@ -164,12 +168,13 @@ describe("test terminal page", () => {
     fireEvent.click(historyButton);
 
     expect(input.value).toBe("say from history");
-    expect(input).toHaveFocus();
     expect(wsRef.current?.client.send).not.toHaveBeenCalledWith("command", "say from history");
 
     fireEvent.doubleClick(historyButton);
     await waitFor(() => {
       expect(wsRef.current?.client.send).toHaveBeenCalledWith("command", "say from history");
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+      expect(input).toHaveFocus();
     });
   });
 

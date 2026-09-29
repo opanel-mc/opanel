@@ -646,6 +646,8 @@
   "open-api.toggle.enable.error": "Offene API konnte nicht aktiviert werden",
   "open-api.toggle.disable.error": "Offene API konnte nicht deaktiviert werden",
   "open-api.item.enabled": "Offene API aktivieren",
+  "open-api.prompt.copy": "Prompt kopieren",
+  "open-api.prompt.description": "Hilf mir anhand der folgenden OPanel-Open-API-Referenz bei der Erledigung meiner Aufgabe. Nur die unten aufgeführten Schnittstellen sind aktiviert.",
   "open-api.interfaces.title": "Schnittstellen-Dokumentation",
   "open-api.interfaces.request": "Anforderungsformat",
   "open-api.interfaces.response": "Antwortformat",

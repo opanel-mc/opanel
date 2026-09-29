@@ -4,6 +4,7 @@ import net.minecraft.nbt.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.storage.PrimaryLevelData;
 import net.opanel.common.*;
@@ -56,19 +57,23 @@ public class ForgeSave extends BaseForgeSave implements OPanelSave {
 
     @Override
     public OPanelGameMode getDefaultGameMode() {
+        if(isRunning()) return OPanelGameMode.fromId(server.getDefaultGameType().getId());
+
         int gamemode = nbt.getInt("GameType");
         return OPanelGameMode.fromId(gamemode);
     }
 
     @Override
     public void setDefaultGameMode(OPanelGameMode gamemode) throws IOException {
+        if(isRunning()) server.setDefaultGameType(GameType.byId(gamemode.getId()));
+
         nbt.putInt("GameType", gamemode.getId());
         saveNbt();
     }
 
     @Override
     public OPanelDifficulty getDifficulty() throws IOException {
-        if(isCurrent()) return OPanelDifficulty.fromId(getCurrentWorld().getDifficulty().getId());
+        if(isRunning()) return OPanelDifficulty.fromId(getCurrentWorld().getDifficulty().getId());
 
         byte difficulty = nbt.getByte("Difficulty");
         return OPanelDifficulty.fromId(difficulty);
@@ -76,7 +81,7 @@ public class ForgeSave extends BaseForgeSave implements OPanelSave {
 
     @Override
     public void setDifficulty(OPanelDifficulty difficulty) throws IOException {
-        if(isCurrent()) server.setDifficulty(Difficulty.byName(difficulty.getName()), true);
+        if(isRunning()) server.setDifficulty(Difficulty.byName(difficulty.getName()), true);
 
         nbt.putByte("Difficulty", (byte) difficulty.getId());
         saveNbt();
@@ -84,14 +89,14 @@ public class ForgeSave extends BaseForgeSave implements OPanelSave {
 
     @Override
     public boolean isDifficultyLocked() throws IOException {
-        if(isCurrent()) return getCurrentWorld().getLevelData().isDifficultyLocked();
+        if(isRunning()) return getCurrentWorld().getLevelData().isDifficultyLocked();
 
         return nbt.getByte("DifficultyLocked") == 1;
     }
 
     @Override
     public void setDifficultyLocked(boolean locked) throws IOException {
-        if(isCurrent()) server.setDifficultyLocked(locked);
+        if(isRunning()) server.setDifficultyLocked(locked);
 
         nbt.putByte("DifficultyLocked", (byte) (locked ? 1 : 0));
         saveNbt();
@@ -99,14 +104,14 @@ public class ForgeSave extends BaseForgeSave implements OPanelSave {
 
     @Override
     public boolean isHardcore() throws IOException {
-        if(isCurrent()) return server.isHardcore();
+        if(isRunning()) return server.isHardcore();
 
         return nbt.getByte("hardcore") == 1;
     }
 
     @Override
     public void setHardcoreEnabled(boolean enabled) throws IOException {
-        if(isCurrent()) {
+        if(isRunning()) {
             PrimaryLevelData worldData = (PrimaryLevelData) getCurrentWorld().getLevelData();
             LevelSettings currentSettings = worldData.getLevelSettings();
             LevelSettings newSettings = new LevelSettings(
@@ -125,8 +130,12 @@ public class ForgeSave extends BaseForgeSave implements OPanelSave {
             } catch (ReflectiveOperationException e) {
                 //
             }
+            ForgeUtils.setRuntimeHardcore((DedicatedServer) server, enabled, true);
+        }
+
+        // Persist the startup setting only for the save selected in server.properties.
+        if(isCurrent()) {
             OPanelServer.writePropertiesContent(OPanelServer.getPropertiesContent().replaceAll("hardcore=.+", "hardcore="+ enabled));
-            ForgeUtils.forceUpdateProperties((DedicatedServer) server, true);
         }
 
         nbt.putByte("hardcore", (byte) (enabled ? 1 : 0));
@@ -148,7 +157,7 @@ public class ForgeSave extends BaseForgeSave implements OPanelSave {
         if(currentEnabled == null || currentEnabled == enabled) return;
         if(id.equals("vanilla")) return;
 
-        if(isCurrent()) {
+        if(isRunning()) {
             server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), "datapack "+ (enabled ? "enable" : "disable") +" \""+ id +"\"");
         }
 

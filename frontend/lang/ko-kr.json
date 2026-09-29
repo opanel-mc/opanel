@@ -646,6 +646,8 @@
   "open-api.toggle.enable.error": "오픈 API를 활성화하지 못했습니다",
   "open-api.toggle.disable.error": "오픈 API를 비활성화하지 못했습니다",
   "open-api.item.enabled": "오픈 API 활성화",
+  "open-api.prompt.copy": "프롬프트 복사",
+  "open-api.prompt.description": "다음 OPanel 오픈 API 명세를 바탕으로 작업을 도와주세요. 아래에 나열된 활성화된 인터페이스만 사용할 수 있습니다.",
   "open-api.interfaces.title": "인터페이스 문서",
   "open-api.interfaces.request": "요청 형식",
   "open-api.interfaces.response": "응답 형식",

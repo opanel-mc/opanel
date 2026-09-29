@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Blocks, Gauge, Info, ScrollText, Unplug, Users } from "lucide-react";
+import { Bot, Unplug } from "lucide-react";
 import { SubPage } from "../sub-page";
 import { $ } from "@/lib/i18n";
 import { ConfigItem, ConfigSection } from "@/components/config-item";
@@ -11,9 +11,21 @@ import { sendGetRequest, sendPostRequest, toastError } from "@/lib/api";
 import { Interface, InterfaceDescription, InterfaceRequest, InterfaceResponse, InterfaceSection } from "./interface";
 import { Text } from "@/components/i18n-text";
 import { useLoadingDone } from "@/hooks/use-loading-done";
+import { Button } from "@/components/ui/button";
+import { copyToClipboard } from "@/lib/utils";
+import {
+  generateOpenAPIPrompt,
+  OPEN_API_INTERFACES,
+  type OpenAPIInterfaceName,
+  type OpenAPIInterfaceState
+} from "./interface-data";
 
 export default function OpenAPI() {
   const [enabled, setEnabled] = useState(false);
+  const [interfaceStates, setInterfaceStates] = useState<OpenAPIInterfaceState>({});
+  const [updatingInterfaces, setUpdatingInterfaces] = useState<Set<OpenAPIInterfaceName>>(
+    () => new Set()
+  );
 
   const fetchOpenAPIEnabled = async () => {
     try {
@@ -21,6 +33,23 @@ export default function OpenAPI() {
       setEnabled(openAPIEnabled);
     } catch (e: any) {
       toastError(e, $("open-api.fetch.error"), [
+        [401, $("common.error.401")],
+        [500, $("common.error.500")]
+      ]);
+    }
+  };
+
+  const fetchOpenAPIInterfaceEnabled = async (name: string) => {
+    try {
+      const { enabled: interfaceEnabled } = await sendGetRequest<{ enabled: boolean }>(`/api/open-api/${name}`);
+
+      setInterfaceStates((current) => ({
+        ...current,
+        [name]: interfaceEnabled
+      }));
+    } catch (e: any) {
+      toastError(e, `${$("open-api.fetch.error")} (${name})`, [
+        [400, $("common.error.400")],
         [401, $("common.error.401")],
         [500, $("common.error.500")]
       ]);
@@ -40,9 +69,60 @@ export default function OpenAPI() {
     }
   };
 
+  const handleToggleInterface = async (
+    interfaceName: OpenAPIInterfaceName,
+    interfaceEnabled: boolean
+  ) => {
+    setUpdatingInterfaces((current) => new Set(current).add(interfaceName));
+
+    try {
+      await sendPostRequest(`/api/open-api/${interfaceName}?enabled=${interfaceEnabled ? "1" : "0"}`);
+      setInterfaceStates((current) => ({
+        ...current,
+        [interfaceName]: interfaceEnabled
+      }));
+    } catch (e: any) {
+      toastError(
+        e,
+        `${interfaceEnabled ? $("open-api.toggle.enable.error") : $("open-api.toggle.disable.error")} (${interfaceName})`,
+        [
+          [400, $("common.error.400")],
+          [401, $("common.error.401")],
+          [500, $("common.error.500")]
+        ]
+      );
+    } finally {
+      setUpdatingInterfaces((current) => {
+        const next = new Set(current);
+        next.delete(interfaceName);
+        return next;
+      });
+    }
+  };
+
   useEffect(() => {
     fetchOpenAPIEnabled();
   }, []);
+
+  useEffect(() => {
+    setInterfaceStates({});
+
+    if(enabled) {
+      for(const { name } of OPEN_API_INTERFACES) {
+        fetchOpenAPIInterfaceEnabled(name);
+      }
+    }
+  }, [enabled]);
+
+  const interfaceStatesLoaded = OPEN_API_INTERFACES.every(
+    ({ name }) => interfaceStates[name] !== undefined
+  );
+
+  const handleCopyPrompt = () => {
+    if(!interfaceStatesLoaded) return;
+
+    copyToClipboard(generateOpenAPIPrompt(interfaceStates, window.location.origin));
+  };
 
   useLoadingDone();
 
@@ -74,137 +154,44 @@ export default function OpenAPI() {
                 opanel.cn
               </Link>
             ]}/>
-          <h2 className="text-lg font-semibold pl-1 mb-3">{$("open-api.interfaces.title")}</h2>
-          <InterfaceSection interfaceName="info" icon={Info}>
-            <Interface method="GET" route="/open-api/info">
-              <InterfaceDescription>
-                {$("open-api.interfaces.info.description")}
-              </InterfaceDescription>
-              <InterfaceRequest def={`{}`}/>
-              <InterfaceResponse def={`{
-  motd: string
-  port: number
-  maxPlayerCount: number
-  whitelist: boolean
-  uptime: number
-  ingameTime: number
-  system: {
-    os: string
-    arch: string
-    cpuName: string
-    cpuCore: number
-    cpuThread: number
-    memory: number
-    jvmMemory: number
-    gpus: string[]
-    java: string
-  }
-}`}/>
-            </Interface>
-          </InterfaceSection>
-          <InterfaceSection interfaceName="monitor" icon={Gauge}>
-            <Interface method="GET" route="/open-api/monitor">
-              <InterfaceDescription>
-                {$("open-api.interfaces.monitor.description")}
-              </InterfaceDescription>
-              <InterfaceRequest def={`{}`}/>
-              <InterfaceResponse def={`{
-  cpu: number
-  memory: number
-  jvmMemory: number
-  tps: number
-  networkUpload: number
-  networkDownload: number
-  diskRead: number
-  diskWrite: number
-}`}/>
-            </Interface>
-          </InterfaceSection>
-          <InterfaceSection interfaceName="plugins" icon={Blocks}>
-            <Interface method="GET" route="/open-api/plugins">
-              <InterfaceDescription>
-                {$("open-api.interfaces.plugins.description")}
-              </InterfaceDescription>
-              <InterfaceRequest def={`{}`}/>
-              <InterfaceResponse def={`{
-  plugins: {
-    fileName: string
-    name: string
-    version?: string
-    description?: string
-    authors: string[]
-    website?: string
-    icon?: string
-    size: number
-    enabled: boolean
-    loaded: boolean
-  }[]
-}`}/>
-            </Interface>
-          </InterfaceSection>
-          <InterfaceSection interfaceName="players" icon={Users}>
-            <Interface method="GET" route="/open-api/players">
-              <InterfaceDescription>
-                {$("open-api.interfaces.players.description")}
-              </InterfaceDescription>
-              <InterfaceRequest def={`{}`}/>
-              <InterfaceResponse def={`{
-  players: {
-    name: string
-    uuid: string
-    isOnline: boolean
-    isBanned: boolean
-    gamemode: "adventure" | "creative" | "survival" | "spectator"
-    banReason?: string
-    ping?: number
-  }[]
-}`}/>
-            </Interface>
-            <Interface method="GET" route="/open-api/players/{uuid}">
-              <InterfaceDescription>
-                {$("open-api.interfaces.player.description")}
-              </InterfaceDescription>
-              <InterfaceRequest def={`{
-  uuid: string // path param
-}`}/>
-              <InterfaceResponse def={`{
-  name: string
-  uuid: string
-  isOnline: boolean
-  isBanned: boolean
-  gamemode: "adventure" | "creative" | "survival" | "spectator"
-  banReason?: string
-  ping?: number
-}`}/>
-            </Interface>
-          </InterfaceSection>
-          <InterfaceSection interfaceName="logs" icon={ScrollText}>
-            <Interface method="GET" route="/open-api/logs">
-              <InterfaceDescription>
-                {$("open-api.interfaces.logs.description")}
-              </InterfaceDescription>
-              <InterfaceRequest def={`{}`}/>
-              <InterfaceResponse def={`{
-  logs: string[]
-}`}/>
-            </Interface>
-            <Interface method="GET" route="/open-api/logs/{fileName}">
-              <InterfaceDescription>
-                {$("open-api.interfaces.log.description")}
-              </InterfaceDescription>
-              <InterfaceRequest def={`{
-  fileName: string // path param
-}`}/>
-            </Interface>
-            <Interface method="GET" route="/open-api/logs/{fileName}/download">
-              <InterfaceDescription>
-                {$("open-api.interfaces.log-download.description")}
-              </InterfaceDescription>
-              <InterfaceRequest def={`{
-  fileName: string // path param
-}`}/>
-            </Interface>
-          </InterfaceSection>
+          <div className="mb-3 px-1 flex items-center justify-between gap-2">
+            <h2 className="text-lg font-semibold">
+              {$("open-api.interfaces.title")}
+            </h2>
+            <Button
+              variant="outline"
+              size="sm"
+              className="cursor-pointer"
+              disabled={!interfaceStatesLoaded || updatingInterfaces.size > 0}
+              onClick={handleCopyPrompt}>
+              <Bot />
+              {$("open-api.prompt.copy")}
+            </Button>
+          </div>
+          {OPEN_API_INTERFACES.map(({ name, icon, endpoints }) => (
+            <InterfaceSection
+              key={name}
+              interfaceName={name}
+              icon={icon}
+              enabled={interfaceStates[name] ?? false}
+              disabled={interfaceStates[name] === undefined || updatingInterfaces.has(name)}
+              onEnabledChange={(enabled) => handleToggleInterface(name, enabled)}>
+              {endpoints.map(({ method, route, description, request, response }) => (
+                <Interface
+                  key={`${method}-${route}`}
+                  method={method}
+                  route={route}>
+                  <InterfaceDescription>
+                    {$(description)}
+                  </InterfaceDescription>
+                  <InterfaceRequest def={request}/>
+                  {response !== undefined && (
+                    <InterfaceResponse def={response}/>
+                  )}
+                </Interface>
+              ))}
+            </InterfaceSection>
+          ))}
         </>
       )}
     </SubPage>

@@ -4,6 +4,7 @@ import de.tr7zw.changeme.nbtapi.handler.NBTHandlers;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 import net.opanel.annotation.Rewrite;
 import net.opanel.paper_helper.BasePaperSave;
+import net.opanel.paper_helper.utils.PaperUtils;
 import net.opanel.common.OPanelDifficulty;
 import net.opanel.common.OPanelSave;
 import net.opanel.common.OPanelWorldRegion;
@@ -46,7 +47,7 @@ public class PaperSave extends BasePaperSave implements OPanelSave {
     @Rewrite
     @Override
     public OPanelDifficulty getDifficulty() throws IOException {
-        if(isCurrent()) return OPanelDifficulty.fromId(getCurrentWorld().getDifficulty().getValue());
+        if(isRunning()) return OPanelDifficulty.fromId(getCurrentWorld().getDifficulty().getValue());
 
         String difficulty = difficultySettingsNbt.getString("difficulty");
         return OPanelDifficulty.fromString(difficulty);
@@ -55,7 +56,7 @@ public class PaperSave extends BasePaperSave implements OPanelSave {
     @Rewrite
     @Override
     public void setDifficulty(OPanelDifficulty difficulty) throws IOException {
-        if(isCurrent()) {
+        if(isRunning()) {
             runner.runTask(() -> {
                 switch(difficulty) {
                     case PEACEFUL -> getCurrentWorld().setDifficulty(Difficulty.PEACEFUL);
@@ -72,13 +73,17 @@ public class PaperSave extends BasePaperSave implements OPanelSave {
 
     @Rewrite
     @Override
-    public boolean isDifficultyLocked() {
+    public boolean isDifficultyLocked() throws IOException {
+        if(isRunning()) return PaperUtils.isDifficultyLocked(getCurrentWorld());
+
         return difficultySettingsNbt.getByte("locked") == 1;
     }
 
     @Rewrite
     @Override
     public void setDifficultyLocked(boolean locked) throws IOException {
+        if(isRunning()) setRuntimeDifficultyLocked(locked);
+
         difficultySettingsNbt.setByte("locked", (byte) (locked ? 1 : 0));
         saveDifficultySettings();
     }
@@ -86,7 +91,7 @@ public class PaperSave extends BasePaperSave implements OPanelSave {
     @Rewrite
     @Override
     public boolean isHardcore() throws IOException {
-        if(isCurrent()) return getCurrentWorld().isHardcore();
+        if(isRunning()) return getCurrentWorld().isHardcore();
 
         return difficultySettingsNbt.getByte("hardcore") == 1;
     }
@@ -94,7 +99,7 @@ public class PaperSave extends BasePaperSave implements OPanelSave {
     @Rewrite
     @Override
     public void setHardcoreEnabled(boolean enabled) throws IOException {
-        if(isCurrent()) {
+        if(isRunning()) {
             runner.runTask(() -> getCurrentWorld().setHardcore(enabled));
         }
 

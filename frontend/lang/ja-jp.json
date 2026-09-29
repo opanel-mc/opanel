@@ -646,6 +646,8 @@
   "open-api.toggle.enable.error": "オープンAPIの有効化に失敗しました",
   "open-api.toggle.disable.error": "オープンAPIの無効化に失敗しました",
   "open-api.item.enabled": "オープンAPIを有効にする",
+  "open-api.prompt.copy": "プロンプトをコピー",
+  "open-api.prompt.description": "以下の OPanel Open API 仕様に基づいて、タスクの実行を支援してください。以下に記載された有効なインターフェースのみ使用できます。",
   "open-api.interfaces.title": "インターフェース仕様",
   "open-api.interfaces.request": "リクエスト形式",
   "open-api.interfaces.response": "応答形式",

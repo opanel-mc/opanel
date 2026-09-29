@@ -16,11 +16,23 @@ import net.opanel.event.EventManager;
 import net.opanel.event.EventType;
 import net.opanel.event.OPanelChunkDirtyEvent;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ForgeUtils {
+    public static void setRuntimeHardcore(DedicatedServer server, boolean enabled, boolean obf) throws IOException {
+        // Update only the cached value; loading server.properties could apply another save's settings.
+        try {
+            Field hardcoreField = DedicatedServerProperties.class.getDeclaredField(obf ? "f_139752_" : "hardcore");
+            hardcoreField.setAccessible(true);
+            hardcoreField.setBoolean(server.getProperties(), enabled);
+        } catch (ReflectiveOperationException e) {
+            throw new IOException("Cannot update runtime hardcore setting", e);
+        }
+    }
+
     public static boolean forceUpdateProperties(DedicatedServer server, boolean obf) {
         try {
             Field serverSettingsField = DedicatedServer.class.getDeclaredField(obf ? "f_139604_" : "settings"); // f_139604_ -> settings

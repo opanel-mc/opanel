@@ -21,7 +21,7 @@ export const wsUrl = (
  * By default, it will set the description to `e.message`.
  */
 export function toastError(e: AxiosError, message: string, descriptions: [number, string][]) {
-  if(e.status === 401 && window.location.pathname !== "/login") {
+  if(e.status === 401 && window.location.pathname !== "/login" && window.location.pathname !== "/login/") {
     window.location.href = "/login";
     return;
   }

@@ -8,8 +8,10 @@ import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelSave;
 import net.opanel.common.OPanelServer;
 import net.opanel.common.features.PaperDimensionFeature;
+import net.opanel.paper_helper.utils.PaperUtils;
 import net.opanel.utils.Utils;
 import org.bukkit.Difficulty;
+import org.bukkit.GameMode;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -105,20 +107,28 @@ public abstract class BasePaperSave implements OPanelSave, PaperDimensionFeature
 
     @Override
     public OPanelGameMode getDefaultGameMode() {
+        if(isRunning()) return OPanelGameMode.valueOf(server.getDefaultGameMode().name());
+
         int gamemode = nbt.getInteger("GameType");
         return OPanelGameMode.fromId(gamemode);
     }
 
     @Override
     public void setDefaultGameMode(OPanelGameMode gamemode) throws IOException {
+        if(isRunning()) setRuntimeDefaultGameMode(gamemode);
+
         nbt.setInteger("GameType", gamemode.getId());
         saveNbt();
+    }
+
+    protected void setRuntimeDefaultGameMode(OPanelGameMode gamemode) {
+        server.setDefaultGameMode(GameMode.valueOf(gamemode.name()));
     }
 
     @Override
     @SuppressWarnings("deprecation")
     public OPanelDifficulty getDifficulty() throws IOException {
-        if(isCurrent()) return OPanelDifficulty.fromId(getCurrentWorld().getDifficulty().getValue());
+        if(isRunning()) return OPanelDifficulty.fromId(getCurrentWorld().getDifficulty().getValue());
 
         byte difficulty = nbt.getByte("Difficulty");
         return OPanelDifficulty.fromId(difficulty);
@@ -126,7 +136,7 @@ public abstract class BasePaperSave implements OPanelSave, PaperDimensionFeature
 
     @Override
     public void setDifficulty(OPanelDifficulty difficulty) throws IOException {
-        if(isCurrent()) {
+        if(isRunning()) {
             runner.runTask(() -> {
                 switch(difficulty) {
                     case PEACEFUL -> getCurrentWorld().setDifficulty(Difficulty.PEACEFUL);
@@ -142,26 +152,42 @@ public abstract class BasePaperSave implements OPanelSave, PaperDimensionFeature
     }
 
     @Override
-    public boolean isDifficultyLocked() {
+    public boolean isDifficultyLocked() throws IOException {
+        if(isRunning()) return PaperUtils.isDifficultyLocked(getCurrentWorld());
+
         return nbt.getByte("DifficultyLocked") == 1;
     }
 
     @Override
     public void setDifficultyLocked(boolean locked) throws IOException {
+        if(isRunning()) setRuntimeDifficultyLocked(locked);
+
         nbt.setByte("DifficultyLocked", (byte) (locked ? 1 : 0));
         saveNbt();
     }
 
+    protected void setRuntimeDifficultyLocked(boolean locked) throws IOException {
+        IOException[] failure = new IOException[1];
+        runner.runTask(() -> {
+            try {
+                PaperUtils.setDifficultyLocked(getCurrentWorld(), locked);
+            } catch (IOException e) {
+                failure[0] = e;
+            }
+        });
+        if(failure[0] != null) throw failure[0];
+    }
+
     @Override
     public boolean isHardcore() throws IOException {
-        if(isCurrent()) return getCurrentWorld().isHardcore();
+        if(isRunning()) return getCurrentWorld().isHardcore();
 
         return nbt.getByte("hardcore") == 1;
     }
 
     @Override
     public void setHardcoreEnabled(boolean enabled) throws IOException {
-        if(isCurrent()) {
+        if(isRunning()) {
             runner.runTask(() -> getCurrentWorld().setHardcore(enabled));
         }
 
@@ -184,7 +210,7 @@ public abstract class BasePaperSave implements OPanelSave, PaperDimensionFeature
         if(currentEnabled == null || currentEnabled == enabled) return;
         if(id.equals("vanilla")) return;
 
-        if(isCurrent()) {
+        if(isRunning()) {
             runner.runTask(() -> {
                 server.dispatchCommand(server.getConsoleSender(), "datapack "+ (enabled ? "enable" : "disable") +" \""+ id +"\"");
             });

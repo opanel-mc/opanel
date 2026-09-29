@@ -4,8 +4,8 @@
   "private": true,
   "description": "A Minecraft server management panel",
   "scripts": {
-    "dev": "npm run prelaunch && vinext dev --port 3001",
-    "build": "npm run prelaunch && vinext build",
+    "dev": "npm run prelaunch && vite dev --port 3001",
+    "build": "npm run prelaunch && vite build",
     "build:pack": "npm run build && npm run bundle",
     "postbuild": "node scripts/prepare-vinext-build-id",
     "start": "vinext start",
@@ -64,7 +64,7 @@
     "tailwind-merge": "^3.3.1",
     "textarea-caret": "^3.1.0",
     "uuid": "^13.0.0",
-    "vinext": "^1.0.0-beta.10",
+    "vinext": "^1.0.0",
     "zod": "^3.25.67"
   },
   "devDependencies": {
@@ -82,7 +82,7 @@
     "@types/textarea-caret": "^3.0.4",
     "@types/yauzl": "^2.10.3",
     "@vitejs/plugin-react": "^5.2.0",
-    "@vitejs/plugin-rsc": "^0.5.32",
+    "@vitejs/plugin-rsc": "^0.5.34",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react": "^7.37.5",
     "jsdom": "^28.1.0",

@@ -646,6 +646,8 @@
   "open-api.toggle.enable.error": "Failed to enable Open API",
   "open-api.toggle.disable.error": "Failed to disable Open API",
   "open-api.item.enabled": "Enable Open API",
+  "open-api.prompt.copy": "Copy prompt",
+  "open-api.prompt.description": "Use the following OPanel Open API reference to help me complete my task. Only the interfaces listed below are enabled.",
   "open-api.interfaces.title": "API Reference",
   "open-api.interfaces.request": "Request Schema",
   "open-api.interfaces.response": "Response Schema",

@@ -2,13 +2,12 @@ package net.opanel.fabric_1_21_11;
 
 import net.minecraft.nbt.*;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.dedicated.MinecraftDedicatedServer;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.GameMode;
 import net.minecraft.world.level.LevelInfo;
 import net.minecraft.world.level.LevelProperties;
 import net.opanel.common.*;
 import net.opanel.fabric_helper.BaseFabricSave;
-import net.opanel.fabric_helper.utils.FabricUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -58,19 +57,23 @@ public class FabricSave extends BaseFabricSave implements OPanelSave {
 
     @Override
     public OPanelGameMode getDefaultGameMode() {
+        if(isRunning()) return OPanelGameMode.fromId(server.getDefaultGameMode().getIndex());
+
         int gamemode = nbt.getInt("GameType", 0);
         return OPanelGameMode.fromId(gamemode);
     }
 
     @Override
     public void setDefaultGameMode(OPanelGameMode gamemode) throws IOException {
+        if(isRunning()) server.setDefaultGameMode(GameMode.byIndex(gamemode.getId()));
+
         nbt.putInt("GameType", gamemode.getId());
         saveNbt();
     }
 
     @Override
     public OPanelDifficulty getDifficulty() throws IOException {
-        if(isCurrent()) return OPanelDifficulty.fromId(getCurrentWorld().getDifficulty().getId());
+        if(isRunning()) return OPanelDifficulty.fromId(getCurrentWorld().getDifficulty().getId());
 
         byte difficulty = nbt.getByte("Difficulty", (byte) 0);
         return OPanelDifficulty.fromId(difficulty);
@@ -78,7 +81,7 @@ public class FabricSave extends BaseFabricSave implements OPanelSave {
 
     @Override
     public void setDifficulty(OPanelDifficulty difficulty) throws IOException {
-        if(isCurrent()) server.setDifficulty(Difficulty.byName(difficulty.getName()), true);
+        if(isRunning()) server.setDifficulty(Difficulty.byName(difficulty.getName()), true);
 
         nbt.putByte("Difficulty", (byte) difficulty.getId());
         saveNbt();
@@ -86,14 +89,14 @@ public class FabricSave extends BaseFabricSave implements OPanelSave {
 
     @Override
     public boolean isDifficultyLocked() throws IOException {
-        if(isCurrent()) return getCurrentWorld().getLevelProperties().isDifficultyLocked();
+        if(isRunning()) return getCurrentWorld().getLevelProperties().isDifficultyLocked();
 
         return nbt.getByte("DifficultyLocked", (byte) 0) == 1;
     }
 
     @Override
     public void setDifficultyLocked(boolean locked) throws IOException {
-        if(isCurrent()) server.setDifficultyLocked(locked);
+        if(isRunning()) server.setDifficultyLocked(locked);
 
         nbt.putByte("DifficultyLocked", (byte) (locked ? 1 : 0));
         saveNbt();
@@ -101,14 +104,14 @@ public class FabricSave extends BaseFabricSave implements OPanelSave {
 
     @Override
     public boolean isHardcore() throws IOException {
-        if(isCurrent()) return server.isHardcore();
+        if(isRunning()) return server.isHardcore();
 
         return nbt.getByte("hardcore", (byte) 0) == 1;
     }
 
     @Override
     public void setHardcoreEnabled(boolean enabled) throws IOException {
-        if(isCurrent()) {
+        if(isRunning()) {
             LevelProperties levelProperties = (LevelProperties) getCurrentWorld().getLevelProperties();
             LevelInfo currentInfo = levelProperties.getLevelInfo();
             LevelInfo newInfo = new LevelInfo(
@@ -127,8 +130,11 @@ public class FabricSave extends BaseFabricSave implements OPanelSave {
             } catch (ReflectiveOperationException e) {
                 //
             }
+        }
+
+        // Persist the startup setting only for the save selected in server.properties.
+        if(isCurrent()) {
             OPanelServer.writePropertiesContent(OPanelServer.getPropertiesContent().replaceAll("hardcore=.+", "hardcore="+ enabled));
-            FabricUtils.forceUpdateProperties((MinecraftDedicatedServer) server);
         }
 
         nbt.putByte("hardcore", (byte) (enabled ? 1 : 0));
@@ -157,7 +163,7 @@ public class FabricSave extends BaseFabricSave implements OPanelSave {
         if(currentEnabled == null || currentEnabled == enabled) return;
         if(id.equals("vanilla")) return;
 
-        if(isCurrent()) {
+        if(isRunning()) {
             server.getCommandManager().parseAndExecute(server.getCommandSource(), "datapack "+ (enabled ? "enable" : "disable") +" \""+ id +"\"");
         }
 

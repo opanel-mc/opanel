@@ -1,6 +1,7 @@
 package net.opanel.folia_1_20;
 
 import net.opanel.paper_helper.BasePaperSave;
+import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelSave;
 import net.opanel.common.OPanelWorldRegion;
 import org.bukkit.Server;
@@ -15,6 +16,11 @@ import java.util.stream.Stream;
 public class FoliaSave extends BasePaperSave implements OPanelSave {
     public FoliaSave(Main plugin, Server server, Path path) {
         super(plugin, server, path);
+    }
+
+    @Override
+    protected void setRuntimeDefaultGameMode(OPanelGameMode gamemode) {
+        runner.runTask(() -> super.setRuntimeDefaultGameMode(gamemode));
     }
 
     @Override

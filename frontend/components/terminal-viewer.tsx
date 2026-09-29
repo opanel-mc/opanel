@@ -63,7 +63,7 @@ const Log = memo(({
     <p
       data-slot="terminal-log"
       className={cn(
-        "leading-[133%] space-x-1 selection:bg-foreground selection:text-background cursor-default",
+        "px-1 leading-[133%] space-x-1 rounded-sm hover:bg-muted selection:bg-foreground selection:text-background cursor-default",
         getSettings("terminal.word-wrap") ? "text-wrap wrap-break-word whitespace-pre-wrap" : "whitespace-pre",
         !visible ? "hidden" : "",
         googleSansCode.className
@@ -241,7 +241,7 @@ export function TerminalViewer({
   
   return (
     <div
-      className={cn(className, "border rounded-sm bg-background overflow-auto o-scrollbar p-2")}
+      className={cn(className, "border rounded-sm bg-background overflow-auto o-scrollbar px-1 py-2")}
       ref={terminalRef}>
       {
         logs

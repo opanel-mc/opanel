@@ -646,6 +646,8 @@
   "open-api.toggle.enable.error": "Échec de l'activation de l'API ouverte",
   "open-api.toggle.disable.error": "Échec de la désactivation de l'API ouverte",
   "open-api.item.enabled": "Activer l'API Ouverte",
+  "open-api.prompt.copy": "Copier le prompt",
+  "open-api.prompt.description": "Aidez-moi à accomplir ma tâche à l’aide de la documentation de l’API ouverte OPanel ci-dessous. Seules les interfaces répertoriées ci-dessous sont activées.",
   "open-api.interfaces.title": "Documentation des interfaces",
   "open-api.interfaces.request": "Format de la requête",
   "open-api.interfaces.response": "Format de la réponse",
