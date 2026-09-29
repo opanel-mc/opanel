@@ -27,7 +27,14 @@ pub(crate) async fn read_file(
 
 #[cfg(test)]
 mod tests {
-    use axum::{body::Body, extract::FromRequest, http::Request};
+    use axum::{
+        Router,
+        body::{Body, to_bytes},
+        extract::{DefaultBodyLimit, FromRequest},
+        http::{Request, StatusCode},
+        routing::post,
+    };
+    use tower::ServiceExt;
 
     use super::*;
 
@@ -46,6 +53,38 @@ mod tests {
         let file = read_file(multipart(body).await).await.unwrap().unwrap();
         assert_eq!(file.name, "banner.png");
         assert_eq!(file.bytes, "image");
+    }
+
+    #[tokio::test]
+    async fn reads_large_uploads_when_the_route_disables_the_default_limit() {
+        let file_bytes = vec![b'x'; 3 * 1024 * 1024];
+        let mut body = b"--test\r\nContent-Disposition: form-data; name=\"file\"; filename=\"banner.png\"\r\n\r\n".to_vec();
+        body.extend_from_slice(&file_bytes);
+        body.extend_from_slice(b"\r\n--test--\r\n");
+
+        let router = Router::new().route(
+            "/upload",
+            post(|multipart: Multipart| async {
+                read_file(multipart).await.map(|file| file.unwrap().bytes)
+            }),
+        );
+        for (router, expected_status) in [
+            (router.clone(), StatusCode::PAYLOAD_TOO_LARGE),
+            (router.layer(DefaultBodyLimit::disable()), StatusCode::OK),
+        ] {
+            let request = Request::post("/upload")
+                .header("content-type", "multipart/form-data; boundary=test")
+                .body(Body::from(body.clone()))
+                .unwrap();
+            let response = router.oneshot(request).await.unwrap();
+            assert_eq!(response.status(), expected_status);
+            if expected_status == StatusCode::OK {
+                assert_eq!(
+                    to_bytes(response.into_body(), usize::MAX).await.unwrap(),
+                    file_bytes
+                );
+            }
+        }
     }
 
     #[tokio::test]

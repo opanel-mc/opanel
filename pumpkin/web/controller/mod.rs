@@ -258,7 +258,8 @@ fn assets_router() -> Router<Arc<OPanel>> {
         )
         .route(
             "/upload/{name}",
-            with_role(post(assets::upload_asset), AuthRouteRole::PanelOrMcp),
+            with_role(post(assets::upload_asset), AuthRouteRole::PanelOrMcp)
+                .layer(DefaultBodyLimit::disable()),
         )
         .route(
             "/reset/{name}",

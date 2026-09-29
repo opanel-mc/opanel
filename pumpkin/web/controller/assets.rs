@@ -49,8 +49,7 @@ pub(super) async fn upload_asset(
     multipart: Result<Multipart, MultipartRejection>,
 ) -> Result<ApiResponse<EmptyPayload>, ApiError> {
     require_known_asset(&name, "Unknown asset.")?;
-    let multipart =
-        multipart.map_err(|error| ApiError::new(StatusCode::BAD_REQUEST, error.body_text()))?;
+    let multipart = multipart.map_err(|error| ApiError::new(error.status(), error.body_text()))?;
     let file = read_file(multipart)
         .await
         .map_err(|error| ApiError::new(error.status(), error.body_text()))?
