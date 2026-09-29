@@ -9,14 +9,13 @@ import {
   useRef,
   useState
 } from "react";
-import { ArrowUp, CaseSensitive, Filter, Maximize, Minimize, Pen, Plus, Regex, SquareTerminal, TextSearch, Trash2, X } from "lucide-react";
+import { ArrowUp, CaseSensitive, Filter, Maximize, Minimize, Pen, Plus, Regex, TextSearch, X } from "lucide-react";
 import { toast } from "sonner";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { TerminalViewer } from "@/components/terminal-viewer";
 import { Button } from "@/components/ui/button";
 import { AutocompleteInput } from "@/components/autocomplete-input";
 import { cn, getCurrentArgumentIndex } from "@/lib/utils";
-import { Card } from "@/components/ui/card";
 import { SubPage } from "../sub-page";
 import { changeSettings, getSettings } from "@/lib/settings";
 import { googleSansCode } from "@/lib/fonts";
@@ -24,6 +23,7 @@ import { $ } from "@/lib/i18n";
 import { getLogLevels, TerminalClient } from "@/lib/ws/terminal";
 import { Toggle } from "@/components/ui/toggle";
 import { CreateShortcutDialog } from "./create-shortcut-dialog";
+import { HistorySheet } from "./history-sheet";
 import { VersionContext } from "@/contexts/api-context";
 import { emitter } from "@/lib/emitter";
 import {
@@ -240,21 +240,19 @@ export default function Terminal() {
   return (
     <SubPage
       title={$("terminal.title")}
-      category={$("sidebar.server")}
-      icon={<SquareTerminal />}
+      showHeader={false}
       outerClassName="max-h-[100dvh] overflow-y-hidden"
-      className="flex-1 min-h-0 flex gap-3"
-      pageClassName="min-h-0 max-sm:p-0!">
+      className="min-h-0 min-w-0 bg-background p-0! gap-0">
       <div
-        className="flex-4/5 max-lg:flex-3/4 max-md:flex-2/3 min-w-0 min-h-0 bg-background flex flex-col border rounded-sm max-sm:rounded-none max-sm:border-none"
+        className="flex-1 min-w-0 min-h-0 bg-background flex flex-col overflow-hidden"
         ref={terminalContainerRef}>
         <TerminalViewer
           client={client}
           levels={getLogLevels(showInfoLevel, showWarnLevel, showErrorLevel)}
           filter={searchRegexMode ? parseRegex(searchString) : searchString}
           filterCaseSensitive={searchCaseSensitive}
-          className="flex-1 border-none"/>
-        <div className="px-3 pt-1 flex justify-between items-center max-md:flex-col max-md:items-start max-md:gap-2">
+          className="flex-1 min-h-0 border-none"/>
+        <div className="shrink-0 px-3 pt-1 flex justify-between items-center max-md:flex-col max-md:items-start max-md:gap-2">
           <div className={cn("flex flex-wrap items-center gap-1 transition-[gap]", editingShortcuts && "gap-3")}>
             {versionCtx?.mcdr && (
               <Button
@@ -349,7 +347,7 @@ export default function Terminal() {
             </div>
           )}
         </div>
-        <div className="p-3 pt-2 flex gap-2">
+        <div className="shrink-0 p-3 pt-2 flex gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -382,6 +380,18 @@ export default function Terminal() {
             onKeyDown={(e) => handleKeydown(e)}
             onInput={() => handleInput()}
             ref={inputRef}/>
+          <HistorySheet
+            history={historyList}
+            container={fullscreen ? terminalContainerRef.current : undefined}
+            onSelect={(command) => {
+              if(inputRef.current) inputRef.current.value = command;
+            }}
+            onExecute={handleSend}
+            onClear={() => {
+              setHistoryList([]);
+              historyIndexRef.current = 0;
+            }}
+            onClose={() => inputRef.current?.focus()}/>
           <Button
             variant="ghost"
             size="icon"
@@ -398,35 +408,6 @@ export default function Terminal() {
             <ArrowUp />
           </Button>
         </div>
-      </div>
-      <div className="flex-1/5 max-lg:flex-1/4 max-md:flex-1/3 min-w-0 flex flex-col gap-2 max-lg:hidden">
-        <div className="px-3 flex justify-between items-center">
-          <h2 className="text-md font-semibold">{$("terminal.history")}</h2>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="cursor-pointer"
-            onClick={() => setHistoryList([])}>
-            <Trash2 />
-          </Button>
-        </div>
-        <Card className="dark:bg-transparent flex-1 rounded-sm p-1 flex flex-col gap-0 overflow-y-auto">
-          {historyList.map((command, i) => (
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn("block px-2 py-0 rounded-xs text-left text-nowrap text-ellipsis overflow-hidden cursor-pointer", googleSansCode.className)}
-              onClick={() => {
-                if(!inputRef.current) return;
-                inputRef.current.value = command;
-                inputRef.current.focus();
-              }}
-              onDoubleClick={() => handleSend()}
-              key={i}>
-              {command}
-            </Button>
-          ))}
-        </Card>
       </div>
     </SubPage>
   );
