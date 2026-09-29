@@ -16,7 +16,8 @@ use tracing::error;
 
 use crate::{
     opanel::OPanel,
-    utils::upload::read_file,
+    storage::TMP_DIR_NAME,
+    utils::upload::{UploadError, save_field},
     web::response::{ApiError, ApiResponse},
 };
 
@@ -48,18 +49,48 @@ pub(super) async fn upload_asset(
     AxumPath(name): AxumPath<String>,
     multipart: Result<Multipart, MultipartRejection>,
 ) -> Result<ApiResponse<EmptyPayload>, ApiError> {
-    require_known_asset(&name, "Unknown asset.")?;
-    let multipart = multipart.map_err(|error| ApiError::new(error.status(), error.body_text()))?;
-    let file = read_file(multipart)
+    upload_asset_to(opanel.storage().root(), &name, multipart).await
+}
+
+async fn upload_asset_to(
+    directory: &Path,
+    name: &str,
+    multipart: Result<Multipart, MultipartRejection>,
+) -> Result<ApiResponse<EmptyPayload>, ApiError> {
+    require_known_asset(name, "Unknown asset.")?;
+    let mut multipart =
+        multipart.map_err(|error| ApiError::new(error.status(), error.body_text()))?;
+    while let Some(field) = multipart
+        .next_field()
         .await
         .map_err(|error| ApiError::new(error.status(), error.body_text()))?
-        .ok_or_else(|| ApiError::new(StatusCode::BAD_REQUEST, "File is missing."))?;
-    let extension = image_extension(&file.name)?;
+    {
+        if field.name() != Some("file") {
+            continue;
+        }
+        let Some(file_name) = field.file_name() else {
+            continue;
+        };
+        let extension = image_extension(file_name)?.to_owned();
+        let upload = save_field(field, &directory.join(TMP_DIR_NAME))
+            .await
+            .map_err(|error| match error {
+                UploadError::Multipart(error) => ApiError::new(error.status(), error.body_text()),
+                UploadError::Io(error) => asset_error(error),
+            })?;
+        if upload.size == 0 {
+            return Err(ApiError::new(StatusCode::BAD_REQUEST, "File is missing."));
+        }
 
-    replace_asset(opanel.storage().root(), &name, extension, &file.bytes)
-        .await
-        .map_err(asset_error)?;
-    Ok(ApiResponse::ok(EmptyPayload {}))
+        fs::copy(upload.path(), directory.join(format!("{name}.{extension}")))
+            .await
+            .map_err(asset_error)?;
+        remove_other_variants(directory, name, &extension)
+            .await
+            .map_err(asset_error)?;
+        return Ok(ApiResponse::ok(EmptyPayload {}));
+    }
+    Err(ApiError::new(StatusCode::BAD_REQUEST, "File is missing."))
 }
 
 pub(super) async fn reset_asset(
@@ -127,15 +158,23 @@ async fn replace_asset(
     extension: &str,
     bytes: &[u8],
 ) -> io::Result<()> {
+    fs::write(directory.join(format!("{name}.{extension}")), bytes).await?;
+    remove_other_variants(directory, name, extension).await
+}
+
+async fn remove_other_variants(directory: &Path, name: &str, extension: &str) -> io::Result<()> {
     // Keep only one variant so uploads and resets remain consistent after a restart.
     for old_extension in IMAGE_EXTENSIONS {
+        if old_extension == extension {
+            continue;
+        }
         match fs::remove_file(directory.join(format!("{name}.{old_extension}"))).await {
             Ok(()) => {}
             Err(error) if error.kind() == io::ErrorKind::NotFound => {}
             Err(error) => return Err(error),
         }
     }
-    fs::write(directory.join(format!("{name}.{extension}")), bytes).await
+    Ok(())
 }
 
 fn asset_error(error: io::Error) -> ApiError {
@@ -145,7 +184,14 @@ fn asset_error(error: io::Error) -> ApiError {
 
 #[cfg(test)]
 mod tests {
-    use axum::body::to_bytes;
+    use std::convert::Infallible;
+
+    use axum::{
+        body::{Bytes, to_bytes},
+        extract::FromRequest,
+        http::Request,
+    };
+    use futures_util::{StreamExt, stream};
 
     use crate::utils::file::random_temporary_path;
 
@@ -155,6 +201,128 @@ mod tests {
         let path = random_temporary_path(&std::env::temp_dir(), "assets").unwrap();
         fs::create_dir_all(&path).await.unwrap();
         path
+    }
+
+    async fn upload_body(directory: &Path, body: Body) -> Response {
+        let request = Request::post("/assets/upload/login-banner")
+            .header("content-type", "multipart/form-data; boundary=test")
+            .body(body)
+            .unwrap();
+        let multipart = Multipart::from_request(request, &()).await;
+        upload_asset_to(directory, "login-banner", multipart)
+            .await
+            .into_response()
+    }
+
+    fn upload_request(file_name: &str, contents: &str, complete: bool) -> Body {
+        let mut body = format!(
+            "--test\r\nContent-Disposition: form-data; name=\"file\"; filename=\"{file_name}\"\r\n\r\n{contents}",
+        );
+        if complete {
+            body.push_str("\r\n--test--\r\n");
+        }
+        Body::from(body)
+    }
+
+    async fn assert_no_temporary_uploads(directory: &Path) {
+        assert!(
+            fs::read_dir(directory.join(TMP_DIR_NAME))
+                .await
+                .unwrap()
+                .next_entry()
+                .await
+                .unwrap()
+                .is_none()
+        );
+    }
+
+    #[tokio::test]
+    async fn installs_spooled_upload_and_removes_old_variants_and_temporary_file() {
+        let directory = temporary_directory().await;
+        load_asset(&directory, "login-banner", LOGIN_BANNER)
+            .await
+            .unwrap();
+
+        let response =
+            upload_body(&directory, upload_request("banner.jpg", "new banner", true)).await;
+
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(
+            fs::read(directory.join("login-banner.jpg")).await.unwrap(),
+            b"new banner"
+        );
+        assert!(!directory.join("login-banner.png").exists());
+        assert_no_temporary_uploads(&directory).await;
+        let response = asset_response(&directory, "login-banner").await.unwrap();
+        assert_eq!(response.headers()[CONTENT_TYPE], "image/jpeg");
+        assert_eq!(
+            to_bytes(response.into_body(), usize::MAX).await.unwrap(),
+            "new banner"
+        );
+        fs::remove_dir_all(directory).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn rejects_unsupported_extensions_before_consuming_the_file_body() {
+        let directory = temporary_directory().await;
+        let header = Bytes::from_static(
+            b"--test\r\nContent-Disposition: form-data; name=\"file\"; filename=\"banner.gif\"\r\n\r\n",
+        );
+        let chunks =
+            stream::once(async { Ok::<_, Infallible>(header) }).chain(stream::once(async {
+                tokio::task::yield_now().await;
+                panic!("invalid image extension must be rejected before reading file contents");
+            }));
+
+        let response = upload_body(&directory, Body::from_stream(chunks)).await;
+
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+        assert!(!directory.join(TMP_DIR_NAME).exists());
+        fs::remove_dir_all(directory).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn empty_and_interrupted_uploads_preserve_the_old_banner_and_remove_partial_files() {
+        let directory = temporary_directory().await;
+        fs::write(directory.join("login-banner.png"), b"old banner")
+            .await
+            .unwrap();
+        for body in [
+            upload_request("banner.jpg", "", true),
+            upload_request("banner.jpg", &"x".repeat(32 * 1024), false),
+        ] {
+            let response = upload_body(&directory, body).await;
+            assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+            assert_eq!(
+                fs::read(directory.join("login-banner.png")).await.unwrap(),
+                b"old banner"
+            );
+            assert!(!directory.join("login-banner.jpg").exists());
+            assert_no_temporary_uploads(&directory).await;
+        }
+        fs::remove_dir_all(directory).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn failed_install_preserves_the_old_banner_and_removes_the_temporary_file() {
+        let directory = temporary_directory().await;
+        fs::write(directory.join("login-banner.png"), b"old banner")
+            .await
+            .unwrap();
+        fs::create_dir(directory.join("login-banner.jpg"))
+            .await
+            .unwrap();
+
+        let response =
+            upload_body(&directory, upload_request("banner.jpg", "new banner", true)).await;
+
+        assert_eq!(response.status(), StatusCode::INTERNAL_SERVER_ERROR);
+        assert_eq!(
+            fs::read(directory.join("login-banner.png")).await.unwrap(),
+            b"old banner"
+        );
+        assert_no_temporary_uploads(&directory).await;
+        fs::remove_dir_all(directory).await.unwrap();
     }
 
     #[tokio::test]

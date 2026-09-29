@@ -16,7 +16,7 @@ use tracing::warn;
 
 use crate::{
     managers::{Manager, ManagerContext, OPanelUnavailable},
-    storage::{JsonFile, Storage, StorageError, TextFile},
+    storage::{INITIAL_ACCESS_KEY_FILE_NAME, JsonFile, Storage, StorageError, TextFile},
 };
 
 const RANDOM_CHARACTERS: &[u8; 64] =
@@ -25,7 +25,7 @@ const INITIAL_ACCESS_KEY_TEMPLATE: &str = "# Remember to DELETE this file for yo
 # 为了您服务器的安全，请记得删除此文件！\n\n";
 
 const CONFIG_FILE: JsonFile<OPanelConfig> = JsonFile::new("config.json", OPanelConfig::default);
-const INITIAL_ACCESS_KEY_FILE: TextFile = TextFile::new("INITIAL_ACCESS_KEY.txt", "");
+const INITIAL_ACCESS_KEY_FILE: TextFile = TextFile::new(INITIAL_ACCESS_KEY_FILE_NAME, "");
 
 #[derive(Debug, Clone, Deserialize, PartialEq, Eq, Serialize)]
 #[serde(default, rename_all = "camelCase")]
@@ -228,7 +228,7 @@ mod tests {
     };
     use crate::{
         managers::ManagerContext,
-        storage::{Storage, StorageError},
+        storage::{INITIAL_ACCESS_KEY_FILE_NAME, Storage, StorageError},
     };
 
     static NEXT_TEST_DIRECTORY: AtomicU64 = AtomicU64::new(0);
@@ -343,7 +343,7 @@ mod tests {
     #[tokio::test]
     async fn first_start_generates_and_persists_credentials() {
         let (directory, storage) = test_storage().await;
-        tokio::fs::write(directory.child("INITIAL_ACCESS_KEY.txt"), "stale")
+        tokio::fs::write(directory.child(INITIAL_ACCESS_KEY_FILE_NAME), "stale")
             .await
             .unwrap();
         let manager = ConfigManager::new(manager_context());
@@ -388,7 +388,7 @@ mod tests {
         let first_manager = ConfigManager::new(manager_context());
         first_manager.initialize(&storage).await.unwrap();
         let first_config = first_manager.get();
-        assert!(directory.child("INITIAL_ACCESS_KEY.txt").is_file());
+        assert!(directory.child(INITIAL_ACCESS_KEY_FILE_NAME).is_file());
 
         let config_path = directory.child("config.json");
         let stored_with_future_field = format!(
@@ -420,7 +420,7 @@ mod tests {
             bytes_before_restart,
             "a complete configuration must not be rewritten during startup"
         );
-        assert!(!directory.child("INITIAL_ACCESS_KEY.txt").exists());
+        assert!(!directory.child(INITIAL_ACCESS_KEY_FILE_NAME).exists());
         assert!(!second_manager.take_initial_access_key_notice());
     }
 
@@ -453,7 +453,7 @@ mod tests {
             serde_json::from_slice(&tokio::fs::read(config_path).await.unwrap()).unwrap();
         assert_eq!(stored["futureOption"], 42);
         assert_eq!(stored["salt"], config.salt);
-        assert!(!directory.child("INITIAL_ACCESS_KEY.txt").exists());
+        assert!(!directory.child(INITIAL_ACCESS_KEY_FILE_NAME).exists());
         assert!(!manager.take_initial_access_key_notice());
     }
 
@@ -572,14 +572,14 @@ mod tests {
         ));
         assert_eq!(tokio::fs::read(config_path).await.unwrap(), invalid);
         assert_eq!(*manager.get(), OPanelConfig::default());
-        assert!(!directory.child("INITIAL_ACCESS_KEY.txt").exists());
+        assert!(!directory.child(INITIAL_ACCESS_KEY_FILE_NAME).exists());
         assert!(!manager.take_initial_access_key_notice());
     }
 
     #[tokio::test]
     async fn stale_plaintext_deletion_failure_aborts_initialization() {
         let (directory, storage) = test_storage().await;
-        tokio::fs::create_dir(directory.child("INITIAL_ACCESS_KEY.txt"))
+        tokio::fs::create_dir(directory.child(INITIAL_ACCESS_KEY_FILE_NAME))
             .await
             .unwrap();
         let manager = ConfigManager::new(manager_context());
