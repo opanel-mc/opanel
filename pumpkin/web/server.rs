@@ -16,7 +16,7 @@ use tower_http::{
 };
 use tracing::{info, warn};
 
-use crate::opanel::OPanel;
+use crate::{opanel::OPanel, storage::INITIAL_ACCESS_KEY_FILE_NAME};
 
 use super::{controller, endpoint, static_files};
 
@@ -48,6 +48,7 @@ pub enum WebServerError {
 
 impl WebServer {
     pub async fn start(opanel: Arc<OPanel>) -> Result<Self, WebServerError> {
+        controller::initialize_assets(&opanel).await;
         let config = opanel.config();
         let address = format!("{}:{}", config.host, config.port);
         let listener =
@@ -82,7 +83,7 @@ impl WebServer {
         if opanel.managers().config().take_initial_access_key_notice() {
             warn!("===========================OPanel===========================");
             warn!("Initial launching detected,");
-            warn!("Check opanel/INITIAL_ACCESS_KEY.txt for the initial access key.");
+            warn!("Check opanel/{INITIAL_ACCESS_KEY_FILE_NAME} for the initial access key.");
             warn!("Remember to delete the file for your server security.");
             warn!("============================================================");
         }

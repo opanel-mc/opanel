@@ -8,6 +8,10 @@ use serde::{Serialize, de::DeserializeOwned};
 use serde_json::Value;
 use thiserror::Error;
 use tokio::{fs, sync::Mutex};
+
+pub(crate) const TMP_DIR_NAME: &str = ".tmp";
+pub(crate) const INITIAL_ACCESS_KEY_FILE_NAME: &str = "INITIAL_ACCESS_KEY.txt";
+
 pub(crate) struct Storage {
     root: PathBuf,
     access: Mutex<()>,
@@ -100,6 +104,10 @@ pub(crate) enum StorageError {
 
 #[allow(dead_code)]
 impl Storage {
+    pub(crate) fn root(&self) -> &Path {
+        &self.root
+    }
+
     pub(crate) async fn open(root: PathBuf) -> Result<Self, StorageError> {
         fs::create_dir_all(&root)
             .await

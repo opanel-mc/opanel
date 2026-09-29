@@ -39,6 +39,8 @@ mod terminal;
 mod version;
 mod whitelist;
 
+pub(super) use assets::initialize as initialize_assets;
+
 pub fn router() -> Router<Arc<OPanel>> {
     let managed_router = Router::new()
         .nest("/assets", assets_router())
@@ -256,7 +258,8 @@ fn assets_router() -> Router<Arc<OPanel>> {
         )
         .route(
             "/upload/{name}",
-            with_role(post(assets::upload_asset), AuthRouteRole::PanelOrMcp),
+            with_role(post(assets::upload_asset), AuthRouteRole::PanelOrMcp)
+                .layer(DefaultBodyLimit::disable()),
         )
         .route(
             "/reset/{name}",
