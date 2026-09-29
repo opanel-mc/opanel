@@ -16,7 +16,6 @@ use tracing::error;
 
 use super::file::random_temporary_path;
 
-#[allow(dead_code)]
 pub(crate) struct UploadedFile {
     pub(crate) name: String,
     pub(crate) bytes: Bytes,
@@ -24,7 +23,6 @@ pub(crate) struct UploadedFile {
 
 /// Reads the first `file` upload, returning `None` when it is missing or empty.
 /// Intended for bounded uploads whose contents are needed in memory, such as icons.
-#[allow(dead_code)]
 pub(crate) async fn read_file(
     mut multipart: Multipart,
 ) -> Result<Option<UploadedFile>, MultipartError> {
