@@ -254,17 +254,11 @@ pub(super) async fn set_launch_command(State(opanel): State<Arc<OPanel>>, body: 
 }
 
 fn unsupported_code_of_conduct() -> ApiError {
-    ApiError::new(
-        StatusCode::SERVICE_UNAVAILABLE,
-        "Pumpkin does not support server code-of-conduct management.",
-    )
+    ApiError::service_unavailable("Pumpkin does not support server code-of-conduct management.")
 }
 
 fn unsupported_paper_config() -> ApiError {
-    ApiError::new(
-        StatusCode::SERVICE_UNAVAILABLE,
-        "This server is not a Paper server.",
-    )
+    ApiError::service_unavailable("This server is not a Paper server.")
 }
 
 fn restart_command(launch_command: &str, delay_seconds: u64) -> RestartCommand {

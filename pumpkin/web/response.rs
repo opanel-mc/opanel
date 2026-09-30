@@ -64,6 +64,10 @@ impl ApiError {
         Self::new(StatusCode::NOT_IMPLEMENTED, "Not Implemented")
     }
 
+    pub fn service_unavailable(message: impl Into<String>) -> Self {
+        Self::new(StatusCode::SERVICE_UNAVAILABLE, message)
+    }
+
     pub fn from_status(status: StatusCode) -> Self {
         Self::new(status, status.canonical_reason().unwrap_or_default())
     }

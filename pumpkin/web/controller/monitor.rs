@@ -9,9 +9,9 @@ pub(super) async fn get_monitor_snapshot(State(_opanel): State<Arc<OPanel>>) -> 
 }
 
 pub(super) async fn get_history(State(_opanel): State<Arc<OPanel>>) -> ApiError {
-    ApiError::not_implemented()
+    ApiError::service_unavailable("Pumpkin does not support monitor history.")
 }
 
 pub(super) async fn get_activity(State(_opanel): State<Arc<OPanel>>) -> ApiError {
-    ApiError::not_implemented()
+    ApiError::service_unavailable("Pumpkin does not support player activity history.")
 }

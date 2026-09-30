@@ -65,6 +65,8 @@ impl<T> Packet<T> {
 pub enum EndpointError {
     #[error("websocket endpoint is not implemented")]
     NotImplemented,
+    #[error("{0}")]
+    ServiceUnavailable(&'static str),
     #[allow(dead_code)]
     #[error("websocket connection is closed")]
     Closed,
@@ -413,6 +415,10 @@ fn handle_endpoint_result(result: Result<(), EndpointError>, session: &WsSession
         Ok(()) => false,
         Err(EndpointError::NotImplemented) => {
             session.close_with_error(501, 1011, "Endpoint is not implemented.");
+            true
+        }
+        Err(EndpointError::ServiceUnavailable(reason)) => {
+            session.close_with_error(503, 1011, reason);
             true
         }
         Err(EndpointError::SlowConsumer) => {

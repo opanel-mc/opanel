@@ -15,7 +15,7 @@ use crate::{
     opanel::OPanel,
     task::ScheduledTaskManager,
     terminal::LogListenerManager,
-    web::{AuthManager, OidcManager},
+    web::AuthManager,
 };
 
 type BoxError = Box<dyn Error + Send + Sync + 'static>;
@@ -173,7 +173,6 @@ pub(crate) struct Managers {
     map_render: Arc<MapRenderManager>,
     monitor: Arc<MonitorManager>,
     activity: Arc<ActivityManager>,
-    oidc: Arc<OidcManager>,
     log_listener: Arc<LogListenerManager>,
 }
 
@@ -187,8 +186,7 @@ impl Managers {
             scheduled_tasks: Arc::new(ScheduledTaskManager::new(context.clone())),
             map_render: Arc::new(MapRenderManager::new(context.clone())),
             monitor: Arc::new(MonitorManager::new(context.clone())),
-            activity: Arc::new(ActivityManager::new(context.clone())),
-            oidc: Arc::new(OidcManager::new(context)),
+            activity: Arc::new(ActivityManager::new(context)),
         }
     }
 
@@ -216,10 +214,6 @@ impl Managers {
         Arc::clone(&self.activity)
     }
 
-    pub(crate) fn oidc(&self) -> Arc<OidcManager> {
-        Arc::clone(&self.oidc)
-    }
-
     pub(crate) fn log_listener(&self) -> Arc<LogListenerManager> {
         Arc::clone(&self.log_listener)
     }
@@ -241,7 +235,7 @@ impl Managers {
         }
     }
 
-    fn lifecycle_order(&self) -> [Arc<dyn Manager>; 8] {
+    fn lifecycle_order(&self) -> [Arc<dyn Manager>; 7] {
         [
             self.config(),
             self.auth(),
@@ -250,7 +244,6 @@ impl Managers {
             self.map_render(),
             self.monitor(),
             self.activity(),
-            self.oidc(),
         ]
     }
 }
@@ -370,7 +363,6 @@ mod tests {
         assert_send_sync::<MapRenderManager>();
         assert_send_sync::<MonitorManager>();
         assert_send_sync::<ActivityManager>();
-        assert_send_sync::<OidcManager>();
         assert_send_sync::<LogListenerManager>();
     }
 
@@ -387,7 +379,6 @@ mod tests {
         assert!(Arc::ptr_eq(&managers.map_render(), &managers.map_render()));
         assert!(Arc::ptr_eq(&managers.monitor(), &managers.monitor()));
         assert!(Arc::ptr_eq(&managers.activity(), &managers.activity()));
-        assert!(Arc::ptr_eq(&managers.oidc(), &managers.oidc()));
         assert!(Arc::ptr_eq(
             &managers.log_listener(),
             &managers.log_listener()
