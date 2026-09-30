@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::Arc};
 
 use axum::{
     extract::{MatchedPath, Request},
-    http::{Method, StatusCode},
+    http::{HeaderMap, Method, StatusCode, header},
     middleware::Next,
     response::{IntoResponse, Response},
 };
@@ -11,7 +11,7 @@ use time::Duration;
 
 use crate::opanel::OPanel;
 
-use super::response::ApiError;
+use super::{controller::mcp, response::ApiError};
 
 pub(super) const TOKEN_COOKIE_NAME: &str = "token";
 const TOKEN_MAX_AGE_SECONDS: i64 = 24 * 60 * 60;
@@ -109,8 +109,23 @@ pub(super) async fn authorize(jar: CookieJar, request: Request, next: Next) -> R
         return next.run(request).await;
     }
 
-    // PANEL_OR_MCP intentionally accepts only panel sessions for now. Bearer-token
-    // authentication is added together with the MCP authentication implementation.
+    if let Some(access_token) = mcp_bearer_token(role, request.headers()) {
+        if let Err(error) = mcp::validate_token_format(access_token) {
+            return error.into_response();
+        }
+        let Some(opanel) = request.extensions().get::<Arc<OPanel>>() else {
+            return ApiError::new(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Route authorization is not configured.",
+            )
+            .into_response();
+        };
+        return match mcp::authenticate(&opanel.storage(), access_token).await {
+            Ok(()) => next.run(request).await,
+            Err(error) => error.into_response(),
+        };
+    }
+
     let Some(token) = jar.get(TOKEN_COOKIE_NAME).map(Cookie::value) else {
         return ApiError::new(StatusCode::UNAUTHORIZED, "Token is missing.").into_response();
     };
@@ -137,6 +152,17 @@ pub(super) async fn authorize(jar: CookieJar, request: Request, next: Next) -> R
     }
 
     next.run(request).await
+}
+
+fn mcp_bearer_token(role: AuthRouteRole, headers: &HeaderMap) -> Option<&str> {
+    if role != AuthRouteRole::PanelOrMcp {
+        return None;
+    }
+    headers
+        .get(header::AUTHORIZATION)?
+        .to_str()
+        .ok()?
+        .strip_prefix("Bearer ")
 }
 
 pub(super) fn add_token_cookie(jar: CookieJar, token: String, secure: bool) -> CookieJar {
@@ -178,6 +204,63 @@ mod tests {
         AuthRouteRegistry, AuthRouteRole, TOKEN_COOKIE_NAME, add_token_cookie, authorize,
         remove_token_cookie,
     };
+
+    #[test]
+    fn bearer_auth_is_only_selected_for_panel_or_mcp_routes() {
+        let mut headers = HeaderMap::new();
+        headers.insert(header::AUTHORIZATION, "Bearer o-token".parse().unwrap());
+        assert_eq!(
+            super::mcp_bearer_token(AuthRouteRole::PanelOrMcp, &headers),
+            Some("o-token")
+        );
+        assert_eq!(
+            super::mcp_bearer_token(AuthRouteRole::PanelSession, &headers),
+            None
+        );
+        assert_eq!(
+            super::mcp_bearer_token(AuthRouteRole::Public, &headers),
+            None
+        );
+        for value in ["Basic example", "bearer o-token"] {
+            headers.insert(header::AUTHORIZATION, value.parse().unwrap());
+            assert_eq!(
+                super::mcp_bearer_token(AuthRouteRole::PanelOrMcp, &headers),
+                None
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn malformed_mcp_bearer_does_not_fall_back_to_session_auth() {
+        let mut registry = AuthRouteRegistry::default();
+        registry.register([Method::GET], ["/api/info"], AuthRouteRole::PanelOrMcp);
+        registry.register(
+            [Method::GET],
+            ["/api/mcp/token"],
+            AuthRouteRole::PanelSession,
+        );
+        let app = Router::new()
+            .route("/api/info", get(|| async { StatusCode::NO_CONTENT }))
+            .route("/api/mcp/token", get(|| async { StatusCode::NO_CONTENT }))
+            .route_layer(middleware::from_fn(authorize))
+            .route_layer(Extension(registry));
+        for (path, status) in [
+            ("/api/info", StatusCode::BAD_REQUEST),
+            ("/api/mcp/token", StatusCode::UNAUTHORIZED),
+        ] {
+            let response = app
+                .clone()
+                .oneshot(
+                    Request::get(path)
+                        .header(header::AUTHORIZATION, "Bearer o-short")
+                        .body(Body::empty())
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            assert_eq!(response.status(), status);
+        }
+    }
 
     #[test]
     fn token_cookie_has_the_session_security_attributes() {
