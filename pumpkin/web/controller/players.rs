@@ -1,6 +1,6 @@
 use std::{
     collections::HashSet,
-    path::{Path, PathBuf},
+    path::PathBuf,
     str::FromStr,
     sync::{Arc, PoisonError, atomic::Ordering},
 };
@@ -12,7 +12,9 @@ use axum::{
 };
 use base64::{Engine as _, engine::general_purpose::STANDARD};
 use pumpkin::{
-    data::banlist_serializer::BannedPlayerEntry, entity::player::Player, net::DisconnectReason,
+    data::{SaveJSONConfiguration, banlist_serializer::BannedPlayerEntry},
+    entity::player::Player,
+    net::DisconnectReason,
     server::Server,
 };
 use pumpkin_config::op::Op;
@@ -26,7 +28,7 @@ use uuid::Uuid;
 use super::control::EmptyPayload;
 use crate::{
     opanel::OPanel,
-    utils::{base64::decode_string, file::write_json, player_data},
+    utils::{base64::decode_string, player_data},
     web::response::{ApiError, ApiResponse},
 };
 
@@ -61,7 +63,8 @@ pub(super) async fn give_op(
     Query(query): Query<PlayerQuery>,
 ) -> Result<Response, ApiError> {
     apply(opanel, query, |server, target, _| {
-        set_operator(server, target, true)
+        set_operator(server, target, true);
+        Ok(())
     })
     .await
 }
@@ -71,7 +74,8 @@ pub(super) async fn deprive_op(
     Query(query): Query<PlayerQuery>,
 ) -> Result<Response, ApiError> {
     apply(opanel, query, |server, target, _| {
-        set_operator(server, target, false)
+        set_operator(server, target, false);
+        Ok(())
     })
     .await
 }
@@ -97,7 +101,19 @@ pub(super) async fn ban_player(
     Query(query): Query<PlayerQuery>,
 ) -> Result<Response, ApiError> {
     apply(opanel, query, |server, target, query| {
-        let reason = reason(query)?.unwrap_or_else(|| "Banned by an operator.".into());
+        let reason = reason(query)?;
+        if let Some(player) = &target.online {
+            player.ban_explicit(
+                server,
+                reason.map(TextComponent::text),
+                Some("OPanel".into()),
+                None,
+                true,
+                true,
+            );
+            return Ok(());
+        }
+
         let mut bans = server
             .data
             .banned_player_list
@@ -118,18 +134,9 @@ pub(super) async fn ban_player(
             created: OffsetDateTime::now_utc(),
             source: "OPanel".into(),
             expires: None,
-            reason: reason.clone(),
+            reason: reason.unwrap_or_else(|| "Banned by an operator.".into()),
         });
-        write_json(Path::new("data/banned-players.json"), &*bans).map_err(internal_error)?;
-        drop(bans);
-        if let Some(player) = &target.online {
-            player.kick(
-                DisconnectReason::Kicked,
-                &TextComponent::text(format!(
-                    "You are banned from this server!\nReason: {reason}"
-                )),
-            );
-        }
+        bans.save();
         Ok(())
     })
     .await
@@ -147,7 +154,8 @@ pub(super) async fn pardon_player(
             .unwrap_or_else(PoisonError::into_inner);
         bans.banned_players
             .retain(|entry| entry.uuid != target.uuid);
-        write_json(Path::new("data/banned-players.json"), &*bans).map_err(internal_error)
+        bans.save();
+        Ok(())
     })
     .await
 }
@@ -302,11 +310,7 @@ fn serialize_player(server: &Server, target: &TargetPlayer) -> Result<Value, Api
     Ok(data)
 }
 
-fn set_operator(
-    server: &Arc<Server>,
-    target: &TargetPlayer,
-    enabled: bool,
-) -> Result<(), ApiError> {
+fn set_operator(server: &Arc<Server>, target: &TargetPlayer, enabled: bool) {
     let mut operators = server
         .data
         .operator_config
@@ -314,7 +318,7 @@ fn set_operator(
         .unwrap_or_else(PoisonError::into_inner);
     let exists = operators.get_entry(&target.uuid).is_some();
     if exists == enabled {
-        return Ok(());
+        return;
     }
     let level = if enabled {
         server.basic_config.op_permission_level
@@ -328,12 +332,11 @@ fn set_operator(
     } else {
         operators.ops.retain(|entry| entry.uuid != target.uuid);
     }
-    write_json(Path::new("data/ops.json"), &*operators).map_err(internal_error)?;
+    operators.save();
     drop(operators);
     if let Some(player) = &target.online {
         player.set_permission_lvl(server, level, &server.command_dispatcher.load());
     }
-    Ok(())
 }
 
 fn data_directory(server: &Server) -> PathBuf {

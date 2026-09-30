@@ -23,14 +23,6 @@ pub(crate) fn random_temporary_path(directory: &Path, extension: &str) -> io::Re
     Ok(directory.join(format!("{name}.{extension}")))
 }
 
-pub(crate) fn write_json(path: &Path, value: &impl serde::Serialize) -> io::Result<()> {
-    let contents = serde_json::to_vec_pretty(value).map_err(io::Error::other)?;
-    if let Some(parent) = path.parent() {
-        std::fs::create_dir_all(parent)?;
-    }
-    std::fs::write(path, contents)
-}
-
 #[cfg(test)]
 mod tests {
     use std::path::Path;
