@@ -135,7 +135,7 @@ async fn upload(client: &reqwest::Client, url: &str, content: String) -> Result<
         "metadata": [
             {"key": "server_software", "value": "Pumpkin", "label": "Server Software"},
             {"key": "mc_version", "value": CURRENT_MC_VERSION.to_string(), "label": "Minecraft Version"},
-            {"key": "opanel_version", "value": env!("CARGO_PKG_VERSION"), "label": "OPanel Version"}
+            {"key": "opanel_version", "value": OPanel::VERSION, "label": "OPanel Version"}
         ]
     })).send().await.map_err(|_| gateway_error("Failed to connect to mclo.gs."))?;
     let success = response.status().is_success();
