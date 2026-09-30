@@ -1,7 +1,8 @@
 use std::{
     fs,
-    io::{self, Read},
+    io::{self, BufRead, BufReader, Read, Seek, SeekFrom},
     path::{Path, PathBuf},
+    time::SystemTime,
 };
 
 use flate2::read::MultiGzDecoder;
@@ -71,11 +72,108 @@ pub(crate) fn clear(directory: &Path) -> Result<(), LogError> {
     Ok(())
 }
 
+/// Reads complete lines appended after the listener starts.
+pub(crate) struct LogTail {
+    path: PathBuf,
+    offset: u64,
+    created: Option<SystemTime>,
+    pending: Vec<u8>,
+}
+
+impl LogTail {
+    pub(crate) fn new(path: PathBuf) -> io::Result<Self> {
+        let metadata = match fs::metadata(&path) {
+            Ok(metadata) => Some(metadata),
+            Err(error) if error.kind() == io::ErrorKind::NotFound => None,
+            Err(error) => return Err(error),
+        };
+        Ok(Self {
+            path,
+            offset: metadata.as_ref().map_or(0, fs::Metadata::len),
+            created: metadata.and_then(|metadata| metadata.created().ok()),
+            pending: Vec::new(),
+        })
+    }
+
+    pub(crate) fn read_lines(&mut self) -> io::Result<Vec<String>> {
+        let mut file = match fs::File::open(&self.path) {
+            Ok(file) => file,
+            Err(error) if error.kind() == io::ErrorKind::NotFound => {
+                self.offset = 0;
+                self.created = None;
+                self.pending.clear();
+                return Ok(Vec::new());
+            }
+            Err(error) => return Err(error),
+        };
+        let metadata = file.metadata()?;
+        let created = metadata.created().ok();
+        if metadata.len() < self.offset || created != self.created {
+            self.offset = 0;
+            self.pending.clear();
+        }
+        self.created = created;
+        file.seek(SeekFrom::Start(self.offset))?;
+        let mut reader = BufReader::new(file);
+        let mut lines = Vec::new();
+        // Bound each batch so a burst of logs does not monopolize the worker.
+        while lines.len() < 20_000 {
+            let read = reader.read_until(b'\n', &mut self.pending)?;
+            self.offset += read as u64;
+            if read == 0 {
+                break;
+            }
+            if self.pending.last() == Some(&b'\n') {
+                self.pending.pop();
+                if self.pending.last() == Some(&b'\r') {
+                    self.pending.pop();
+                }
+                lines.push(String::from_utf8_lossy(&self.pending).into_owned());
+                self.pending.clear();
+            }
+        }
+        Ok(lines)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::utils::file::random_temporary_path;
     use std::io::Write;
+
+    #[test]
+    fn tail_waits_for_complete_utf8_lines_and_does_not_replay_existing_logs() {
+        let path = random_temporary_path(&std::env::temp_dir(), "log").unwrap();
+        fs::write(&path, b"[INFO] old\n").unwrap();
+        let mut tail = LogTail::new(path.clone()).unwrap();
+        assert!(tail.read_lines().unwrap().is_empty());
+
+        let mut writer = fs::OpenOptions::new().append(true).open(&path).unwrap();
+        writer.write_all(b"[INFO] \xe4").unwrap();
+        assert!(tail.read_lines().unwrap().is_empty());
+        writer.write_all(b"\xb8\xad\r\n[WARN] next\n").unwrap();
+        assert_eq!(tail.read_lines().unwrap(), ["[INFO] 中", "[WARN] next"]);
+        assert!(tail.read_lines().unwrap().is_empty());
+        drop(writer);
+        fs::remove_file(path).unwrap();
+    }
+
+    #[test]
+    fn tail_handles_delayed_creation_truncation_and_missing_files() {
+        let path = random_temporary_path(&std::env::temp_dir(), "log").unwrap();
+        let mut tail = LogTail::new(path.clone()).unwrap();
+        assert!(tail.read_lines().unwrap().is_empty());
+        fs::write(&path, "[INFO] first log\nunfinished").unwrap();
+        assert_eq!(tail.read_lines().unwrap(), ["[INFO] first log"]);
+        fs::write(&path, "[WARN] new\n").unwrap();
+        assert_eq!(tail.read_lines().unwrap(), ["[WARN] new"]);
+        fs::remove_file(&path).unwrap();
+        assert!(tail.read_lines().unwrap().is_empty());
+        fs::write(&path, "[ERROR] recreated\n").unwrap();
+        assert_eq!(tail.read_lines().unwrap(), ["[ERROR] recreated"]);
+        fs::remove_file(path).unwrap();
+    }
 
     #[test]
     fn reads_archives_and_clears_only_archived_logs() {

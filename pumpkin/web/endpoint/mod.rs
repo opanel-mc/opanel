@@ -67,6 +67,8 @@ pub enum EndpointError {
     NotImplemented,
     #[error("{0}")]
     ServiceUnavailable(&'static str),
+    #[error("invalid websocket packet data")]
+    InvalidPacket,
     #[error("websocket connection is closed")]
     Closed,
     #[error("websocket client is not consuming messages fast enough")]
@@ -171,8 +173,8 @@ pub fn router(opanel: Arc<OPanel>, shutdown: CancellationToken) -> axum::Router 
         )
         .route(
             "/terminal",
-            endpoint_route(
-                Arc::new(terminal::TerminalEndpoint::new(Arc::clone(&opanel))),
+            terminal::route(
+                opanel.managers().log_listener(),
                 Arc::clone(&authenticate),
                 shutdown.clone(),
             ),
@@ -411,6 +413,10 @@ fn handle_endpoint_result(result: Result<(), EndpointError>, session: &WsSession
         }
         Err(EndpointError::ServiceUnavailable(reason)) => {
             session.close_with_error(503, 1011, reason);
+            true
+        }
+        Err(EndpointError::InvalidPacket) => {
+            session.close_with_error(400, 1007, "Invalid packet data.");
             true
         }
         Err(EndpointError::SlowConsumer) => {
