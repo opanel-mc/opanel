@@ -2837,12 +2837,13 @@ checksum = "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
 
 [[package]]
 name = "opanel-pumpkin"
-version = "0.1.0"
+version = "2.2.4"
 dependencies = [
  "arc-swap",
  "axum",
  "axum-extra",
  "base64 0.22.1",
+ "flate2",
  "futures-util",
  "getrandom 0.3.4",
  "hmac 0.12.1",
@@ -2856,6 +2857,8 @@ dependencies = [
  "pumpkin-data",
  "pumpkin-nbt",
  "pumpkin-util",
+ "reqwest",
+ "rustls",
  "serde",
  "serde_json",
  "sha2 0.10.9",

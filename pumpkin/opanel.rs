@@ -30,6 +30,8 @@ pub(crate) enum OPanelInitError {
 }
 
 impl OPanel {
+    pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+
     pub(crate) async fn initialize(context: Arc<Context>) -> Result<Arc<Self>, OPanelInitError> {
         let uptimer = Uptimer::new();
         let storage = Arc::new(Storage::open(PathBuf::from("opanel")).await?);
