@@ -44,8 +44,7 @@ const serverGroupItems: SidebarItemDef[] = [
   {
     name: $("sidebar.server.monitor"),
     url: "/panel/monitor",
-    icon: Activity,
-    condition: ({ serverType }) => !isPumpkin(serverType)
+    icon: Activity
   },
   {
     name: $("sidebar.server.terminal"),
