@@ -13,7 +13,7 @@ use crate::{
     map::MapRenderManager,
     monitor::{ActivityManager, MonitorManager},
     opanel::OPanel,
-    task::ScheduledTaskManager,
+    scheduled_tasks::ScheduledTaskManager,
     terminal::LogListenerManager,
     web::AuthManager,
 };

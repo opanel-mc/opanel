@@ -97,6 +97,11 @@ pub(crate) fn unix_time_millis() -> u128 {
         .map_or(0, |duration| duration.as_millis())
 }
 
+pub(crate) fn game_tick_to_time(ticks: i64) -> String {
+    let minutes = ticks.rem_euclid(24_000) * 60 / 1_000;
+    format!("{:02}:{:02}", (minutes / 60 + 6) % 24, minutes % 60)
+}
+
 #[cfg(test)]
 mod tests {
     use std::time::Duration;
@@ -104,6 +109,19 @@ mod tests {
     use serde_json::json;
 
     use super::{IngameTime, WorldTimeSnapshot, duration_millis};
+
+    #[test]
+    fn game_clock_never_displays_sixty_minutes() {
+        for (tick, expected) in [
+            (0, "06:00"),
+            (999, "06:59"),
+            (1000, "07:00"),
+            (18000, "00:00"),
+            (24000, "06:00"),
+        ] {
+            assert_eq!(super::game_tick_to_time(tick), expected);
+        }
+    }
 
     #[test]
     fn duration_millis_saturates_at_u64_max() {

@@ -19,6 +19,8 @@ arc-swap = "1"
 axum = { version = "0.8", features = ["http1", "json", "multipart", "tokio", "ws"] }
 axum-extra = { version = "0.10", features = ["cookie"] }
 base64 = "0.22"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+croner = "4"
 flate2 = "1"
 futures-util = "0.3"
 getrandom = "0.3"

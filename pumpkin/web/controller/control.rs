@@ -1,4 +1,4 @@
-use std::{process::Command, sync::Arc};
+use std::sync::Arc;
 
 use axum::{
     body::Bytes,
@@ -14,12 +14,12 @@ use tracing::error;
 use crate::{
     opanel::OPanel,
     save::{Save, SaveError},
-    storage::TextFile,
-    utils::pumpkin_config,
+    utils::{
+        pumpkin_config,
+        server::{self, LAUNCH_COMMAND_FILE, RestartError},
+    },
     web::response::{ApiError, ApiResponse},
 };
-
-const LAUNCH_COMMAND_FILE: TextFile = TextFile::new("launch-command.txt", "");
 
 #[derive(Debug, Serialize)]
 struct PropertiesPayload {
@@ -38,12 +38,6 @@ pub(super) struct EmptyPayload {}
 #[derive(Debug, Deserialize)]
 pub(super) struct SwitchSaveQuery {
     save: Option<String>,
-}
-
-#[derive(Debug)]
-struct RestartCommand {
-    program: &'static str,
-    args: Vec<String>,
 }
 
 pub(super) async fn get_server_properties(State(_opanel): State<Arc<OPanel>>) -> Response {
@@ -137,39 +131,16 @@ pub(super) async fn reload_server(State(opanel): State<Arc<OPanel>>) -> Response
 }
 
 pub(super) async fn restart_server(State(opanel): State<Arc<OPanel>>) -> Response {
-    let launch_command = match opanel.storage().read_text(&LAUNCH_COMMAND_FILE).await {
-        Ok(command) => command,
-        Err(error) => {
-            error!(%error, "failed to read launch command");
-            return ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
-                .into_response();
+    match server::restart(&opanel).await {
+        Ok(()) => ApiResponse::ok(EmptyPayload {}).into_response(),
+        Err(RestartError::MissingLaunchCommand) => {
+            ApiError::new(StatusCode::NOT_ACCEPTABLE, "Launch command is not set.").into_response()
         }
-    };
-    if launch_command.is_empty() {
-        return ApiError::new(StatusCode::NOT_ACCEPTABLE, "Launch command is not set.")
-            .into_response();
-    }
-
-    let restart = restart_command(&launch_command, opanel.config().server_restart_delay);
-    let current_directory = match std::env::current_dir() {
-        Ok(directory) => directory,
         Err(error) => {
-            error!(%error, "failed to resolve the server working directory");
-            return ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
-                .into_response();
+            error!(%error, "failed to schedule Pumpkin restart");
+            ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, error.to_string()).into_response()
         }
-    };
-    if let Err(error) = Command::new(restart.program)
-        .args(restart.args)
-        .current_dir(current_directory)
-        .spawn()
-    {
-        error!(%error, "failed to schedule Pumpkin restart");
-        return ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, error.to_string()).into_response();
     }
-
-    pumpkin::stop_server();
-    ApiResponse::ok(EmptyPayload {}).into_response()
 }
 
 pub(super) async fn switch_save(
@@ -259,49 +230,4 @@ fn unsupported_code_of_conduct() -> ApiError {
 
 fn unsupported_paper_config() -> ApiError {
     ApiError::service_unavailable("This server is not a Paper server.")
-}
-
-fn restart_command(launch_command: &str, delay_seconds: u64) -> RestartCommand {
-    let delay_seconds = if delay_seconds == 0 {
-        10
-    } else {
-        delay_seconds
-    };
-    if cfg!(windows) {
-        RestartCommand {
-            program: "cmd.exe",
-            args: vec![
-                "/C".to_string(),
-                "start".to_string(),
-                String::new(),
-                "cmd.exe".to_string(),
-                "/C".to_string(),
-                format!("timeout /T {delay_seconds} /NOBREAK > NUL && {launch_command}"),
-            ],
-        }
-    } else {
-        let command = launch_command.replace('\'', "'\\''");
-        RestartCommand {
-            program: "sh",
-            args: vec![
-                "-c".to_string(),
-                format!("nohup sh -c 'sleep {delay_seconds} && {command}' >/dev/null 2>&1 &"),
-            ],
-        }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn restart_command_enforces_a_positive_delay_and_keeps_the_launch_command() {
-        let restart = restart_command("pumpkin --world 'main'", 0);
-        let joined = restart.args.join(" ");
-
-        assert!(joined.contains("10"));
-        assert!(joined.contains("pumpkin"));
-        assert!(joined.contains("main"));
-    }
 }
