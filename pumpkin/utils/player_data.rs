@@ -47,7 +47,8 @@ pub(crate) fn set_game_mode(directory: &Path, uuid: Uuid, mode: GameMode) -> io:
 }
 
 pub(crate) fn delete(directory: &Path, uuid: Uuid) -> io::Result<()> {
-    for extension in ["dat", "dat_old"] {
+    // Keep the primary file discoverable if deleting the backup fails, so the API can retry.
+    for extension in ["dat_old", "dat"] {
         match fs::remove_file(directory.join(format!("{uuid}.{extension}"))) {
             Ok(()) => {}
             Err(error) if error.kind() == io::ErrorKind::NotFound => {}
@@ -61,6 +62,29 @@ pub(crate) fn delete(directory: &Path, uuid: Uuid) -> io::Result<()> {
 mod tests {
     use super::*;
     use crate::utils::file::random_temporary_path;
+
+    #[test]
+    fn failed_backup_deletion_keeps_player_data_for_retry() {
+        let root = random_temporary_path(&std::env::temp_dir(), "players").unwrap();
+        fs::create_dir_all(&root).unwrap();
+        let id = Uuid::from_u128(1);
+        let primary = root.join(format!("{id}.dat"));
+        let backup = root.join(format!("{id}.dat_old"));
+        fs::write(&primary, b"player data").unwrap();
+        // A directory makes remove_file fail on every platform without relying on file locks.
+        fs::create_dir(&backup).unwrap();
+
+        assert!(delete(&root, id).is_err());
+        assert_eq!(fs::read(&primary).unwrap(), b"player data");
+        assert_eq!(list(&root).unwrap(), [id]);
+
+        fs::remove_dir(&backup).unwrap();
+        fs::write(&backup, b"backup").unwrap();
+        delete(&root, id).unwrap();
+        assert!(!primary.exists());
+        assert!(!backup.exists());
+        fs::remove_dir(root).unwrap();
+    }
 
     #[test]
     fn offline_game_mode_preserves_data_and_deletion_removes_backup() {
