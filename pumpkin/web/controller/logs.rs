@@ -121,7 +121,7 @@ pub(super) async fn upload_log_to_mclogs(
     Ok(ApiResponse::ok(json!({"id": id})).into_response())
 }
 
-async fn read_log(name: String) -> Result<String, ApiError> {
+pub(super) async fn read_log(name: String) -> Result<String, ApiError> {
     tokio::task::spawn_blocking(move || logs::read(Path::new(LOG_DIRECTORY), &name))
         .await
         .map_err(internal_error)?
