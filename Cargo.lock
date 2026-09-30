@@ -2854,6 +2854,7 @@ dependencies = [
  "percent-encoding",
  "pumpkin",
  "pumpkin-api-macros",
+ "pumpkin-config",
  "pumpkin-data",
  "pumpkin-nbt",
  "pumpkin-util",
@@ -2873,6 +2874,7 @@ dependencies = [
  "tower",
  "tower-http",
  "tracing",
+ "uuid",
  "zip",
 ]
 
