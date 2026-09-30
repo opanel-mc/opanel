@@ -19,6 +19,7 @@ arc-swap = "1"
 axum = { version = "0.8", features = ["http1", "json", "multipart", "tokio", "ws"] }
 axum-extra = { version = "0.10", features = ["cookie"] }
 base64 = "0.22"
+flate2 = "1"
 futures-util = "0.3"
 getrandom = "0.3"
 hmac = "0.12"
@@ -32,6 +33,8 @@ pumpkin-api-macros = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", tag = 
 pumpkin-data = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", tag = "0.2.0+26.3-26.51", package = "pumpkin-data" }
 pumpkin-nbt = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", tag = "0.2.0+26.3-26.51", package = "pumpkin-nbt" }
 pumpkin-util = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", tag = "0.2.0+26.3-26.51", package = "pumpkin-util" }
+reqwest = { version = "0.13", default-features = false, features = ["rustls-no-provider", "json"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sha2 = "0.10"
