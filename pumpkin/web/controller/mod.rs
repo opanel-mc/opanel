@@ -51,10 +51,12 @@ pub fn router() -> Router<Arc<OPanel>> {
         .route_layer(middleware::from_fn(authorize))
         .route_layer(Extension(managed_auth_registry()));
 
-    Router::new()
-        .merge(managed_router)
+    let public_router = Router::new()
         .nest("/open-api", open_api_router())
         .route("/open-api", any(response::not_found))
+        .route_layer(middleware::from_fn(open_api::authorize));
+
+    Router::new().merge(managed_router).merge(public_router)
 }
 
 fn with_method_fallback(router: MethodRouter<Arc<OPanel>>) -> MethodRouter<Arc<OPanel>> {
