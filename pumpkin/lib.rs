@@ -14,7 +14,6 @@ mod config;
 mod downloads;
 mod event;
 mod managers;
-mod map;
 mod monitor;
 mod opanel;
 mod player;

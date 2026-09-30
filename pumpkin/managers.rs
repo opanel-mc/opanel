@@ -10,7 +10,6 @@ use tokio_util::sync::CancellationToken;
 
 use crate::{
     config::ConfigManager,
-    map::MapRenderManager,
     monitor::{ActivityManager, MonitorManager},
     opanel::OPanel,
     scheduled_tasks::ScheduledTaskManager,
@@ -170,7 +169,6 @@ pub(crate) struct Managers {
     config: Arc<ConfigManager>,
     auth: Arc<AuthManager>,
     scheduled_tasks: Arc<ScheduledTaskManager>,
-    map_render: Arc<MapRenderManager>,
     monitor: Arc<MonitorManager>,
     activity: Arc<ActivityManager>,
     log_listener: Arc<LogListenerManager>,
@@ -184,7 +182,6 @@ impl Managers {
             auth: Arc::new(AuthManager::new(context.clone())),
             log_listener: Arc::new(LogListenerManager::new(context.clone())),
             scheduled_tasks: Arc::new(ScheduledTaskManager::new(context.clone())),
-            map_render: Arc::new(MapRenderManager::new(context.clone())),
             monitor: Arc::new(MonitorManager::new(context.clone())),
             activity: Arc::new(ActivityManager::new(context)),
         }
@@ -200,10 +197,6 @@ impl Managers {
 
     pub(crate) fn scheduled_tasks(&self) -> Arc<ScheduledTaskManager> {
         Arc::clone(&self.scheduled_tasks)
-    }
-
-    pub(crate) fn map_render(&self) -> Arc<MapRenderManager> {
-        Arc::clone(&self.map_render)
     }
 
     pub(crate) fn monitor(&self) -> Arc<MonitorManager> {
@@ -235,13 +228,12 @@ impl Managers {
         }
     }
 
-    fn lifecycle_order(&self) -> [Arc<dyn Manager>; 7] {
+    fn lifecycle_order(&self) -> [Arc<dyn Manager>; 6] {
         [
             self.config(),
             self.auth(),
             self.log_listener(),
             self.scheduled_tasks(),
-            self.map_render(),
             self.monitor(),
             self.activity(),
         ]
@@ -360,7 +352,6 @@ mod tests {
         assert_send_sync::<ConfigManager>();
         assert_send_sync::<AuthManager>();
         assert_send_sync::<ScheduledTaskManager>();
-        assert_send_sync::<MapRenderManager>();
         assert_send_sync::<MonitorManager>();
         assert_send_sync::<ActivityManager>();
         assert_send_sync::<LogListenerManager>();
@@ -376,7 +367,6 @@ mod tests {
             &managers.scheduled_tasks(),
             &managers.scheduled_tasks()
         ));
-        assert!(Arc::ptr_eq(&managers.map_render(), &managers.map_render()));
         assert!(Arc::ptr_eq(&managers.monitor(), &managers.monitor()));
         assert!(Arc::ptr_eq(&managers.activity(), &managers.activity()));
         assert!(Arc::ptr_eq(
