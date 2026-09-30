@@ -3,7 +3,7 @@ use std::{future::Future, time::Duration};
 use tokio_util::sync::CancellationToken;
 
 #[derive(Clone, Debug, PartialEq)]
-pub(super) enum Command {
+pub enum Command {
     Server(String),
     Loop(u32, Vec<Command>),
     Sleep(Option<String>),
@@ -11,12 +11,12 @@ pub(super) enum Command {
 }
 
 #[derive(Debug, PartialEq)]
-pub(super) enum Action {
+pub enum Action {
     Server(String),
     Restart,
 }
 
-pub(super) fn parse(lines: &[String]) -> Result<Vec<Command>, String> {
+pub fn parse(lines: &[String]) -> Result<Vec<Command>, String> {
     let mut commands = Vec::new();
     let mut current_loop: Option<(u32, Vec<String>)> = None;
     for line in lines {
@@ -66,7 +66,7 @@ pub(super) fn parse(lines: &[String]) -> Result<Vec<Command>, String> {
     Ok(commands)
 }
 
-pub(super) async fn execute<F, Fut>(
+pub async fn execute<F, Fut>(
     commands: &[Command],
     variables: &[(&str, String)],
     cancelled: &CancellationToken,
