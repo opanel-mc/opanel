@@ -67,10 +67,8 @@ pub enum EndpointError {
     NotImplemented,
     #[error("{0}")]
     ServiceUnavailable(&'static str),
-    #[allow(dead_code)]
     #[error("websocket connection is closed")]
     Closed,
-    #[allow(dead_code)]
     #[error("websocket client is not consuming messages fast enough")]
     SlowConsumer,
     #[error("failed to serialize websocket packet: {0}")]
@@ -79,7 +77,6 @@ pub enum EndpointError {
 
 #[derive(Clone)]
 pub struct WsSession {
-    #[allow(dead_code)]
     sender: mpsc::Sender<Message>,
     close_sender: mpsc::UnboundedSender<CloseRequest>,
     closing: Arc<AtomicBool>,
@@ -91,7 +88,6 @@ struct CloseRequest {
 }
 
 impl WsSession {
-    #[allow(dead_code)]
     pub fn send<T: Serialize>(&self, packet: Packet<T>) -> Result<(), EndpointError> {
         if self.closing.load(Ordering::Acquire) {
             return Err(EndpointError::Closed);
@@ -191,11 +187,7 @@ pub fn router(opanel: Arc<OPanel>, shutdown: CancellationToken) -> axum::Router 
         )
         .route(
             "/monitor",
-            endpoint_route(
-                Arc::new(monitor::MonitorEndpoint::new(opanel)),
-                authenticate,
-                shutdown,
-            ),
+            monitor::route(opanel.managers().monitor(), authenticate, shutdown),
         )
         .route("/", any(super::response::not_found))
         .fallback(super::response::not_found)

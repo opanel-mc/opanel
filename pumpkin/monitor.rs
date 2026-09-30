@@ -1,5 +1,5 @@
 use std::{
-    collections::HashMap,
+    collections::{HashMap, VecDeque},
     error::Error,
     future::Future,
     pin::Pin,
@@ -11,11 +11,16 @@ use serde::Serialize;
 use sysinfo::{
     CpuRefreshKind, DiskRefreshKind, Disks, MemoryRefreshKind, Networks, RefreshKind, System,
 };
-use tokio::{sync::Mutex, task::JoinHandle, time::MissedTickBehavior};
+use tokio::{
+    sync::{Mutex, broadcast},
+    task::JoinHandle,
+    time::MissedTickBehavior,
+};
 
 use crate::managers::{Manager, ManagerContext};
 
 const SAMPLE_INTERVAL: Duration = Duration::from_secs(1);
+pub(crate) const MAX_HISTORY_SIZE: usize = 200;
 
 #[derive(Clone, Copy, Debug, Default, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -32,7 +37,7 @@ pub(crate) struct MonitorData {
 
 pub(crate) struct MonitorManager {
     context: ManagerContext,
-    snapshot: Arc<RwLock<MonitorData>>,
+    state: Arc<RwLock<MonitorState>>,
     worker: Mutex<Option<JoinHandle<()>>>,
 }
 
@@ -40,16 +45,63 @@ impl MonitorManager {
     pub(crate) fn new(context: ManagerContext) -> Self {
         Self {
             context,
-            snapshot: Arc::new(RwLock::new(MonitorData::default())),
+            state: Arc::new(RwLock::new(MonitorState::new())),
             worker: Mutex::new(None),
         }
     }
 
     pub(crate) fn snapshot(&self) -> MonitorData {
         *self
-            .snapshot
+            .state
             .read()
             .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .history
+            .back()
+            .expect("monitor history is initialized with samples")
+    }
+
+    pub(crate) fn subscribe(
+        &self,
+        limit: usize,
+    ) -> (Vec<MonitorData>, broadcast::Receiver<MonitorData>) {
+        let state = self
+            .state
+            .read()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        // Capture history and subscribe under the same lock so updates are neither lost nor repeated.
+        let history = state
+            .history
+            .iter()
+            .skip(state.history.len().saturating_sub(limit))
+            .copied()
+            .collect();
+        (history, state.updates.subscribe())
+    }
+}
+
+struct MonitorState {
+    history: VecDeque<MonitorData>,
+    updates: broadcast::Sender<MonitorData>,
+}
+
+impl MonitorState {
+    fn new() -> Self {
+        let initial = MonitorData {
+            tps: 20.0,
+            ..MonitorData::default()
+        };
+        Self {
+            history: VecDeque::from(vec![initial; MAX_HISTORY_SIZE]),
+            updates: broadcast::channel(MAX_HISTORY_SIZE).0,
+        }
+    }
+
+    fn record(&mut self, data: MonitorData) {
+        if self.history.len() >= MAX_HISTORY_SIZE {
+            self.history.pop_front();
+        }
+        self.history.push_back(data);
+        let _ = self.updates.send(data);
     }
 }
 
@@ -78,11 +130,11 @@ impl Manager for MonitorManager {
             })
             .await?;
             initial.tps = server.get_tps().clamp(0.0, 20.0);
-            *self
-                .snapshot
+            self.state
                 .write()
-                .unwrap_or_else(std::sync::PoisonError::into_inner) = initial;
-            let snapshot = Arc::clone(&self.snapshot);
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
+                .record(initial);
+            let state = Arc::clone(&self.state);
             let shutdown = self.shutdown_token();
             *worker = Some(tokio::spawn(async move {
                 let mut sampler = sampler;
@@ -107,9 +159,10 @@ impl Manager for MonitorManager {
                         Ok((next, mut data)) => {
                             sampler = next;
                             data.tps = server.get_tps().clamp(0.0, 20.0);
-                            *snapshot
+                            state
                                 .write()
-                                .unwrap_or_else(std::sync::PoisonError::into_inner) = data;
+                                .unwrap_or_else(std::sync::PoisonError::into_inner)
+                                .record(data);
                         }
                         Err(error) => {
                             tracing::warn!(%error, "Monitor sampler stopped");
@@ -269,6 +322,65 @@ impl Manager for ActivityManager {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn monitor_manager() -> MonitorManager {
+        MonitorManager::new(ManagerContext::new(
+            std::sync::Weak::new(),
+            tokio_util::sync::CancellationToken::new(),
+        ))
+    }
+
+    #[test]
+    fn history_starts_with_java_compatible_samples_and_respects_limits() {
+        let manager = monitor_manager();
+        let (history, _) = manager.subscribe(usize::MAX);
+        assert_eq!(history.len(), MAX_HISTORY_SIZE);
+        for data in history {
+            assert_eq!(
+                serde_json::to_value(data).unwrap(),
+                serde_json::json!({
+                    "cpu": 0.0, "memory": 0.0, "jvmMemory": 0.0, "tps": 20.0,
+                    "networkUpload": 0.0, "networkDownload": 0.0,
+                    "diskRead": 0.0, "diskWrite": 0.0,
+                })
+            );
+        }
+        assert!(manager.subscribe(0).0.is_empty());
+        assert_eq!(manager.subscribe(1).0.len(), 1);
+    }
+
+    #[test]
+    fn history_rolls_over_and_subscribers_receive_only_new_samples() {
+        let manager = monitor_manager();
+        for index in 1..=MAX_HISTORY_SIZE + 3 {
+            manager.state.write().unwrap().record(MonitorData {
+                cpu: index as f64,
+                ..MonitorData::default()
+            });
+        }
+        let (history, mut first) = manager.subscribe(2);
+        assert_eq!(
+            history.iter().map(|data| data.cpu).collect::<Vec<_>>(),
+            [202.0, 203.0]
+        );
+        let (history, mut second) = manager.subscribe(MAX_HISTORY_SIZE);
+        assert_eq!(history.len(), MAX_HISTORY_SIZE);
+        assert_eq!(history[0].cpu, 4.0);
+        assert_eq!(manager.snapshot().cpu, 203.0);
+        assert!(matches!(
+            first.try_recv(),
+            Err(broadcast::error::TryRecvError::Empty)
+        ));
+
+        manager.state.write().unwrap().record(MonitorData {
+            cpu: 42.0,
+            ..MonitorData::default()
+        });
+        assert_eq!(first.try_recv().unwrap().cpu, 42.0);
+        assert_eq!(second.try_recv().unwrap().cpu, 42.0);
+        assert_eq!(manager.snapshot().cpu, 42.0);
+        assert_eq!(manager.subscribe(1).0[0].cpu, 42.0);
+    }
 
     #[test]
     fn rates_ignore_new_devices_resets_and_removed_devices() {
