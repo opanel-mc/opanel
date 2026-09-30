@@ -127,7 +127,7 @@ impl ScheduledTaskManager {
         let (cron, program) = prepare(&task)?;
         let mut updated = state.tasks.clone();
         updated.push(task.clone());
-        self.persist(&updated).await?;
+        self.save(&updated).await?;
         state.tasks = updated;
         self.schedule(&mut state, &task, cron, program);
         Ok(id)
@@ -152,8 +152,7 @@ impl ScheduledTaskManager {
         let (cron, program) = prepare(&task)?;
         let mut updated = state.tasks.clone();
         updated[index] = task.clone();
-        self.persist(&updated).await?;
-        stop_task(&mut state, id).await;
+        self.persist_change(&mut state, index, &updated).await?;
         state.tasks = updated;
         self.schedule(&mut state, &task, cron, program);
         Ok(())
@@ -169,8 +168,7 @@ impl ScheduledTaskManager {
         updated[index].enabled = enabled;
         let task = updated[index].clone();
         let (cron, program) = prepare(&task)?;
-        self.persist(&updated).await?;
-        stop_task(&mut state, id).await;
+        self.persist_change(&mut state, index, &updated).await?;
         state.tasks = updated;
         self.schedule(&mut state, &task, cron, program);
         Ok(())
@@ -181,13 +179,29 @@ impl ScheduledTaskManager {
         let index = task_index(&state.tasks, id)?;
         let mut updated = state.tasks.clone();
         updated.remove(index);
-        self.persist(&updated).await?;
-        stop_task(&mut state, id).await;
+        self.persist_change(&mut state, index, &updated).await?;
         state.tasks = updated;
         Ok(())
     }
 
-    async fn persist(&self, tasks: &Vec<ScheduledTask>) -> Result<(), TaskError> {
+    async fn persist_change(
+        &self,
+        state: &mut TaskState,
+        index: usize,
+        updated: &Vec<ScheduledTask>,
+    ) -> Result<(), TaskError> {
+        let original = state.tasks[index].clone();
+        let (cron, program) = prepare(&original)?;
+        // Workers do not lock state, so stop them before awaiting storage I/O.
+        stop_task(state, &original.id).await;
+        if let Err(error) = self.save(updated).await {
+            self.schedule(state, &original, cron, program);
+            return Err(error);
+        }
+        Ok(())
+    }
+
+    async fn save(&self, tasks: &Vec<ScheduledTask>) -> Result<(), TaskError> {
         self.storage
             .get()
             .ok_or(TaskError::NotStarted)?
@@ -360,15 +374,42 @@ impl Manager for ScheduledTaskManager {
 
 #[cfg(test)]
 mod tests {
-    use std::sync::Weak;
+    use std::{sync::Weak, time::Duration};
 
     use chrono::{TimeZone, Utc};
+    use tokio::{sync::oneshot, time::timeout};
 
     use super::*;
     use crate::utils::file::random_temporary_path;
 
     fn test_manager() -> ScheduledTaskManager {
         ScheduledTaskManager::new(ManagerContext::new(Weak::new(), CancellationToken::new()))
+    }
+
+    #[derive(Clone, Copy, Debug)]
+    enum TaskChange {
+        Edit,
+        SetEnabled(bool),
+        Delete,
+    }
+
+    impl TaskChange {
+        async fn apply(self, manager: &ScheduledTaskManager, id: &str) -> Result<(), TaskError> {
+            match self {
+                Self::Edit => {
+                    manager
+                        .edit(
+                            id,
+                            "changed".into(),
+                            "*/5 * * * *".into(),
+                            vec!["say updated".into()],
+                        )
+                        .await
+                }
+                Self::SetEnabled(enabled) => manager.set_enabled(id, enabled).await,
+                Self::Delete => manager.delete(id).await,
+            }
+        }
     }
 
     #[test]
@@ -484,32 +525,141 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn failed_persistence_keeps_the_live_task_and_shutdown_cancels_it() {
+    async fn task_changes_wait_for_workers_to_stop_before_persisting() {
         let root = random_temporary_path(&std::env::temp_dir(), "tasks").unwrap();
         let storage = Arc::new(Storage::open(root.clone()).await.unwrap());
-        let manager = test_manager();
-        manager.initialize(storage).await.unwrap();
-        let id = manager
-            .create("keep".into(), "0 0 * * *".into(), vec![])
-            .await
-            .unwrap();
-        let original = manager.tasks().await;
-        let token = manager.state.lock().await.running[&id].cancelled.clone();
+        let manager = Arc::new(test_manager());
+        manager.initialize(storage.clone()).await.unwrap();
+
+        for change in [
+            TaskChange::Edit,
+            TaskChange::SetEnabled(false),
+            TaskChange::Delete,
+        ] {
+            let id = manager
+                .create("original".into(), "0 0 * * *".into(), vec![])
+                .await
+                .unwrap();
+            let original = manager.tasks().await;
+            let token = manager.shutdown_token().child_token();
+            let worker_token = token.clone();
+            let (finish, finished) = oneshot::channel();
+            {
+                let mut state = manager.state.lock().await;
+                stop_task(&mut state, &id).await;
+                state.running.insert(
+                    id.clone(),
+                    RunningTask {
+                        cancelled: token.clone(),
+                        worker: tokio::spawn(async move {
+                            worker_token.cancelled().await;
+                            // Keep the old worker alive until the test permits it to exit.
+                            let _ = finished.await;
+                        }),
+                    },
+                );
+            }
+            let mutation = tokio::spawn({
+                let manager = manager.clone();
+                let id = id.clone();
+                async move { change.apply(&manager, &id).await }
+            });
+            timeout(Duration::from_secs(10), token.cancelled())
+                .await
+                .expect("mutation must cancel the old worker");
+            assert_eq!(
+                storage.load_json(&TASKS_FILE).await.unwrap().value,
+                original,
+                "{change:?} must not persist before the old worker exits"
+            );
+            assert!(!mutation.is_finished());
+            finish.send(()).unwrap();
+            timeout(Duration::from_secs(10), mutation)
+                .await
+                .unwrap()
+                .unwrap()
+                .unwrap();
+            assert_eq!(
+                storage.load_json(&TASKS_FILE).await.unwrap().value,
+                manager.tasks().await
+            );
+            if !matches!(change, TaskChange::Delete) {
+                manager.delete(&id).await.unwrap();
+            }
+        }
+
+        manager.shutdown().await.unwrap();
         tokio::fs::remove_file(root.join("tasks.json"))
             .await
             .unwrap();
-        tokio::fs::create_dir(root.join("tasks.json"))
-            .await
-            .unwrap();
-        assert!(matches!(
-            manager.delete(&id).await,
-            Err(TaskError::Storage(_))
-        ));
-        assert_eq!(manager.tasks().await, original);
-        assert!(!token.is_cancelled());
-        manager.shutdown().await.unwrap();
-        assert!(token.is_cancelled());
-        assert!(manager.state.lock().await.running.is_empty());
-        tokio::fs::remove_dir_all(root).await.unwrap();
+        tokio::fs::remove_dir(root).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn failed_persistence_restores_the_original_task_with_a_new_worker() {
+        for enabled in [true, false] {
+            let root = random_temporary_path(&std::env::temp_dir(), "tasks").unwrap();
+            let storage = Arc::new(Storage::open(root.clone()).await.unwrap());
+            let manager = test_manager();
+            manager.initialize(storage).await.unwrap();
+            let id = manager
+                .create("keep".into(), "0 0 * * *".into(), vec![])
+                .await
+                .unwrap();
+            manager.set_enabled(&id, enabled).await.unwrap();
+            let original = manager.tasks().await;
+            tokio::fs::remove_file(root.join("tasks.json"))
+                .await
+                .unwrap();
+            tokio::fs::create_dir(root.join("tasks.json"))
+                .await
+                .unwrap();
+            for change in [
+                TaskChange::Edit,
+                TaskChange::SetEnabled(!enabled),
+                TaskChange::Delete,
+            ] {
+                let token = manager
+                    .state
+                    .lock()
+                    .await
+                    .running
+                    .get(&id)
+                    .map(|running| running.cancelled.clone());
+                assert!(matches!(
+                    change.apply(&manager, &id).await,
+                    Err(TaskError::Storage(_))
+                ));
+                assert_eq!(manager.tasks().await, original);
+                let state = manager.state.lock().await;
+                if enabled {
+                    assert!(
+                        token.unwrap().is_cancelled(),
+                        "{change:?} must stop the old worker"
+                    );
+                    assert_eq!(state.running.len(), 1);
+                    assert!(!state.running[&id].cancelled.is_cancelled());
+                    assert!(!state.running[&id].worker.is_finished());
+                } else {
+                    assert!(state.running.is_empty());
+                }
+            }
+            let token = manager
+                .state
+                .lock()
+                .await
+                .running
+                .get(&id)
+                .map(|running| running.cancelled.clone());
+            manager.shutdown().await.unwrap();
+            if let Some(token) = token {
+                assert!(token.is_cancelled());
+            }
+            assert!(manager.state.lock().await.running.is_empty());
+            tokio::fs::remove_dir(root.join("tasks.json"))
+                .await
+                .unwrap();
+            tokio::fs::remove_dir(root).await.unwrap();
+        }
     }
 }
