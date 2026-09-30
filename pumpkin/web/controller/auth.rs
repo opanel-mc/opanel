@@ -53,8 +53,7 @@ pub(super) async fn get_cram(
 ) -> Response {
     let config = opanel.config();
     if !credentials_initialized(&config.access_key, &config.salt) {
-        return no_store(ApiError::new(
-            StatusCode::SERVICE_UNAVAILABLE,
+        return no_store(ApiError::service_unavailable(
             "Panel credential is not initialized.",
         ));
     }
@@ -100,8 +99,7 @@ pub(super) async fn validate_cram(
 ) -> Response {
     let config = opanel.config();
     if !credentials_initialized(&config.access_key, &config.salt) {
-        return no_store(ApiError::new(
-            StatusCode::SERVICE_UNAVAILABLE,
+        return no_store(ApiError::service_unavailable(
             "Panel credential is not initialized.",
         ));
     }

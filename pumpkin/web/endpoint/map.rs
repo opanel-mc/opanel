@@ -17,6 +17,8 @@ impl MapEndpoint {
 
 impl Endpoint for MapEndpoint {
     async fn on_connect(&self, _session: &WsSession) -> Result<(), EndpointError> {
-        Err(EndpointError::NotImplemented)
+        Err(EndpointError::ServiceUnavailable(
+            "Pumpkin does not support the map feature.",
+        ))
     }
 }
