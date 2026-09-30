@@ -17,6 +17,7 @@ mod managers;
 mod map;
 mod monitor;
 mod opanel;
+mod player;
 mod save;
 mod storage;
 mod task;

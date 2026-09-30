@@ -30,6 +30,7 @@ opanel-pumpkin-assets = { path = "pumpkin/assets" }
 percent-encoding = "2"
 pumpkin = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", tag = "0.2.0+26.3-26.51", package = "pumpkin" }
 pumpkin-api-macros = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", tag = "0.2.0+26.3-26.51", package = "pumpkin-api-macros" }
+pumpkin-config = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", tag = "0.2.0+26.3-26.51", package = "pumpkin-config" }
 pumpkin-data = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", tag = "0.2.0+26.3-26.51", package = "pumpkin-data" }
 pumpkin-nbt = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", tag = "0.2.0+26.3-26.51", package = "pumpkin-nbt" }
 pumpkin-util = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", tag = "0.2.0+26.3-26.51", package = "pumpkin-util" }
@@ -48,6 +49,7 @@ toml_edit = "0.25"
 tower = { version = "0.5", features = ["util"] }
 tower-http = { version = "0.6", features = ["cors", "trace"] }
 tracing = "0.1"
+uuid = { version = "1", features = ["serde"] }
 zip = { version = "6", default-features = false, features = ["deflate"] }
 
 [dev-dependencies]
