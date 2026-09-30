@@ -2,10 +2,10 @@ use std::sync::Arc;
 
 use axum::extract::State;
 
-use crate::{opanel::OPanel, web::response::ApiError};
+use crate::{monitor::MonitorData, opanel::OPanel, web::response::ApiResponse};
 
 pub(in crate::web::controller) async fn get_monitor(
-    State(_opanel): State<Arc<OPanel>>,
-) -> ApiError {
-    ApiError::not_implemented()
+    state: State<Arc<OPanel>>,
+) -> ApiResponse<MonitorData> {
+    super::super::monitor::get_monitor_snapshot(state).await
 }
