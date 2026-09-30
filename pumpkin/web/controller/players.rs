@@ -155,7 +155,7 @@ fn parse_game_mode(value: Option<&str>) -> Result<GameMode, ApiError> {
         .map_err(|_| bad_request("Invalid gamemode."))
 }
 
-fn player_error(error: PlayerError) -> ApiError {
+pub(super) fn player_error(error: PlayerError) -> ApiError {
     let status = match &error {
         PlayerError::NotFound => StatusCode::NOT_FOUND,
         PlayerError::Offline => StatusCode::FORBIDDEN,
