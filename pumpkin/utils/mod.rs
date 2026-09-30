@@ -5,5 +5,6 @@ pub mod logs;
 pub mod player_data;
 pub mod pumpkin_config;
 pub mod server;
+pub mod system;
 pub mod time;
 pub mod upload;
