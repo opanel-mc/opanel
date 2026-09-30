@@ -25,7 +25,7 @@ mod icon;
 mod info;
 mod logs;
 mod map;
-mod mcp;
+pub(super) mod mcp;
 mod monitor;
 mod oidc;
 mod open_api;
