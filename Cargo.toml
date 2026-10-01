@@ -52,7 +52,7 @@ tower = { version = "0.5", features = ["util"] }
 tower-http = { version = "0.6", features = ["cors", "trace"] }
 tracing = "0.1"
 uuid = { version = "1", features = ["serde"] }
-zip = { version = "6", default-features = false, features = ["deflate"] }
+zip = { version = "6", default-features = false, features = ["deflate-flate2"] }
 
 [dev-dependencies]
 tokio-tungstenite = "0.29"
