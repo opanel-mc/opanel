@@ -12,7 +12,7 @@ use pumpkin::plugin::{
     HandlerMap, Payload,
     player::{PlayerGamemodeChangeEvent, PlayerJoinEvent, PlayerLeaveEvent, PlayerMoveEvent},
 };
-use pumpkin_util::math::vector3::Vector3;
+use pumpkin_util::{GameMode, math::vector3::Vector3};
 use serde_json::{Value, json};
 use tokio::{sync::Mutex as AsyncMutex, sync::broadcast, task::JoinHandle, time::Instant};
 use uuid::Uuid;
@@ -93,6 +93,12 @@ impl EventState {
         data["isOnline"] = json!(false);
         data["joinTime"] = Value::Null;
         let _ = self.updates.send(PlayerEvent::Leave(data));
+    }
+
+    fn game_mode_change(&self, uuid: Uuid, mut data: Value, mode: GameMode) {
+        data["gamemode"] = json!(mode.name());
+        data["joinTime"] = json!(self.join_times.get(&uuid));
+        let _ = self.updates.send(PlayerEvent::GameModeChange(data));
     }
 
     fn record_move(&mut self, uuid: Uuid, name: &str, from: Vector3<f64>, to: Vector3<f64>) {
@@ -233,6 +239,40 @@ mod tests {
             }))
         );
         assert_eq!(events.state.lock().unwrap().updates.receiver_count(), 1);
+    }
+
+    #[test]
+    fn gamemode_updates_preserve_each_players_join_time_and_allow_missing_times() {
+        let mut state = EventState::new();
+        let first = Uuid::from_u128(1);
+        let second = Uuid::from_u128(2);
+        let untracked = Uuid::from_u128(3);
+        state.join(first, json!({"uuid": first}), 100);
+        state.join(second, json!({"uuid": second}), 200);
+        let mut updates = state.updates.subscribe();
+
+        for (uuid, join_time) in [
+            (first, Some(100u128)),
+            (second, Some(200)),
+            (untracked, None),
+        ] {
+            state.game_mode_change(
+                uuid,
+                json!({
+                    "uuid": uuid, "name": "Alex", "isOnline": true,
+                    "gamemode": "survival", "joinTime": null,
+                }),
+                GameMode::Creative,
+            );
+            assert_eq!(
+                updates.try_recv().unwrap(),
+                PlayerEvent::GameModeChange(json!({
+                    "uuid": uuid, "name": "Alex", "isOnline": true,
+                    "gamemode": "creative", "joinTime": join_time,
+                }))
+            );
+            assert_eq!(state.join_times.get(&uuid).copied(), join_time);
+        }
     }
 
     #[test]

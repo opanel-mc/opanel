@@ -8,12 +8,12 @@ use pumpkin::{
     },
     server::Server,
 };
-use serde_json::{Value, json};
+use serde_json::Value;
 use tokio_util::sync::CancellationToken;
 
 use crate::{player::Player, utils::time::unix_time_millis};
 
-use super::{EventState, PlayerEvent};
+use super::EventState;
 
 pub(super) fn register(
     context: &Context,
@@ -127,11 +127,12 @@ impl EventHandler<PlayerGamemodeChangeEvent> for PlayerListener {
         Box::pin(async move {
             if !self.shutdown.is_cancelled()
                 && !event.cancelled
-                && let Some(mut data) = snapshot(server, &event.player)
+                && let Some(data) = snapshot(server, &event.player)
             {
-                data["gamemode"] = json!(event.new_gamemode.name());
-                let state = self.state.lock().unwrap_or_else(PoisonError::into_inner);
-                let _ = state.updates.send(PlayerEvent::GameModeChange(data));
+                self.state
+                    .lock()
+                    .unwrap_or_else(PoisonError::into_inner)
+                    .game_mode_change(event.player.gameprofile.id, data, event.new_gamemode);
             }
         })
     }
