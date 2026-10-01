@@ -10,6 +10,7 @@ use tokio_util::sync::CancellationToken;
 
 use crate::{
     config::ConfigManager,
+    event::EventManager,
     monitor::{ActivityManager, MonitorManager},
     opanel::OPanel,
     scheduled_tasks::ScheduledTaskManager,
@@ -168,6 +169,7 @@ pub(crate) struct Managers {
     shutdown: CancellationToken,
     config: Arc<ConfigManager>,
     auth: Arc<AuthManager>,
+    event: Arc<EventManager>,
     scheduled_tasks: Arc<ScheduledTaskManager>,
     monitor: Arc<MonitorManager>,
     activity: Arc<ActivityManager>,
@@ -180,6 +182,7 @@ impl Managers {
             shutdown: context.shutdown_token(),
             config: Arc::new(ConfigManager::new(context.clone())),
             auth: Arc::new(AuthManager::new(context.clone())),
+            event: Arc::new(EventManager::new(context.clone())),
             log_listener: Arc::new(LogListenerManager::new(context.clone())),
             scheduled_tasks: Arc::new(ScheduledTaskManager::new(context.clone())),
             monitor: Arc::new(MonitorManager::new(context.clone())),
@@ -193,6 +196,10 @@ impl Managers {
 
     pub(crate) fn auth(&self) -> Arc<AuthManager> {
         Arc::clone(&self.auth)
+    }
+
+    pub(crate) fn event(&self) -> Arc<EventManager> {
+        Arc::clone(&self.event)
     }
 
     pub(crate) fn scheduled_tasks(&self) -> Arc<ScheduledTaskManager> {
@@ -228,10 +235,11 @@ impl Managers {
         }
     }
 
-    fn lifecycle_order(&self) -> [Arc<dyn Manager>; 6] {
+    fn lifecycle_order(&self) -> [Arc<dyn Manager>; 7] {
         [
             self.config(),
             self.auth(),
+            self.event(),
             self.log_listener(),
             self.scheduled_tasks(),
             self.monitor(),
@@ -351,6 +359,7 @@ mod tests {
         assert_send_sync::<Managers>();
         assert_send_sync::<ConfigManager>();
         assert_send_sync::<AuthManager>();
+        assert_send_sync::<EventManager>();
         assert_send_sync::<ScheduledTaskManager>();
         assert_send_sync::<MonitorManager>();
         assert_send_sync::<ActivityManager>();
@@ -363,6 +372,7 @@ mod tests {
 
         assert!(Arc::ptr_eq(&managers.config(), &managers.config()));
         assert!(Arc::ptr_eq(&managers.auth(), &managers.auth()));
+        assert!(Arc::ptr_eq(&managers.event(), &managers.event()));
         assert!(Arc::ptr_eq(
             &managers.scheduled_tasks(),
             &managers.scheduled_tasks()
