@@ -40,14 +40,18 @@ pub(crate) struct Player {
 }
 
 impl Player {
+    pub(crate) fn from_online(server: Arc<Server>, player: Arc<PumpkinPlayer>) -> Self {
+        Self {
+            server,
+            uuid: player.gameprofile.id,
+            name: player.gameprofile.name.clone(),
+            online: Some(player),
+        }
+    }
+
     pub(crate) fn find(server: Arc<Server>, uuid: Uuid) -> Result<Self, PlayerError> {
         if let Some(player) = server.get_player_by_uuid(uuid) {
-            return Ok(Self {
-                server,
-                uuid,
-                name: player.gameprofile.name.clone(),
-                online: Some(player),
-            });
+            return Ok(Self::from_online(server, player));
         }
         let cached = server
             .data
@@ -76,12 +80,7 @@ impl Player {
         let online_ids: HashSet<_> = online.iter().map(|player| player.gameprofile.id).collect();
         let mut players = Vec::new();
         for player in online {
-            let target = Self {
-                server: Arc::clone(&server),
-                uuid: player.gameprofile.id,
-                name: player.gameprofile.name.clone(),
-                online: Some(player),
-            };
+            let target = Self::from_online(Arc::clone(&server), player);
             players.push(target.snapshot()?);
         }
         for uuid in player_data::list(&data_directory(&server))? {

@@ -61,3 +61,8 @@ tokio-tungstenite = "0.29"
 # information is enabled. OPanel itself keeps the normal dev profile.
 [profile.dev.package.pumpkin]
 debug = 0
+
+# Native plugins share Tokio handles with the release-built Pumpkin server.
+# Mio's debug-only fields change their layout, so match the host even in dev builds.
+[profile.dev.package.mio]
+debug-assertions = false

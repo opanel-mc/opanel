@@ -157,8 +157,8 @@ pub fn router(opanel: Arc<OPanel>, shutdown: CancellationToken) -> axum::Router 
     axum::Router::new()
         .route(
             "/players",
-            endpoint_route(
-                Arc::new(players::PlayersEndpoint::new(Arc::clone(&opanel))),
+            players::route(
+                opanel.managers().event(),
                 Arc::clone(&authenticate),
                 shutdown.clone(),
             ),
