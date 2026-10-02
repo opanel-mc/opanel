@@ -1,6 +1,6 @@
 "use client";
 
-import type { APIResponse, VersionResponse } from "@/lib/types";
+import type { APIResponse, ServerType, VersionResponse } from "@/lib/types";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useContext } from "react";
@@ -22,17 +22,19 @@ import {
   SidebarTrigger,
 } from "./ui/sidebar";
 import { Button } from "./ui/button";
-import { cn, isPaperSeries, isPumpkin } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { minecraftAE } from "@/lib/fonts";
 import { Logo } from "./logo";
 import { ExtensionsContext, VersionContext } from "@/contexts/api-context";
 import { $ } from "@/lib/i18n";
+import { serverType } from "@/lib/global";
 
 type SidebarItemDef = {
   name: string
   url: string
   icon: LucideIcon
   condition?: (versionCtx: APIResponse<VersionResponse>) => boolean
+  excludedServerTypes?: ServerType[]
 };
 
 const serverGroupItems: SidebarItemDef[] = [
@@ -55,7 +57,8 @@ const serverGroupItems: SidebarItemDef[] = [
     name: $("sidebar.server.map"),
     url: "/panel/map",
     icon: MapIcon,
-    condition: ({ map, serverType }) => map && !isPumpkin(serverType)
+    condition: ({ map }) => map,
+    excludedServerTypes: ["Pumpkin"]
   }
 ];
 
@@ -79,7 +82,7 @@ const managementGroupItems: SidebarItemDef[] = [
     name: $("sidebar.management.plugins"),
     url: "/panel/plugins",
     icon: Blocks,
-    condition: ({ serverType }) => !isPumpkin(serverType)
+    excludedServerTypes: ["Pumpkin"]
   },
   {
     name: $("sidebar.management.logs"),
@@ -90,7 +93,8 @@ const managementGroupItems: SidebarItemDef[] = [
     name: $("sidebar.management.code-of-conduct"),
     url: "/panel/code-of-conduct",
     icon: HeartHandshake,
-    condition: ({ version }) => compare(version, "1.21.9") >= 0
+    condition: ({ version }) => compare(version, "1.21.9") >= 0,
+    excludedServerTypes: ["Pumpkin"]
   }
 ];
 
@@ -104,7 +108,7 @@ const configurationGroupItems: SidebarItemDef[] = [
     name: $("sidebar.config.paper-config"),
     url: "/panel/paper-config",
     icon: PaintBucket,
-    condition: ({ serverType }) => isPaperSeries(serverType)
+    excludedServerTypes: ["Fabric", "Forge", "NeoForge", "Pumpkin"]
   },
   {
     name: "MCP",
@@ -121,6 +125,10 @@ const configurationGroupItems: SidebarItemDef[] = [
 function ItemRenderer(item: SidebarItemDef) {
   const pathname = usePathname();
   const versionCtx = useContext(VersionContext);
+
+  if(item.excludedServerTypes && item.excludedServerTypes.includes(serverType)) {
+    return <></>;
+  }
 
   if(item.condition && (!versionCtx || !item.condition(versionCtx))) {
     return <></>;

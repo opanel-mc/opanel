@@ -18,7 +18,8 @@ import {
 import { changeSettings, getSettings, monacoSettingsOptions } from "@/lib/settings";
 import { VersionContext } from "@/contexts/api-context";
 import { emitter } from "@/lib/emitter";
-import { base64ToString, isPaperSeries, stringToBase64 } from "@/lib/utils";
+import { base64ToString, stringToBase64 } from "@/lib/utils";
+import { isPaperSeries } from "@/lib/server-type";
 import { sendGetRequest, sendPostRequest, toastError } from "@/lib/api";
 import { $ } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ import { ConfigItem } from "./config-item";
 import { useKeydown } from "@/hooks/use-keydown";
 import { Spinner } from "@/components/ui/spinner";
 import { toastRestartAlert } from "@/components/restart-alert";
+import { serverType } from "@/lib/global";
 
 const MonacoEditor = dynamic(() => import("@/components/monaco-editor"), { ssr: false });
 
@@ -42,7 +44,7 @@ export default function PaperConfig() {
   const [isSaving, setIsSaving] = useState(false);
 
   const fetchServerConfigs = useCallback(async () => {
-    if(versionCtx && !isPaperSeries(versionCtx.serverType)) {
+    if(!isPaperSeries(serverType)) {
       push("/panel/dashboard");
       return;
     }
@@ -66,7 +68,7 @@ export default function PaperConfig() {
     } finally {
       emitter.emit("loading-done");
     }
-  }, [push, versionCtx]);
+  }, [push]);
 
   const handleSave = useCallback(async () => {
     setIsSaving(true);
@@ -127,21 +129,21 @@ export default function PaperConfig() {
               isActive={currentEditing === "bukkit"}
               isSaved={saved}
               onClick={() => handleSwitchFile("bukkit")}/>
-            {["Paper", "Folia", "Leaves"].includes(versionCtx?.serverType ?? "") && (
+            {isPaperSeries(serverType) && (
               <ConfigItem
                 name="spigot.yml"
                 isActive={currentEditing === "spigot"}
                 isSaved={saved}
                 onClick={() => handleSwitchFile("spigot")}/>
             )}
-            {["Paper", "Folia", "Leaves"].includes(versionCtx?.serverType ?? "") && (
+            {isPaperSeries(serverType) && (
               <ConfigItem
                 name={versionCtx?.version.startsWith("1.16.") ? "paper.yml" : "paper-global.yml"}
                 isActive={currentEditing === "paper"}
                 isSaved={saved}
                 onClick={() => handleSwitchFile("paper")}/>
             )}
-            {["Leaves"].includes(versionCtx?.serverType ?? "") && (
+            {serverType === "Leaves" && (
               <ConfigItem
                 name="leaves.yml"
                 isActive={currentEditing === "leaves"}

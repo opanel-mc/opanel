@@ -24,7 +24,6 @@ public class VersionController extends BaseController {
 
     public Handler getVersionInfo = ctx -> {
         HashMap<String, Object> obj = new HashMap<>();
-        obj.put("serverType", server.getServerType().getName());
         obj.put("version", server.getVersion());
         obj.put("map", mapConfig.enabled);
         obj.put("mcdr", OPanel.isMCDRBridgeActive());

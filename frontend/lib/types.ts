@@ -200,7 +200,6 @@ export interface CommandShortcut {
 
 /** `/api/version` */
 export interface VersionResponse {
-  serverType: ServerType
   version: string
   map: boolean
   mcdr: boolean

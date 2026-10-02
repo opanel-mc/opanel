@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge";
 import locale from "locale-codes";
 import { toast } from "sonner";
 import { NbtObject, NbtString } from "@/lib/snbt";
-import { Dimension, type GameMode, type ServerType, type SetState } from "./types";
+import { Dimension, type GameMode, type SetState } from "./types";
 import { $ } from "./i18n";
 
 export function cn(...inputs: ClassValue[]) {
@@ -147,18 +147,6 @@ export async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
-}
-
-export function isPaperSeries(serverType: ServerType): boolean {
-  return (
-    serverType === "Paper"
-    || serverType === "Folia"
-    || serverType === "Leaves"
-  );
-}
-
-export function isPumpkin(serverType: ServerType): boolean {
-  return serverType === "Pumpkin";
 }
 
 export function isPreviewVersion(version: string): boolean {

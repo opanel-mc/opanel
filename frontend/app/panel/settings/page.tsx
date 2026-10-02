@@ -3,7 +3,7 @@
 import type { PropsWithChildren } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ChevronDown, Cog, FilePen, Puzzle, Server, SettingsIcon, SquareTerminal } from "lucide-react";
 import { changeSettings, getSettings, resetSettings, type SettingsStorageType } from "@/lib/settings";
@@ -22,7 +22,8 @@ import { LoginBannerDialog } from "./login-banner-dialog";
 import { LaunchCommandDialog } from "./launch-command-dialog";
 import { SecurityDialog } from "./security-dialog";
 import { UpdateDialog } from "./update-dialog";
-import { cn, isPumpkin } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { isPumpkin } from "@/lib/server-type";
 import { googleSansCode } from "@/lib/fonts";
 import { AvatarProvider, SkinProvider } from "@/lib/types";
 import { type LanguageCode, languages } from "@/lang";
@@ -40,7 +41,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { getLogLevels } from "@/lib/ws/terminal";
 import { Extensions } from "./extensions";
-import { VersionContext } from "@/contexts/api-context";
+import { serverType } from "@/lib/global";
 
 const SETTINGS_TAB_VALUES = [
   "general",
@@ -98,7 +99,6 @@ export default function Settings() {
   const { replace } = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const versionCtx = useContext(VersionContext);
   const tabFromUrl = searchParams.get("tab");
   const currentTab = (SETTINGS_TAB_VALUES as readonly string[]).includes(tabFromUrl ?? "")
     ? (tabFromUrl as (typeof SETTINGS_TAB_VALUES)[number])
@@ -118,7 +118,7 @@ export default function Settings() {
   };
   
   const fetchMapFeatureEnabled = useCallback(async () => {
-    if(!versionCtx || isPumpkin(versionCtx.serverType)) return;
+    if(isPumpkin(serverType)) return;
 
     try {
       const { enabled: mapEnabled } = await sendGetRequest<{ enabled: boolean }>("/api/map");
@@ -129,7 +129,7 @@ export default function Settings() {
         [500, $("common.error.500")]
       ]);
     }
-  }, [versionCtx]);
+  }, []);
   
   const handleToggleMap = async (enabled: boolean) => {
     try {
@@ -164,12 +164,13 @@ export default function Settings() {
   }, [showInfoLevel, showWarnLevel, showErrorLevel]);
 
   useEffect(() => {
-    if(!versionCtx) return;
-
     fetchMapFeatureEnabled();
 
-    emitter.on("refresh-data", () => fetchMapFeatureEnabled());
-  }, [versionCtx, fetchMapFeatureEnabled]);
+    emitter.on("refresh-data", fetchMapFeatureEnabled);
+    return () => {
+      emitter.off("refresh-data", fetchMapFeatureEnabled);
+    };
+  }, [fetchMapFeatureEnabled]);
 
   useLoadingDone();
 
@@ -212,7 +213,7 @@ export default function Settings() {
               <FilePen />
               {$("settings.editor.title")}
             </TabsTrigger>
-            {(versionCtx && !isPumpkin(versionCtx.serverType)) && (
+            {!isPumpkin(serverType) && (
               <TabsTrigger value="extensions">
                 <Puzzle />
                 {$("settings.extensions.title")}
@@ -336,7 +337,7 @@ export default function Settings() {
                     <Link href="/panel/mcp">{$("settings.system.mcp.configure")}</Link>
                   </Button>
                 }/>
-              {(versionCtx && !isPumpkin(versionCtx.serverType)) && (
+              {!isPumpkin(serverType) && (
                 <SettingsItem
                   id="system.oidc"
                   name="OIDC"
@@ -390,7 +391,7 @@ export default function Settings() {
               control={
                 <Switch
                   checked={mapFeatureEnabled}
-                  disabled={versionCtx && isPumpkin(versionCtx.serverType)}
+                  disabled={isPumpkin(serverType)}
                   onCheckedChange={handleToggleMap}/>
               }/>
           </Section>

@@ -5,6 +5,7 @@ import { Box, Pencil, PenLine, Power, RefreshCw, RotateCw, Settings, UserPen } f
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { base64ToString, cn } from "@/lib/utils";
+import { isPumpkin } from "@/lib/server-type";
 import { apiUrl, sendPostRequest, restartServer, stopServer } from "@/lib/api";
 import { InfoContext, MonitorContext, VersionContext } from "@/contexts/api-context";
 import { MinecraftText } from "@/components/mc-text";
@@ -20,6 +21,7 @@ import { FaviconDialog } from "./favicon-dialog";
 import { googleSansCode } from "@/lib/fonts";
 import { $ } from "@/lib/i18n";
 import { ButtonGroup } from "@/components/ui/button-group";
+import { serverType } from "@/lib/global";
 
 import PackIcon from "@/assets/images/pack.png";
 
@@ -28,12 +30,11 @@ function ControlButtonGroup({
 }: {
   className?: string
 }) {
-  const versionCtx = useContext(VersionContext);
   const ctx = useContext(InfoContext);
   const [isReloadingServer, setIsReloadingServer] = useState(false);
   const [isRestartingServer, setIsRestartingServer] = useState(false);
   const [isStoppingServer, setIsStoppingServer] = useState(false);
-  const ServerConfigSheet = versionCtx?.serverType === "Pumpkin"
+  const ServerConfigSheet = isPumpkin(serverType)
     ? PumpkinServerSheet
     : ServerSheet;
 
@@ -61,7 +62,7 @@ function ControlButtonGroup({
         <Button
           variant="ghost"
           size="icon"
-          title={versionCtx?.serverType === "Pumpkin"
+          title={serverType === "Pumpkin"
             ? $("dashboard.info.controls.edit-pumpkin-config")
             : $("dashboard.info.controls.edit-properties")}>
           <Settings />
@@ -71,7 +72,7 @@ function ControlButtonGroup({
         variant="ghost"
         size="icon"
         title={$("dashboard.info.controls.reload")}
-        disabled={versionCtx?.serverType === "Folia" || isReloadingServer}
+        disabled={serverType === "Folia" || isReloadingServer}
         onClick={() => {
           setIsReloadingServer(true);
           toast.promise(sendPostRequest("/api/control/reload"), {
@@ -79,8 +80,8 @@ function ControlButtonGroup({
             success: () => {
               setIsReloadingServer(false);
               if(
-                versionCtx?.serverType === "Paper"
-                || versionCtx?.serverType === "Folia"
+                serverType === "Paper"
+                || serverType === "Folia"
               ) {
                 window.location.reload();
               }
@@ -179,7 +180,7 @@ export function InfoCard({
                 onClick={() => setShowingJavaVersion(!showingJavaVersion)}>
                 {
                   !showingJavaVersion
-                  ? `${versionCtx?.serverType} ${versionCtx?.version}`
+                  ? `${serverType} ${versionCtx?.version}`
                   : `Java ${ctx?.system.java}`
                 }
               </span>

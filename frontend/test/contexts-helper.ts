@@ -4,7 +4,6 @@ export function createMockVersionContext(overrides?: Partial<APIResponse<Version
   return {
     code: 0,
     error: "",
-    serverType: "Paper",
     version: "1.21.11",
     map: false,
     mcdr: false,
