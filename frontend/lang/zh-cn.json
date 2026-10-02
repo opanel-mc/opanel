@@ -201,6 +201,7 @@
   "monitor.history.live-range": "最近 200 秒",
   "monitor.history.range": "选择历史时间范围",
   "monitor.history.resolution": "聚合粒度",
+  "monitor.history.average": "平均值",
   "monitor.history.loading": "正在加载历史数据",
   "monitor.history.empty": "暂无历史数据",
   "monitor.history.unavailable": "历史数据暂不可用",

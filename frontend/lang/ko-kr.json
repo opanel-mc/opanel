@@ -201,6 +201,7 @@
   "monitor.history.live-range": "최근 200초",
   "monitor.history.range": "기록 시간 범위 선택",
   "monitor.history.resolution": "집계 간격",
+  "monitor.history.average": "평균",
   "monitor.history.loading": "기록 데이터 불러오는 중",
   "monitor.history.empty": "기록 데이터 없음",
   "monitor.history.unavailable": "기록 데이터를 일시적으로 사용할 수 없음",
