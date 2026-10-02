@@ -67,3 +67,6 @@ debug = 0
 # Mio's debug-only fields change their layout, so match the host even in dev builds.
 [profile.dev.package.mio]
 debug-assertions = false
+
+[profile.release] 
+lto = true
