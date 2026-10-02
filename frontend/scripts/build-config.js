@@ -9,7 +9,7 @@ export function resolveFrontendTarget(env = process.env, production = true) {
   const target = env.VITE_OPANEL_TARGET;
   if(!target?.trim()) {
     if(production) throw new Error("VITE_OPANEL_TARGET is required for a production frontend build");
-    return "development";
+    return "paper";
   }
   return target;
 }
