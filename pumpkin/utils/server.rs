@@ -116,6 +116,15 @@ fn completion_prefix(command: &str, arg_index: usize) -> Option<&str> {
     Some(&command[..space + 1])
 }
 
+pub(crate) fn stop(server: &Arc<Server>) {
+    // Calling pumpkin::stop_server() here only changes the plugin's statically linked globals.
+    // The shared dispatcher invokes the host's stop executor and signals the running server.
+    server
+        .command_dispatcher
+        .load()
+        .handle_command(&CommandSender::Console.into_source(server), "stop");
+}
+
 pub(crate) async fn restart(opanel: &OPanel) -> Result<(), RestartError> {
     let launch_command = opanel.storage().read_text(&LAUNCH_COMMAND_FILE).await?;
     if launch_command.is_empty() {
@@ -126,7 +135,7 @@ pub(crate) async fn restart(opanel: &OPanel) -> Result<(), RestartError> {
         .args(restart.args)
         .current_dir(std::env::current_dir()?)
         .spawn()?;
-    pumpkin::stop_server();
+    stop(&opanel.context().server);
     Ok(())
 }
 fn restart_command(launch_command: &str, delay_seconds: u64) -> RestartCommand {

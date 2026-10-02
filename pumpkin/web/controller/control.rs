@@ -114,8 +114,8 @@ pub(super) async fn remove_code_of_conduct(State(_opanel): State<Arc<OPanel>>) -
     unsupported_code_of_conduct()
 }
 
-pub(super) async fn stop_server(State(_opanel): State<Arc<OPanel>>) -> ApiResponse<EmptyPayload> {
-    pumpkin::stop_server();
+pub(super) async fn stop_server(State(opanel): State<Arc<OPanel>>) -> ApiResponse<EmptyPayload> {
+    server::stop(&opanel.context().server);
     ApiResponse::ok(EmptyPayload {})
 }
 
