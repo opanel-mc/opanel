@@ -63,8 +63,6 @@ impl<T> Packet<T> {
 
 #[derive(Debug, Error)]
 pub enum EndpointError {
-    #[error("websocket endpoint is not implemented")]
-    NotImplemented,
     #[error("{0}")]
     ServiceUnavailable(&'static str),
     #[error("invalid websocket packet data")]
@@ -165,8 +163,8 @@ pub fn router(opanel: Arc<OPanel>, shutdown: CancellationToken) -> axum::Router 
         )
         .route(
             "/inventory/{uuid}",
-            endpoint_route(
-                Arc::new(inventory::InventoryEndpoint::new(Arc::clone(&opanel))),
+            inventory::route(
+                Arc::clone(&opanel),
                 Arc::clone(&authenticate),
                 shutdown.clone(),
             ),
@@ -407,10 +405,6 @@ async fn write_messages_with_ping_interval<S>(
 fn handle_endpoint_result(result: Result<(), EndpointError>, session: &WsSession) -> bool {
     match result {
         Ok(()) => false,
-        Err(EndpointError::NotImplemented) => {
-            session.close_with_error(501, 1011, "Endpoint is not implemented.");
-            true
-        }
         Err(EndpointError::ServiceUnavailable(reason)) => {
             session.close_with_error(503, 1011, reason);
             true
@@ -720,12 +714,12 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn unimplemented_endpoint_reports_501_and_closes() {
-        struct UnimplementedEndpoint;
+    async fn unavailable_endpoint_reports_503_and_closes() {
+        struct UnavailableEndpoint;
 
-        impl Endpoint for UnimplementedEndpoint {
+        impl Endpoint for UnavailableEndpoint {
             async fn on_connect(&self, _session: &WsSession) -> Result<(), EndpointError> {
-                Err(EndpointError::NotImplemented)
+                Err(EndpointError::ServiceUnavailable("Service unavailable."))
             }
         }
 
@@ -739,11 +733,7 @@ mod tests {
         let server_shutdown = shutdown.clone();
         let router = Router::new().route(
             "/stub",
-            endpoint_route(
-                Arc::new(UnimplementedEndpoint),
-                allow_all(),
-                shutdown.clone(),
-            ),
+            endpoint_route(Arc::new(UnavailableEndpoint), allow_all(), shutdown.clone()),
         );
         let server = tokio::spawn(async move {
             axum::serve(listener, router)
@@ -757,7 +747,7 @@ mod tests {
             .await
             .expect("websocket should connect");
         assert_packet(&mut socket, "connect", Value::Null).await;
-        assert_packet(&mut socket, "error", Value::from(501)).await;
+        assert_packet(&mut socket, "error", Value::from(503)).await;
         assert_close_code(&mut socket, 1011).await;
 
         shutdown.cancel();

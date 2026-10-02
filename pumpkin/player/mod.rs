@@ -22,6 +22,8 @@ use uuid::Uuid;
 
 use crate::utils::player_data;
 
+pub(crate) mod inventory;
+
 #[derive(Debug, Error)]
 pub(crate) enum PlayerError {
     #[error("Player not found.")]
