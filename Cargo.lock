@@ -3010,7 +3010,7 @@ dependencies = [
 
 [[package]]
 name = "opanel-pumpkin-assets"
-version = "0.1.0"
+version = "2.2.4"
 dependencies = [
  "rust-embed",
 ]

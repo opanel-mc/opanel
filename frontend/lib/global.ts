@@ -3,7 +3,7 @@ import { platformIdToServerType } from "./server-type";
 /**
  * Version of OPanel
  */
-export const version = "2.2.4";
+export const version = import.meta.env.VITE_OPANEL_VERSION;
 /**
  * Copyright Info of OPanel Project
  */

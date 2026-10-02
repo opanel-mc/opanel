@@ -58,11 +58,13 @@ targetProjects.each { targetProject ->
             workingDir frontendDir
             commandLine npmCommand + ['run', 'build']
             environment frontendEnv
+            environment 'VITE_OPANEL_VERSION', version
             environment 'OPANEL_FRONTEND_OUTPUT', outputDir.get().asFile.absolutePath
             environment 'OPANEL_FRONTEND_PREPARED', '1'
             inputs.files(frontendSources).withPathSensitivity(PathSensitivity.RELATIVE)
             inputs.file(rootProject.file('frontend.gradle'))
             inputs.properties(frontendEnv)
+            inputs.property('VITE_OPANEL_VERSION', version.toString())
             outputs.dir(outputDir)
             usesService(frontendService)
             doFirst {

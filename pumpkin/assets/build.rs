@@ -62,6 +62,7 @@ fn main() {
         .args(["run", "build"])
         .current_dir(&frontend_dir)
         .envs(frontend_env)
+        .env("VITE_OPANEL_VERSION", env!("CARGO_PKG_VERSION"))
         .env("OPANEL_FRONTEND_OUTPUT", &output_dir)
         .env(
             "OPANEL_FRONTEND_PREPARED",

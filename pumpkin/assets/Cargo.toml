@@ -1,6 +1,6 @@
 [package]
 name = "opanel-pumpkin-assets"
-version = "0.1.0"
+version.workspace = true
 edition = "2024"
 description = "Embedded frontend assets for OPanel's Pumpkin plugin"
 publish = false

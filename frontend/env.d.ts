@@ -11,6 +11,7 @@ declare module '*?url' {
 }
 
 interface ImportMetaEnv {
+  readonly VITE_OPANEL_VERSION: string;
   readonly VITE_OPANEL_TARGET: string;
 }
 
