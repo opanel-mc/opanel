@@ -4,6 +4,7 @@ import {
   fillMonitorHistoryGaps,
   formatMonitorHistoryAxisTick,
   formatMonitorHistoryResolution,
+  getMonitorHistoryAverage,
   getMonitorHistoryRange
 } from "./history-data";
 
@@ -67,6 +68,33 @@ describe("monitor history data", () => {
     ]));
 
     expect(result.map(({ timestamp }) => timestamp)).toEqual([60_000, 120_000, 180_000]);
+  });
+
+  it("weights historical averages by sample count and excludes missing buckets", () => {
+    const data = fillMonitorHistoryGaps(response([
+      point(60_000, 20),
+      { ...point(180_000, 80), sampleCount: 20 }
+    ]));
+
+    expect(getMonitorHistoryAverage(data, "cpu")).toBe(35);
+    expect(getMonitorHistoryAverage(data, "tps")).toBe(38);
+    expect(getMonitorHistoryAverage(data, "networkUpload")).toBe(39);
+    expect(getMonitorHistoryAverage(data, "networkDownload")).toBe(40);
+    expect(getMonitorHistoryAverage(data, "diskRead")).toBe(41);
+    expect(getMonitorHistoryAverage(data, "diskWrite")).toBe(42);
+  });
+
+  it("includes zero readings and returns no average when there are no valid samples", () => {
+    const data = fillMonitorHistoryGaps(response([
+      point(60_000, 0),
+      point(180_000, 60)
+    ]));
+
+    expect(getMonitorHistoryAverage(data, "cpu")).toBe(30);
+    expect(getMonitorHistoryAverage([data[0]], "cpu")).toBe(0);
+    expect(getMonitorHistoryAverage([data[1]], "cpu")).toBeNull();
+    expect(getMonitorHistoryAverage([], "cpu")).toBeNull();
+    expect(getMonitorHistoryAverage([{ ...data[0], cpu: NaN }], "cpu")).toBeNull();
   });
 
   it("converts navigator indexes to a clamped half-open range", () => {

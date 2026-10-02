@@ -201,6 +201,7 @@
   "monitor.history.live-range": "直近 200 秒",
   "monitor.history.range": "履歴の時間範囲を選択",
   "monitor.history.resolution": "集計間隔",
+  "monitor.history.average": "平均値",
   "monitor.history.loading": "履歴データを読み込み中",
   "monitor.history.empty": "履歴データがありません",
   "monitor.history.unavailable": "履歴データは一時的に利用できません",

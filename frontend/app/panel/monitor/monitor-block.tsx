@@ -1,4 +1,4 @@
-import type { ActivityData, ActivityResponse } from "@/lib/types";
+import type { ActivityData, ActivityResponse, MonitorData } from "@/lib/types";
 import {
   type ReactNode,
   type PropsWithChildren,
@@ -23,12 +23,15 @@ import { sendGetRequest, toastError } from "@/lib/api";
 import { fillActivityData } from "./activity-data";
 import {
   formatMonitorHistoryAxisTick,
-  formatMonitorHistoryTooltip
+  formatMonitorHistoryTooltip,
+  getMonitorHistoryAverage,
+  type MonitorMetric
 } from "./history-data";
 import {
   MonitorHistoryChart,
   type MonitorNavigatorSeries
 } from "./monitor-history-chart";
+import { useMonitorHistory } from "./monitor-history-context";
 
 const YAXIS_TICKS = [0, 25, 50, 75, 100];
 const ACTIVITY_DATE_LABEL_INTERVAL = 4;
@@ -109,6 +112,23 @@ export function MonitorBlock({
       </div>
     </section>
   );
+}
+
+function MonitorHistoryAverage<T extends MonitorMetric>({ metrics, children }: {
+  metrics: T[]
+  children: (averages: Record<T, number>) => ReactNode
+}) {
+  const { mode, detailData, detailStatus } = useMonitorHistory();
+  if(mode !== "history" || detailStatus !== "ready") return null;
+
+  const averages = {} as Record<T, number>;
+  for(const metric of metrics) {
+    const value = getMonitorHistoryAverage(detailData, metric);
+    if(value === null) return null;
+    averages[metric] = value;
+  }
+
+  return children(averages);
 }
 
 type ActivityChartData = {
@@ -213,7 +233,19 @@ export function CpuMonitorBlock({ className }: {
     <MonitorBlock
       title="CPU"
       description={$("monitor.cpu.description")}
-      additionalInfo={info?.system.cpuName}
+      additionalInfo={(
+        <div className="flex flex-col gap-1">
+          <MonitorHistoryAverage metrics={["cpu"]}>
+            {({ cpu }) => (
+              <span className={cn("text-xs", googleSansCode.className)}>
+                <span className="mr-3">{$("monitor.history.average")}</span>
+                {`${cpu.toFixed(2)}%`}
+              </span>
+            )}
+          </MonitorHistoryAverage>
+          {info?.system.cpuName && <span>{info.system.cpuName}</span>}
+        </div>
+      )}
       className={className}>
       <MonitorHistoryChart series={CPU_NAVIGATOR_SERIES}>
         {(data, isHistory, range) => (
@@ -482,11 +514,22 @@ function TpsMonitorStatus() {
 export function TpsMonitorBlock({ className }: {
   className?: string
 }) {
+  const { mode } = useMonitorHistory();
+
   return (
     <MonitorBlock
       title="TPS"
       description={$("monitor.tps.description")}
-      additionalInfo={<TpsMonitorStatus />}
+      additionalInfo={mode === "history" ? (
+        <MonitorHistoryAverage metrics={["tps"]}>
+          {({ tps }) => (
+            <span className={cn("text-xs", googleSansCode.className)}>
+              <span className="mr-3">{$("monitor.history.average")}</span>
+              {`${tps.toFixed(1)} TPS`}
+            </span>
+          )}
+        </MonitorHistoryAverage>
+      ) : <TpsMonitorStatus />}
       className={className}>
       <MonitorHistoryChart series={TPS_NAVIGATOR_SERIES}>
         {(data, isHistory, range) => (
@@ -550,6 +593,26 @@ export function TpsMonitorBlock({ className }: {
   );
 }
 
+function NetworkMonitorValues({ data, children }: PropsWithChildren<{
+  data: Pick<MonitorData, "networkUpload" | "networkDownload"> | null
+}>) {
+  return (
+    <span className={cn("text-xs flex items-center [&>svg]:size-3", googleSansCode.className)}>
+      {children}
+      <MoveUp />
+      {`${data ? formatDataSize(data.networkUpload) : "0 KB"}/s`}
+      <MoveDown className="ml-2"/>
+      {`${data ? formatDataSize(data.networkDownload) : "0KB"}/s`}
+      <ArrowUpDown className="ml-2 mr-1"/>
+      {`${
+        data
+        ? formatDataSize((data.networkUpload + data.networkDownload) / 2)
+        : "0KB"
+      }/s`}
+    </span>
+  );
+}
+
 function NetworkMonitorStatus() {
   const monitorDataList = useContext(MonitorContext);
   const latestData = (
@@ -558,30 +621,27 @@ function NetworkMonitorStatus() {
     : null
   );
 
-  return (
-    <span className={cn("text-xs flex items-center [&>svg]:size-3", googleSansCode.className)}>
-      <MoveUp />
-      {`${latestData ? formatDataSize(latestData.networkUpload) : "0 KB"}/s`}
-      <MoveDown className="ml-2"/>
-      {`${latestData ? formatDataSize(latestData.networkDownload) : "0KB"}/s`}
-      <ArrowUpDown className="ml-2 mr-1"/>
-      {`${
-        latestData
-        ? formatDataSize((latestData.networkUpload + latestData.networkDownload) / 2)
-        : "0KB"
-      }/s`}
-    </span>
-  );
+  return <NetworkMonitorValues data={latestData}/>;
 }
 
 export function NetworkMonitorBlock({ className }: {
   className?: string
 }) {
+  const { mode } = useMonitorHistory();
+
   return (
     <MonitorBlock
       title={$("monitor.network.title")}
       description={$("monitor.network.description")}
-      additionalInfo={<NetworkMonitorStatus />}
+      additionalInfo={mode === "history" ? (
+        <MonitorHistoryAverage metrics={["networkUpload", "networkDownload"]}>
+          {(averages) => (
+            <NetworkMonitorValues data={averages}>
+              <span className="mr-3">{$("monitor.history.average")}</span>
+            </NetworkMonitorValues>
+          )}
+        </MonitorHistoryAverage>
+      ) : <NetworkMonitorStatus />}
       className={className}>
       <MonitorHistoryChart series={NETWORK_NAVIGATOR_SERIES}>
         {(data, isHistory, range) => (
@@ -647,6 +707,20 @@ export function NetworkMonitorBlock({ className }: {
   );
 }
 
+function DiskIOMonitorValues({ data, children }: PropsWithChildren<{
+  data: Pick<MonitorData, "diskRead" | "diskWrite"> | null
+}>) {
+  return (
+    <span className={cn("text-xs flex items-center [&>svg]:size-3", googleSansCode.className)}>
+      {children}
+      <span className="mr-2">Read</span>
+      {`${data ? formatDataSize(data.diskRead) : "0 KB"}/s`}
+      <span className="ml-3 mr-2">Write</span>
+      {`${data ? formatDataSize(data.diskWrite) : "0KB"}/s`}
+    </span>
+  );
+}
+
 function DiskIOMonitorStatus() {
   const monitorDataList = useContext(MonitorContext);
   const latestData = (
@@ -655,24 +729,27 @@ function DiskIOMonitorStatus() {
     : null
   );
 
-  return (
-    <span className={cn("text-xs flex items-center [&>svg]:size-3", googleSansCode.className)}>
-      <span className="mr-2">Read</span>
-      {`${latestData ? formatDataSize(latestData.diskRead) : "0 KB"}/s`}
-      <span className="ml-3 mr-2">Write</span>
-      {`${latestData ? formatDataSize(latestData.diskWrite) : "0KB"}/s`}
-    </span>
-  );
+  return <DiskIOMonitorValues data={latestData}/>;
 }
 
 export function DiskIOMonitorBlock({ className }: {
   className?: string
 }) {
+  const { mode } = useMonitorHistory();
+
   return (
     <MonitorBlock
       title={$("monitor.disk-io.title")}
       description={$("monitor.disk-io.description")}
-      additionalInfo={<DiskIOMonitorStatus />}
+      additionalInfo={mode === "history" ? (
+        <MonitorHistoryAverage metrics={["diskRead", "diskWrite"]}>
+          {(averages) => (
+            <DiskIOMonitorValues data={averages}>
+              <span className="mr-3">{$("monitor.history.average")}</span>
+            </DiskIOMonitorValues>
+          )}
+        </MonitorHistoryAverage>
+      ) : <DiskIOMonitorStatus />}
       className={className}>
       <MonitorHistoryChart series={DISK_NAVIGATOR_SERIES}>
         {(data, isHistory, range) => (

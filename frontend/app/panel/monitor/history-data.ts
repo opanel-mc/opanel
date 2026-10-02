@@ -63,6 +63,25 @@ export function fillMonitorHistoryGaps(response: MonitorHistoryResponse): Monito
   return result;
 }
 
+export function getMonitorHistoryAverage(
+  data: MonitorHistoryChartData[],
+  metric: MonitorMetric
+): number | null {
+  let sum = 0;
+  let sampleCount = 0;
+
+  // Use the detail data queried for the selected range, weighting each bucket by its samples.
+  for(const point of data) {
+    const value = point[metric];
+    if(value === null || !Number.isFinite(value) || point.sampleCount <= 0) continue;
+
+    sum += value * point.sampleCount;
+    sampleCount += point.sampleCount;
+  }
+
+  return sampleCount > 0 ? sum / sampleCount : null;
+}
+
 export function getMonitorHistoryRange(
   data: MonitorHistoryChartData[],
   startIndex: number,

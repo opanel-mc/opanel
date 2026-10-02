@@ -201,6 +201,7 @@
   "monitor.history.live-range": "Letzte 200 Sekunden",
   "monitor.history.range": "Historischen Zeitraum auswählen",
   "monitor.history.resolution": "Auflösung",
+  "monitor.history.average": "Durchschnitt",
   "monitor.history.loading": "Verlauf wird geladen",
   "monitor.history.empty": "Keine Verlaufsdaten",
   "monitor.history.unavailable": "Verlauf ist vorübergehend nicht verfügbar",
