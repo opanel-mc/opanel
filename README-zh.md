@@ -73,6 +73,8 @@ OPanel 扩展可以在不修改 OPanel 本体的情况下添加自定义后端 A
 
 查看[贡献指南](https://opanel.cn/docs/contributing)以了解更多信息。
 
+按平台版本构建、前端环境变量配置及 Pumpkin 独立构建方式见[构建说明](./BUILDING.md)。
+
 ## 友情链接
 
 [<img src="./images/friends/rainyun.png" width="300"/>](https://rainyun.com/opanel_)

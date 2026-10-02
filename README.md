@@ -73,6 +73,9 @@ npx skills add opanel-mc/opanel
 
 See [Contributing Guidelines](https://opanel.cn/docs/contributing) for more information.
 
+See [Building OPanel](./BUILDING.md) for target-specific Gradle builds, frontend
+environment variables, and standalone Pumpkin builds.
+
 ## Friend Links
 
 [<img src="./images/friends/rainyun.png" width="300"/>](https://rainyun.com/opanel_)

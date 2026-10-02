@@ -16,38 +16,44 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - ".agents/**"
-      - ".claude/**"
-      - ".idea/**"
-      - ".vscode/**"
-      - "images/**"
-      - ".gitattributes"
-      - ".gitignore"
-      - "**/*.md"
-      - "LICENSE"
-      - "ThirdPartyNotices.txt"
   pull_request:
-    paths-ignore:
-      - ".agents/**"
-      - ".claude/**"
-      - ".idea/**"
-      - ".vscode/**"
-      - "images/**"
-      - ".gitattributes"
-      - ".gitignore"
-      - "**/*.md"
-      - "LICENSE"
-      - "ThirdPartyNotices.txt"
 
 jobs:
-  frontend:
+  changes:
 
     runs-on: ubuntu-latest
 
     outputs:
-      jar_required: ${{ steps.changes.outputs.jar_required }}
+      java_matrix: ${{ steps.changes.outputs.java_matrix }}
+      java_required: ${{ steps.changes.outputs.java_required }}
       pumpkin_required: ${{ steps.changes.outputs.pumpkin_required }}
+      frontend_checks_required: ${{ steps.changes.outputs.frontend_checks_required }}
+      prepare_required: ${{ steps.changes.outputs.prepare_required }}
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Use Node.js 22.x
+      uses: actions/setup-node@v6
+      with:
+        node-version: 22.x
+    - name: Determine required builds
+      id: changes
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        BUILD_JAR: ${{ inputs.build_jar }}
+        BUILD_PUMPKIN: ${{ inputs.build_pumpkin }}
+        BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      run: node .github/scripts/detect-builds.mjs
+    - name: Check build matrix
+      if: steps.changes.outputs.prepare_required == 'true'
+      run: node --test .github/scripts/build-matrix.test.mjs
+
+  prepare:
+
+    needs: changes
+    if: needs.changes.outputs.prepare_required == 'true'
+    runs-on: ubuntu-latest
 
     defaults:
       run:
@@ -55,41 +61,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
-    - name: Determine required builds
-      id: changes
-      working-directory: .
-      env:
-        EVENT_NAME: ${{ github.event_name }}
-        BUILD_JAR: ${{ inputs.build_jar }}
-        BUILD_PUMPKIN: ${{ inputs.build_pumpkin }}
-        BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
-        HEAD_SHA: ${{ github.sha }}
-      run: |
-        if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
-          echo "jar_required=$BUILD_JAR" >> "$GITHUB_OUTPUT"
-          echo "pumpkin_required=$BUILD_PUMPKIN" >> "$GITHUB_OUTPUT"
-        elif [[ -z "$BASE_SHA" || "$BASE_SHA" =~ ^0+$ ]]; then
-          echo "jar_required=true" >> "$GITHUB_OUTPUT"
-          echo "pumpkin_required=true" >> "$GITHUB_OUTPUT"
-        else
-          if ! git fetch --no-tags --depth=1 origin "$BASE_SHA"; then
-            echo "jar_required=true" >> "$GITHUB_OUTPUT"
-            echo "pumpkin_required=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          changed_files=$(git diff --name-only --no-renames "$BASE_SHA" "$HEAD_SHA" -- . ':(exclude)frontend/**')
-          if [[ -n "$changed_files" ]]; then
-            echo "jar_required=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "jar_required=false" >> "$GITHUB_OUTPUT"
-          fi
-          if git diff --quiet --no-renames "$BASE_SHA" "$HEAD_SHA" -- pumpkin/ Cargo.toml Cargo.lock .github/workflows/; then
-            echo "pumpkin_required=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "pumpkin_required=true" >> "$GITHUB_OUTPUT"
-          fi
-        fi
-    
     - name: Use Node.js 22.x
       uses: actions/setup-node@v6
       with:
@@ -97,51 +68,59 @@ jobs:
         cache: 'npm'
         cache-dependency-path: ./frontend/package-lock.json
     - name: Install dependencies
-      run: npm i
+      run: npm ci
     - name: Run prelaunch scripts
       run: npm run prelaunch
     
     - name: Run lint
+      if: needs.changes.outputs.frontend_checks_required == 'true'
       run: npm run lint
 
+    - name: Run typecheck
+      if: needs.changes.outputs.frontend_checks_required == 'true'
+      run: npm run typecheck
+
     - name: Run unit tests
+      if: needs.changes.outputs.frontend_checks_required == 'true'
       run: npm run test
     
     - name: Run wasm unit tests
+      if: needs.changes.outputs.frontend_checks_required == 'true'
       run: npm run wasm:test
 
-    - name: Build and bundle frontend
-      run: npm run build:pack
-    - name: Upload bundled frontend for jars
-      if: steps.changes.outputs.jar_required == 'true'
+    - name: Upload shared frontend inputs
       uses: actions/upload-artifact@v7
       with:
-        name: frontend-build
-        path: core/src/main/resources/web
-        if-no-files-found: error
-    - name: Upload frontend build for Pumpkin
-      if: steps.changes.outputs.pumpkin_required == 'true'
-      uses: actions/upload-artifact@v7
-      with:
-        name: pumpkin-frontend-build
-        path: frontend/dist
+        name: frontend-prepared
+        path: |
+          frontend/assets/minecraft
+          frontend/wasm-lib/pkg
+        retention-days: 7
         if-no-files-found: error
 
   jar:
 
-    needs: frontend
-    if: needs.frontend.outputs.jar_required == 'true'
+    name: Build ${{ matrix.target }}
+    needs: [changes, prepare]
+    if: needs.changes.outputs.java_required == 'true'
 
     runs-on: ubuntu-latest
 
-    steps:
-    - name: Remove unnecessary files to release disk space
-      run: |
-        df -h
-        rm -rf /opt/hostedtoolcache
-        df -h
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.changes.outputs.java_matrix) }}
 
+    steps:
     - uses: actions/checkout@v6
+    - name: Use Node.js 22.x
+      uses: actions/setup-node@v6
+      with:
+        node-version: 22.x
+        cache: 'npm'
+        cache-dependency-path: ./frontend/package-lock.json
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
     - name: Use JDK 25, 21, 17, 14
       uses: actions/setup-java@v5
       with:
@@ -155,34 +134,66 @@ jobs:
     - name: Change wrapper permissions
       run: chmod +x ./gradlew
 
-    - name: Remove bundled frontend from checkout
-      run: rm -rf ./core/src/main/resources/web
-    - name: Download frontend build
+    - name: Download shared frontend inputs
       uses: actions/download-artifact@v8
       with:
-        name: frontend-build
-        path: core/src/main/resources/web
+        name: frontend-prepared
+        path: frontend
 
-    - name: Build jar files
-      run: JAVA_HOME=$JAVA_HOME_25_X64 ./gradlew build --stacktrace
+    - name: Build target
+      env:
+        OPANEL_FRONTEND_PREPARED: "1"
+        BUILD_TARGET: ${{ matrix.target }}
+      run: JAVA_HOME="$JAVA_HOME_25_X64" ./gradlew -PbuildTarget="$BUILD_TARGET" ":$BUILD_TARGET:build" --stacktrace
 
-    - name: Expose Actions runtime token
-      uses: actions/github-script@v9
+    - name: Upload target jar
+      uses: actions/upload-artifact@v7
       with:
-        script: |
-          core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN)
-          core.exportVariable('ACTIONS_RESULTS_URL', process.env.ACTIONS_RESULTS_URL)
-    - name: Upload jar files
-      working-directory: .github/scripts
-      run: |
-        npm init -y >/dev/null
-        npm i @actions/artifact@^2
-        node upload-jars.mjs
+        name: ${{ matrix.artifact }}
+        path: build/libs/${{ matrix.artifact }}.jar
+        if-no-files-found: error
+
+  pumpkin-frontend:
+
+    needs: [changes, prepare]
+    if: needs.changes.outputs.pumpkin_required == 'true'
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Use Node.js 22.x
+      uses: actions/setup-node@v6
+      with:
+        node-version: 22.x
+        cache: 'npm'
+        cache-dependency-path: ./frontend/package-lock.json
+    - name: Install dependencies
+      run: npm ci
+    - name: Download shared frontend inputs
+      uses: actions/download-artifact@v8
+      with:
+        name: frontend-prepared
+        path: frontend
+    - name: Build Pumpkin frontend
+      env:
+        VITE_OPANEL_TARGET: pumpkin-26.3
+        OPANEL_FRONTEND_PREPARED: "1"
+      run: npm run build
+    - name: Upload Pumpkin frontend
+      uses: actions/upload-artifact@v7
+      with:
+        name: pumpkin-frontend-build
+        path: frontend/dist
+        retention-days: 7
+        if-no-files-found: error
 
   pumpkin-check:
 
-    needs: frontend
-    if: needs.frontend.outputs.pumpkin_required == 'true'
+    needs: pumpkin-frontend
 
     runs-on: ubuntu-latest
 
@@ -217,9 +228,8 @@ jobs:
   pumpkin:
 
     needs:
-      - frontend
+      - pumpkin-frontend
       - pumpkin-check
-    if: needs.frontend.outputs.pumpkin_required == 'true'
 
     runs-on: ${{ matrix.runner }}
 

@@ -3,7 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-const BUILD_HINT: &str = "run `npm --prefix frontend run build` before building OPanel";
+const BUILD_HINT: &str = "set VITE_OPANEL_TARGET=pumpkin-26.3 and run `npm --prefix frontend run build` before building OPanel";
 
 fn main() {
     let manifest_dir = PathBuf::from(
