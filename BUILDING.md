@@ -113,7 +113,8 @@ node --test .github/scripts/build-matrix.test.mjs
 
 ## CI and generated files
 
-Every push to `main` and pull request starts a lightweight `changes` job. It
+The `CI` workflow (`.github/workflows/ci.yml`) starts a lightweight `changes` job
+on every push to `main` and pull request. It
 compares commits and writes the selected targets and skip reasons to the run
 summary. Path rules live in `.github/scripts/detect-builds.mjs`, rather than
 duplicating them in workflow-level `paths-ignore` filters.
@@ -140,12 +141,17 @@ but excluding unrelated base-branch changes. Deleted files and both paths of a
 rename are included. Unavailable comparison history falls back to all products
 and frontend checks; invalid module configuration fails detection instead.
 
-The shared preparation job runs only when a Java target or Pumpkin needs a
-frontend. Backend-only changes still need Minecraft/Wasm preparation and target
-frontend compilation in a fresh checkout, but skip frontend lint, type checking,
-unit tests and Wasm tests. These checks run for frontend changes, frontend Gradle
-task changes, changes to the build workflow/detection, full-build fallbacks and
-manual product builds.
+The shared `prepare` job runs only when a Java target or Pumpkin needs a frontend.
+It generates and uploads Minecraft assets and Wasm outputs. The separate
+`frontend-check` job downloads those inputs and runs frontend lint, type checking,
+unit tests and Wasm tests. It runs for frontend changes, frontend Gradle task
+changes, changes to the build workflow/detection, full-build fallbacks and manual
+product builds.
+
+Backend-only changes still need resource preparation and target frontend
+compilation in a fresh checkout, but skip `frontend-check`. Java and Pumpkin
+builds wait for preparation to succeed and frontend checks to pass or be skipped
+by the change rules. Failed or cancelled frontend checks block those builds.
 
 The Java matrix is generated from the module registry (currently 39 targets)
 and filtered to the selected targets. Each job installs npm dependencies in a

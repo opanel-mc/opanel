@@ -15,7 +15,7 @@ const publishingFiles = new Set([
   ".github/scripts/prepare-modrinth-matrix.mjs",
 ]);
 const detectionFiles = new Set([
-  ".github/workflows/build.yml",
+  ".github/workflows/ci.yml",
   ".github/scripts/detect-builds.mjs",
 ]);
 const matrixFiles = new Set([

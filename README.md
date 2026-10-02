@@ -5,7 +5,7 @@
 <br>
 <br>
 
-[![test](https://img.shields.io/github/actions/workflow/status/opanel-mc/opanel/build.yml)](https://github.com/opanel-mc/opanel/actions/workflows/build.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/opanel-mc/opanel/ci.yml)](https://github.com/opanel-mc/opanel/actions/workflows/ci.yml)
 [![LICENSE](https://img.shields.io/badge/license-GPL_3.0-blue.svg "LICENSE")](./LICENSE)
 [![Stars](https://img.shields.io/github/stars/opanel-mc/opanel.svg?label=Stars)](https://github.com/opanel-mc/opanel/stargazers)
 

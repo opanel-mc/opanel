@@ -1,4 +1,4 @@
-name: Build
+name: CI
 
 on:
   workflow_dispatch:
@@ -71,22 +71,6 @@ jobs:
       run: npm ci
     - name: Run prelaunch scripts
       run: npm run prelaunch
-    
-    - name: Run lint
-      if: needs.changes.outputs.frontend_checks_required == 'true'
-      run: npm run lint
-
-    - name: Run typecheck
-      if: needs.changes.outputs.frontend_checks_required == 'true'
-      run: npm run typecheck
-
-    - name: Run unit tests
-      if: needs.changes.outputs.frontend_checks_required == 'true'
-      run: npm run test
-    
-    - name: Run wasm unit tests
-      if: needs.changes.outputs.frontend_checks_required == 'true'
-      run: npm run wasm:test
 
     - name: Upload shared frontend inputs
       uses: actions/upload-artifact@v7
@@ -98,11 +82,53 @@ jobs:
         retention-days: 7
         if-no-files-found: error
 
+  frontend-check:
+
+    needs: [changes, prepare]
+    if: needs.changes.outputs.frontend_checks_required == 'true'
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Use Node.js 22.x
+      uses: actions/setup-node@v6
+      with:
+        node-version: 22.x
+        cache: 'npm'
+        cache-dependency-path: ./frontend/package-lock.json
+    - name: Install dependencies
+      run: npm ci
+    - name: Download shared frontend inputs
+      uses: actions/download-artifact@v8
+      with:
+        name: frontend-prepared
+        path: frontend
+
+    - name: Run lint
+      run: npm run lint
+
+    - name: Run typecheck
+      run: npm run typecheck
+
+    - name: Run unit tests
+      run: npm run test
+
+    - name: Run wasm unit tests
+      run: npm run wasm:test
+
   jar:
 
     name: Build ${{ matrix.target }}
-    needs: [changes, prepare]
-    if: needs.changes.outputs.java_required == 'true'
+    needs: [changes, prepare, frontend-check]
+    # Backend-only builds can proceed when frontend checks are skipped.
+    if: >-
+      ${{ !cancelled() && needs.changes.outputs.java_required == 'true'
+          && needs.prepare.result == 'success'
+          && (needs.frontend-check.result == 'success' || needs.frontend-check.result == 'skipped') }}
 
     runs-on: ubuntu-latest
 
@@ -155,8 +181,11 @@ jobs:
 
   pumpkin-frontend:
 
-    needs: [changes, prepare]
-    if: needs.changes.outputs.pumpkin_required == 'true'
+    needs: [changes, prepare, frontend-check]
+    if: >-
+      ${{ !cancelled() && needs.changes.outputs.pumpkin_required == 'true'
+          && needs.prepare.result == 'success'
+          && (needs.frontend-check.result == 'success' || needs.frontend-check.result == 'skipped') }}
     runs-on: ubuntu-latest
 
     defaults:
@@ -194,6 +223,7 @@ jobs:
   pumpkin-check:
 
     needs: pumpkin-frontend
+    if: ${{ !cancelled() && needs.pumpkin-frontend.result == 'success' }}
 
     runs-on: ubuntu-latest
 
@@ -230,6 +260,9 @@ jobs:
     needs:
       - pumpkin-frontend
       - pumpkin-check
+    if: >-
+      ${{ !cancelled() && needs.pumpkin-frontend.result == 'success'
+          && needs.pumpkin-check.result == 'success' }}
 
     runs-on: ${{ matrix.runner }}
 
