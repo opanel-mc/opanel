@@ -3,7 +3,7 @@
 import type { PropsWithChildren } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ChevronDown, Cog, FilePen, Puzzle, Server, SettingsIcon, SquareTerminal } from "lucide-react";
 import { changeSettings, getSettings, resetSettings, type SettingsStorageType } from "@/lib/settings";
@@ -22,7 +22,7 @@ import { LoginBannerDialog } from "./login-banner-dialog";
 import { LaunchCommandDialog } from "./launch-command-dialog";
 import { SecurityDialog } from "./security-dialog";
 import { UpdateDialog } from "./update-dialog";
-import { cn } from "@/lib/utils";
+import { cn, isPumpkin } from "@/lib/utils";
 import { googleSansCode } from "@/lib/fonts";
 import { AvatarProvider, SkinProvider } from "@/lib/types";
 import { type LanguageCode, languages } from "@/lang";
@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { getLogLevels } from "@/lib/ws/terminal";
 import { Extensions } from "./extensions";
+import { VersionContext } from "@/contexts/api-context";
 
 const SETTINGS_TAB_VALUES = [
   "general",
@@ -97,6 +98,7 @@ export default function Settings() {
   const { replace } = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const versionCtx = useContext(VersionContext);
   const tabFromUrl = searchParams.get("tab");
   const currentTab = (SETTINGS_TAB_VALUES as readonly string[]).includes(tabFromUrl ?? "")
     ? (tabFromUrl as (typeof SETTINGS_TAB_VALUES)[number])
@@ -115,7 +117,9 @@ export default function Settings() {
     replace(`${pathname}?${next.toString()}`);
   };
   
-  const fetchMapFeatureEnabled = async () => {
+  const fetchMapFeatureEnabled = useCallback(async () => {
+    if(!versionCtx || isPumpkin(versionCtx.serverType)) return;
+
     try {
       const { enabled: mapEnabled } = await sendGetRequest<{ enabled: boolean }>("/api/map");
       setMapFeatureEnabled(mapEnabled);
@@ -125,7 +129,7 @@ export default function Settings() {
         [500, $("common.error.500")]
       ]);
     }
-  };
+  }, [versionCtx]);
   
   const handleToggleMap = async (enabled: boolean) => {
     try {
@@ -160,10 +164,12 @@ export default function Settings() {
   }, [showInfoLevel, showWarnLevel, showErrorLevel]);
 
   useEffect(() => {
+    if(!versionCtx) return;
+
     fetchMapFeatureEnabled();
 
     emitter.on("refresh-data", () => fetchMapFeatureEnabled());
-  }, []);
+  }, [versionCtx, fetchMapFeatureEnabled]);
 
   useLoadingDone();
 
@@ -206,10 +212,12 @@ export default function Settings() {
               <FilePen />
               {$("settings.editor.title")}
             </TabsTrigger>
-            <TabsTrigger value="extensions">
-              <Puzzle />
-              {$("settings.extensions.title")}
-            </TabsTrigger>
+            {(versionCtx && !isPumpkin(versionCtx.serverType)) && (
+              <TabsTrigger value="extensions">
+                <Puzzle />
+                {$("settings.extensions.title")}
+              </TabsTrigger>
+            )}
           </TabsList>
           <div className="pb-2 border-b max-sm:hidden">
             <Button
@@ -328,18 +336,20 @@ export default function Settings() {
                     <Link href="/panel/mcp">{$("settings.system.mcp.configure")}</Link>
                   </Button>
                 }/>
-              <SettingsItem
-                id="system.oidc"
-                name="OIDC"
-                description={$("oidc.description")}
-                control={
-                  <Button
-                    className="cursor-pointer"
-                    size="sm"
-                    asChild>
-                    <Link href="/panel/oidc">{$("settings.system.oidc.configure")}</Link>
-                  </Button>
-                }/>
+              {(versionCtx && !isPumpkin(versionCtx.serverType)) && (
+                <SettingsItem
+                  id="system.oidc"
+                  name="OIDC"
+                  description={$("oidc.description")}
+                  control={
+                    <Button
+                      className="cursor-pointer"
+                      size="sm"
+                      asChild>
+                      <Link href="/panel/oidc">{$("settings.system.oidc.configure")}</Link>
+                    </Button>
+                  }/>
+              )}
               <SettingsItem
                 id="system.access-key"
                 name={$("settings.system.access-key")}
@@ -377,7 +387,12 @@ export default function Settings() {
               id="server.map-feature"
               name={$("settings.server.map-feature")}
               description={$("settings.server.map-feature.description")}
-              control={<Switch checked={mapFeatureEnabled} onCheckedChange={handleToggleMap}/>}/>
+              control={
+                <Switch
+                  checked={mapFeatureEnabled}
+                  disabled={versionCtx && isPumpkin(versionCtx.serverType)}
+                  onCheckedChange={handleToggleMap}/>
+              }/>
           </Section>
         </TabsContent>
         <TabsContent value="terminal">
