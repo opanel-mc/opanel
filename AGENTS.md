@@ -89,13 +89,6 @@ OPanel
 
 ## 项目规范
 
-### 命名规范
-
-- **kebab-case**: 前端工程中的文件夹与文件名称、java模块名称、i18n键名、前端设置选项键名
-- **snake_case**: java包名（在标注Minecraft版本时使用snake_case）、全局常量（大写且snake_case）
-- **camelCase**: 变量名、http和WebSocket传输的json对象中的键名
-- **PascalCase**: 类名
-
 ### 代码规范
 
 - 对于前端部分，请查看`/frontend/.oxlintrc.json`
@@ -105,36 +98,14 @@ OPanel
 
 #### 命名规则
 
-i18n 键名使用 **kebab-case**，遵循以下格式：
-
-```
-<page>.[...<component>].<part>
-```
-
-- `<page>`: 页面名称（独立组件使用的通用文案可省略，使用 `common` 作为前缀）
-- `[...<component>]`: 组件名称，可按层级从上到下嵌套
-- `<part>`: 组件部分的名称，如 `placeholder`、`description`、`tooltip`、`loading` 等
-
-特殊规则：
-- 浏览器标签页标题的 id 应仅为页面名称（如 `"about": "About"`）
-- 错误消息的 id 应使用 `error` 作为组件名（如 `common.error.400`）
-- 通用文案（跨页面/组件共享）使用 `common.` 前缀，如 `common.copy.success`
-
 详见 `/frontend/lang/README.md`
 
 #### 分类和顺序
-
-语言文件中的键应按以下顺序组织：
-
-1. `$lang` - 语言名称标识
-2. `common.*` - 通用文案（按子分类排序：error、gamemode、difficulty、copy、controls 等）
-3. 各页面文案（按页面名称字母顺序排列：about、login、panel...）
 
 同一分类内的键应按逻辑顺序排列（参考已有的文案排序），保持各语言文件结构一致。不同分类的i18n文案中间应用一个空行隔开。
 
 ### 其他
 
-- Java的依赖若需要进行Shadow Jar的Relocate，必须Relocate到`net.opanel.deps.*`包下
 - 编写对话框dialog时，必须单独新建xxx-dialog.tsx文件
 - 使用DataTable组件，编写columns定义时，必须单独新建columns.tsx文件
 
@@ -149,4 +120,19 @@ afterEach(() => cleanup());
 
 由于文件加载顺序的问题，i18n方面的mock（见`/frontend/test/setup.ts`中对`@/lib/i18n`的mock）并不是100%生效。一般情况下，测试中还是直接使用`[i18n_id]`（mock过）的写法，如果因为组件在i18n被mock前被加载导致mock不生效，以致测试不通过，再改成正则表达式同时匹配`[i18n_id]`和实际中文文本的写法。可参考：`/frontend/app/panel/players/inventory/item-dialog.test.tsx`。
 
-改完前端代码后，跑Oxlint和TS类型检查即可，不需要全量构建；改完后端代码后不需要执行Gradle构建。
+## 注意事项
+
+### Pumpkin
+
+- Pumpkin Rust 端的实现无需与 Java 端做到 100% 完全一致，但整体功能、行为和处理流程仍应优先参照 Java 实现。
+- 遇到需要向用户确认的问题时，应先查阅并对照 Java 实现，明确两端的行为差异后再提问。
+- 如果发现 Java 实现存在缺陷、隐患或明显不合理的行为，应先暂停并向用户确认，不要直接将缺陷照搬到 Rust 端。
+- 避免过度工程化，只实现当前功能真正需要的抽象、保护措施和复杂度。
+- 在具体业务代码中编写工具函数前，应先检查 `/pumpkin/utils/` 中是否已有可直接复用的实现；如果有，应直接复用。如果没有，应先判断该函数是否可能被其他代码使用；可能复用的工具函数应放入 `/pumpkin/utils/` 中，只有确认其仅服务于当前业务时，才可以放在对应的业务代码文件中。
+- 只编写能够验证实际行为、边界条件或防止回归的有效测试，不编写没有实际价值的测试。
+- 大部分场景下的文件读写无需实现原子化、并发锁或额外的竞态保护；默认参照 Java 实现采用直接读写，除非用户明确要求或对应 Java 实现本身采用了这些机制。
+
+### 其他
+
+- 改完前端代码后，跑Oxlint和TS类型检查即可，**不需要全量构建**。
+- 改完Java代码后**不需要执行Gradle构建**。

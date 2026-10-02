@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/alert";
 import { Spinner } from "@/components/ui/spinner";
 import { WhitelistSheet } from "../players/whitelist-sheet";
+import { PumpkinServerSheet } from "./pumpkin-server-sheet";
 import { ServerSheet } from "./server-sheet";
 import { MotdEditor } from "./motd-editor";
 import { FaviconDialog } from "./favicon-dialog";
@@ -32,6 +33,9 @@ function ControlButtonGroup({
   const [isReloadingServer, setIsReloadingServer] = useState(false);
   const [isRestartingServer, setIsRestartingServer] = useState(false);
   const [isStoppingServer, setIsStoppingServer] = useState(false);
+  const ServerConfigSheet = versionCtx?.serverType === "Pumpkin"
+    ? PumpkinServerSheet
+    : ServerSheet;
 
   return (
     <div className={cn("flex gap-1 [&>*]:cursor-pointer", className)}>
@@ -53,14 +57,16 @@ function ControlButtonGroup({
           <PenLine />
         </Button>
       </MotdEditor>
-      <ServerSheet asChild>
+      <ServerConfigSheet asChild>
         <Button
           variant="ghost"
           size="icon"
-          title={$("dashboard.info.controls.edit-properties")}>
+          title={versionCtx?.serverType === "Pumpkin"
+            ? $("dashboard.info.controls.edit-pumpkin-config")
+            : $("dashboard.info.controls.edit-properties")}>
           <Settings />
         </Button>
-      </ServerSheet>
+      </ServerConfigSheet>
       <Button
         variant="ghost"
         size="icon"

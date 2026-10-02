@@ -22,7 +22,7 @@ import {
   SidebarTrigger,
 } from "./ui/sidebar";
 import { Button } from "./ui/button";
-import { cn, isPaperSeries } from "@/lib/utils";
+import { cn, isPaperSeries, isPumpkin } from "@/lib/utils";
 import { minecraftAE } from "@/lib/fonts";
 import { Logo } from "./logo";
 import { ExtensionsContext, VersionContext } from "@/contexts/api-context";
@@ -55,7 +55,7 @@ const serverGroupItems: SidebarItemDef[] = [
     name: $("sidebar.server.map"),
     url: "/panel/map",
     icon: MapIcon,
-    condition: ({ map }) => map
+    condition: ({ map, serverType }) => map && !isPumpkin(serverType)
   }
 ];
 
@@ -78,7 +78,8 @@ const managementGroupItems: SidebarItemDef[] = [
   {
     name: $("sidebar.management.plugins"),
     url: "/panel/plugins",
-    icon: Blocks
+    icon: Blocks,
+    condition: ({ serverType }) => !isPumpkin(serverType)
   },
   {
     name: $("sidebar.management.logs"),

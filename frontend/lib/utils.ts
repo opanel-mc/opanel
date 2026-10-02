@@ -157,6 +157,10 @@ export function isPaperSeries(serverType: ServerType): boolean {
   );
 }
 
+export function isPumpkin(serverType: ServerType): boolean {
+  return serverType === "Pumpkin";
+}
+
 export function isPreviewVersion(version: string): boolean {
   return version.includes("pre") || version.includes("rc");
 }

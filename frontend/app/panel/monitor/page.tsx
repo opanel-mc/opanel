@@ -20,6 +20,7 @@ import {
 import { emitter } from "@/lib/emitter";
 import { sendGetRequest, toastError } from "@/lib/api";
 import { MonitorHistoryProvider } from "./monitor-history-context";
+import { cn, isPumpkin } from "@/lib/utils";
 
 function RealtimeMonitorProvider({ children }: PropsWithChildren) {
   const monitorDataList = useMonitor(200);
@@ -28,7 +29,7 @@ function RealtimeMonitorProvider({ children }: PropsWithChildren) {
 
 export default function Monitor() {
   const [info, setInfo] = useState<APIResponse<InfoResponse>>();
-  const versionInfo = useContext(VersionContext);
+  const versionCtx = useContext(VersionContext);
   
   const fetchServerInfo = async () => {
     try {
@@ -50,6 +51,8 @@ export default function Monitor() {
     emitter.on("refresh-data", () => fetchServerInfo());
   }, []);
 
+  if(!versionCtx) return <></>;
+
   return (
     <SubPage
       title={$("monitor.title")}
@@ -58,11 +61,19 @@ export default function Monitor() {
       className="grid grid-cols-2 gap-5">
       <InfoContext.Provider value={info}>
         <RealtimeMonitorProvider>
-          <MonitorHistoryProvider enabled={versionInfo?.monitorHistoryEnabled ?? false}>
-            <ActivityMonitorBlock className="col-span-2"/>
+          <MonitorHistoryProvider enabled={versionCtx?.monitorHistoryEnabled ?? false}>
+            {!isPumpkin(versionCtx.serverType) && (
+              <ActivityMonitorBlock className="col-span-2"/>
+            )}
             <CpuMonitorBlock className="col-span-2"/>
-            <MemoryMonitorBlock className="max-lg:col-span-2"/>
-            <JvmMemoryMonitorBlock className="max-lg:col-span-2"/>
+            <MemoryMonitorBlock
+              className={cn(
+                "max-lg:col-span-2",
+                isPumpkin(versionCtx.serverType) && "col-span-2"
+              )}/>
+            {!isPumpkin(versionCtx.serverType) && (
+              <JvmMemoryMonitorBlock className="max-lg:col-span-2"/>
+            )}
             <TpsMonitorBlock className="max-lg:col-span-2"/>
             <NetworkMonitorBlock className="max-lg:col-span-2"/>
             <DiskIOMonitorBlock className="col-span-2"/>

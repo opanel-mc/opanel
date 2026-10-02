@@ -88,7 +88,13 @@ const Log = memo(({
         <span className="text-[#c8723f]">[MCDR]</span>
       )}
       {(!simple && getSettings("terminal.thread-name")) && (
-        <span className={threadLevelStyle}>{`[${thread}/${level}]`}</span>
+        <span className={threadLevelStyle}>
+          {
+            thread
+            ? `[${thread}/${level}]`
+            : `[${level}]`
+          }
+        </span>
       )}
       {(!mcdr && !simple && getSettings("terminal.source-name") && sourceName) && (
         <span className="text-emerald-600 dark:text-emerald-500 max-md:hidden">{`(${sourceName})`}</span>
