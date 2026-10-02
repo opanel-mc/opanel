@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { format } from "date-format-parse";
-import AnsiConverter from "ansi-to-html";
 import { v7 as uuidv7 } from "uuid";
+import AnsiConverter from "@/lib/ansi-to-html";
 import { cn, purifyUnsafeText } from "@/lib/utils";
 import { getSettings } from "@/lib/settings";
 import { googleSansCode } from "@/lib/fonts";
