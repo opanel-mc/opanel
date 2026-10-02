@@ -1,6 +1,162 @@
 import { describe, expect, it } from "vitest";
 import Filter from "../ansi-to-html";
 
+describe("OSC 8 hyperlinks", () => {
+  function parseHtml(html: string): HTMLDivElement {
+    const element = document.createElement("div");
+    element.innerHTML = html;
+    return element;
+  }
+
+  it.each([
+    ["ST", "\x1b\\", "\x1b\\", ""],
+    ["BEL", "\x07", "\x07", ""],
+    ["mixed terminators", "\x07", "\x1b\\", ""],
+    ["parameters", "\x1b\\", "\x07", "id=docs:foo=bar"]
+  ])("renders hyperlinks with %s", (_name, start, end, params) => {
+    const filter = new Filter();
+    const html = filter.toHtml(`before \x1b]8;${params};https://example.com${start}打开文档 😀\x1b]8;;${end} after`);
+
+    expect(html).toBe("before <a href=\"https://example.com\" target=\"_blank\" rel=\"noopener noreferrer\">打开文档 😀</a> after");
+  });
+
+  it("preserves URL queries, semicolons and non-ASCII characters", () => {
+    const url = "https://example.com/文档;a=1?x=1&y=2&amp;literal=3#介绍";
+    const element = parseHtml(new Filter().toHtml(`\x1b]8;id=docs;${url}\x07文档\x1b]8;;\x07`));
+
+    expect(element.querySelector("a")?.getAttribute("href")).toBe(url);
+    expect(element.textContent).toBe("文档");
+  });
+
+  it("renders the Pumpkin startup links with styled labels", () => {
+    const input = "\x1b]8;;https://github.com/Pumpkin-MC/Pumpkin\x1b\\\x1b[4m[Github Repository]\x1b[24m\x1b]8;;\x1b\\ "
+      + "\x1b]8;;https://pumpkinmc.org/donate/\x1b\\\x1b[31m[Do\x1b[32mnate]\x1b[0m\x1b]8;;\x1b\\ "
+      + "\x1b]8;;https://pumpkinmc.org/\x1b\\\x1b[34m[Website]\x1b[0m\x1b]8;;\x1b\\";
+    const element = parseHtml(new Filter().toHtml(input));
+    const links = [...element.querySelectorAll("a")];
+
+    expect(links.map(link => [link.textContent, link.getAttribute("href")])).toEqual([
+      ["[Github Repository]", "https://github.com/Pumpkin-MC/Pumpkin"],
+      ["[Donate]", "https://pumpkinmc.org/donate/"],
+      ["[Website]", "https://pumpkinmc.org/"]
+    ]);
+    expect(links[0].querySelector("u")?.textContent).toBe("[Github Repository]");
+    expect(links[1].querySelectorAll("span")).toHaveLength(2);
+    expect(element.textContent).toBe("[Github Repository] [Donate] [Website]");
+    expect(element.querySelector("a a")).toBeNull();
+  });
+
+  it("preserves styles across hyperlink boundaries and SGR resets", () => {
+    const html = new Filter().toHtml("\x1b[1mprefix \x1b]8;;https://example.com\x07bold\x1b[0m plain\x1b[3m italic\x1b]8;;\x07 suffix\x1b[23m end");
+
+    expect(html).toBe("<b>prefix </b><a href=\"https://example.com\" target=\"_blank\" rel=\"noopener noreferrer\"><b>bold</b> plain<i> italic</i></a><i> suffix</i> end");
+  });
+
+  it("switches destinations without nesting links and ignores redundant closes", () => {
+    const html = new Filter().toHtml("\x1b]8;;\x07\x1b]8;;https://one.example\x07one\x1b]8;;https://two.example\x07two\x1b]8;;\x07\x1b]8;;\x07 plain");
+    const element = parseHtml(html);
+
+    expect([...element.querySelectorAll("a")].map(link => [link.textContent, link.getAttribute("href")])).toEqual([
+      ["one", "https://one.example"],
+      ["two", "https://two.example"]
+    ]);
+    expect(element.textContent).toBe("onetwo plain");
+    expect(element.querySelector("a a")).toBeNull();
+  });
+
+  it("does not leak unterminated links into later non-streaming conversions", () => {
+    const filter = new Filter();
+
+    expect(parseHtml(filter.toHtml("\x1b]8;;https://example.com\x07link")).querySelector("a")?.textContent).toBe("link");
+    expect(filter.toHtml("plain")).toBe("plain");
+  });
+
+  it("preserves link state across streaming calls independently of styles", () => {
+    const filter = new Filter({ stream: true });
+    filter.toHtml("\x1b]8;;https://example.com\x07\x1b[1mbold");
+    const middle = parseHtml(filter.toHtml("still bold\x1b[0m plain"));
+
+    expect(middle.querySelector("a")?.textContent).toBe("still bold plain");
+    expect(middle.querySelector("a b")?.textContent).toBe("still bold");
+    const end = parseHtml(filter.toHtml("\x1b]8;;\x07outside"));
+    expect(end.textContent).toBe("outside");
+    expect(end.querySelector("a")?.textContent ?? "").toBe("");
+    expect(filter.toHtml("plain")).toBe("plain");
+  });
+
+  it.each(["\x07", "\x1b\\"])("buffers OSC 8 sequences split at any position (%j)", (terminator) => {
+    const input = `before \x1b]8;id=docs;https://example.com?a=1&b=2${terminator}文档\x1b]8;;${terminator} after`;
+
+    for(let split = 0; split <= input.length; split++) {
+      const filter = new Filter({ stream: true });
+      const html = filter.toHtml(input.slice(0, split)) + filter.toHtml(input.slice(split));
+      const element = parseHtml(html);
+      const links = [...element.querySelectorAll("a")];
+
+      expect(element.textContent).toBe("before 文档 after");
+      expect(links.map(link => link.textContent).join("")).toBe("文档");
+      expect(links.every(link => link.getAttribute("href") === "https://example.com?a=1&b=2")).toBe(true);
+      expect(filter.toHtml("plain")).toBe("plain");
+    }
+  });
+
+  it("accepts string arrays containing split hyperlink sequences", () => {
+    const html = new Filter().toHtml(["\x1b]8;;https://example.com\x1b", "\\link\x1b]8;;\x1b", "\\"]);
+
+    expect(parseHtml(html).querySelector("a")?.textContent).toBe("link");
+  });
+
+  it.each([
+    "javascript:alert(1)", "JaVaScRiPt:alert(1)", "data:text/html,<script>alert(1)</script>",
+    "file:///etc/passwd", "//example.com", "http://", "https:example.com", "https://example.com/\nonclick=alert(1)"
+  ])("displays only the label for unsupported or invalid URLs (%j)", (url) => {
+    const html = new Filter().toHtml(`\x1b]8;;${url}\x07label\x1b]8;;\x07`);
+
+    expect(html).toBe("label");
+  });
+
+  it("closes the previous link when a disallowed destination follows it", () => {
+    const element = parseHtml(new Filter().toHtml("\x1b]8;;https://example.com\x07safe\x1b]8;;javascript:alert(1)\x07plain\x1b]8;;\x07"));
+
+    expect(element.querySelectorAll("a")).toHaveLength(1);
+    expect(element.querySelector("a")?.textContent).toBe("safe");
+    expect(element.textContent).toBe("safeplain");
+  });
+
+  it.each([false, true])("escapes link attributes regardless of escapeXML (%j)", (escapeXML) => {
+    const url = "https://example.com/?q=\"><img/src=x/onerror=alert(1)>&b='value'";
+    const element = parseHtml(new Filter({ escapeXML }).toHtml(`\x1b]8;;${url}\x07link\x1b]8;;\x07`));
+
+    expect(element.querySelector("a")?.getAttribute("href")).toBe(url);
+    expect(element.querySelector("img, [onerror]")).toBeNull();
+    expect(element.textContent).toBe("link");
+  });
+
+  it("escapes linked text when escapeXML is enabled", () => {
+    const element = parseHtml(new Filter({ escapeXML: true }).toHtml("\x1b]8;;https://example.com\x07<img src=x onerror=alert(1)> & \"text\"\x1b]8;;\x07"));
+
+    expect(element.querySelector("img")).toBeNull();
+    expect(element.querySelector("a")?.textContent).toBe("<img src=x onerror=alert(1)> & \"text\"");
+  });
+
+  it.each([false, true])("preserves multiline labels with newline=%j", (newline) => {
+    const html = new Filter({ newline }).toHtml("\x1b]8;;https://example.com\x07first\nsecond\x1b]8;;\x07");
+
+    expect(html).toBe(`<a href="https://example.com" target="_blank" rel="noopener noreferrer">first${newline ? "<br/>" : "\n"}second</a>`);
+  });
+
+  it("drops incomplete OSC 8 commands in non-streaming mode", () => {
+    const filter = new Filter();
+
+    expect(filter.toHtml("before\x1b]8;;https://example.com")).toBe("before");
+    expect(filter.toHtml("plain")).toBe("plain");
+  });
+
+  it("consumes malformed OSC 8 commands without exposing control data", () => {
+    expect(new Filter().toHtml("\x1b]8;missing-separator\x07label\x1b]8;;\x07")).toBe("label");
+  });
+});
+
 function test(text: string | string[], result: string, opts?: ConstructorParameters<typeof Filter>[0]): void {
   if(!opts) {
     opts = {};

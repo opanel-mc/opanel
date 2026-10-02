@@ -9,14 +9,14 @@ export interface ConverterOptions {
   newline?: boolean;
   /** Generate HTML/XML entities. */
   escapeXML?: boolean;
-  /** Save style state across invocations of `toHtml()`. */
+  /** Save style and hyperlink state across invocations of `toHtml()`. */
   stream?: boolean;
   /** Can override specific colors or the entire ANSI palette. */
   colors?: string[] | Record<number, string>;
 }
 
 type ResolvedOptions = Required<ConverterOptions>;
-type Token = "text" | "display" | "xterm256Foreground" | "xterm256Background" | "rgb";
+type Token = "text" | "display" | "xterm256Foreground" | "xterm256Background" | "rgb" | "hyperlink";
 type TokenData = string | number;
 type Output = string | 0 | undefined;
 type Category = "all" | "bold" | "underline" | "blink" | "hide" | "strike"
@@ -32,6 +32,13 @@ interface TokenHandler {
   pattern: RegExp;
   sub: (match: string, group: string) => string;
 }
+
+interface StyleTag {
+  tag: string;
+  opening: string;
+}
+
+const OSC_HYPERLINK_START = "\x1b]8;";
 
 const defaults: ResolvedOptions = {
   fg: "#FFF",
@@ -129,7 +136,7 @@ function toColorHexString(ref: number[]): string {
  * @param {*} data
  * @param {object} options
  */
-function generateOutput(stack: string[], token: Token, data: TokenData, options: ResolvedOptions): Output {
+function generateOutput(stack: StyleTag[], token: Token, data: TokenData, options: ResolvedOptions): Output {
   let result: Output;
 
   if(token === "text") {
@@ -152,7 +159,7 @@ function generateOutput(stack: string[], token: Token, data: TokenData, options:
  * @param {string} data
  * @returns {*}
  */
-function handleRgb(stack: string[], data: string): string {
+function handleRgb(stack: StyleTag[], data: string): string {
   data = data.substring(2).slice(0, -1);
   const operation = +data.substr(0, 2);
 
@@ -170,7 +177,7 @@ function handleRgb(stack: string[], data: string): string {
  * @param {object} options
  * @returns {*}
  */
-function handleDisplay(stack: string[], code: TokenData, options: ResolvedOptions): Output {
+function handleDisplay(stack: StyleTag[], code: TokenData, options: ResolvedOptions): Output {
   code = parseInt(code as string, 10);
 
   const codeMap: Record<number, () => Output> = {
@@ -211,13 +218,13 @@ function handleDisplay(stack: string[], code: TokenData, options: ResolvedOption
  * Clear all the styles
  * @returns {string}
  */
-function resetStyles(stack: string[]): string {
+function resetStyles(stack: StyleTag[]): string {
   const stackClone = stack.slice(0);
 
   stack.length = 0;
 
   return stackClone.reverse().map(function (tag) {
-    return "</" + tag + ">";
+    return "</" + tag.tag + ">";
   }).join("");
 }
 
@@ -300,14 +307,15 @@ function pushText(text: string, options: ResolvedOptions): string {
  * @param {string} [style='']
  * @returns {string}
  */
-function pushTag(stack: string[], tag: string, style?: string): string {
+function pushTag(stack: StyleTag[], tag: string, style?: string): string {
   if(!style) {
     style = "";
   }
 
-  stack.push(tag);
+  const opening = `<${tag}${style ? ` style="${style}"` : ""}>`;
+  stack.push({tag, opening});
 
-  return `<${tag}${style ? ` style="${style}"` : ""}>`;
+  return opening;
 }
 
 /**
@@ -315,15 +323,15 @@ function pushTag(stack: string[], tag: string, style?: string): string {
  * @param {string} style
  * @returns {string}
  */
-function pushStyle(stack: string[], style: string): string {
+function pushStyle(stack: StyleTag[], style: string): string {
   return pushTag(stack, "span", style);
 }
 
-function pushForegroundColor(stack: string[], color: string): string {
+function pushForegroundColor(stack: StyleTag[], color: string): string {
   return pushTag(stack, "span", "color:" + color);
 }
 
-function pushBackgroundColor(stack: string[], color: string): string {
+function pushBackgroundColor(stack: StyleTag[], color: string): string {
   return pushTag(stack, "span", "background-color:" + color);
 }
 
@@ -332,10 +340,10 @@ function pushBackgroundColor(stack: string[], color: string): string {
  * @param {string} style
  * @returns {string}
  */
-function closeTag(stack: string[], style: string): string | undefined {
+function closeTag(stack: StyleTag[], style: string): string | undefined {
   let last;
 
-  if(stack.slice(-1)[0] === style) {
+  if(stack.slice(-1)[0]?.tag === style) {
     last = stack.pop();
   }
 
@@ -344,13 +352,29 @@ function closeTag(stack: string[], style: string): string | undefined {
   }
 }
 
+function getHyperlinkUrl(url: string): string | null {
+  if(!/^https?:\/\//i.test(url) || /[\x00-\x20\x7f]/.test(url)) return null;
+
+  try {
+    const { protocol } = new URL(url);
+    return protocol === "http:" || protocol === "https:" ? url : null;
+  } catch {
+    return null;
+  }
+}
+
+function openHyperlink(url: string): string {
+  // Attributes must be escaped even when the caller handles text escaping.
+  return `<a href="${entities.encodeXML(url)}" target="_blank" rel="noopener noreferrer">`;
+}
+
 /**
  * @param {string} text
  * @param {object} options
  * @param {function} callback
- * @returns {Array}
+ * @returns Any incomplete OSC 8 sequence to resume in streaming mode.
  */
-function tokenize(text: string, options: ResolvedOptions, callback: (token: Token, data: TokenData) => void): number[] {
+function tokenize(text: string, options: ResolvedOptions, callback: (token: Token, data: TokenData) => void): string {
   let ansiMatch = false;
   const ansiHandler = 3;
 
@@ -477,11 +501,25 @@ function tokenize(text: string, options: ResolvedOptions, callback: (token: Toke
     text = text.replace(handler.pattern, handler.sub);
   }
 
-  const results1: number[] = [];
   let {length} = text;
 
   outer:
   while(length > 0) {
+    if(OSC_HYPERLINK_START.startsWith(text)) return text;
+
+    if(text.startsWith(OSC_HYPERLINK_START)) {
+      const terminator = /\x07|\x1b\\/.exec(text);
+      if(!terminator) return text;
+
+      const command = text.slice(OSC_HYPERLINK_START.length, terminator.index);
+      const separator = command.indexOf(";");
+      // Parameters (including id) do not affect the destination or label.
+      callback("hyperlink", separator < 0 ? "" : command.slice(separator + 1));
+      text = text.slice(terminator.index + terminator[0].length);
+      length = text.length;
+      continue;
+    }
+
     for(let i = 0, o = 0, len = tokens.length; o < len; i = ++o) {
       const handler = tokens[i];
       process(handler, i);
@@ -497,12 +535,10 @@ function tokenize(text: string, options: ResolvedOptions, callback: (token: Toke
     if(text.length === length) {
       break;
     }
-    results1.push(0);
-
     length = text.length;
   }
 
-  return results1;
+  return "";
 }
 
 /**
@@ -524,8 +560,10 @@ function updateStickyStack(stickyStack: StickyToken[], token: Token, data: Token
 
 export default class Filter {
   declare options: ResolvedOptions;
-  declare stack: string[];
+  declare stack: StyleTag[];
   declare stickyStack: StickyToken[];
+  private hyperlink: string | null = null;
+  private pendingInput = "";
 
   /**
    * @param {object} options
@@ -533,7 +571,7 @@ export default class Filter {
    * @param {string=} options.bg The default background color used when reset color codes are encountered.
    * @param {boolean=} options.newline Convert newline characters to `<br/>`.
    * @param {boolean=} options.escapeXML Generate HTML/XML entities.
-   * @param {boolean=} options.stream Save style state across invocations of `toHtml()`.
+   * @param {boolean=} options.stream Save style and hyperlink state across invocations of `toHtml()`.
    * @param {(string[] | {[code: number]: string})=} options.colors Can override specific colors or the entire ANSI palette.
    */
   constructor(options?: ConverterOptions | null) {
@@ -555,6 +593,9 @@ export default class Filter {
     input = typeof input === "string" ? [input] : input;
     const {stack, options} = this;
     const buf: string[] = [];
+    let hyperlink = options.stream ? this.hyperlink : null;
+
+    if(hyperlink) buf.push(openHyperlink(hyperlink));
 
     this.stickyStack.forEach(element => {
       const output = generateOutput(stack, element.token, element.data, options);
@@ -564,7 +605,22 @@ export default class Filter {
       }
     });
 
-    tokenize(input.join(""), options, (token, data) => {
+    const pendingInput = tokenize((options.stream ? this.pendingInput : "") + input.join(""), options, (token, data) => {
+      if(token === "hyperlink") {
+        const url = getHyperlinkUrl(data as string);
+        if(url === hyperlink) return;
+
+        // Keep anchors outside the style stack so SGR resets cannot close a link.
+        const styles = stack.slice();
+        buf.push(resetStyles(stack));
+        if(hyperlink) buf.push("</a>");
+        hyperlink = url;
+        if(hyperlink) buf.push(openHyperlink(hyperlink));
+        stack.push(...styles);
+        buf.push(...styles.map(style => style.opening));
+        return;
+      }
+
       const output = generateOutput(stack, token, data, options);
 
       if(output) {
@@ -579,6 +635,10 @@ export default class Filter {
     if(stack.length) {
       buf.push(resetStyles(stack));
     }
+    if(hyperlink) buf.push("</a>");
+
+    this.hyperlink = options.stream ? hyperlink : null;
+    this.pendingInput = options.stream ? pendingInput : "";
 
     return buf.join("");
   }
