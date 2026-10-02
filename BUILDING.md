@@ -72,11 +72,11 @@ retain their shared generation strategy.
 
 ## Pumpkin
 
-Pumpkin does not use Gradle. Build its frontend before invoking Cargo:
+Pumpkin does not use Gradle. Install frontend dependencies externally, then
+invoke Cargo from the repository root:
 
 ```sh
 npm --prefix frontend ci
-VITE_OPANEL_TARGET=pumpkin-26.3 npm --prefix frontend run build
 cargo build --release --locked
 ```
 
@@ -84,13 +84,40 @@ Windows PowerShell:
 
 ```powershell
 npm.cmd --prefix frontend ci
-$env:VITE_OPANEL_TARGET = "pumpkin-26.3"
-npm.cmd --prefix frontend run build
 cargo build --release --locked
 ```
 
-Leave `OPANEL_FRONTEND_OUTPUT` unset for Pumpkin so the output stays in
-`frontend/dist`, where its Rust asset crate embeds it.
+Configure the frontend in `pumpkin/frontend.properties`:
+
+```properties
+VITE_OPANEL_TARGET=pumpkin-26.3
+```
+
+Use UTF-8 `key=value` entries, one per line. Lines starting with `#` or `!` are
+comments. Property names are the environment variable names directly, preferably
+written in uppercase. The asset crate's Cargo build script also normalizes names
+to uppercase and passes values unchanged to `npm run build`. Additional entries
+are forwarded automatically; `VITE_OPANEL_TARGET` must be present and nonempty in
+this file. Values are literal, without properties escape or line-continuation
+processing.
+
+Cargo checks for installed frontend tools but never installs npm dependencies.
+Its build script runs frontend compilation and embeds the resulting client files
+and compatibility ID into the plugin. It sets `OPANEL_FRONTEND_OUTPUT` to
+`<OUT_DIR>/frontend` under Cargo's build directory, so it does not consume a
+previous build left in `frontend/dist`. That directory is still used internally
+by the exporter during compilation. Keep frontend builds in the same checkout
+sequential, including builds started through Gradle and Cargo.
+On Windows, a custom `CARGO_TARGET_DIR` must stay on the same drive as the
+repository because compressed resource embedding requires relative paths.
+
+Changes to frontend sources or `pumpkin/frontend.properties` trigger a rebuild;
+subsequent Rust-only builds can reuse the generated frontend. Cargo commands
+that compile the asset crate, including `cargo check` and `cargo test`, also
+require frontend dependencies. Local builds prepare Minecraft resources and Wasm
+automatically. With `OPANEL_FRONTEND_PREPARED=1`, they validate and reuse prepared
+resources while still compiling the target frontend. Wasm preparation uses its
+own Cargo target directory to avoid nesting builds in Pumpkin's target directory.
 
 ## Development and verification
 
@@ -125,7 +152,7 @@ duplicating them in workflow-level `paths-ignore` filters.
 | Helper/config module | Its consumers from the module registry | Skip |
 | Core, API or shared Gradle configuration | All targets | Skip |
 | Frontend code, assets, dependencies or build scripts | All targets | Build |
-| Pumpkin code or root Cargo manifest/lockfile | Skip | Build |
+| Pumpkin code, `pumpkin/frontend.properties` or root Cargo manifest/lockfile | Skip | Build |
 | Build workflow or change detection | All targets | Build |
 | Anything under `example-extension/` | Skip | Skip |
 | Documentation, display images, editor settings, `.gitignore`, known publishing files | Skip | Skip |
@@ -163,9 +190,12 @@ enabled branches. Selecting neither skips preparation, checks and builds after
 detection. Matrix failures do not cancel other targets; GitHub's available
 concurrency determines scheduling.
 
-Pumpkin builds its frontend once in a separate job and reuses it for Rust checks
-and all five native targets. Intermediate artifacts are retained for seven days;
-final artifacts use the repository default.
+The Pumpkin check job and all five native target jobs install npm dependencies
+and download the shared prepared inputs before invoking Cargo. Each sets
+`OPANEL_FRONTEND_PREPARED=1`; Cargo builds and embeds its own frontend using
+`pumpkin/frontend.properties`. There is no separate Pumpkin frontend build job
+or compiled frontend artifact. Shared preparation artifacts are retained for
+seven days; final artifacts use the repository default.
 
 Generated frontend assets, Wasm outputs and compatibility IDs must not be
 committed. Core contains only shared backend resources; platform frontends are

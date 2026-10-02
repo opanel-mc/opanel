@@ -179,7 +179,7 @@ jobs:
         path: build/libs/${{ matrix.artifact }}.jar
         if-no-files-found: error
 
-  pumpkin-frontend:
+  pumpkin-check:
 
     needs: [changes, prepare, frontend-check]
     if: >-
@@ -188,9 +188,10 @@ jobs:
           && (needs.frontend-check.result == 'success' || needs.frontend-check.result == 'skipped') }}
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: ./frontend
+    env:
+      OPANEL_FRONTEND_PREPARED: "1"
+      # rustc needs a larger stack when compiling pumpkin-data on Linux.
+      RUST_MIN_STACK: "33554432"
 
     steps:
     - uses: actions/checkout@v6
@@ -200,44 +201,14 @@ jobs:
         node-version: 22.x
         cache: 'npm'
         cache-dependency-path: ./frontend/package-lock.json
-    - name: Install dependencies
+    - name: Install frontend dependencies
+      working-directory: ./frontend
       run: npm ci
     - name: Download shared frontend inputs
       uses: actions/download-artifact@v8
       with:
         name: frontend-prepared
         path: frontend
-    - name: Build Pumpkin frontend
-      env:
-        VITE_OPANEL_TARGET: pumpkin-26.3
-        OPANEL_FRONTEND_PREPARED: "1"
-      run: npm run build
-    - name: Upload Pumpkin frontend
-      uses: actions/upload-artifact@v7
-      with:
-        name: pumpkin-frontend-build
-        path: frontend/dist
-        retention-days: 7
-        if-no-files-found: error
-
-  pumpkin-check:
-
-    needs: pumpkin-frontend
-    if: ${{ !cancelled() && needs.pumpkin-frontend.result == 'success' }}
-
-    runs-on: ubuntu-latest
-
-    env:
-      # rustc needs a larger stack when compiling pumpkin-data on Linux.
-      RUST_MIN_STACK: "33554432"
-
-    steps:
-    - uses: actions/checkout@v6
-    - name: Download frontend build
-      uses: actions/download-artifact@v8
-      with:
-        name: pumpkin-frontend-build
-        path: frontend/dist
 
     - name: Set up Rust
       uses: dtolnay/rust-toolchain@stable
@@ -257,16 +228,14 @@ jobs:
 
   pumpkin:
 
-    needs:
-      - pumpkin-frontend
-      - pumpkin-check
-    if: >-
-      ${{ !cancelled() && needs.pumpkin-frontend.result == 'success'
-          && needs.pumpkin-check.result == 'success' }}
+    name: Build pumpkin (${{ matrix.target }})
+    needs: pumpkin-check
+    if: ${{ !cancelled() && needs.pumpkin-check.result == 'success' }}
 
     runs-on: ${{ matrix.runner }}
 
     env:
+      OPANEL_FRONTEND_PREPARED: "1"
       # Use the same compiler stack size for native release builds.
       RUST_MIN_STACK: "33554432"
 
@@ -292,11 +261,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
-    - name: Download frontend build
+    - name: Use Node.js 22.x
+      uses: actions/setup-node@v6
+      with:
+        node-version: 22.x
+        cache: 'npm'
+        cache-dependency-path: ./frontend/package-lock.json
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+    - name: Download shared frontend inputs
       uses: actions/download-artifact@v8
       with:
-        name: pumpkin-frontend-build
-        path: frontend/dist
+        name: frontend-prepared
+        path: frontend
 
     - name: Set up Rust
       uses: dtolnay/rust-toolchain@stable
