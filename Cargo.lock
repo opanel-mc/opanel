@@ -2985,6 +2985,7 @@ dependencies = [
  "pumpkin-api-macros",
  "pumpkin-config",
  "pumpkin-data",
+ "pumpkin-inventory",
  "pumpkin-nbt",
  "pumpkin-util",
  "reqwest",

@@ -34,6 +34,7 @@ pumpkin = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", tag = "0.2.0+26.3
 pumpkin-api-macros = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", tag = "0.2.0+26.3-26.51", package = "pumpkin-api-macros" }
 pumpkin-config = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", tag = "0.2.0+26.3-26.51", package = "pumpkin-config" }
 pumpkin-data = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", tag = "0.2.0+26.3-26.51", package = "pumpkin-data" }
+pumpkin-inventory = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", tag = "0.2.0+26.3-26.51", package = "pumpkin-inventory" }
 pumpkin-nbt = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", tag = "0.2.0+26.3-26.51", package = "pumpkin-nbt" }
 pumpkin-util = { git = "https://github.com/Pumpkin-MC/Pumpkin.git", tag = "0.2.0+26.3-26.51", package = "pumpkin-util" }
 reqwest = { version = "0.13", default-features = false, features = ["rustls-no-provider", "json"] }

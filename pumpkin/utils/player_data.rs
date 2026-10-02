@@ -42,6 +42,10 @@ pub(crate) fn read(directory: &Path, uuid: Uuid) -> io::Result<NbtCompound> {
 pub(crate) fn set_game_mode(directory: &Path, uuid: Uuid, mode: GameMode) -> io::Result<()> {
     let mut data = read(directory, uuid)?;
     data.put_int("playerGameType", mode as i32);
+    write(directory, uuid, data)
+}
+
+pub(crate) fn write(directory: &Path, uuid: Uuid, data: NbtCompound) -> io::Result<()> {
     write_gzip_compound_tag(data, File::create(directory.join(format!("{uuid}.dat")))?)
         .map_err(io::Error::other)
 }
