@@ -180,7 +180,7 @@ export function InfoCard({
                 onClick={() => setShowingJavaVersion(!showingJavaVersion)}>
                 {
                   !showingJavaVersion
-                  ? `${serverType} ${versionCtx?.version}`
+                  ? `${versionCtx?.serverType} ${versionCtx?.version}`
                   : `Java ${ctx?.system.java}`
                 }
               </span>
