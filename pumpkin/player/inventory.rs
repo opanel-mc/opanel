@@ -70,7 +70,10 @@ impl ItemStack {
         let Some(id) = item.get_string("id") else {
             return Self::empty(slot);
         };
-        let count = item.get_int("count").unwrap_or(0);
+        let count = item
+            .get_int("count")
+            .or_else(|| item.get_byte("count").map(i32::from))
+            .unwrap_or(0);
         if count <= 0 || id == "minecraft:air" {
             return Self::empty(slot);
         }
@@ -390,6 +393,89 @@ mod tests {
             snapshot.hash,
             PlayerInventorySnapshot::from_nbt(&reloaded_data).hash
         );
+    }
+
+    #[test]
+    fn byte_counts_survive_snapshot_and_saved_item_round_trip() {
+        let data = snbt::parse_compound(
+            r#"{
+                Inventory: [
+                    {Slot:0b,id:"minecraft:stone",count:64b},
+                    {Slot:35b,id:"minecraft:diamond",count:255},
+                    {Slot:-106b,id:"minecraft:shield",count:1b}
+                ],
+                equipment: {
+                    head:{id:"minecraft:diamond_helmet",count:1b,components:{"minecraft:damage":3}}
+                },
+                EnderItems: [{Slot:26b,id:"minecraft:diamond",count:5b}]
+            }"#,
+        )
+        .unwrap();
+        let snapshot = PlayerInventorySnapshot::from_nbt(&data);
+        for (item, id, count) in [
+            (&snapshot.main.items[0], "minecraft:stone", 64),
+            (&snapshot.main.items[35], "minecraft:diamond", 255),
+            (&snapshot.equipments.items[0], "minecraft:diamond_helmet", 1),
+            (&snapshot.equipments.items[4], "minecraft:shield", 1),
+            (&snapshot.ender_chest.items[26], "minecraft:diamond", 5),
+        ] {
+            assert_eq!(item.id.as_deref(), Some(id));
+            assert_eq!(item.count, count);
+        }
+        assert_eq!(
+            snapshot.equipments.items[0].snbt.as_deref(),
+            Some(r#"{"minecraft:damage":3}"#)
+        );
+
+        // Saving the panel's items uses Pumpkin's Int count format while preserving
+        // the contents originally read from Java's Byte count format.
+        let mut saved = NbtCompound::new();
+        for (inventory_type, contents) in [
+            (InventoryType::Main, &snapshot.main),
+            (InventoryType::Equipments, &snapshot.equipments),
+            (InventoryType::EnderChest, &snapshot.ender_chest),
+        ] {
+            for item in &contents.items {
+                let edit = InventoryUpdate {
+                    inventory_type,
+                    item: item.clone(),
+                };
+                set_saved_item(&mut saved, &edit, &edit.to_native().unwrap());
+            }
+        }
+        let inventory = native_inventory();
+        let ender = EnderChestInventory::new();
+        inventory.read_nbt_non_mut(&saved);
+        ender.read_nbt_non_mut(&saved);
+        let mut reloaded = NbtCompound::new();
+        inventory.write_nbt(&mut reloaded);
+        ender.write_nbt(&mut reloaded);
+        assert_eq!(
+            serde_json::to_value(snapshot).unwrap(),
+            serde_json::to_value(PlayerInventorySnapshot::from_nbt(&reloaded)).unwrap()
+        );
+    }
+
+    #[test]
+    fn missing_invalid_and_nonpositive_counts_remain_empty() {
+        for count in [
+            None,
+            Some("\"64\""),
+            Some("0"),
+            Some("0b"),
+            Some("-1"),
+            Some("-1b"),
+        ] {
+            let mut item = snbt::parse_compound(r#"{id:"minecraft:stone"}"#).unwrap();
+            if let Some(count) = count {
+                item = snbt::parse_compound(&format!(r#"{{id:"minecraft:stone",count:{count}}}"#))
+                    .unwrap();
+            }
+            let item = ItemStack::from_nbt(3, &item);
+            assert_eq!(item.slot, 3);
+            assert_eq!(item.id.as_deref(), Some("minecraft:air"));
+            assert_eq!(item.count, 0);
+        }
     }
 
     #[test]
