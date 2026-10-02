@@ -6,6 +6,7 @@ const BUILD_ID: &str = include_str!("../../../frontend/dist/vinext-rsc-compatibi
 
 #[derive(Embed)]
 #[folder = "../../frontend/dist/client/"]
+#[compression = "zstd"]
 struct FrontendAssets;
 
 pub struct EmbeddedAsset {
