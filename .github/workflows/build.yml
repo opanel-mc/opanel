@@ -186,6 +186,10 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    env:
+      # rustc needs a larger stack when compiling pumpkin-data on Linux.
+      RUST_MIN_STACK: "33554432"
+
     steps:
     - uses: actions/checkout@v6
     - name: Download frontend build
@@ -218,6 +222,10 @@ jobs:
     if: needs.frontend.outputs.pumpkin_required == 'true'
 
     runs-on: ${{ matrix.runner }}
+
+    env:
+      # Use the same compiler stack size for native release builds.
+      RUST_MIN_STACK: "33554432"
 
     strategy:
       fail-fast: false
