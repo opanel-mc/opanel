@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { format } from "date-format-parse";
-import AnsiConverter from "ansi-to-html";
 import { v7 as uuidv7 } from "uuid";
+import AnsiConverter from "@/lib/ansi-to-html";
 import { cn, purifyUnsafeText } from "@/lib/utils";
 import { getSettings } from "@/lib/settings";
 import { googleSansCode } from "@/lib/fonts";
@@ -15,7 +15,7 @@ import { parseTextToANSI, secSign } from "@/lib/formatting-codes/text";
 const MAX_LOG_LINES = getSettings("terminal.max-log-lines");
 const STOP_SCROLLING_TIME = 5000;
 
-const ansiConverter = new AnsiConverter();
+const ansiConverter = new AnsiConverter({ escapeXML: true });
 
 /** @see https://stackoverflow.com/questions/3809401/what-is-a-good-regular-expression-to-match-a-url */
 const urlRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:;%_\+.~#?&//=]*)/g;
@@ -23,9 +23,19 @@ const urlRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b
 function preprocessLogLine(line: string): string {
   if(getSettings("terminal.rich-style")) {
     line = ansiConverter.toHtml(parseTextToANSI(line.replaceAll("\x7f", secSign)));
+  } else {
+    line = purifyUnsafeText(line);
   }
 
-  return line.replace(urlRegex, (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+  // Only linkify text outside the converter's anchors and HTML tags.
+  line = line.replace(/<a\b[^>]*>[\s\S]*?<\/a>|<[^>]*>|[^<]+/g, (fragment) => fragment.startsWith("<")
+    ? fragment
+    : fragment.replace(urlRegex, (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`));
+
+  // Draw underlines on text runs so they follow nested ANSI foreground colors.
+  return line.replace(/<[^>]*>|[^<]+/g, (fragment) => fragment.startsWith("<")
+    ? fragment
+    : `<span data-slot="terminal-log-text">${fragment}</span>`);
 }
 
 const Log = memo(({
@@ -202,12 +212,6 @@ export function TerminalViewer({
 
     client.subscribe("init", (data: ConsoleLog[]) => {
       for(let i = data.length - MAX_LOG_LINES > 0 ? data.length - MAX_LOG_LINES : 0; i < data.length; i++) {
-        data[i].line = purifyUnsafeText(data[i].line);
-        const thrownMessage = data[i].thrownMessage;
-        if(thrownMessage) {
-          data[i].thrownMessage = purifyUnsafeText(thrownMessage);
-        }
-
         data[i].uuid = uuidv7();
         logsBufferRef.current.push(data[i]);
       }
@@ -215,22 +219,12 @@ export function TerminalViewer({
     });
 
     client.subscribe("log", (data: ConsoleLog) => {
-      data.line = purifyUnsafeText(data.line);
-      if(data.thrownMessage) {
-        data.thrownMessage = purifyUnsafeText(data.thrownMessage);
-      }
-
       data.uuid = uuidv7();
       logsBufferRef.current.push(data);
       scheduleFlushLogsBuffer();
     });
 
     client.subscribe("mcdr-log", (data: ConsoleLog) => {
-      data.line = purifyUnsafeText(data.line);
-      if(data.thrownMessage) {
-        data.thrownMessage = purifyUnsafeText(data.thrownMessage);
-      }
-      
       data.uuid = uuidv7();
       logsBufferRef.current.push(data);
       scheduleFlushLogsBuffer();

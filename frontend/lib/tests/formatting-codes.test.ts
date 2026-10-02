@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import AnsiConverter from "ansi-to-html";
+import AnsiConverter from "../ansi-to-html";
 import { parseTextToANSI, parseTextToHTML } from "../formatting-codes/text";
 
 const colorCases = [
