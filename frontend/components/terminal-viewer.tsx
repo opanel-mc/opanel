@@ -28,9 +28,14 @@ function preprocessLogLine(line: string): string {
   }
 
   // Only linkify text outside the converter's anchors and HTML tags.
-  return line.replace(/<a\b[^>]*>[\s\S]*?<\/a>|<[^>]*>|[^<]+/g, (fragment) => fragment.startsWith("<")
+  line = line.replace(/<a\b[^>]*>[\s\S]*?<\/a>|<[^>]*>|[^<]+/g, (fragment) => fragment.startsWith("<")
     ? fragment
     : fragment.replace(urlRegex, (url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`));
+
+  // Draw underlines on text runs so they follow nested ANSI foreground colors.
+  return line.replace(/<[^>]*>|[^<]+/g, (fragment) => fragment.startsWith("<")
+    ? fragment
+    : `<span data-slot="terminal-log-text">${fragment}</span>`);
 }
 
 const Log = memo(({

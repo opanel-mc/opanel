@@ -157,8 +157,18 @@
       }
     }
   }
-  [data-slot="terminal-log"] span a {
-    @apply no-underline hover:underline;
+  [data-slot="terminal-log"] {
+    a, u {
+      @apply no-underline;
+    }
+    u [data-slot="terminal-log-text"] {
+      @apply underline decoration-1 decoration-current;
+    }
+    @media (hover: hover) {
+      a:hover [data-slot="terminal-log-text"] {
+        @apply underline decoration-1 decoration-current;
+      }
+    }
   }
   [data-sonner-toaster][data-y-position="top"] {
     height: 100vh;
