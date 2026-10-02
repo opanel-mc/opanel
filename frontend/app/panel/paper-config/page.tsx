@@ -27,7 +27,6 @@ import { ConfigItem } from "./config-item";
 import { useKeydown } from "@/hooks/use-keydown";
 import { Spinner } from "@/components/ui/spinner";
 import { toastRestartAlert } from "@/components/restart-alert";
-import { serverType } from "@/lib/global";
 
 const MonacoEditor = dynamic(() => import("@/components/monaco-editor"), { ssr: false });
 
@@ -44,7 +43,7 @@ export default function PaperConfig() {
   const [isSaving, setIsSaving] = useState(false);
 
   const fetchServerConfigs = useCallback(async () => {
-    if(!isPaperSeries(serverType)) {
+    if(versionCtx && !isPaperSeries(versionCtx.serverType)) {
       push("/panel/dashboard");
       return;
     }
@@ -68,7 +67,7 @@ export default function PaperConfig() {
     } finally {
       emitter.emit("loading-done");
     }
-  }, [push]);
+  }, [push, versionCtx]);
 
   const handleSave = useCallback(async () => {
     setIsSaving(true);
@@ -129,21 +128,21 @@ export default function PaperConfig() {
               isActive={currentEditing === "bukkit"}
               isSaved={saved}
               onClick={() => handleSwitchFile("bukkit")}/>
-            {isPaperSeries(serverType) && (
+            {["Paper", "Folia", "Leaves"].includes(versionCtx?.serverType ?? "") && (
               <ConfigItem
                 name="spigot.yml"
                 isActive={currentEditing === "spigot"}
                 isSaved={saved}
                 onClick={() => handleSwitchFile("spigot")}/>
             )}
-            {isPaperSeries(serverType) && (
+            {["Paper", "Folia", "Leaves"].includes(versionCtx?.serverType ?? "") && (
               <ConfigItem
                 name={versionCtx?.version.startsWith("1.16.") ? "paper.yml" : "paper-global.yml"}
                 isActive={currentEditing === "paper"}
                 isSaved={saved}
                 onClick={() => handleSwitchFile("paper")}/>
             )}
-            {serverType === "Leaves" && (
+            {["Leaves"].includes(versionCtx?.serverType ?? "") && (
               <ConfigItem
                 name="leaves.yml"
                 isActive={currentEditing === "leaves"}

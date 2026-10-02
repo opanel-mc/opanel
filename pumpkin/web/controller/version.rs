@@ -9,6 +9,7 @@ use crate::{opanel::OPanel, web::response::ApiResponse};
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct VersionInfo {
+    server_type: &'static str,
     version: String,
     map: bool,
     mcdr: bool,
@@ -20,6 +21,7 @@ pub(super) async fn get_version_info(
     State(_opanel): State<Arc<OPanel>>,
 ) -> ApiResponse<VersionInfo> {
     ApiResponse::ok(VersionInfo {
+        server_type: "Pumpkin",
         version: CURRENT_MC_VERSION.to_string(),
         map: false,
         mcdr: false,
