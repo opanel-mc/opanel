@@ -236,7 +236,7 @@ jobs:
 
     env:
       OPANEL_FRONTEND_PREPARED: "1"
-      # Use the same compiler stack size for native release builds.
+      # Use the same compiler stack size for native builds.
       RUST_MIN_STACK: "33554432"
 
     strategy:
@@ -286,10 +286,33 @@ jobs:
         shared-key: pumpkin-${{ matrix.target }}
 
     - name: Build Pumpkin plugin
-      run: cargo build --release --locked --target ${{ matrix.target }}
+      run: cargo build --locked --target ${{ matrix.target }}
     - name: Upload Pumpkin plugin
       uses: actions/upload-artifact@v7
       with:
         name: opanel-pumpkin-${{ matrix.target }}
-        path: target/${{ matrix.target }}/release/${{ matrix.library }}
+        path: target/${{ matrix.target }}/debug/${{ matrix.library }}
         if-no-files-found: error
+
+  ci:
+
+    name: CI
+    needs: [
+      changes,
+      prepare,
+      frontend-check,
+      jar,
+      pumpkin-check,
+      pumpkin
+    ]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+    - name: All checks passed
+      if: ${{ !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+      run: echo "All checks passed"
+    - name: Some checks failed
+      if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
+      run: exit 1
