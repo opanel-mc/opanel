@@ -26,6 +26,7 @@ dependencies {
 tasks.register('generateOPanelProperties') {
     def resourcesDir = sourceSets.main.output.resourcesDir
     def propertiesFile = new File(resourcesDir, "opanel.properties")
+    inputs.property("version", project.version.toString())
     outputs.file(propertiesFile)
 
     doLast {
