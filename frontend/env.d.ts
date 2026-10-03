@@ -10,13 +10,14 @@ declare module '*?url' {
   export default url;
 }
 
+declare module 'virtual:textures' {
+  import type { Item } from 'minecraft-textures';
+  export const textureLoaders: Record<string, () => Promise<{ items: Item[] }>>;
+}
+
 interface ImportMetaEnv {
   readonly VITE_OPANEL_VERSION: string;
   readonly VITE_OPANEL_TARGET: string;
-}
-
-interface Window {
-  __OPANEL_BUILD_INFO__: Readonly<{ target: string }>;
 }
 
 interface ImportMeta {

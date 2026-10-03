@@ -42,6 +42,7 @@ Each version module declares frontend configuration in its `gradle.properties`:
 
 ```properties
 frontend_env_vite_opanel_target=paper-26.1
+frontend_env_texture_versions=26.1,26.2,26.3
 ```
 
 Gradle strips `frontend_env_`, uppercases the remaining name, and passes the value
@@ -67,8 +68,8 @@ simultaneously in the same checkout.
 Each module packages `client/` as `opanel-web/` and places the matching
 `vinext-rsc-compatibility-id` at the JAR resource root. Final JARs remain under
 the root `build/libs`, for example `opanel-paper-26.1-build-2.2.4.jar`.
-Inventory textures remain fully bundled; map assets and Minecraft translations
-retain their shared generation strategy.
+Inventory textures are bundled only for the configured versions; map assets and
+Minecraft translations retain their shared generation strategy.
 
 ## Pumpkin
 
@@ -91,15 +92,16 @@ Configure the frontend in `pumpkin/frontend.properties`:
 
 ```properties
 VITE_OPANEL_TARGET=pumpkin-26.3
+TEXTURE_VERSIONS=26.3
 ```
 
 Use UTF-8 `key=value` entries, one per line. Lines starting with `#` or `!` are
 comments. Property names are the environment variable names directly, preferably
 written in uppercase. The asset crate's Cargo build script also normalizes names
 to uppercase and passes values unchanged to `npm run build`. Additional entries
-are forwarded automatically; `VITE_OPANEL_TARGET` must be present and nonempty in
-this file. Values are literal, without properties escape or line-continuation
-processing.
+are forwarded automatically. Both `VITE_OPANEL_TARGET` and `TEXTURE_VERSIONS`
+must be configured for frontend compilation. Values are literal, without
+properties escape or line-continuation processing.
 
 Cargo checks for installed frontend tools but never installs npm dependencies.
 Its build script runs frontend compilation and embeds the resulting client files
@@ -121,20 +123,60 @@ own Cargo target directory to avoid nesting builds in Pumpkin's target directory
 
 ## Development and verification
 
-`npm --prefix frontend run dev` defaults the target to `development`.
+`npm --prefix frontend run dev` defaults the target to `paper`.
 Production builds require a nonempty `VITE_OPANEL_TARGET`. Its value is compiled
 into the frontend; changing server runtime environment variables does not change
-an existing build. After opening the panel, inspect:
+an existing build.
 
-```js
-window.__OPANEL_BUILD_INFO__.target
+### Inventory texture versions
+
+`TEXTURE_VERSIONS` is read by the build tools, without a `VITE_` prefix, and is not
+exposed through the browser's `import.meta.env`. Java forwards it from
+`frontend_env_texture_versions`; Pumpkin reads it from `frontend.properties`.
+For development, set it in `frontend/.env.development`, for example:
+
+```dotenv
+VITE_OPANEL_TARGET=paper-26.1
+TEXTURE_VERSIONS=all
 ```
+
+- Set a single texture version or a comma-separated list, such as
+  `1.21.2,1.21.4`. Whitespace is trimmed, duplicates are removed, and versions are
+  sorted numerically. Values must exist in the installed `minecraft-textures`
+  catalog: MC 1.20.2 uses texture version `1.20`, so `1.20.2` is not a valid value.
+- `all` includes every catalog version, including 1.12 through 1.18, but never
+  the `*.id.json` files. Development defaults to `all` if the setting is missing
+  or empty. Production builds require an explicit value and also accept `all`.
+- Unknown versions, version ranges, empty list entries, mixing `all` with a
+  version list, and missing selected JSON files fail validation. Restart the
+  development server after changing the environment configuration.
+- Environment files use the existing Vite loading rules; process environment
+  variables take precedence. `npm run build` validates the selection before its
+  own prelaunch step and forwards the normalized list to vinext. Gradle's shared
+  resource preparation still runs before its target frontend task.
+
+The Vite plugin creates literal dynamic imports only for selected texture JSONs,
+keeping them lazy-loaded and excluding all other texture versions from the
+bundle. At runtime, the server's Minecraft version still determines the required
+texture version. If that version was not bundled, texture loading returns `null`
+instead of falling back to a different bundled version.
+
+The initial platform selections follow the
+[supported-version list](https://dist.opanel.cn/supported-version-list.json): each
+supported MC version maps to the latest texture version not newer than itself,
+then the results are deduplicated. For example, `folia-1.21` selects
+`1.21.4,1.21.5,1.21.6`, while `neoforge-1.21.1` selects `1.21,1.21.2`. These lists
+are checked into each target's properties file; builds do not fetch the remote
+list or infer selections from module names. Update the explicit lists whenever
+platform compatibility or the texture dependency changes. Existing Gradle inputs
+and Cargo property-file tracking ensure configuration changes rebuild the frontend.
 
 Local checks without a full frontend or Gradle build:
 
 ```sh
 npm --prefix frontend run lint
 npm --prefix frontend run typecheck
+npm --prefix frontend run test -- vite-plugins/textures-plugin.test.ts lib/tests/texture.test.ts
 node --test .github/scripts/build-matrix.test.mjs
 ```
 
