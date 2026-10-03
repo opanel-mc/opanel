@@ -296,7 +296,7 @@ jobs:
 
   ci:
 
-    name: ci
+    name: CI
     needs: [
       changes,
       prepare,
