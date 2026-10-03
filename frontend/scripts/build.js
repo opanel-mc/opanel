@@ -1,6 +1,7 @@
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { loadEnv } from "vite";
+import { resolveTextureVersions } from "./texture-config.js";
 import {
   frontendDir,
   stagingDir,
@@ -12,6 +13,7 @@ import {
 
 const env = { ...loadEnv("production", frontendDir, ""), ...process.env };
 process.env.VITE_OPANEL_TARGET = resolveFrontendTarget(env);
+process.env.TEXTURE_VERSIONS = resolveTextureVersions(env).join(",");
 const outputDir = resolveFrontendOutput(env);
 
 await import("./prelaunch.js");

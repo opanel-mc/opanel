@@ -2,6 +2,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
+import { texturesPlugin } from "./vite-plugins/textures-plugin.js";
+import { resolveTextureVersions } from "./scripts/texture-config.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -24,5 +26,5 @@ export default defineConfig({
     },
     setupFiles: ["./test/setup.tsx"]
   },
-  plugins: [react()]
+  plugins: [react(), texturesPlugin(resolveTextureVersions({ TEXTURE_VERSIONS: "all" }))]
 });
