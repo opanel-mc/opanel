@@ -180,6 +180,11 @@ compilation in a fresh checkout, but skip `frontend-check`. Java and Pumpkin
 builds wait for preparation to succeed and frontend checks to pass or be skipped
 by the change rules. Failed or cancelled frontend checks block those builds.
 
+The final `ci` job aggregates all job results and provides a stable required
+status check for branch rulesets. It runs even after failures or skips and fails
+if any dependency failed or was cancelled. Successful and skipped jobs are
+accepted; this check does not separately validate the build selection outputs.
+
 The Java matrix is generated from the module registry (currently 39 targets)
 and filtered to the selected targets. Each job installs npm dependencies in a
 separate workflow step before invoking Gradle, downloads the shared inputs,

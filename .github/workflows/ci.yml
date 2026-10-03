@@ -293,3 +293,26 @@ jobs:
         name: opanel-pumpkin-${{ matrix.target }}
         path: target/${{ matrix.target }}/release/${{ matrix.library }}
         if-no-files-found: error
+
+  ci:
+
+    name: ci
+    needs: [
+      changes,
+      prepare,
+      frontend-check,
+      jar,
+      pumpkin-check,
+      pumpkin
+    ]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+    - name: All checks passed
+      if: ${{ !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
+      run: echo "All checks passed"
+    - name: Some checks failed
+      if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
+      run: exit 1
