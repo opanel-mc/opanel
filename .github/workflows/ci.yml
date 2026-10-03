@@ -1,0 +1,295 @@
+name: CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_jar:
+        description: Build jar files
+        required: true
+        type: boolean
+        default: true
+      build_pumpkin:
+        description: Build Pumpkin plugin
+        required: true
+        type: boolean
+        default: true
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  changes:
+
+    runs-on: ubuntu-latest
+
+    outputs:
+      java_matrix: ${{ steps.changes.outputs.java_matrix }}
+      java_required: ${{ steps.changes.outputs.java_required }}
+      pumpkin_required: ${{ steps.changes.outputs.pumpkin_required }}
+      frontend_checks_required: ${{ steps.changes.outputs.frontend_checks_required }}
+      prepare_required: ${{ steps.changes.outputs.prepare_required }}
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Use Node.js 22.x
+      uses: actions/setup-node@v6
+      with:
+        node-version: 22.x
+    - name: Determine required builds
+      id: changes
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        BUILD_JAR: ${{ inputs.build_jar }}
+        BUILD_PUMPKIN: ${{ inputs.build_pumpkin }}
+        BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      run: node .github/scripts/detect-builds.mjs
+    - name: Check build matrix
+      if: steps.changes.outputs.prepare_required == 'true'
+      run: node --test .github/scripts/build-matrix.test.mjs
+
+  prepare:
+
+    needs: changes
+    if: needs.changes.outputs.prepare_required == 'true'
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Use Node.js 22.x
+      uses: actions/setup-node@v6
+      with:
+        node-version: 22.x
+        cache: 'npm'
+        cache-dependency-path: ./frontend/package-lock.json
+    - name: Install dependencies
+      run: npm ci
+    - name: Run prelaunch scripts
+      run: npm run prelaunch
+
+    - name: Upload shared frontend inputs
+      uses: actions/upload-artifact@v7
+      with:
+        name: frontend-prepared
+        path: |
+          frontend/assets/minecraft
+          frontend/wasm-lib/pkg
+        retention-days: 7
+        if-no-files-found: error
+
+  frontend-check:
+
+    needs: [changes, prepare]
+    if: needs.changes.outputs.frontend_checks_required == 'true'
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Use Node.js 22.x
+      uses: actions/setup-node@v6
+      with:
+        node-version: 22.x
+        cache: 'npm'
+        cache-dependency-path: ./frontend/package-lock.json
+    - name: Install dependencies
+      run: npm ci
+    - name: Download shared frontend inputs
+      uses: actions/download-artifact@v8
+      with:
+        name: frontend-prepared
+        path: frontend
+
+    - name: Run lint
+      run: npm run lint
+
+    - name: Run typecheck
+      run: npm run typecheck
+
+    - name: Run unit tests
+      run: npm run test
+
+    - name: Run wasm unit tests
+      run: npm run wasm:test
+
+  jar:
+
+    name: Build ${{ matrix.target }}
+    needs: [changes, prepare, frontend-check]
+    # Backend-only builds can proceed when frontend checks are skipped.
+    if: >-
+      ${{ !cancelled() && needs.changes.outputs.java_required == 'true'
+          && needs.prepare.result == 'success'
+          && (needs.frontend-check.result == 'success' || needs.frontend-check.result == 'skipped') }}
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.changes.outputs.java_matrix) }}
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Use Node.js 22.x
+      uses: actions/setup-node@v6
+      with:
+        node-version: 22.x
+        cache: 'npm'
+        cache-dependency-path: ./frontend/package-lock.json
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+    - name: Use JDK 25, 21, 17, 14
+      uses: actions/setup-java@v5
+      with:
+        java-version: |
+          25
+          21
+          17
+          14
+        distribution: "zulu"
+        cache: "gradle"
+    - name: Change wrapper permissions
+      run: chmod +x ./gradlew
+
+    - name: Download shared frontend inputs
+      uses: actions/download-artifact@v8
+      with:
+        name: frontend-prepared
+        path: frontend
+
+    - name: Build target
+      env:
+        OPANEL_FRONTEND_PREPARED: "1"
+        BUILD_TARGET: ${{ matrix.target }}
+      run: JAVA_HOME="$JAVA_HOME_25_X64" ./gradlew -PbuildTarget="$BUILD_TARGET" ":$BUILD_TARGET:build" --stacktrace
+
+    - name: Upload target jar
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ matrix.artifact }}
+        path: build/libs/${{ matrix.artifact }}.jar
+        if-no-files-found: error
+
+  pumpkin-check:
+
+    needs: [changes, prepare, frontend-check]
+    if: >-
+      ${{ !cancelled() && needs.changes.outputs.pumpkin_required == 'true'
+          && needs.prepare.result == 'success'
+          && (needs.frontend-check.result == 'success' || needs.frontend-check.result == 'skipped') }}
+    runs-on: ubuntu-latest
+
+    env:
+      OPANEL_FRONTEND_PREPARED: "1"
+      # rustc needs a larger stack when compiling pumpkin-data on Linux.
+      RUST_MIN_STACK: "33554432"
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Use Node.js 22.x
+      uses: actions/setup-node@v6
+      with:
+        node-version: 22.x
+        cache: 'npm'
+        cache-dependency-path: ./frontend/package-lock.json
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+    - name: Download shared frontend inputs
+      uses: actions/download-artifact@v8
+      with:
+        name: frontend-prepared
+        path: frontend
+
+    - name: Set up Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: rustfmt, clippy
+    - name: Cache Rust build
+      uses: Swatinem/rust-cache@v2
+      with:
+        shared-key: pumpkin-check
+
+    - name: Check formatting
+      run: cargo fmt --all -- --check
+    - name: Run Clippy
+      run: cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
+    - name: Run unit tests
+      run: cargo test --workspace --all-features --locked
+
+  pumpkin:
+
+    name: Build pumpkin (${{ matrix.target }})
+    needs: pumpkin-check
+    if: ${{ !cancelled() && needs.pumpkin-check.result == 'success' }}
+
+    runs-on: ${{ matrix.runner }}
+
+    env:
+      OPANEL_FRONTEND_PREPARED: "1"
+      # Use the same compiler stack size for native release builds.
+      RUST_MIN_STACK: "33554432"
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+            library: libopanel_pumpkin.so
+          - runner: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+            library: libopanel_pumpkin.so
+          - runner: windows-latest
+            target: x86_64-pc-windows-msvc
+            library: opanel_pumpkin.dll
+          - runner: macos-15-intel
+            target: x86_64-apple-darwin
+            library: libopanel_pumpkin.dylib
+          - runner: macos-latest
+            target: aarch64-apple-darwin
+            library: libopanel_pumpkin.dylib
+
+    steps:
+    - uses: actions/checkout@v6
+    - name: Use Node.js 22.x
+      uses: actions/setup-node@v6
+      with:
+        node-version: 22.x
+        cache: 'npm'
+        cache-dependency-path: ./frontend/package-lock.json
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+    - name: Download shared frontend inputs
+      uses: actions/download-artifact@v8
+      with:
+        name: frontend-prepared
+        path: frontend
+
+    - name: Set up Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: ${{ matrix.target }}
+    - name: Cache Rust build
+      uses: Swatinem/rust-cache@v2
+      with:
+        shared-key: pumpkin-${{ matrix.target }}
+
+    - name: Build Pumpkin plugin
+      run: cargo build --release --locked --target ${{ matrix.target }}
+    - name: Upload Pumpkin plugin
+      uses: actions/upload-artifact@v7
+      with:
+        name: opanel-pumpkin-${{ matrix.target }}
+        path: target/${{ matrix.target }}/release/${{ matrix.library }}
+        if-no-files-found: error

@@ -2,12 +2,12 @@ use std::borrow::Cow;
 
 use rust_embed::Embed;
 
-const BUILD_ID: &str = include_str!("../../../frontend/dist/vinext-rsc-compatibility-id");
+const BUILD_ID: &str = include_str!(concat!(
+    env!("OUT_DIR"),
+    "/frontend/vinext-rsc-compatibility-id"
+));
 
-#[derive(Embed)]
-#[folder = "../../frontend/dist/client/"]
-#[compression = "zstd"]
-struct FrontendAssets;
+include!(concat!(env!("OUT_DIR"), "/frontend_assets.rs"));
 
 pub struct EmbeddedAsset {
     pub data: Cow<'static, [u8]>,
@@ -28,6 +28,12 @@ pub fn iter() -> impl Iterator<Item = Cow<'static, str>> {
 pub fn build_id() -> &'static str {
     BUILD_ID.trim()
 }
+
+// Run the build configuration tests with the regular asset crate tests.
+#[cfg(test)]
+#[allow(dead_code)]
+#[path = "../build.rs"]
+mod build_script;
 
 #[cfg(test)]
 mod tests {

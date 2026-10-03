@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { toast } from "sonner";
+import * as globalInfo from "@/lib/global";
+import { sendGetRequest } from "@/lib/api";
 import Settings from "./page";
 
 globalThis.ResizeObserver = globalThis.ResizeObserver ?? class {
@@ -36,7 +38,8 @@ vi.mock("@/lib/settings", () => ({
     return "";
   }),
   changeSettings: vi.fn(),
-  resetSettings: vi.fn()
+  resetSettings: vi.fn(),
+  monacoSettingsOptions: {}
 }));
 
 vi.mock("../sub-page", () => ({
@@ -54,6 +57,7 @@ vi.mock("@/lib/api", () => ({
 describe("test settings page", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(globalInfo, "serverType", "get").mockReturnValue("Paper");
     mockPathname = "/panel/settings";
     mockQueryString = "";
     mockHasOpenLaunchCommand = false;
@@ -61,7 +65,38 @@ describe("test settings page", () => {
 
   afterEach(() => {
     cleanup();
+    vi.restoreAllMocks();
     mockTab = null;
+  });
+
+  it("should show Paper features without waiting for the version response", () => {
+    render(<Settings />);
+
+    expect(screen.getByRole("tab", { name: "[settings.extensions.title]" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "[settings.system.oidc.configure]" })).toBeInTheDocument();
+    expect(sendGetRequest).toHaveBeenCalledWith("/api/map");
+  });
+
+  it("should hide unsupported Pumpkin features using the frontend platform", () => {
+    vi.spyOn(globalInfo, "serverType", "get").mockReturnValue("Pumpkin");
+
+    render(<Settings />);
+
+    expect(screen.queryByRole("tab", { name: "[settings.extensions.title]" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "[settings.system.oidc.configure]" })).not.toBeInTheDocument();
+    expect(sendGetRequest).not.toHaveBeenCalledWith("/api/map");
+  });
+
+  it("should disable the map setting for Pumpkin without a version response", () => {
+    vi.spyOn(globalInfo, "serverType", "get").mockReturnValue("Pumpkin");
+    mockTab = "server";
+    mockQueryString = "tab=server";
+
+    const { container } = render(<Settings />);
+
+    const mapSetting = container.querySelector<HTMLElement>("[id='server.map-feature']")!;
+    expect(within(mapSetting).getByRole("switch")).toBeDisabled();
+    expect(sendGetRequest).not.toHaveBeenCalledWith("/api/map");
   });
 
   it("should select general tab when URL has no tab query", () => {

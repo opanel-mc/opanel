@@ -18,6 +18,10 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
+    env: {
+      VITE_OPANEL_VERSION: "0.1.0",
+      VITE_OPANEL_TARGET: "paper-26.1"
+    },
     setupFiles: ["./test/setup.tsx"]
   },
   plugins: [react()]

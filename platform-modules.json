@@ -1,0 +1,139 @@
+{
+  "fabric": {
+    "fabric-1.19": [
+      "fabric-config",
+      "fabric-helper"
+    ],
+    "fabric-1.19.4": [
+      "fabric-config",
+      "fabric-helper"
+    ],
+    "fabric-1.20": [
+      "fabric-config",
+      "fabric-helper"
+    ],
+    "fabric-1.20.2": [
+      "fabric-config",
+      "fabric-helper"
+    ],
+    "fabric-1.20.3": [
+      "fabric-config",
+      "fabric-helper"
+    ],
+    "fabric-1.20.5": [
+      "fabric-config",
+      "fabric-helper"
+    ],
+    "fabric-1.21": [
+      "fabric-config",
+      "fabric-helper"
+    ],
+    "fabric-1.21.2": [
+      "fabric-config",
+      "fabric-helper"
+    ],
+    "fabric-1.21.5": [
+      "fabric-config",
+      "fabric-helper"
+    ],
+    "fabric-1.21.9": [
+      "fabric-config",
+      "fabric-helper"
+    ],
+    "fabric-1.21.11": [
+      "fabric-config",
+      "fabric-helper"
+    ],
+    "fabric-26.1": [
+      "fabric-config",
+      "fabric-helper-unmapped"
+    ]
+  },
+  "forge": {
+    "forge-1.19.4": [
+      "forge-helper"
+    ],
+    "forge-1.20.1": [
+      "forge-helper"
+    ],
+    "forge-1.20.2": [
+      "forge-helper"
+    ],
+    "forge-1.20.3": [
+      "forge-helper"
+    ],
+    "forge-1.20.6": [
+      "forge-helper"
+    ],
+    "forge-1.21": [
+      "forge-helper"
+    ],
+    "forge-1.21.3": [
+      "forge-helper"
+    ],
+    "forge-1.21.5": [
+      "forge-helper"
+    ],
+    "forge-1.21.8": [
+      "forge-helper"
+    ],
+    "forge-1.21.9": [
+      "forge-helper"
+    ],
+    "forge-1.21.11": [
+      "forge-helper"
+    ],
+    "forge-26.1": [
+      "forge-helper"
+    ],
+    "forge-26.3": [
+      "forge-helper"
+    ]
+  },
+  "neoforge": {
+    "neoforge-1.21.1": [
+      "neoforge-helper"
+    ],
+    "neoforge-1.21.3": [
+      "neoforge-helper"
+    ],
+    "neoforge-1.21.5": [
+      "neoforge-helper"
+    ]
+  },
+  "paper": {
+    "paper-1.19.4": [
+      "paper-helper"
+    ],
+    "paper-1.20": [
+      "paper-helper"
+    ],
+    "paper-1.20.5": [
+      "paper-helper"
+    ],
+    "paper-1.21": [
+      "paper-helper"
+    ],
+    "paper-1.21.9": [
+      "paper-helper"
+    ],
+    "paper-26.1": [
+      "paper-helper"
+    ],
+    "folia-1.20": [
+      "paper-helper"
+    ],
+    "folia-1.20.5": [
+      "paper-helper"
+    ],
+    "folia-1.21": [
+      "paper-helper"
+    ],
+    "folia-1.21.11": [
+      "paper-helper"
+    ],
+    "folia-26.1.2": [
+      "paper-helper"
+    ]
+  }
+}

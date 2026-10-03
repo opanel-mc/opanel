@@ -20,7 +20,9 @@ import {
 import { emitter } from "@/lib/emitter";
 import { sendGetRequest, toastError } from "@/lib/api";
 import { MonitorHistoryProvider } from "./monitor-history-context";
-import { cn, isPumpkin } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { isPumpkin } from "@/lib/server-type";
+import { serverType } from "@/lib/global";
 
 function RealtimeMonitorProvider({ children }: PropsWithChildren) {
   const monitorDataList = useMonitor(200);
@@ -62,16 +64,16 @@ export default function Monitor() {
       <InfoContext.Provider value={info}>
         <RealtimeMonitorProvider>
           <MonitorHistoryProvider enabled={versionCtx?.monitorHistoryEnabled ?? false}>
-            {!isPumpkin(versionCtx.serverType) && (
+            {!isPumpkin(serverType) && (
               <ActivityMonitorBlock className="col-span-2"/>
             )}
             <CpuMonitorBlock className="col-span-2"/>
             <MemoryMonitorBlock
               className={cn(
                 "max-lg:col-span-2",
-                isPumpkin(versionCtx.serverType) && "col-span-2"
+                isPumpkin(serverType) && "col-span-2"
               )}/>
-            {!isPumpkin(versionCtx.serverType) && (
+            {!isPumpkin(serverType) && (
               <JvmMemoryMonitorBlock className="max-lg:col-span-2"/>
             )}
             <TpsMonitorBlock className="max-lg:col-span-2"/>

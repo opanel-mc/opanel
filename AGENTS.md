@@ -39,7 +39,7 @@ OPanel
 │         │     ├─ time/                    # 运行时间/TPS 等时间状态模型
 │         │     ├─ utils/                   # 通用工具类
 │         │     └─ web/                     # Web 服务与 JWT 鉴权
-│         └─ resources/                     # 前端构建产物（将一同打包到最终构建的jar包中）
+│         └─ resources/                     # 后端共享资源；前端由各版本模块构建并打包
 │
 ├─ frontend/                               # 网页面板前端工程（Next.js+Typescript）
 │  ├─ app/                                 # 页面路由与页面级组件
@@ -86,6 +86,10 @@ OPanel
 │  └─ folia-<mc_version>/                  # Folia 版本实现
 └─ ...
 ```
+
+构建流程与环境变量约定见 `/BUILDING.md`。各版本模块通过 `gradle.properties` 中的
+`frontend_env_` 属性声明前端配置，构建时去掉前缀并转为大写环境变量。前端生成产物位于
+各模块的 `build/frontend`，不得提交；Pumpkin 独立使用 `frontend/dist`。
 
 ## 项目规范
 

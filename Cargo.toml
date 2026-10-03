@@ -1,9 +1,12 @@
 [package]
 name = "opanel-pumpkin"
-version = "2.2.4"
+version.workspace = true
 edition = "2024"
 description = "A Minecraft server management panel"
 authors = ["NriotHrreion"]
+
+[workspace.package]
+version = "2.2.4"
 
 [lib]
 path = "pumpkin/lib.rs"

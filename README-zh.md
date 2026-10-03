@@ -5,7 +5,7 @@
 <br>
 <br>
 
-[![test](https://img.shields.io/github/actions/workflow/status/opanel-mc/opanel/build.yml)](https://github.com/opanel-mc/opanel/actions/workflows/build.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/opanel-mc/opanel/ci.yml)](https://github.com/opanel-mc/opanel/actions/workflows/ci.yml)
 [![LICENSE](https://img.shields.io/badge/license-GPL_3.0-blue.svg "LICENSE")](./LICENSE)
 [![Stars](https://img.shields.io/github/stars/opanel-mc/opanel.svg?label=Stars)](https://github.com/opanel-mc/opanel/stargazers)
 
@@ -72,6 +72,8 @@ OPanel 扩展可以在不修改 OPanel 本体的情况下添加自定义后端 A
 ## 贡献
 
 查看[贡献指南](https://opanel.cn/docs/contributing)以了解更多信息。
+
+按平台版本构建、前端环境变量配置及 Pumpkin 独立构建方式见[构建说明](./BUILDING.md)。
 
 ## 友情链接
 

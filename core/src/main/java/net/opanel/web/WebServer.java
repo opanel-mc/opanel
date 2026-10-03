@@ -29,7 +29,7 @@ import static io.javalin.apibuilder.ApiBuilder.*;
 import static net.opanel.web.AuthRouteRole.*;
 
 public class WebServer {
-    public static final String ROOT_PATH = "web";
+    public static final String ROOT_PATH = "opanel-web";
     public final String HOST;
     public final int PORT;
 

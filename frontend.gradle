@@ -1,0 +1,89 @@
+import groovy.json.JsonSlurper
+import org.gradle.api.services.BuildService
+import org.gradle.api.services.BuildServiceParameters
+
+// vinext also writes shared framework metadata and uses frontend/dist while
+// exporting static pages. Hold this service until the whole build is published.
+abstract class FrontendBuildService implements BuildService<BuildServiceParameters.None> {}
+
+def registry = new JsonSlurper().parse(rootProject.file('platform-modules.json'))
+def targetNames = registry.values().collectMany { it.keySet() }.toSet()
+def targetProjects = subprojects.findAll { targetNames.contains(it.name) }
+if (targetProjects.isEmpty()) return
+
+def frontendDir = rootProject.file('frontend')
+def npmCommand = System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')
+    ? ['cmd.exe', '/d', '/c', 'npm.cmd'] : ['npm']
+def frontendService = gradle.sharedServices.registerIfAbsent('frontendBuild', FrontendBuildService) {
+    maxParallelUsages.set(1)
+}
+
+def prepareFrontend = tasks.register('prepareFrontend', Exec) {
+    group = 'build'
+    description = 'Prepares or validates the shared Minecraft assets and Wasm.'
+    workingDir frontendDir
+    commandLine npmCommand + ['run', 'prelaunch']
+    environment 'OPANEL_FRONTEND_PREPARED', providers.environmentVariable('OPANEL_FRONTEND_PREPARED').getOrElse('0')
+    // Always validate inputs. prelaunch itself skips unchanged preparation;
+    // downloaded CI artifacts bypass its timestamp-based Wasm rebuild check.
+    usesService(frontendService)
+    doFirst {
+        if (!['vinext', 'vite', 'wasm-pack'].every {
+            file("frontend/node_modules/${it}/package.json").isFile()
+        }) {
+            throw new GradleException('Frontend dependencies are missing. Run npm --prefix frontend ci from the repository root before building.')
+        }
+    }
+}
+
+def frontendSources = fileTree(frontendDir) {
+    exclude 'node_modules/**', 'dist/**', 'build/**', 'out/**', 'coverage/**'
+    exclude '.next/**', '.vinext/**', '.vite/**', '**/*.tsbuildinfo', 'next-env.d.ts'
+    exclude 'wasm-lib/target/**', 'wasm-lib/pkg/.gitignore', '**/*.log'
+}
+
+targetProjects.each { targetProject ->
+    targetProject.afterEvaluate {
+        def prefix = 'frontend_env_'
+        def frontendEnv = targetProject.properties
+            .findAll { key, value -> key.startsWith(prefix) }
+            .collectEntries { key, value ->
+                [(key.substring(prefix.length()).toUpperCase(Locale.ROOT)): value.toString()]
+            }
+        def outputDir = targetProject.layout.buildDirectory.dir('frontend')
+        def buildFrontend = targetProject.tasks.register('buildFrontend', Exec) {
+            group = 'build'
+            description = "Builds the frontend for ${targetProject.name}."
+            dependsOn prepareFrontend
+            workingDir frontendDir
+            commandLine npmCommand + ['run', 'build']
+            environment frontendEnv
+            environment 'VITE_OPANEL_VERSION', version
+            environment 'OPANEL_FRONTEND_OUTPUT', outputDir.get().asFile.absolutePath
+            environment 'OPANEL_FRONTEND_PREPARED', '1'
+            inputs.files(frontendSources).withPathSensitivity(PathSensitivity.RELATIVE)
+            inputs.file(rootProject.file('frontend.gradle'))
+            inputs.properties(frontendEnv)
+            inputs.property('VITE_OPANEL_VERSION', version.toString())
+            outputs.dir(outputDir)
+            usesService(frontendService)
+            doFirst {
+                if (!frontendEnv['VITE_OPANEL_TARGET']?.trim()) {
+                    throw new GradleException("${targetProject.name}: frontend_env_vite_opanel_target is required")
+                }
+            }
+        }
+
+        targetProject.tasks.named('processResources', ProcessResources) {
+            dependsOn buildFrontend
+            from(outputDir.map { it.dir('client') }) { into 'opanel-web' }
+            from(outputDir.map { it.file('vinext-rsc-compatibility-id') })
+            // ProcessResources is a Copy task; remove old hashed chunks and the
+            // former web/ directory without deleting the platform resources.
+            doFirst {
+                targetProject.delete(new File(destinationDir, 'opanel-web'))
+                targetProject.delete(new File(destinationDir, 'vinext-rsc-compatibility-id'))
+            }
+        }
+    }
+}

@@ -56,3 +56,5 @@ nmcpAggregation {
 dependencies {
     nmcpAggregation project(':api')
 }
+
+apply from: 'frontend.gradle'

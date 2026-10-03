@@ -18,7 +18,8 @@ import {
 import { changeSettings, getSettings, monacoSettingsOptions } from "@/lib/settings";
 import { VersionContext } from "@/contexts/api-context";
 import { emitter } from "@/lib/emitter";
-import { base64ToString, isPaperSeries, stringToBase64 } from "@/lib/utils";
+import { base64ToString, stringToBase64 } from "@/lib/utils";
+import { isPaperSeries } from "@/lib/server-type";
 import { sendGetRequest, sendPostRequest, toastError } from "@/lib/api";
 import { $ } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
