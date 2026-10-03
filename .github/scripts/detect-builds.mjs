@@ -12,6 +12,7 @@ const publishingFiles = new Set([
   ".github/workflows/curseforge-publish.yml",
   ".github/workflows/modrinth-publish.yml",
   ".github/scripts/prepare-cos-matrix.mjs",
+  ".github/scripts/prepare-cos-matrix.test.mjs",
   ".github/scripts/prepare-modrinth-matrix.mjs",
 ]);
 const detectionFiles = new Set([
