@@ -18,7 +18,10 @@ jobs:
 
     outputs:
       matrix: ${{ steps.prepare_matrix.outputs.matrix }}
+      pumpkin_matrix: ${{ steps.prepare_matrix.outputs.pumpkin_matrix }}
+      opanel_version: ${{ steps.prepare_matrix.outputs.opanel_version }}
       tag_name: ${{ steps.release_info.outputs.tag_name }}
+      source_sha: ${{ steps.release_source.outputs.commit }}
 
     steps:
     - uses: actions/checkout@v6
@@ -39,12 +42,36 @@ jobs:
     - name: Download release assets
       uses: robinraju/release-downloader@v1
       with:
-        repository: "opanel-mc/opanel"
+        repository: ${{ github.repository }}
         tag: ${{ steps.release_info.outputs.tag_name }}
         fileName: "*.jar"
         tarBall: false
         zipBall: false
         out-file-path: "${{ github.workspace }}/release-jars"
+
+    - name: Check out release source
+      uses: actions/checkout@v6
+      id: release_source
+      with:
+        ref: refs/tags/${{ steps.release_info.outputs.tag_name }}
+        path: release-source
+
+    - name: Use Node.js 22.x
+      uses: actions/setup-node@v6
+      with:
+        node-version: 22.x
+        cache: 'npm'
+        cache-dependency-path: ./release-source/frontend/package-lock.json
+
+    - name: Set up Rust
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Read release Cargo metadata
+      working-directory: ./release-source
+      run: cargo metadata --locked --no-deps --format-version 1 > "$RUNNER_TEMP/release-cargo-metadata.json"
+
+    - name: Check publishing matrix script
+      run: node --test .github/scripts/prepare-cos-matrix.test.mjs
 
     - name: Prepare publishing matrix
       id: prepare_matrix
@@ -53,10 +80,98 @@ jobs:
         RELEASE_ASSETS_DIR: ${{ github.workspace }}/release-jars
         RELEASE_REPOSITORY: ${{ github.repository }}
         RELEASE_TAG: ${{ steps.release_info.outputs.tag_name }}
+        RELEASE_CARGO_METADATA: ${{ runner.temp }}/release-cargo-metadata.json
+
+    - name: Install frontend dependencies
+      working-directory: ./release-source/frontend
+      run: npm ci
+
+    - name: Prepare shared frontend inputs
+      working-directory: ./release-source/frontend
+      run: npm run prelaunch
+
+    - name: Upload shared frontend inputs
+      uses: actions/upload-artifact@v7
+      with:
+        name: cos-frontend-prepared
+        path: |
+          release-source/frontend/assets/minecraft
+          release-source/frontend/wasm-lib/pkg
+        retention-days: 7
+        if-no-files-found: error
+
+  pumpkin:
+    name: Build Pumpkin ${{ matrix.target }}
+    needs: prepare
+    runs-on: ${{ matrix.runner }}
+
+    env:
+      OPANEL_FRONTEND_PREPARED: "1"
+      RUST_MIN_STACK: "33554432"
+
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.pumpkin_matrix) }}
+
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        ref: ${{ needs.prepare.outputs.source_sha }}
+
+    - name: Use Node.js 22.x
+      uses: actions/setup-node@v6
+      with:
+        node-version: 22.x
+        cache: 'npm'
+        cache-dependency-path: ./frontend/package-lock.json
+
+    - name: Install frontend dependencies
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: Download shared frontend inputs
+      uses: actions/download-artifact@v8
+      with:
+        name: cos-frontend-prepared
+        path: frontend
+
+    - name: Set up Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: ${{ matrix.target }}
+
+    - name: Cache Rust build
+      uses: Swatinem/rust-cache@v2
+      with:
+        shared-key: cos-pumpkin-${{ matrix.target }}
+
+    - name: Build Pumpkin plugin
+      env:
+        BUILD_TARGET: ${{ matrix.target }}
+      shell: bash
+      run: cargo build --release --locked --target "$BUILD_TARGET"
+
+    - name: Name Pumpkin release asset
+      env:
+        BUILD_TARGET: ${{ matrix.target }}
+        LIBRARY_NAME: ${{ matrix.library }}
+        ASSET_NAME: ${{ matrix.asset }}
+      shell: bash
+      run: |
+        mkdir -p release-assets
+        cp "target/$BUILD_TARGET/release/$LIBRARY_NAME" "release-assets/$ASSET_NAME"
+
+    - name: Upload Pumpkin release asset
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ matrix.artifact }}
+        path: release-assets/${{ matrix.asset }}
+        retention-days: 7
+        if-no-files-found: error
 
   publish:
     name: Upload ${{ matrix.asset }}
-    needs: prepare
+    needs: [prepare, pumpkin]
     runs-on: ubuntu-latest
     environment: opanel-dist
 
@@ -67,6 +182,7 @@ jobs:
 
     steps:
     - name: Download release asset
+      if: matrix.source == 'release'
       env:
         ASSET_NAME: ${{ matrix.asset }}
         DOWNLOAD_URL: ${{ matrix.downloadUrl }}
@@ -75,6 +191,13 @@ jobs:
         curl --fail --location --show-error --retry 3 \
           --output "$RUNNER_TEMP/release-asset/$ASSET_NAME" \
           "$DOWNLOAD_URL"
+
+    - name: Download Pumpkin release asset
+      if: matrix.source == 'artifact'
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ matrix.artifact }}
+        path: ${{ runner.temp }}/release-asset
     
     - name: Install COSCLI
       env:
