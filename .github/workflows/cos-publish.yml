@@ -25,6 +25,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
+      with:
+        # Keep checkouts side by side so Cargo cannot discover this workspace from release-source.
+        path: workflow-source
 
     - name: Get latest release
       uses: actions/github-script@v7
@@ -71,11 +74,11 @@ jobs:
       run: cargo metadata --locked --no-deps --format-version 1 > "$RUNNER_TEMP/release-cargo-metadata.json"
 
     - name: Check publishing matrix script
-      run: node --test .github/scripts/prepare-cos-matrix.test.mjs
+      run: node --test workflow-source/.github/scripts/prepare-cos-matrix.test.mjs
 
     - name: Prepare publishing matrix
       id: prepare_matrix
-      run: node .github/scripts/prepare-cos-matrix.mjs
+      run: node workflow-source/.github/scripts/prepare-cos-matrix.mjs
       env:
         RELEASE_ASSETS_DIR: ${{ github.workspace }}/release-jars
         RELEASE_REPOSITORY: ${{ github.repository }}
