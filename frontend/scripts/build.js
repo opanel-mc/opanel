@@ -21,7 +21,7 @@ await import("./prelaunch.js");
 // vinext's static exporter still uses dist internally. Keep the entire build
 // together there, then publish it to the requested module's output directory.
 const result = spawnSync(process.execPath, [
-  path.join(frontendDir, "node_modules/vinext/dist/cli.js"),
+  path.join(frontendDir, "node_modules/vite/bin/vite.js"),
   "build",
   ...process.argv.slice(2),
 ], { cwd: frontendDir, stdio: "inherit", env: process.env });
