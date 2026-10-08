@@ -31,6 +31,11 @@ const thanksList = [
     repo: "javalin/javalin"
   },
   {
+    name: "vinext",
+    author: "Cloudflare",
+    repo: "cloudflare/vinext"
+  },
+  {
     name: "Item-NBT-API",
     author: "tr7zw",
     repo: "tr7zw/Item-NBT-API"
