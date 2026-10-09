@@ -375,18 +375,21 @@ function SidebarContent({
   animatedHighlight = false,
   ...props
 }: React.ComponentProps<"div"> & { animatedHighlight?: boolean }) {
+  const { isMobile } = useSidebar()
+  const showAnimatedHighlight = animatedHighlight && !isMobile
+
   return (
     <div
       data-slot="sidebar-content"
       data-sidebar="content"
-      data-animated-highlight={animatedHighlight}
+      data-animated-highlight={showAnimatedHighlight}
       className={cn(
         "group/sidebar-content flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
         className
       )}
       {...props}
     >
-      {animatedHighlight ? (
+      {showAnimatedHighlight ? (
         <div
           data-slot="sidebar-content-items"
           className="relative isolate flex shrink-0 flex-col gap-2"
