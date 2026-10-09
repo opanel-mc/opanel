@@ -369,16 +369,138 @@ function SidebarSeparator({
   )
 }
 
-function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
+function SidebarContent({
+  className,
+  children,
+  animatedHighlight = false,
+  ...props
+}: React.ComponentProps<"div"> & { animatedHighlight?: boolean }) {
+  const { isMobile } = useSidebar()
+  const showAnimatedHighlight = animatedHighlight && !isMobile
+
   return (
     <div
       data-slot="sidebar-content"
       data-sidebar="content"
+      data-animated-highlight={showAnimatedHighlight}
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+        "group/sidebar-content flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
         className
       )}
       {...props}
+    >
+      {showAnimatedHighlight ? (
+        <div
+          data-slot="sidebar-content-items"
+          className="relative isolate flex shrink-0 flex-col gap-2"
+        >
+          <SidebarMenuHighlight />
+          {children}
+        </div>
+      ) : children}
+    </div>
+  )
+}
+
+function SidebarMenuHighlight() {
+  const ref = React.useRef<HTMLDivElement>(null)
+
+  React.useLayoutEffect(() => {
+    const highlight = ref.current
+    const content = highlight?.parentElement
+    if (!highlight || !content) return
+
+    const buttonSelector = '[data-sidebar="menu-button"]:not(:disabled):not([aria-disabled="true"])'
+    let hoveredButton: HTMLElement | null = null
+    let positioned = false
+
+    const updateHighlight = () => {
+      if (hoveredButton && (!content.contains(hoveredButton) || !hoveredButton.matches(buttonSelector))) {
+        hoveredButton = null
+      }
+      const button = hoveredButton ?? content.querySelector<HTMLElement>(`${buttonSelector}[data-active="true"]`)
+      if (!button) {
+        highlight.style.opacity = "0"
+        return
+      }
+
+      const contentRect = content.getBoundingClientRect()
+      const buttonRect = button.getBoundingClientRect()
+      if (!buttonRect.width || !buttonRect.height) {
+        highlight.style.opacity = "0"
+        return
+      }
+
+      // Use scroll-content coordinates so the background scrolls with its item.
+      const x = buttonRect.left - contentRect.left + content.scrollLeft - content.clientLeft
+      const y = buttonRect.top - contentRect.top + content.scrollTop - content.clientTop
+      highlight.style.transform = `translate(${x}px, ${y}px)`
+      highlight.style.width = `${buttonRect.width}px`
+      highlight.style.height = `${buttonRect.height}px`
+      highlight.style.opacity = "1"
+
+      if (!positioned) {
+        // Place the initial highlight without animating from the container's origin.
+        highlight.getBoundingClientRect()
+        highlight.style.removeProperty("transition")
+        positioned = true
+      }
+    }
+
+    const handlePointerOver = (event: PointerEvent) => {
+      if (event.pointerType === "touch" || !(event.target instanceof Element)) return
+      const button = event.target.closest<HTMLElement>(buttonSelector)
+      if (button && content.contains(button) && button !== hoveredButton) {
+        hoveredButton = button
+        updateHighlight()
+      }
+    }
+    const handlePointerLeave = () => {
+      hoveredButton = null
+      updateHighlight()
+    }
+
+    const resizeObserver = new ResizeObserver(updateHighlight)
+    const observeLayout = () => {
+      resizeObserver.disconnect()
+      resizeObserver.observe(content)
+      content.querySelectorAll('[data-sidebar="group"], [data-sidebar="menu-button"]').forEach((element) => {
+        resizeObserver.observe(element)
+      })
+    }
+    const mutationObserver = new MutationObserver(() => {
+      observeLayout()
+      updateHighlight()
+    })
+
+    highlight.style.transition = "none"
+    updateHighlight()
+    observeLayout()
+    mutationObserver.observe(content, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ["data-active", "disabled", "aria-disabled"],
+    })
+    content.addEventListener("pointerover", handlePointerOver)
+    content.addEventListener("pointerleave", handlePointerLeave)
+    content.addEventListener("pointercancel", handlePointerLeave)
+
+    return () => {
+      resizeObserver.disconnect()
+      mutationObserver.disconnect()
+      content.removeEventListener("pointerover", handlePointerOver)
+      content.removeEventListener("pointerleave", handlePointerLeave)
+      content.removeEventListener("pointercancel", handlePointerLeave)
+    }
+  }, [])
+
+  return (
+    <div
+      ref={ref}
+      data-slot="sidebar-menu-highlight"
+      aria-hidden="true"
+      className="pointer-events-none absolute top-0 left-0 -z-10 rounded-md bg-muted opacity-0 transition-[transform,width,height,opacity] duration-150 ease-out motion-reduce:transition-none"
     />
   )
 }
@@ -388,7 +510,7 @@ function SidebarGroup({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="sidebar-group"
       data-sidebar="group"
-      className={cn("relative flex w-full min-w-0 flex-col p-2", className)}
+      className={cn("relative flex w-full min-w-0 flex-col p-2 pl-2.5 group-data-[state=collapsed]:pl-2", className)}
       {...props}
     />
   )
@@ -518,7 +640,11 @@ function SidebarMenuButton({
       data-sidebar="menu-button"
       data-size={size}
       data-active={isActive}
-      className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+      className={cn(
+        sidebarMenuButtonVariants({ variant, size }),
+        "group-data-[animated-highlight=true]/sidebar-content:bg-transparent!",
+        className
+      )}
       {...props}
     />
   )
@@ -705,7 +831,7 @@ function SidebarIndicator({
 }: React.ComponentProps<"div">) {
   return <div
     {...props}
-    className={cn("group-data-[state=collapsed]:hidden absolute w-[3px] h-5 rounded-sm bg-theme -translate-x-[3px]", className)}/>
+    className={cn("group-data-[state=collapsed]:hidden absolute -left-1.5 w-0.5 h-5 rounded-tr-sm rounded-br-sm bg-foreground -translate-x-[3px]", className)}/>
 }
 
 export {

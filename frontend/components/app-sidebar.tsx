@@ -139,8 +139,8 @@ function ItemRenderer(item: SidebarItemDef) {
       <SidebarMenuButton
         isActive={pathname.startsWith(item.url)}
         asChild>
-        <Link href={item.url} className="pl-3">
-          {pathname.startsWith(item.url) && <SidebarIndicator className="left-2"/>}
+        <Link href={item.url} className="pl-2.5">
+          {pathname.startsWith(item.url) && <SidebarIndicator />}
           <item.icon />
           <span className="whitespace-nowrap">{item.name}</span>
         </Link>
@@ -158,7 +158,7 @@ export function AppSidebar() {
         <Logo size={26}/>
         <h1 className={cn("m-2 text-lg text-theme font-semibold select-none group-data-[state=collapsed]:hidden", minecraftAE.className)}>OPanel</h1>
       </SidebarHeader>
-      <SidebarContent className="bg-background">
+      <SidebarContent animatedHighlight className="bg-background">
         <SidebarGroup>
           <SidebarGroupLabel>{$("sidebar.server")}</SidebarGroupLabel>
           <SidebarGroupContent>
