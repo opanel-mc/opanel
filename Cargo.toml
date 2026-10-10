@@ -6,7 +6,7 @@ description = "A Minecraft server management panel"
 authors = ["NriotHrreion"]
 
 [workspace.package]
-version = "2.2.5"
+version = "2.2.6"
 
 [lib]
 path = "pumpkin/lib.rs"
