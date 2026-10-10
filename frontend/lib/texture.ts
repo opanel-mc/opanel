@@ -1,6 +1,6 @@
 import { type Item, versions } from "minecraft-textures";
 import { coerce, compare } from "semver";
-import { textureLoaders } from "virtual:textures";
+import { textureLoaders } from "opanel-textures";
 
 export async function getTextures(version: string): Promise<Item[] | null> {
   let suitableVersion: string | null = null;

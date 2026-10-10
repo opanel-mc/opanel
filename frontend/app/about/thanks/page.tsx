@@ -31,9 +31,9 @@ const thanksList = [
     repo: "javalin/javalin"
   },
   {
-    name: "vinext",
-    author: "Cloudflare",
-    repo: "cloudflare/vinext"
+    name: "Next.js",
+    author: "Vercel",
+    repo: "vercel/next.js"
   },
   {
     name: "Item-NBT-API",

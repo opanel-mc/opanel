@@ -2,7 +2,7 @@ import groovy.json.JsonSlurper
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 
-// vinext also writes shared framework metadata and uses frontend/dist while
+// Next.js also writes shared framework metadata and uses frontend/dist while
 // exporting static pages. Hold this service until the whole build is published.
 abstract class FrontendBuildService implements BuildService<BuildServiceParameters.None> {}
 
@@ -28,7 +28,7 @@ def prepareFrontend = tasks.register('prepareFrontend', Exec) {
     // downloaded CI artifacts bypass its timestamp-based Wasm rebuild check.
     usesService(frontendService)
     doFirst {
-        if (!['vinext', 'vite', 'wasm-pack'].every {
+        if (!['next', 'wasm-pack'].every {
             file("frontend/node_modules/${it}/package.json").isFile()
         }) {
             throw new GradleException('Frontend dependencies are missing. Run npm --prefix frontend ci from the repository root before building.')

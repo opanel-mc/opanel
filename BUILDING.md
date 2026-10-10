@@ -58,15 +58,19 @@ Gradle controls two internal variables automatically:
 - `OPANEL_FRONTEND_PREPARED=1`: validate already prepared resources and skip their
   generation. This does not skip frontend compilation.
 
-The current vinext static exporter uses `frontend/dist` internally. The build
-script finishes compilation and generates the compatibility ID there, then
+Next.js uses `output: "export"` and exports static files to `frontend/out`,
+with intermediate files and caches in `frontend/.next`. The build script moves
+the export to `frontend/dist/client`, copies the Next.js build ID into the
+existing compatibility-ID resource, then
 publishes the complete output to the module directory. A shared Gradle service
 serializes frontend tasks within one Gradle invocation, including publication;
 Java compilation can still run in parallel. Do not run separate frontend builds
 simultaneously in the same checkout.
 
 Each module packages `client/` as `opanel-web/` and places the matching
-`vinext-rsc-compatibility-id` at the JAR resource root. Final JARs remain under
+`vinext-rsc-compatibility-id` at the JAR resource root. This legacy resource name
+is retained for backend compatibility; its contents are the Next.js build ID,
+which also matches the `x-nextjs-deployment-id` response header. Final JARs remain under
 the root `build/libs`, for example `opanel-paper-26.1-build-2.2.4.jar`.
 Inventory textures are bundled only for the configured versions; map assets and
 Minecraft translations retain their shared generation strategy.
@@ -107,8 +111,8 @@ Cargo checks for installed frontend tools but never installs npm dependencies.
 Its build script runs frontend compilation and embeds the resulting client files
 and compatibility ID into the plugin. It sets `OPANEL_FRONTEND_OUTPUT` to
 `<OUT_DIR>/frontend` under Cargo's build directory, so it does not consume a
-previous build left in `frontend/dist`. That directory is still used internally
-by the exporter during compilation. Keep frontend builds in the same checkout
+previous build left in `frontend/dist`. That directory is used to stage the
+completed static export before publication. Keep frontend builds in the same checkout
 sequential, including builds started through Gradle and Cargo.
 On Windows, a custom `CARGO_TARGET_DIR` must stay on the same drive as the
 repository because compressed resource embedding requires relative paths.
@@ -126,12 +130,14 @@ own Cargo target directory to avoid nesting builds in Pumpkin's target directory
 `npm --prefix frontend run dev` defaults the target to `paper`.
 Production builds require a nonempty `VITE_OPANEL_TARGET`. Its value is compiled
 into the frontend; changing server runtime environment variables does not change
-an existing build.
+an existing build. The existing `VITE_OPANEL_TARGET` and `VITE_OPANEL_VERSION`
+inputs are retained for Gradle/Cargo compatibility and mapped by `next.config.ts`
+to `NEXT_PUBLIC_OPANEL_TARGET` and `NEXT_PUBLIC_OPANEL_VERSION`.
+`npm --prefix frontend start` serves the static export on port 3001.
 
 ### Inventory texture versions
 
-`TEXTURE_VERSIONS` is read by the build tools, without a `VITE_` prefix, and is not
-exposed through the browser's `import.meta.env`. Java forwards it from
+`TEXTURE_VERSIONS` is read only by the build tools. Java forwards it from
 `frontend_env_texture_versions`; Pumpkin reads it from `frontend.properties`.
 For development, set it in `frontend/.env.development`, for example:
 
@@ -150,12 +156,13 @@ TEXTURE_VERSIONS=all
 - Unknown versions, version ranges, empty list entries, mixing `all` with a
   version list, and missing selected JSON files fail validation. Restart the
   development server after changing the environment configuration.
-- Environment files use the existing Vite loading rules; process environment
+- Environment files use Next.js loading rules; process environment
   variables take precedence. `npm run build` validates the selection before its
-  own prelaunch step and forwards the normalized list to vinext. Gradle's shared
+  own prelaunch step and forwards the normalized list to Next.js. Gradle's shared
   resource preparation still runs before its target frontend task.
 
-The Vite plugin creates literal dynamic imports only for selected texture JSONs,
+The Next.js configuration generates `frontend/build/textures.js` with literal
+dynamic imports only for selected texture JSONs,
 keeping them lazy-loaded and excluding all other texture versions from the
 bundle. At runtime, the server's Minecraft version still determines the required
 texture version. If that version was not bundled, texture loading returns `null`
@@ -176,9 +183,40 @@ Local checks without a full frontend or Gradle build:
 ```sh
 npm --prefix frontend run lint
 npm --prefix frontend run typecheck
-npm --prefix frontend run test -- vite-plugins/textures-plugin.test.ts lib/tests/texture.test.ts
+npm --prefix frontend run test -- vite-plugins/textures-plugin.test.ts
 node --test .github/scripts/build-matrix.test.mjs
 ```
+
+### Comparing Next.js and vinext build times
+
+The Next.js version is pinned in `frontend/package.json` and uses Turbopack by
+default. Vite remains a development dependency for Vitest only. The resource
+preparation, target variables, texture selection and Gradle task serialization
+are unchanged, so the same full-build command can be measured on each revision.
+Install dependencies before timing each revision and use the same Node.js/JDK
+versions, Gradle options and prepared-resource state.
+
+For example, from the repository root in PowerShell:
+
+```powershell
+npm.cmd --prefix frontend ci
+npm.cmd --prefix frontend run prelaunch
+$env:OPANEL_FRONTEND_PREPARED = "1"
+Measure-Command {
+    .\gradlew.bat clean build --no-build-cache --console=plain
+    if ($LASTEXITCODE -ne 0) { throw "OPanel build failed" }
+}
+Remove-Item Env:OPANEL_FRONTEND_PREPARED
+```
+
+This measures all Java targets with Minecraft/Wasm preparation completed before
+timing; Pumpkin is built separately with Cargo. `clean` invalidates module outputs
+but does not remove frontend framework caches. For a cold frontend comparison,
+also clear `frontend/.next`, `frontend/.vinext`, `frontend/.vite` and
+`frontend/node_modules/.vite` before each measurement. For a warm comparison,
+retain those caches, warm up each revision and report repeated measurements.
+Dependency download and Gradle daemon state should be consistent between runs.
+Next.js's normal production build also includes TypeScript validation.
 
 ## CI and generated files
 

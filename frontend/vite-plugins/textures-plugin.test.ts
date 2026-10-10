@@ -121,7 +121,7 @@ describe("inventory texture bundling", () => {
         },
         load(id) {
           if(id === "\0virtual:texture-test") {
-            return 'import { textureLoaders } from "virtual:textures"; globalThis.textureTest = textureLoaders;';
+            return 'import { textureLoaders } from "opanel-textures"; globalThis.textureTest = textureLoaders;';
           }
         },
       }],

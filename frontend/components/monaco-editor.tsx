@@ -4,11 +4,6 @@ import { useEffect } from "react";
 import { Editor, type EditorProps, loader } from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
 
-import EditorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
-import JsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker";
-import TypeScriptWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker";
-import YamlWorker from "monaco-yaml/yaml.worker?worker";
-
 import { enableAutomaticLayout } from "@/lib/monaco/editor-layout";
 import "@/lib/monaco/opanel-theme-def";
 import "@/lib/monaco/server-log-def";
@@ -35,14 +30,14 @@ export default function MonacoEditor({
       getWorker: (_workerId: never, label: string) => {
         switch(label) {
           case "json":
-            return new JsonWorker();
+            return new Worker(new URL("monaco-editor/esm/vs/language/json/json.worker.js", import.meta.url), { type: "module" });
           case "typescript":
           case "ts":
-            return new TypeScriptWorker();
+            return new Worker(new URL("monaco-editor/esm/vs/language/typescript/ts.worker.js", import.meta.url), { type: "module" });
           case "yaml":
-            return new YamlWorker();
+            return new Worker(new URL("monaco-yaml/yaml.worker.js", import.meta.url), { type: "module" });
           default:
-            return new EditorWorker();
+            return new Worker(new URL("monaco-editor/esm/vs/editor/editor.worker.js", import.meta.url), { type: "module" });
         }
       }
     };

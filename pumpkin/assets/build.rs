@@ -38,7 +38,7 @@ fn main() {
     let frontend_env = parse_frontend_env(&properties)
         .unwrap_or_else(|error| panic!("invalid {}: {error}", properties_path.display()));
 
-    for package in ["vinext", "vite", "wasm-pack"] {
+    for package in ["next", "wasm-pack"] {
         if !frontend_dir
             .join("node_modules")
             .join(package)

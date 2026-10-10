@@ -12,17 +12,13 @@ export default defineConfig({
     alias: {
       "@/style/item-effect.css": path.resolve(__dirname, "test/style-stub.ts"),
       "@": path.resolve(__dirname, "."),
-      "next/dynamic": "vinext/shims/dynamic",
-      "next/font/local": "vinext/shims/font-local",
-      "next/link": "vinext/shims/link",
-      "next/navigation": "vinext/shims/navigation",
     }
   },
   test: {
     environment: "jsdom",
     env: {
-      VITE_OPANEL_VERSION: "0.1.0",
-      VITE_OPANEL_TARGET: "paper-26.1"
+      NEXT_PUBLIC_OPANEL_VERSION: "0.1.0",
+      NEXT_PUBLIC_OPANEL_TARGET: "paper-26.1"
     },
     setupFiles: ["./test/setup.tsx"]
   },

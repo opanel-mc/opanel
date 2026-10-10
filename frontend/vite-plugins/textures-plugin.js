@@ -1,7 +1,6 @@
-import { normalizePath } from "vite";
-import { resolveTexturePath } from "../scripts/texture-config.js";
+import { createTextureModule } from "../scripts/texture-config.js";
 
-const moduleId = "virtual:textures";
+const moduleId = "opanel-textures";
 const resolvedModuleId = `\0${moduleId}`;
 
 /**
@@ -9,12 +8,8 @@ const resolvedModuleId = `\0${moduleId}`;
  * @returns {import("vite").Plugin}
  */
 export function texturesPlugin(versions) {
-  // Literal imports keep unselected JSONs out of every build environment while
-  // preserving one lazy-loaded module per texture version.
-  const entries = versions.map((version) => {
-    const file = normalizePath(resolveTexturePath(version));
-    return `${JSON.stringify(version)}: () => import(${JSON.stringify(file)})`;
-  });
+  // Vitest uses the same module source as Next.js.
+  const source = createTextureModule(versions);
 
   return {
     name: "textures-plugin",
@@ -23,7 +18,7 @@ export function texturesPlugin(versions) {
     },
     load(id) {
       if(id === resolvedModuleId) {
-        return `export const textureLoaders = {\n${entries.join(",\n")}\n};`;
+        return source;
       }
     },
   };

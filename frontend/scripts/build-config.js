@@ -48,8 +48,10 @@ export function validatePreparedFrontend(root = frontendDir) {
 }
 
 export function writeCompatibilityId(outputDir) {
-  const buildId = fs.readFileSync(path.join(outputDir, "server/BUILD_ID"), "utf8").trim();
-  if(!buildId) throw new Error("vinext generated an empty BUILD_ID");
+  const buildId = fs.readFileSync(path.join(frontendDir, ".next/BUILD_ID"), "utf8").trim();
+  if(!buildId) throw new Error("Next.js generated an empty BUILD_ID");
+  // Retain the resource name consumed by both Java and Pumpkin. The backends
+  // also send it as x-nextjs-deployment-id, matching Next.js's deployment ID.
   fs.writeFileSync(path.join(outputDir, "vinext-rsc-compatibility-id"), `${buildId}\n`, "utf8");
 }
 
