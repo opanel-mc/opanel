@@ -111,6 +111,9 @@ function parseSupportedTargets(value) {
 
   const targets = new Map();
   for(const [platform, versions] of Object.entries(value)) {
+    if(platform === "pumpkin") {
+      continue;
+    }
     if(!(platform in PLATFORM_NAMES)) {
       throw new Error(`Unsupported platform in supported-version-list: ${platform}`);
     }
