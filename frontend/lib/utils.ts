@@ -166,10 +166,29 @@ export function textComponentToString(component: NbtString | NbtObject): string 
 export async function copyToClipboard(text: string) {
   try {
     await navigator.clipboard.writeText(text);
-    toast.success($("common.copy.success"));
   } catch (e) {
-    toast.error($("common.copy.error"));
+    // Clipboard API is unavailable on HTTP server addresses.
+    const textarea = document.createElement("textarea");
+    const activeElement = document.activeElement;
+    textarea.value = text;
+    textarea.readOnly = true;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+
+    try {
+      document.body.appendChild(textarea);
+      textarea.focus({ preventScroll: true });
+      textarea.select();
+      if(!document.execCommand("copy")) throw new Error("Copy failed.");
+    } catch (e) {
+      toast.error($("common.copy.error"));
+      return;
+    } finally {
+      textarea.remove();
+      if(activeElement instanceof HTMLElement) activeElement.focus({ preventScroll: true });
+    }
   }
+  toast.success($("common.copy.success"));
 }
 
 export function getLocalStorage() {
