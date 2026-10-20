@@ -18,6 +18,9 @@
   "common.controls.restart.error": "Server-Neustart fehlgeschlagen",
   "common.controls.stop": "Server wird gestoppt...",
 
+  "skin-viewer.pause": "Animation pausieren",
+  "skin-viewer.play": "Animation abspielen",
+
   "restart-alert.title": "Neustart erforderlich, um Änderungen zu übernehmen",
   "restart-alert.description": "Sie können den Server jetzt oder später neu starten, um die Änderungen zu übernehmen. Möchten Sie jetzt neu starten?",
   "restart-alert.action": "Neu starten",

@@ -18,6 +18,9 @@
   "common.controls.restart.error": "重新啟動伺服器失敗",
   "common.controls.stop": "正在停止伺服器…",
 
+  "skin-viewer.pause": "暫停動畫",
+  "skin-viewer.play": "播放動畫",
+
   "restart-alert.title": "需要重啟伺服器先至令改動生效",
   "restart-alert.description": "你可以選擇重新啟動或者稍後重啟伺服器並套用更改，確定要重啟伺服器嗎？",
   "restart-alert.action": "重啟",

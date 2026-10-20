@@ -18,6 +18,9 @@
   "common.controls.restart.error": "Échec du redémarrage du serveur",
   "common.controls.stop": "Arrêt du serveur...",
 
+  "skin-viewer.pause": "Mettre l’animation en pause",
+  "skin-viewer.play": "Lire l’animation",
+
   "restart-alert.title": "Redémarrage requis pour appliquer les changements",
   "restart-alert.description": "Vous pouvez choisir de redémarrer le serveur maintenant ou plus tard pour appliquer les modifications. Voulez-vous redémarrer maintenant ?",
   "restart-alert.action": "Redémarrer",
