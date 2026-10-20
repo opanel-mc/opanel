@@ -46,15 +46,20 @@ async function getMinecraftVersionInfo() {
   return (await axios.get(versionInfoUrl)).data;
 }
 
-async function fetchMinecraftLanguages() {
-  const versionInfo = await getMinecraftVersionInfo();
+async function fetchMinecraftLanguages(versionInfo) {
+  const enUSLanguage = JSON.parse(fs.readFileSync(path.resolve(minecraftAssetsPath, "en_us.json"), "utf-8"));
   const assetsUrl = versionInfo.assetIndex.url;
   const assetsIndex = (await axios.get(assetsUrl)).data.objects;
 
   for(const lang of languagesToFetch) {
     const { hash } = assetsIndex[`minecraft/lang/${lang}.json`];
     const langFileUrl = `https://resources.download.minecraft.net/${hash.slice(0, 2)}/${hash}`;
-    const langFileContent = filterLangKeys((await axios.get(langFileUrl)).data);
+    const downloadedLanguage = (await axios.get(langFileUrl)).data;
+    // External language resources can include keys from newer development versions.
+    const langFileContent = {};
+    for(const key of Object.keys(enUSLanguage)) {
+      langFileContent[key] = downloadedLanguage[key] ?? enUSLanguage[key];
+    }
     const langFilePath = path.resolve(minecraftAssetsPath, `${lang}.json`);
 
     fs.mkdirSync(path.dirname(langFilePath), { recursive: true });
@@ -63,8 +68,7 @@ async function fetchMinecraftLanguages() {
   }
 }
 
-async function extractNecessaryAssetsFromMinecraft() {
-  const versionInfo = await getMinecraftVersionInfo();
+async function extractNecessaryAssetsFromMinecraft(versionInfo) {
   const clientJarUrl = versionInfo.downloads.client.url;
 
   // Download client.jar
@@ -177,8 +181,9 @@ async function execute() {
   }
 
   if(FORCE || !fs.existsSync(minecraftAssetsPath)) {
-    await fetchMinecraftLanguages();
-    await extractNecessaryAssetsFromMinecraft();
+    const versionInfo = await getMinecraftVersionInfo();
+    await extractNecessaryAssetsFromMinecraft(versionInfo);
+    await fetchMinecraftLanguages(versionInfo);
   }
 }
 
