@@ -17,6 +17,9 @@
     "wasm:build": "node scripts/build-wasm --run",
     "wasm:build:force": "node scripts/build-wasm -f --run"
   },
+  "engines": {
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
+  },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
     "@icons-pack/react-simple-icons": "^13.11.1",
