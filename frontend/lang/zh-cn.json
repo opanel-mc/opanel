@@ -18,6 +18,9 @@
   "common.controls.restart.error": "重启服务器失败",
   "common.controls.stop": "正在停止服务器...",
 
+  "skin-viewer.pause": "暂停动画",
+  "skin-viewer.play": "播放动画",
+
   "restart-alert.title": "需要重启服务器以使改动生效",
   "restart-alert.description": "你可以选择现在或稍后重启服务器并应用更改，确定现在重启服务器吗？",
   "restart-alert.action": "重启",

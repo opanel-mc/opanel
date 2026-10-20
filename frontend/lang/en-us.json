@@ -18,6 +18,9 @@
   "common.controls.restart.error": "Failed to restart the server",
   "common.controls.stop": "Stopping the server...",
 
+  "skin-viewer.pause": "Pause animation",
+  "skin-viewer.play": "Play animation",
+
   "restart-alert.title": "Restart required to apply changes",
   "restart-alert.description": "You can restart now or later to apply changes. Restart the server now?",
   "restart-alert.action": "Restart",

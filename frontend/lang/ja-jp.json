@@ -18,6 +18,9 @@
   "common.controls.restart.error": "サーバーの再起動に失敗しました",
   "common.controls.stop": "サーバーを停止しています...",
 
+  "skin-viewer.pause": "アニメーションを一時停止",
+  "skin-viewer.play": "アニメーションを再生",
+
   "restart-alert.title": "変更を有効にするにはサーバーを再起動する必要があります",
   "restart-alert.description": "今すぐまたは後でサーバーを再起動して変更を適用することができます。今すぐサーバーを再起動してもよろしいですか？",
   "restart-alert.action": "再起動",
