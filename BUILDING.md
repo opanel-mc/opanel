@@ -1,6 +1,6 @@
 # Building OPanel
 
-Use Node.js 22 with npm and the Java toolchains required by the selected module
+Use Node.js 22 (22.22.2 or later, or 24.15.0+) with npm and the Java toolchains required by the selected module
 (CI installs JDK 25, 21, 17 and 14, and starts Gradle with JDK 25). A local build
 also needs Rust/Cargo for the frontend Wasm preparation; `wasm-pack` is installed
 with the frontend npm dependencies.
