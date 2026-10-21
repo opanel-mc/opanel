@@ -91,6 +91,7 @@ public class WebServer {
         TasksController tasksController = new TasksController(plugin);
         McpController mcpController = new McpController(plugin);
         OpenAPIController openAPIController = new OpenAPIController(plugin);
+        BackgroundsController backgroundsController = new BackgroundsController(plugin);
         ExtensionsController extensionsController = new ExtensionsController(plugin);
         ExtensionPageController extensionPageController = new ExtensionPageController(plugin);
 
@@ -108,6 +109,12 @@ public class WebServer {
             get("/{name}", assetsController.getAsset, PUBLIC);
             post("/upload/{name}", assetsController.uploadAsset, PANEL_OR_MCP);
             delete("/reset/{name}", assetsController.resetAsset, PANEL_OR_MCP);
+        });
+        path("backgrounds", () -> {
+            get("/", backgroundsController.listBackgrounds, PANEL_OR_MCP);
+            get("/{filename}", backgroundsController.getBackground, PUBLIC);
+            post("/upload", backgroundsController.uploadBackground, PANEL_OR_MCP);
+            delete("/{filename}", backgroundsController.deleteBackground, PANEL_OR_MCP);
         });
         path("file", Set.of(PANEL_OR_MCP), () -> {
             get("/{id}/{fileName}", downloadController.downloadFile);
@@ -333,6 +340,11 @@ public class WebServer {
                 });
                 cors.addRule(it -> {
                     it.path = "/file/*";
+                    it.allowHost("http://localhost:3001"); // for dev
+                    it.allowCredentials = true;
+                });
+                cors.addRule(it -> {
+                    it.path = "/backgrounds/*";
                     it.allowHost("http://localhost:3001"); // for dev
                     it.allowCredentials = true;
                 });

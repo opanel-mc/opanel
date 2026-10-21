@@ -149,7 +149,8 @@ export async function sleep(ms: number): Promise<void> {
   });
 }
 
-export function isPreviewVersion(version: string): boolean {
+export function isPreviewVersion(version: string | undefined): boolean {
+  if(!version) return false;
   return version.includes("pre") || version.includes("rc");
 }
 

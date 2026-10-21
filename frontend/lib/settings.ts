@@ -34,6 +34,7 @@ export type SettingsStorageType = {
   "server.launch-command"?: never
   "server.map-feature"?: never
   "system.login-banner"?: never
+  "panel.background"?: string
   "system.language": LanguageCode
   "system.preview-channel": boolean
   "system.mcp"?: never

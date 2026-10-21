@@ -30,6 +30,7 @@ public class OPanel {
     public static final Path TMP_DIR_PATH = OPANEL_DIR_PATH.resolve(".tmp");
     public static final Path EXTENSIONS_DIR_PATH = OPANEL_DIR_PATH.resolve("extensions");
     public static final Path MAP_DATA_PATH = OPANEL_DIR_PATH.resolve("mapdata");
+    public static final Path BACKGROUNDS_DIR_PATH = OPANEL_DIR_PATH.resolve("backgrounds");
     public static final Path INITIAL_ACCESS_KEY_PATH = OPANEL_DIR_PATH.resolve("INITIAL_ACCESS_KEY.txt");
     public static final Path MCDR_BRIDGE_FLAG_PATH = OPANEL_DIR_PATH.resolve(".mcdr_bridge_active");
 
@@ -111,6 +112,10 @@ public class OPanel {
         File mapDataDir = MAP_DATA_PATH.toFile();
         if(!mapDataDir.exists() && !mapDataDir.mkdir()) {
             throw new IOException("Cannot initialize opanel/mapdata directory.");
+        }
+        File backgroundsDir = BACKGROUNDS_DIR_PATH.toFile();
+        if(!backgroundsDir.exists() && !backgroundsDir.mkdir()) {
+            throw new IOException("Cannot initialize opanel/backgrounds directory.");
         }
         // Remove access key txt file if exists
         File initialAccessKeyFile = INITIAL_ACCESS_KEY_PATH.toFile();

@@ -12,6 +12,15 @@ import { sendGetRequest } from "@/lib/api";
 import { useKeydown } from "@/hooks/use-keydown";
 import { useCheckAuth } from "@/hooks/use-check-auth";
 import { changeSettings, getSettings } from "@/lib/settings";
+import { emitter } from "@/lib/emitter";
+
+const setCssBg = (url: string | null) => {
+  if (typeof document === "undefined") return;
+  document.documentElement.style.setProperty(
+    "--panel-bg",
+    url ? `url(${url})` : "none"
+  );
+};
 
 export default function PanelLayout({
   children,
@@ -45,8 +54,19 @@ export default function PanelLayout({
   };
 
   useEffect(() => {
+    const initialBg = getSettings("panel.background") || "/backgrounds/background.jpg";
+    setCssBg(initialBg);
+
     setMounted(true);
     setSidebarOpen(getSettings("state.sidebar.open"));
+
+    const handleBackgroundChange = () => {
+      setCssBg(getSettings("panel.background") || null);
+    };
+    emitter.on("background-change", handleBackgroundChange);
+    return () => {
+      emitter.off("background-change", handleBackgroundChange);
+    };
   }, []);
 
   useEffect(() => {

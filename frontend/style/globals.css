@@ -127,8 +127,25 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
-  --theme: #f89d13;
-  --theme-hovered: #d1830d;
+}
+
+html {
+  background: var(--panel-bg) center / cover no-repeat fixed;
+}
+
+body {
+  --background: transparent;
+}
+
+[data-slot="sidebar-inset"],
+[data-slot="sidebar-inset"] * {
+  --background: transparent !important;
+  --card: transparent !important;
+  --popover: transparent !important;
+  --muted: transparent !important;
+  --secondary: transparent !important;
+  --accent: transparent !important;
+  --sidebar: transparent !important;
 }
 
 @layer base {

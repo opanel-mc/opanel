@@ -11,6 +11,6 @@ export const copyrightInfo = "Copyright © OPanel Project 2026";
 /**
  * Server platform type resolved from env variable
  */
-export const serverType = platformIdToServerType(
-  import.meta.env.VITE_OPANEL_TARGET.split("-")[0]
-);
+export const serverType = import.meta.env.VITE_OPANEL_TARGET
+  ? platformIdToServerType(import.meta.env.VITE_OPANEL_TARGET.split("-")[0])
+  : "Paper";

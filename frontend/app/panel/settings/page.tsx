@@ -19,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { controlWidth, SettingsFontSizeSlider, SettingsNumberInput, SettingsSlider, SettingsSwitch } from "./settings-control";
 import { Button } from "@/components/ui/button";
 import { LoginBannerDialog } from "./login-banner-dialog";
+import { BackgroundDialog } from "./background-dialog";
 import { LaunchCommandDialog } from "./launch-command-dialog";
 import { SecurityDialog } from "./security-dialog";
 import { UpdateDialog } from "./update-dialog";
@@ -324,6 +325,15 @@ export default function Settings() {
                   <LoginBannerDialog asChild>
                     <Button className="cursor-pointer" size="sm">{$("settings.system.login-banner.modify")}</Button>
                   </LoginBannerDialog>
+                }/>
+              <SettingsItem
+                id="panel.background"
+                name="Panel Background"
+                description="Customize the background image displayed across the panel pages."
+                control={
+                  <BackgroundDialog asChild>
+                    <Button className="cursor-pointer" size="sm">Manage</Button>
+                  </BackgroundDialog>
                 }/>
               <SettingsItem
                 id="system.mcp"
