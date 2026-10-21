@@ -136,7 +136,6 @@ export async function uploadFile(route: string, file: File, onProgress?: (progre
 }
 
 export async function checkAuth(): Promise<boolean> {
-  if(import.meta.env.DEV) return true;
   try {
     await sendPostRequest("/api/auth/check");
     return true;
