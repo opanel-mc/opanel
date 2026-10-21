@@ -135,6 +135,15 @@ html {
   background: var(--panel-bg) center / cover no-repeat fixed;
 }
 
+html::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: oklch(0 0 0 / 30%);
+  pointer-events: none;
+  z-index: 0;
+}
+
 body {
   --background: transparent;
 }
