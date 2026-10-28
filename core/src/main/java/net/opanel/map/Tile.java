@@ -6,12 +6,23 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Tile {
     private static final String AIR_ID = "minecraft:air";
     private static final String THE_VOID_ID = "minecraft:the_void";
     private static final String PLAINS_ID = "minecraft:plains";
     private static final int HEIGHT_MAP_COLUMNS = 16 * 16;
+    private static final Set<String> TRANSPARENT_BLOCK_IDS = Set.of(
+        AIR_ID,
+        "minecraft:cave_air",
+        "minecraft:void_air",
+        "minecraft:barrier",
+        "minecraft:structure_void",
+        "minecraft:light",
+        "minecraft:glass",
+        "minecraft:glass_pane"
+    );
 
     public record Block(String id, String biome) {}
 
@@ -42,6 +53,8 @@ public class Tile {
          * @return Block type
          */
         public String getBlockType(int x, int y, int z) {
+            if(palette.size() == 1) return palette.get(0);
+
             final int index = y * 256 + z * 16 + x;
             if(index >= blockStates.length) {
                 return AIR_ID;
@@ -103,6 +116,29 @@ public class Tile {
     }
 
     /**
+     * Resolve the rendered surface in the copied heightmap before reading blocks and biomes.
+     */
+    void resolveSurfaceHeights() {
+        for(int z = 0; z < 16; z++) {
+            for(int x = 0; x < 16; x++) {
+                int y = getHeight(x, z);
+                while(y >= minY) {
+                    Section section = sections.get(y >> 4);
+                    if(section == null) {
+                        // Missing sections are air; skip to the section below.
+                        y = (y & ~15) - 1;
+                        continue;
+                    }
+
+                    if(!TRANSPARENT_BLOCK_IDS.contains(section.getBlockType(x, y & 15, z))) break;
+                    y--;
+                }
+                heightMap[z * 16 + x] = y >= minY ? y - minY + 1 : 0;
+            }
+        }
+    }
+
+    /**
      * @return A 16x16 two-dimensional array storing top block type ids
      */
     public Block[][] getTopBlocks() {
@@ -154,7 +190,7 @@ public class Tile {
         return new Section(
             y,
             palette,
-            AnvilUtility.bitunpack(packedBlockStates, AnvilUtility.paletteSizeToBitsSize(paletteSize, 4)),
+            paletteSize > 1 ? AnvilUtility.bitunpack(packedBlockStates, AnvilUtility.paletteSizeToBitsSize(paletteSize, 4)) : new int[0],
             biomesPalette,
             packedBiomes != null && biomesPaletteSize > 1 ? AnvilUtility.bitunpack(packedBiomes, AnvilUtility.paletteSizeToBitsSize(biomesPaletteSize)) : null
         );
