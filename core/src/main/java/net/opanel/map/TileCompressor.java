@@ -19,6 +19,7 @@ public class TileCompressor {
     private static final byte[] BUNDLED_TILES_DATA_MAGIC = "OTILES".getBytes(StandardCharsets.US_ASCII);
 
     public static ByteArrayOutputStream compressTile(Tile tile) throws IOException {
+        tile.resolveSurfaceHeights();
         Tile.Block[][] topBlocks = tile.getTopBlocks();
         int[] heightMap = tile.getHeightMap();
 
