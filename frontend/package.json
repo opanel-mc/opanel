@@ -18,7 +18,7 @@
     "wasm:build:force": "node scripts/build-wasm -f --run"
   },
   "engines": {
-    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
+    "node": "^22.23.4 || ^24.22.1 || >=26.12.1"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
