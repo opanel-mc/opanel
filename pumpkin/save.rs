@@ -866,7 +866,14 @@ mod tests {
 
         let mut archive = zip::ZipArchive::new(File::open(archive_path).unwrap()).unwrap();
         let entries = (0..archive.len())
-            .map(|index| archive.by_index(index).unwrap().name().to_string())
+            .map(|index| {
+                archive
+                    .by_index(index)
+                    .unwrap()
+                    .name()
+                    .unwrap()
+                    .into_owned()
+            })
             .collect::<Vec<_>>();
         assert!(entries.contains(&"world/level.dat".to_string()));
         assert!(entries.contains(&"world/notes.txt".to_string()));
