@@ -1,22 +1,14 @@
 import type { CreateTaskResponse, ScheduledTask } from "@/lib/types";
-import { useState } from "react";
+import { useId, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { LayoutTemplate } from "lucide-react";
 import * as z from "zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from "@/components/ui/form";
+import { FieldDescription, Field, FieldLabel, FieldError, FieldTitle } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Tabs,
@@ -112,6 +104,7 @@ export function TaskForm({
   const [cronInputType, setCronInputType] = useState<"simple" | "advanced">("simple");
   const [loading, setLoading] = useState(false);
 
+  const formId = useId();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     values: {
@@ -167,131 +160,153 @@ export function TaskForm({
   };
 
   return (
-    <Form {...form}>
-      <form
-        className="flex-1 min-w-0 p-4 flex flex-col gap-4 overflow-x-hidden overflow-y-auto o-scrollbar"
-        data-taskid={task.id}
-        onSubmit={form.handleSubmit(handleSubmit)}>
-        <FormField
-          name="name"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{$("tasks.form.name.label")}</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder={$("tasks.form.name.placeholder")}
-                  autoComplete="off"
-                  {...field}/>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}/>
-        
-        <div className="h-max flex flex-col gap-3">
-          <Label>{$("tasks.form.cron.label")}</Label>
-          <Tabs
-            value={cronInputType}
-            onValueChange={(value) => setCronInputType(value as any)}>
-            <TabsList>
-              <TabsTrigger value="simple">{$("tasks.form.cron.simple")}</TabsTrigger>
-              <TabsTrigger value="advanced">{$("tasks.form.cron.advanced")}</TabsTrigger>
-            </TabsList>
-            <div
-              className="*:data-[slot=tabs-content]:p-2 w-[calc(200%+16px)] flex gap-4 overflow-hidden"
-              style={{ transform: cronInputType === "simple" ? "translateX(0%)" : "translateX(calc(-50% - 8px))" }}>
-              <TabsContent value="simple" forceMount>
-                <FormField
-                  name="cron"
-                  control={form.control}
-                  render={({ field }) => {
-                    const cronParts = field.value.split(" ");
+    <form
+      className="flex-1 min-w-0 p-4 flex flex-col gap-4 overflow-x-hidden overflow-y-auto o-scrollbar"
+      data-taskid={task.id}
+      onSubmit={form.handleSubmit(handleSubmit)}>
+      <Controller
+        name="name"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <Field data-invalid={fieldState.invalid}>
+            <FieldLabel htmlFor={`${formId}-${field.name}`}>{$("tasks.form.name.label")}</FieldLabel>
+            <Input
+              id={`${formId}-${field.name}`}
+              aria-invalid={fieldState.invalid}
+              aria-describedby={fieldState.invalid ? `${formId}-${field.name}-error` : undefined}
+              placeholder={$("tasks.form.name.placeholder")}
+              autoComplete="off"
+              {...field}/>
+            {fieldState.invalid && (
+              <FieldError id={`${formId}-${field.name}-error`} errors={[fieldState.error]}/>
+            )}
+          </Field>
+        )}/>
 
-                    return (
-                      <div className="w-full grid grid-cols-3 max-sm:grid-cols-2 gap-4">
-                        <FormItem className="flex-1">
-                          <FormLabel>{$("tasks.form.cron.simple.minutes")}</FormLabel>
-                          <FormControl>
-                            <Input
-                              value={cronParts[0]}
-                              onChange={(e) => field.onChange(setCronPart(field.value, 0, e.target.value))}
-                              autoComplete="off"/>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                        <FormItem className="flex-1">
-                          <FormLabel>{$("tasks.form.cron.simple.hours")}</FormLabel>
-                          <FormControl>
-                            <Input
-                              value={cronParts[1]}
-                              onChange={(e) => field.onChange(setCronPart(field.value, 1, e.target.value))}
-                              autoComplete="off"/>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                        <FormItem className="flex-1">
-                          <FormLabel>{$("tasks.form.cron.simple.days")}</FormLabel>
-                          <FormControl>
-                            <Input
-                              value={cronParts[2]}
-                              onChange={(e) => field.onChange(setCronPart(field.value, 2, e.target.value))}
-                              autoComplete="off"/>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                        <FormItem className="flex-1">
-                          <FormLabel>{$("tasks.form.cron.simple.months")}</FormLabel>
-                          <FormControl>
-                            <Input
-                              value={cronParts[3]}
-                              onChange={(e) => field.onChange(setCronPart(field.value, 3, e.target.value))}
-                              autoComplete="off"/>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                        <FormItem className="flex-1">
-                          <FormLabel>{$("tasks.form.cron.simple.weekdays")}</FormLabel>
-                          <FormControl>
-                            <Select
-                              value={cronWeekToValue(cronParts[4])}
-                              onValueChange={(value) => field.onChange(setCronPart(field.value, 4, value))}>
-                              <SelectTrigger className="w-full">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="*">{$("tasks.form.cron.simple.weekdays.every")}</SelectItem>
-                                <SelectItem value="1">{$("tasks.form.cron.simple.weekdays.mon")}</SelectItem>
-                                <SelectItem value="2">{$("tasks.form.cron.simple.weekdays.tue")}</SelectItem>
-                                <SelectItem value="3">{$("tasks.form.cron.simple.weekdays.wed")}</SelectItem>
-                                <SelectItem value="4">{$("tasks.form.cron.simple.weekdays.thu")}</SelectItem>
-                                <SelectItem value="5">{$("tasks.form.cron.simple.weekdays.fri")}</SelectItem>
-                                <SelectItem value="6">{$("tasks.form.cron.simple.weekdays.sat")}</SelectItem>
-                                <SelectItem value="0">{$("tasks.form.cron.simple.weekdays.sun")}</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      </div>
-                    );
-                  }}/>
-              </TabsContent>
-              <TabsContent value="advanced" forceMount>
-                <FormField
-                  name="cron"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel>{$("tasks.form.cron.advanced.input.label")}</FormLabel>
-                      <FormControl>
+      <Controller
+        name="cron"
+        control={form.control}
+        render={({ field, fieldState }) => {
+          const [minutes = "", hours = "", days = "", months = "", weekdays = "*"] = field.value.split(" ");
+
+          return (
+            <div className="h-max flex flex-col gap-3">
+              <Label>{$("tasks.form.cron.label")}</Label>
+              <Tabs
+                value={cronInputType}
+                onValueChange={(value) => setCronInputType(value as any)}>
+                <TabsList>
+                  <TabsTrigger value="simple">{$("tasks.form.cron.simple")}</TabsTrigger>
+                  <TabsTrigger value="advanced">{$("tasks.form.cron.advanced")}</TabsTrigger>
+                </TabsList>
+                <div
+                  className="*:data-[slot=tabs-content]:p-2 w-[calc(200%+16px)] flex gap-4 overflow-hidden"
+                  style={{ transform: cronInputType === "simple" ? "translateX(0%)" : "translateX(calc(-50% - 8px))" }}>
+                  <TabsContent value="simple" forceMount>
+                    <div className="w-full grid grid-cols-3 max-sm:grid-cols-2 gap-4">
+                      <Field data-invalid={fieldState.invalid} className="flex-1">
+                        <FieldLabel htmlFor={`${formId}-${field.name}-minutes`}>{$("tasks.form.cron.simple.minutes")}</FieldLabel>
                         <Input
-                          placeholder={$("tasks.form.cron.advanced.input.placeholder")}
-                          autoComplete="off"
-                          className={googleSansCode.className}
-                          {...field}/>
-                      </FormControl>
-                      <FormMessage />
-                      <FormDescription>
+                          id={`${formId}-${field.name}-minutes`}
+                          aria-invalid={fieldState.invalid}
+                          aria-describedby={fieldState.invalid ? `${formId}-${field.name}-minutes-error` : undefined}
+                          onBlur={field.onBlur}
+                          ref={cronInputType === "simple" ? field.ref : undefined}
+                          value={minutes}
+                          onChange={(e) => field.onChange(setCronPart(field.value, 0, e.target.value))}
+                          autoComplete="off"/>
+                        {fieldState.invalid && (
+                          <FieldError id={`${formId}-${field.name}-minutes-error`} errors={[fieldState.error]}/>
+                        )}
+                      </Field>
+                      <Field data-invalid={fieldState.invalid} className="flex-1">
+                        <FieldLabel htmlFor={`${formId}-${field.name}-hours`}>{$("tasks.form.cron.simple.hours")}</FieldLabel>
+                        <Input
+                          id={`${formId}-${field.name}-hours`}
+                          aria-invalid={fieldState.invalid}
+                          aria-describedby={fieldState.invalid ? `${formId}-${field.name}-hours-error` : undefined}
+                          onBlur={field.onBlur}
+                          value={hours}
+                          onChange={(e) => field.onChange(setCronPart(field.value, 1, e.target.value))}
+                          autoComplete="off"/>
+                        {fieldState.invalid && (
+                          <FieldError id={`${formId}-${field.name}-hours-error`} errors={[fieldState.error]}/>
+                        )}
+                      </Field>
+                      <Field data-invalid={fieldState.invalid} className="flex-1">
+                        <FieldLabel htmlFor={`${formId}-${field.name}-days`}>{$("tasks.form.cron.simple.days")}</FieldLabel>
+                        <Input
+                          id={`${formId}-${field.name}-days`}
+                          aria-invalid={fieldState.invalid}
+                          aria-describedby={fieldState.invalid ? `${formId}-${field.name}-days-error` : undefined}
+                          onBlur={field.onBlur}
+                          value={days}
+                          onChange={(e) => field.onChange(setCronPart(field.value, 2, e.target.value))}
+                          autoComplete="off"/>
+                        {fieldState.invalid && (
+                          <FieldError id={`${formId}-${field.name}-days-error`} errors={[fieldState.error]}/>
+                        )}
+                      </Field>
+                      <Field data-invalid={fieldState.invalid} className="flex-1">
+                        <FieldLabel htmlFor={`${formId}-${field.name}-months`}>{$("tasks.form.cron.simple.months")}</FieldLabel>
+                        <Input
+                          id={`${formId}-${field.name}-months`}
+                          aria-invalid={fieldState.invalid}
+                          aria-describedby={fieldState.invalid ? `${formId}-${field.name}-months-error` : undefined}
+                          onBlur={field.onBlur}
+                          value={months}
+                          onChange={(e) => field.onChange(setCronPart(field.value, 3, e.target.value))}
+                          autoComplete="off"/>
+                        {fieldState.invalid && (
+                          <FieldError id={`${formId}-${field.name}-months-error`} errors={[fieldState.error]}/>
+                        )}
+                      </Field>
+                      <Field data-invalid={fieldState.invalid} className="flex-1">
+                        <FieldLabel htmlFor={`${formId}-${field.name}-weekdays`}>{$("tasks.form.cron.simple.weekdays")}</FieldLabel>
+                        <Select
+                          value={cronWeekToValue(weekdays)}
+                          onValueChange={(value) => field.onChange(setCronPart(field.value, 4, value))}>
+                          <SelectTrigger
+                            id={`${formId}-${field.name}-weekdays`}
+                            aria-invalid={fieldState.invalid}
+                            aria-describedby={fieldState.invalid ? `${formId}-${field.name}-weekdays-error` : undefined}
+                            onBlur={field.onBlur}
+                            className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="*">{$("tasks.form.cron.simple.weekdays.every")}</SelectItem>
+                            <SelectItem value="1">{$("tasks.form.cron.simple.weekdays.mon")}</SelectItem>
+                            <SelectItem value="2">{$("tasks.form.cron.simple.weekdays.tue")}</SelectItem>
+                            <SelectItem value="3">{$("tasks.form.cron.simple.weekdays.wed")}</SelectItem>
+                            <SelectItem value="4">{$("tasks.form.cron.simple.weekdays.thu")}</SelectItem>
+                            <SelectItem value="5">{$("tasks.form.cron.simple.weekdays.fri")}</SelectItem>
+                            <SelectItem value="6">{$("tasks.form.cron.simple.weekdays.sat")}</SelectItem>
+                            <SelectItem value="0">{$("tasks.form.cron.simple.weekdays.sun")}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {fieldState.invalid && (
+                          <FieldError id={`${formId}-${field.name}-weekdays-error`} errors={[fieldState.error]}/>
+                        )}
+                      </Field>
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="advanced" forceMount>
+                    <Field data-invalid={fieldState.invalid} className="flex-1">
+                      <FieldLabel htmlFor={`${formId}-${field.name}`}>{$("tasks.form.cron.advanced.input.label")}</FieldLabel>
+                      <Input
+                        id={`${formId}-${field.name}`}
+                        aria-invalid={fieldState.invalid}
+                        aria-describedby={`${formId}-${field.name}-description${fieldState.invalid ? ` ${formId}-${field.name}-error` : ""}`}
+                        placeholder={$("tasks.form.cron.advanced.input.placeholder")}
+                        autoComplete="off"
+                        className={googleSansCode.className}
+                        {...field}
+                        ref={cronInputType === "advanced" ? field.ref : undefined}/>
+                      {fieldState.invalid && (
+                        <FieldError id={`${formId}-${field.name}-error`} errors={[fieldState.error]}/>
+                      )}
+                      <FieldDescription id={`${formId}-${field.name}-description`}>
                         <Text
                           id="tasks.form.cron.advanced.input.description"
                           args={[
@@ -303,65 +318,73 @@ export function TaskForm({
                               UNIX cron format
                             </Link>
                           ]}/>
-                      </FormDescription>
-                    </FormItem>
-                  )}/>
-              </TabsContent>
+                      </FieldDescription>
+                    </Field>
+                  </TabsContent>
+                </div>
+              </Tabs>
             </div>
-          </Tabs>
-        </div>
+          );
+        }}/>
 
-        <FormField
-          name="commands"
-          control={form.control}
-          render={({ field }) => (
-            <FormItem className="flex-1 min-h-40">
-              <FormLabel>{$("tasks.form.commands.label")}</FormLabel>
-              <FormControl className="border rounded-md overflow-hidden">
-                <MonacoEditor
-                  defaultLanguage="task-command"
-                  value={field.value.join("\n")}
-                  theme={theme === "dark" ? "task-command-theme-dark" : "task-command-theme"}
-                  options={{
-                    minimap: {
-                      enabled: false
-                    },
-                    ...monacoSettingsOptions
-                  }}
-                  onChange={(value) => field.onChange(value ? value.split("\n") : [])}/>
-              </FormControl>
-              <span className="text-sm text-muted-foreground flex justify-between gap-2">
-                {$("tasks.form.commands.description1")}
-                <Link href="https://opanel.cn/wiki/task-command" target="_blank">
-                  {$("tasks.form.commands.description2")}
-                </Link>
-              </span>
-            </FormItem>
-          )}/>
+      <Controller
+        name="commands"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <Field
+            data-invalid={fieldState.invalid}
+            aria-labelledby={`${formId}-${field.name}-label`}
+            aria-describedby={`${formId}-${field.name}-description${fieldState.invalid ? ` ${formId}-${field.name}-error` : ""}`}
+            className="flex-1 min-h-40">
+            <FieldTitle id={`${formId}-${field.name}-label`}>{$("tasks.form.commands.label")}</FieldTitle>
+            <div className="flex-1 min-h-0 border rounded-md overflow-hidden">
+              <MonacoEditor
+                defaultLanguage="task-command"
+                value={field.value.join("\n")}
+                theme={theme === "dark" ? "task-command-theme-dark" : "task-command-theme"}
+                options={{
+                  minimap: {
+                    enabled: false
+                  },
+                  ...monacoSettingsOptions,
+                  ariaLabel: $("tasks.form.commands.label")
+                }}
+                onChange={(value) => field.onChange(value ? value.split("\n") : [])}/>
+            </div>
+            {fieldState.invalid && (
+              <FieldError id={`${formId}-${field.name}-error`} errors={[fieldState.error]}/>
+            )}
+            <FieldDescription id={`${formId}-${field.name}-description`} className="flex justify-between gap-2">
+              {$("tasks.form.commands.description1")}
+              <Link href="https://opanel.cn/wiki/task-command" target="_blank">
+                {$("tasks.form.commands.description2")}
+              </Link>
+            </FieldDescription>
+          </Field>
+        )}/>
 
-        <div className="w-fit mt-auto flex items-center gap-2">
-          <Button
-            type="submit"
-            className="cursor-pointer"
-            disabled={!ready || loading}>
-            {loading && <Spinner />}
-            {mode === "create" ? $("dialog.create") : $("dialog.save")}
-          </Button>
-          {mode === "create" && (
-            <TaskTemplateDialog
-              onSelect={(commands) => form.setValue("commands", commands, {
-                shouldDirty: true,
-                shouldTouch: true,
-                shouldValidate: true
-              })}>
-              <Button type="button" variant="outline" className="cursor-pointer">
-                <LayoutTemplate />
-                {$("tasks.templates.title")}
-              </Button>
-            </TaskTemplateDialog>
-          )}
-        </div>
-      </form>
-    </Form>
+      <div className="w-fit mt-auto flex items-center gap-2">
+        <Button
+          type="submit"
+          className="cursor-pointer"
+          disabled={!ready || loading}>
+          {loading && <Spinner />}
+          {mode === "create" ? $("dialog.create") : $("dialog.save")}
+        </Button>
+        {mode === "create" && (
+          <TaskTemplateDialog
+            onSelect={(commands) => form.setValue("commands", commands, {
+              shouldDirty: true,
+              shouldTouch: true,
+              shouldValidate: true
+            })}>
+            <Button type="button" variant="outline" className="cursor-pointer">
+              <LayoutTemplate />
+              {$("tasks.templates.title")}
+            </Button>
+          </TaskTemplateDialog>
+        )}
+      </div>
+    </form>
   );
 }

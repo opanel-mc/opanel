@@ -1,10 +1,10 @@
 import type { z } from "zod";
 import type { ServerPropertiesResponse } from "@/lib/types";
 import Link from "next/link";
-import { Fragment, useMemo, useState, type PropsWithChildren } from "react";
+import { Fragment, useId, useMemo, useState, type PropsWithChildren } from "react";
 import { toast } from "sonner";
 import { Properties } from "properties-file";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Sheet,
@@ -23,14 +23,13 @@ import {
 } from "@/lib/server-config";
 import { sendGetRequest, sendPostRequest, toastError } from "@/lib/api";
 import { base64ToString, isNumeric, objectToMap, stringToBase64 } from "@/lib/utils";
-import { Form, FormField, FormMessage } from "@/components/ui/form";
 import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemTitle
-} from "@/components/ui/item";
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldLabel
+} from "@/components/ui/field";
 import serverPropertiesPresets from "@/lib/server-config/presets";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
@@ -49,6 +48,7 @@ export function ServerSheet({
   const [hasChanged, setChanged] = useState<boolean>(false);
   const propertiesMap = useMemo(() => objectToMap(properties), [properties]);
   const formSchema = useMemo(() => generateFormSchema(properties), [properties]);
+  const formId = useId();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     values: properties
@@ -104,112 +104,109 @@ export function ServerSheet({
       ]);
     }
   };
-  
+
   return (
     <Sheet onOpenChange={(open) => open && fetchConfigFile()}>
       <SheetTrigger asChild={asChild}>{children}</SheetTrigger>
       <SheetContent className="min-md:min-w-[450px] max-sm:w-full">
-        <Form {...form}>
-          <form className="min-h-0 flex flex-col gap-4" onSubmit={form.handleSubmit(handleSubmit)} onChange={() => setChanged(true)}>
-            <SheetHeader>
-              <SheetTitle>{$("dashboard.properties.title")}</SheetTitle>
-              <SheetDescription>
-                <Text
-                  id="dashboard.properties.description"
-                  args={[
-                    <code key={0}>server.properties</code>
-                  ]}/>
-              </SheetDescription>
-            </SheetHeader>
-            <div className="flex flex-col overflow-y-auto o-scrollbar">
-              {Array.from(propertiesMap).map(([key, value]) => {
-                const preset = serverPropertiesPresets.find(({ id }) => id === key);
-
-                if(key === "motd") {
-                  return <Fragment key={key}/>;
-                }
-
-                return (
-                  <FormField
-                    defaultValue=""
-                    control={form.control}
-                    name={key}
-                    render={({ field }) => (
-                      <Item className="mx-1">
-                        <ItemContent>
-                          <ItemTitle>
-                            {(preset && preset.icon) && <preset.icon size={17}/>}
-                            {key}
-                          </ItemTitle>
-                          {preset && <ItemDescription>{preset.description}</ItemDescription>}
-                          <FormMessage />
-                        </ItemContent>
-                        <ItemActions>
-                          {(() => {
-                            if(typeof value === "boolean") {
-                              return (
-                                <Switch
-                                  {...field}
-                                  defaultChecked={value}
-                                  onCheckedChange={field.onChange}
-                                  className="cursor-pointer"/>
-                              );
-                            } else if(typeof value === "number") {
-                              return (
-                                <Input
-                                  {...field}
-                                  type="number"
-                                  className="w-28"
-                                  autoComplete="off"/>
-                              );
-                            } else {
-                              return (
-                                <Input
-                                  {...field}
-                                  className="w-28"
-                                  autoComplete="off"/>
-                              );
-                            }
-                          })()}
-                        </ItemActions>
-                      </Item>
-                    )}
-                    key={key}/>
-                );
-              })}
-            </div>
-            <SheetFooter>
-              <span className="text-sm text-muted-foreground">{$("dashboard.properties.hint1")}</span>
+        <form className="min-h-0 flex flex-col gap-4" onSubmit={form.handleSubmit(handleSubmit)} onChange={() => setChanged(true)}>
+          <SheetHeader>
+            <SheetTitle>{$("dashboard.properties.title")}</SheetTitle>
+            <SheetDescription>
               <Text
-                id="dashboard.properties.hint2"
+                id="dashboard.properties.description"
                 args={[
-                  <Link
-                    href="https://zh.minecraft.wiki/w/服务端配置文件格式"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    key={0}>
-                    Minecraft Wiki
-                  </Link>,
-                  <Link
-                    href="https://docs.papermc.io/paper/reference/server-properties"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    key={1}>
-                    Paper Docs
-                  </Link>
-                ]}
-                className="text-sm text-muted-foreground"/>
-              <SheetClose asChild>
-                <Button
-                  type="submit"
-                  className="cursor-pointer"
-                  disabled={!hasChanged}>
-                  {$("dialog.save")}
-                </Button>
-              </SheetClose>
-            </SheetFooter>
-          </form>
-        </Form>
+                  <code key={0}>server.properties</code>
+                ]}/>
+            </SheetDescription>
+          </SheetHeader>
+          <div className="flex flex-col overflow-y-auto o-scrollbar">
+            {Array.from(propertiesMap).map(([key, value]) => {
+              const preset = serverPropertiesPresets.find(({ id }) => id === key);
+
+              if(key === "motd") {
+                return <Fragment key={key}/>;
+              }
+
+              return (
+                <Controller
+                  defaultValue={value}
+                  control={form.control}
+                  name={key}
+                  render={({ field, fieldState }) => (
+                    <Field orientation="horizontal" data-invalid={fieldState.invalid} className="w-auto mx-1 p-4 gap-4 flex-wrap">
+                      <FieldContent>
+                        <FieldLabel htmlFor={`${formId}-${field.name}`}>
+                          {(preset && preset.icon) && <preset.icon size={17}/>}
+                          {key}
+                        </FieldLabel>
+                        {preset && <FieldDescription>{preset.description}</FieldDescription>}
+                        {fieldState.invalid && (
+                          <FieldError id={`${formId}-${field.name}-error`} errors={[fieldState.error]}/>
+                        )}
+                      </FieldContent>
+                      <div className="flex items-center gap-2">
+                        {typeof field.value === "boolean" ? (
+                          <Switch
+                            id={`${formId}-${field.name}`}
+                            aria-invalid={fieldState.invalid}
+                            aria-describedby={fieldState.invalid ? `${formId}-${field.name}-error` : undefined}
+                            name={field.name}
+                            ref={field.ref}
+                            onBlur={field.onBlur}
+                            disabled={field.disabled}
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            className="cursor-pointer"/>
+                        ) : (
+                          <Input
+                            id={`${formId}-${field.name}`}
+                            aria-invalid={fieldState.invalid}
+                            aria-describedby={fieldState.invalid ? `${formId}-${field.name}-error` : undefined}
+                            {...field}
+                            value={field.value}
+                            type={typeof value === "number" ? "number" : "text"}
+                            className="w-28"
+                            autoComplete="off"/>
+                        )}
+                      </div>
+                    </Field>
+                  )}
+                  key={key}/>
+              );
+            })}
+          </div>
+          <SheetFooter>
+            <span className="text-sm text-muted-foreground">{$("dashboard.properties.hint1")}</span>
+            <Text
+              id="dashboard.properties.hint2"
+              args={[
+                <Link
+                  href="https://zh.minecraft.wiki/w/服务端配置文件格式"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  key={0}>
+                  Minecraft Wiki
+                </Link>,
+                <Link
+                  href="https://docs.papermc.io/paper/reference/server-properties"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  key={1}>
+                  Paper Docs
+                </Link>
+              ]}
+              className="text-sm text-muted-foreground"/>
+            <SheetClose asChild>
+              <Button
+                type="submit"
+                className="cursor-pointer"
+                disabled={!hasChanged}>
+                {$("dialog.save")}
+              </Button>
+            </SheetClose>
+          </SheetFooter>
+        </form>
       </SheetContent>
       {restartAlert}
     </Sheet>

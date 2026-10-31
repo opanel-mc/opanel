@@ -11,14 +11,11 @@ export interface Gamerule {
 
 export type ServerGamerules = Record<string, boolean | number>;
 
-export function generateFormSchema(gamerules: ServerGamerules): z.ZodObject<z.ZodRawShape> {
-  const schemeList: z.ZodRawShape = {};
-  for(const key in gamerules) {
-    schemeList[key] = (
-      typeof gamerules[key] === "boolean"
-      ? z.boolean()
-      : z.number().or(z.string())
-    );
-  }
-  return z.object(schemeList);
+export function generateFormSchema(gamerules: ServerGamerules) {
+  return z.object(Object.fromEntries(
+    Object.entries(gamerules).map(([key, value]) => [
+      key,
+      typeof value === "boolean" ? z.boolean() : z.number().or(z.string())
+    ] as const)
+  ));
 }

@@ -1,12 +1,12 @@
 "use client";
 
 import type { OidcConfigResponse } from "@/lib/types";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useId, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Info, KeyRound } from "lucide-react";
 import md5 from "md5";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -18,13 +18,7 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from "@/components/ui/form";
+import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { apiUrl, sendGetRequest, sendPostRequest } from "@/lib/api";
 import { Brand } from "@/components/logo";
 import { PasswordInput } from "@/components/password-input";
@@ -59,6 +53,7 @@ export default function Login() {
 function LoginForm() {
   const { push } = useRouter();
   const searchParams = useSearchParams();
+  const formId = useId();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -89,10 +84,10 @@ function LoginForm() {
       form.setError("accessKey", { message: $("login.form.input.empty") });
       return;
     }
-    
+
     setLoading(true);
     const hashedKey = md5(md5(accessKey)); // hashed 2
-    
+
     try {
       const id = generateRandomString(5);
       const { cram } = await sendGetRequest<{ cram: string }>(`/api/auth?id=${id}`, false);
@@ -188,48 +183,51 @@ function LoginForm() {
               </Button>
             </div>
           ) : (
-            <Form {...form}>
-              <form onSubmit={(e) => e.preventDefault()} suppressHydrationWarning>
-                <FormField
-                  control={form.control}
-                  name="accessKey"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex justify-between">
-                        <FormLabel>{$("login.form.input.label")}</FormLabel>
-                        <Alert
-                          title={$("login.reset.title")}
-                          description={
-                            <>
-                              <Text id="login.reset.content.line1"/>
-                              <br /><br />
-                              <span>
-                                <Text id="login.reset.content.line2"/>
-                                <Link href="https://opanel.cn/docs/quick-start#%E4%BD%BF%E7%94%A8" target="_blank" rel="noopener noreferrer">https://opanel.cn/docs/quick-start#使用</Link>
-                              </span>
-                              <br />
-                              <span>
-                                <Text id="login.reset.content.line3"/>
-                                <Link href="https://opanel.cn/docs/configuration" target="_blank" rel="noopener noreferrer">https://opanel.cn/docs/configuration</Link>
-                              </span>
-                            </>
-                          }
-                          asChild
-                          cancellable={false}>
-                          <span className="text-right text-sm text-muted-foreground cursor-pointer">
-                            {$("login.form.input.forgot-access-key")}
-                          </span>
-                        </Alert>
-                      </div>
-                      <PasswordInput
-                        placeholder={$("login.form.input.placeholder")}
-                        autoFocus
-                        {...field}/>
-                      <FormMessage />
-                    </FormItem>
-                  )}/>
-              </form>
-            </Form>
+            <form onSubmit={(e) => e.preventDefault()} suppressHydrationWarning>
+              <Controller
+                control={form.control}
+                name="accessKey"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <div className="flex justify-between">
+                      <FieldLabel htmlFor={`${formId}-${field.name}`}>{$("login.form.input.label")}</FieldLabel>
+                      <Alert
+                        title={$("login.reset.title")}
+                        description={
+                          <>
+                            <Text id="login.reset.content.line1"/>
+                            <br /><br />
+                            <span>
+                              <Text id="login.reset.content.line2"/>
+                              <Link href="https://opanel.cn/docs/quick-start#%E4%BD%BF%E7%94%A8" target="_blank" rel="noopener noreferrer">https://opanel.cn/docs/quick-start#使用</Link>
+                            </span>
+                            <br />
+                            <span>
+                              <Text id="login.reset.content.line3"/>
+                              <Link href="https://opanel.cn/docs/configuration" target="_blank" rel="noopener noreferrer">https://opanel.cn/docs/configuration</Link>
+                            </span>
+                          </>
+                        }
+                        asChild
+                        cancellable={false}>
+                        <span className="text-right text-sm text-muted-foreground cursor-pointer">
+                          {$("login.form.input.forgot-access-key")}
+                        </span>
+                      </Alert>
+                    </div>
+                    <PasswordInput
+                      id={`${formId}-${field.name}`}
+                      aria-invalid={fieldState.invalid}
+                      aria-describedby={fieldState.invalid ? `${formId}-${field.name}-error` : undefined}
+                      placeholder={$("login.form.input.placeholder")}
+                      autoFocus
+                      {...field}/>
+                    {fieldState.invalid && (
+                      <FieldError id={`${formId}-${field.name}-error`} errors={[fieldState.error]}/>
+                    )}
+                  </Field>
+                )}/>
+            </form>
           )}
         </CardContent>
         {!isOidc && oidcConfig !== null && (
