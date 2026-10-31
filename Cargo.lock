@@ -2950,7 +2950,7 @@ checksum = "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
 
 [[package]]
 name = "opanel-pumpkin"
-version = "2.2.7"
+version = "2.2.8"
 dependencies = [
  "arc-swap",
  "axum",
@@ -2996,7 +2996,7 @@ dependencies = [
 
 [[package]]
 name = "opanel-pumpkin-assets"
-version = "2.2.7"
+version = "2.2.8"
 dependencies = [
  "rust-embed",
 ]
