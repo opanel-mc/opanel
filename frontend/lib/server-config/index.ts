@@ -10,14 +10,11 @@ export interface Property {
 
 export type ServerProperties = Record<string, boolean | number | string>;
 
-export function generateFormSchema(properties: ServerProperties): z.ZodObject<z.ZodRawShape> {
-  const schemeList: z.ZodRawShape = {};
-  for(const key in properties) {
-    schemeList[key] = (
-      typeof properties[key] === "boolean"
-      ? z.boolean()
-      : z.number().or(z.string())
-    );
-  }
-  return z.object(schemeList);
+export function generateFormSchema(properties: ServerProperties) {
+  return z.object(Object.fromEntries(
+    Object.entries(properties).map(([key, value]) => [
+      key,
+      typeof value === "boolean" ? z.boolean() : z.number().or(z.string())
+    ] as const)
+  ));
 }
