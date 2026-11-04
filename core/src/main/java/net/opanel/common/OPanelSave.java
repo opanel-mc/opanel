@@ -26,4 +26,5 @@ public interface OPanelSave {
     void toggleDatapack(String id, boolean enabled) throws IOException;
     void delete() throws IOException;
     List<OPanelWorldRegion> getRegions();
+    default List<OPanelWorldRegion> getRegions(Path regionFolder) { return List.of(); }
 }

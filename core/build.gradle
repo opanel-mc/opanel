@@ -11,6 +11,7 @@ repositories {
 }
 
 dependencies {
+    testImplementation 'junit:junit:4.13.2'
     implementation 'com.google.code.gson:gson:2.11.0'
     implementation 'com.h2database:h2:2.5.250'
     api 'com.github.oshi:oshi-core:6.8.2'
@@ -51,4 +52,13 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
+}
+
+// Use an isolated directory because the HTTP test starts the real OPanel services.
+tasks.named('test', Test) {
+    useJUnit()
+    forkEvery = 1
+    def runtimeDirectory = layout.buildDirectory.dir('test-runtime/incidents')
+    workingDir runtimeDirectory
+    doFirst { runtimeDirectory.get().asFile.mkdirs() }
 }

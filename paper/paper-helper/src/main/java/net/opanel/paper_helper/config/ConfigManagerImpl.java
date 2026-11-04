@@ -16,7 +16,7 @@ public class ConfigManagerImpl implements ConfigManager {
 
     @Override
     public OPanelConfiguration get() {
-        return new OPanelConfiguration(
+        OPanelConfiguration result = new OPanelConfiguration(
                 configSrc.getString("accessKey"),
                 configSrc.getString("salt"),
                 configSrc.getString("webServerHost", OPanelConfiguration.defaultConfig.webServerHost),
@@ -37,6 +37,12 @@ public class ConfigManagerImpl implements ConfigManager {
                 configSrc.getString("oidcClientSecret"),
                 configSrc.getString("oidcDisplayName")
         );
+        result.diagnosticsEnabled = configSrc.getBoolean("diagnosticsEnabled", false);
+        result.performanceIncidentsEnabled = configSrc.getBoolean("performanceIncidentsEnabled", false);
+        result.performanceIncidentThresholdMs = configSrc.getDouble("performanceIncidentThresholdMs", 50);
+        result.performanceIncidentTriggerSeconds = configSrc.getInt("performanceIncidentTriggerSeconds", 10);
+        result.performanceIncidentRecoverySeconds = configSrc.getInt("performanceIncidentRecoverySeconds", 5);
+        return result;
     }
 
     @Override
@@ -48,6 +54,11 @@ public class ConfigManagerImpl implements ConfigManager {
         configSrc.set("mcdrSocketPort", config.mcdrSocketPort);
         configSrc.set("mapPrerenderConcurrent", config.mapPrerenderConcurrent);
         configSrc.set("monitorSnapshotInterval", config.monitorSnapshotInterval);
+        configSrc.set("diagnosticsEnabled", config.diagnosticsEnabled);
+        configSrc.set("performanceIncidentsEnabled", config.performanceIncidentsEnabled);
+        configSrc.set("performanceIncidentThresholdMs", config.performanceIncidentThresholdMs);
+        configSrc.set("performanceIncidentTriggerSeconds", config.performanceIncidentTriggerSeconds);
+        configSrc.set("performanceIncidentRecoverySeconds", config.performanceIncidentRecoverySeconds);
         configSrc.set("monitorHistoryEnabled", config.monitorHistoryEnabled);
         configSrc.set("monitorHistoryMinuteRetentionDays", config.monitorHistoryMinuteRetentionDays);
         configSrc.set("monitorHistoryQuarterHourRetentionDays", config.monitorHistoryQuarterHourRetentionDays);

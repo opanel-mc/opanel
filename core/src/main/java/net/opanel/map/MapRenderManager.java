@@ -53,7 +53,7 @@ public class MapRenderManager {
     private final Map<String, AtomicLong> indexVersion = new ConcurrentHashMap<>();
 
     private Consumer<OPanelChunkDirtyEvent> chunkDirtyListener;
-    private final DirtyChunkTracker dirtyChunkTracker = new DirtyChunkTracker();
+    private final Map<String, DirtyChunkTracker> dirtyChunkTrackers = new ConcurrentHashMap<>();
     private final Map<String, ScheduledFuture<?>> pendingBundleWrite = new ConcurrentHashMap<>();
 
     public MapRenderManager(OPanel plugin) {
@@ -76,15 +76,14 @@ public class MapRenderManager {
     public void init() {
         if(config == null || !config.enabled) return;
 
-        for(OPanelSave save : plugin.getServer().getSaves()) {
-            if(!save.isRunning()) continue; // skip the saves that is not running on the server
-            saveRegionMap.put(save.getName(), save.getRegions());
-        }
+        saveRegionMap.putAll(plugin.getServer().getMapWorlds());
 
         Set<String> bundleNames = getTileBundleNames();
 
         for(Map.Entry<String, List<OPanelWorldRegion>> entry : saveRegionMap.entrySet()) {
             String saveName = entry.getKey();
+            availableTilesIndex.putIfAbsent(saveName, ConcurrentHashMap.newKeySet());
+            tileBytesCache.putIfAbsent(saveName, new ConcurrentHashMap<>());
             if(bundleNames.contains(saveName)) {
                 executor.execute(() -> loadTileBundle(saveName));
             } else {
@@ -102,7 +101,8 @@ public class MapRenderManager {
         );
 
         chunkDirtyListener = (OPanelChunkDirtyEvent e) -> {
-            dirtyChunkTracker.markDirty(e.getChunkX(), e.getChunkZ());
+            String world = e.getWorld() == null ? plugin.getServer().getCurrentSaveName() : e.getWorld();
+            if(saveRegionMap.containsKey(world)) dirtyChunkTrackers.computeIfAbsent(world, k -> new DirtyChunkTracker()).markDirty(e.getChunkX(), e.getChunkZ());
         };
 
         EventManager.get().on(EventType.CHUNK_DIRTY, chunkDirtyListener);
@@ -113,15 +113,17 @@ public class MapRenderManager {
         OPanelChunkAccessor accessor = server.getChunkAccessor();
         if(accessor == null) return;
 
-        List<Long> batch = dirtyChunkTracker.drain(MAX_CHUNKS_PER_FLUSH);
-        if(batch.isEmpty()) return;
-
-        final String saveName = server.getCurrentSaveName();
+        int remaining = MAX_CHUNKS_PER_FLUSH;
+        for(var entry : dirtyChunkTrackers.entrySet()) {
+        List<Long> batch = entry.getValue().drain(remaining);
+        remaining -= batch.size();
+        if(batch.isEmpty()) continue;
+        final String saveName = entry.getKey();
         Set<int[]> flushedChunks = new HashSet<>();
         for(long packed : batch) {
             final int chunkX = unpackX(packed);
             final int chunkZ = unpackZ(packed);
-            final Tile tile = accessor.readLiveTile(chunkX, chunkZ);
+            final Tile tile = accessor.readLiveTile(saveName, chunkX, chunkZ);
             if(tile == null) continue;
 
             renderTile(saveName, chunkX, chunkZ, tile)
@@ -129,6 +131,8 @@ public class MapRenderManager {
             flushedChunks.add(new int[] { chunkX, chunkZ });
         }
         EventManager.get().emit(EventType.DIRTY_CHUNKS_FLUSH, new OPanelDirtyChunksFlushEvent(saveName, flushedChunks));
+        if(remaining == 0) break;
+        }
     }
 
     /**
@@ -257,6 +261,8 @@ public class MapRenderManager {
         AtomicLong v = indexVersion.get(saveName);
         return v == null ? 0L : v.get();
     }
+
+    public Set<String> getWorldNames() { return Set.copyOf(saveRegionMap.keySet()); }
 
     public boolean hasSave(String saveName) {
         return availableTilesIndex.containsKey(saveName);

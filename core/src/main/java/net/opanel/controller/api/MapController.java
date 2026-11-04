@@ -31,9 +31,26 @@ public class MapController extends BaseController {
         originalEnabled = config != null && config.enabled;
     }
 
+    public Handler getMapWorlds = ctx -> sendResponse(ctx, new HashMap<>(java.util.Map.of("worlds", plugin.getMapRenderManager().getWorldNames(), "defaultWorld", plugin.getServer().getCurrentSaveName())));
+
     public Handler getMapEnabled = ctx -> {
         HashMap<String, Object> obj = new HashMap<>();
         obj.put("enabled", config.enabled);
+        sendResponse(ctx, obj);
+    };
+
+    public Handler getPlayerPositions = ctx -> {
+        boolean enabled = net.opanel.monitor.DiagnosticsState.enabled();
+        if(enabled) net.opanel.map.MapPlayerPositions.request(System.currentTimeMillis());
+        var snapshot = net.opanel.map.MapPlayerPositions.snapshot();
+        long age = System.currentTimeMillis() - snapshot.sampledAt();
+        boolean available = enabled && snapshot.sampledAt() > 0 && age >= 0 && age < net.opanel.map.MapPlayerPositions.STALE_AFTER_MS;
+        HashMap<String, Object> obj = new HashMap<>();
+        obj.put("available", available);
+        obj.put("enabled", enabled);
+        obj.put("sampledAt", snapshot.sampledAt());
+        obj.put("players", available ? snapshot.players() : List.of());
+        ctx.header("Cache-Control", "no-store");
         sendResponse(ctx, obj);
     };
 

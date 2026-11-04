@@ -19,3 +19,9 @@ oidcDiscoveryUrl: ""
 oidcClientId: ""
 oidcClientSecret: ""
 oidcDisplayName: "OIDC"
+# Performance incidents: restart after changing these settings.
+diagnosticsEnabled: false
+performanceIncidentsEnabled: false
+performanceIncidentThresholdMs: 50
+performanceIncidentTriggerSeconds: 10
+performanceIncidentRecoverySeconds: 5

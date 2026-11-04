@@ -13,6 +13,11 @@ public class Config {
     public static final ModConfigSpec.IntValue MCDR_SOCKET_PORT = BUILDER.defineInRange("mcdrSocketPort", OPanelConfiguration.defaultConfig.mcdrSocketPort, 1, 65535);
     public static final ModConfigSpec.IntValue MAP_PRERENDER_CONCURRENT = BUILDER.defineInRange("mapPrerenderConcurrent", OPanelConfiguration.defaultConfig.mapPrerenderConcurrent, 1, Integer.MAX_VALUE);
     public static final ModConfigSpec.IntValue MONITOR_SNAPSHOT_INTERVAL = BUILDER.defineInRange("monitorSnapshotInterval", OPanelConfiguration.defaultConfig.monitorSnapshotInterval, 1, Integer.MAX_VALUE);
+    public static final ModConfigSpec.BooleanValue DIAGNOSTICS_ENABLED = BUILDER.define("diagnosticsEnabled", false);
+    public static final ModConfigSpec.BooleanValue PERFORMANCE_INCIDENTS_ENABLED = BUILDER.define("performanceIncidentsEnabled", false);
+    public static final ModConfigSpec.DoubleValue PERFORMANCE_INCIDENT_THRESHOLD_MS = BUILDER.defineInRange("performanceIncidentThresholdMs", 50.0, 0.1, 60000.0);
+    public static final ModConfigSpec.IntValue PERFORMANCE_INCIDENT_TRIGGER_SECONDS = BUILDER.defineInRange("performanceIncidentTriggerSeconds", 10, 1, 600);
+    public static final ModConfigSpec.IntValue PERFORMANCE_INCIDENT_RECOVERY_SECONDS = BUILDER.defineInRange("performanceIncidentRecoverySeconds", 5, 1, 600);
     public static final ModConfigSpec.BooleanValue MONITOR_HISTORY_ENABLED = BUILDER.define("monitorHistoryEnabled", OPanelConfiguration.defaultConfig.monitorHistoryEnabled);
     public static final ModConfigSpec.IntValue MONITOR_HISTORY_MINUTE_RETENTION_DAYS = BUILDER.defineInRange("monitorHistoryMinuteRetentionDays", OPanelConfiguration.defaultConfig.monitorHistoryMinuteRetentionDays, 1, 30);
     public static final ModConfigSpec.IntValue MONITOR_HISTORY_QUARTER_HOUR_RETENTION_DAYS = BUILDER.defineInRange("monitorHistoryQuarterHourRetentionDays", OPanelConfiguration.defaultConfig.monitorHistoryQuarterHourRetentionDays, 1, 365);

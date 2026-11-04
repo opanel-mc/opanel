@@ -1,6 +1,6 @@
 "use client";
 
-import type { Save, SavesResponse } from "@/lib/types";
+import type { Save } from "@/lib/types";
 import type { MapCanvasHandle } from "./map-canvas";
 import type { RenderSettings } from "@/lib/map/tile-worker-protocol";
 import dynamic from "next/dynamic";
@@ -41,10 +41,13 @@ function MapSettingsPopover({
   children,
   asChild,
   settings,
-  onSettingsChange
+  onSettingsChange,
+  playersEnabled, onPlayersChange
 }: PropsWithChildren<{
   asChild?: boolean
   settings: RenderSettings
+  playersEnabled: boolean
+  onPlayersChange: (value: boolean) => void
   onSettingsChange: (newSettings: RenderSettings) => void
 }>) {
   return (
@@ -58,6 +61,10 @@ function MapSettingsPopover({
           </PopoverDescription>
         </PopoverHeader>
         <FieldGroup className="gap-4">
+          <Field orientation="horizontal">
+            <FieldLabel htmlFor="map-players">{$("map.players.title")}</FieldLabel>
+            <Switch id="map-players" checked={playersEnabled} onCheckedChange={onPlayersChange}/>
+          </Field>
           <Field orientation="horizontal">
             <FieldLabel>{$("map.settings.biome-coloring")}</FieldLabel>
             <Switch
@@ -87,6 +94,7 @@ export default function ServerMap() {
   const [save, setSave] = useState<string>("");
   const [coord, setCoord] = useState<{ x: number, z: number } | null>(null);
   const [settings, setSettings] = useState<RenderSettings>(getSettings("map.render-settings"));
+  const [playersEnabled, setPlayersEnabled] = useState(false);
   const [fps, setFps] = useState(0);
   const [tilesLoaded, setTilesLoaded] = useState(0);
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
@@ -95,10 +103,11 @@ export default function ServerMap() {
 
   const fetchServerWorlds = async () => {
     try {
-      const { saves } = await sendGetRequest<SavesResponse>("/api/saves");
-      const filteredSaves = saves.filter((item) => item.isRunning);
+      const { worlds, defaultWorld } = await sendGetRequest<{ worlds: string[]; defaultWorld: string }>("/api/map/worlds");
+      const filteredSaves = worlds.map(name => ({ name, isRunning: true } as Save));
       setSaves(filteredSaves);
-      setSave(filteredSaves[0].name ?? "");
+      const requestedWorld = new URLSearchParams(window.location.search).get("world");
+      setSave(requestedWorld && worlds.includes(requestedWorld) ? requestedWorld : worlds.includes(defaultWorld) ? defaultWorld : filteredSaves[0]?.name ?? "");
     } catch (e: any) {
       toastError(e, $("saves.fetch.error"), [
         [400, $("common.error.400")],
@@ -131,12 +140,18 @@ export default function ServerMap() {
           ref={mapRef}
           save={save}
           settings={settings}
+          playersEnabled={playersEnabled}
           onCoordChange={setCoord}
           onFpsChange={setFps}
           onTilesLoadedChange={setTilesLoaded}
           onZoomChange={setZoom}
           onResize={(width, height) => setViewportSize({ width, height })}
-          onLoad={() => emitter.emit("loading-done")}/>
+          onLoad={() => {
+            const params = new URLSearchParams(window.location.search);
+            const x = Number(params.get("x")), z = Number(params.get("z"));
+            if(params.has("x") && params.has("z") && Number.isFinite(x) && Number.isFinite(z) && Math.abs(x) <= 30000000 && Math.abs(z) <= 30000000) mapRef.current?.setCenter({ x, z });
+            emitter.emit("loading-done");
+          }}/>
 
         <div className="absolute bottom-6 left-6 bg-accent border w-xs max-sm:w-40 h-10 rounded-lg shadow-xl flex items-center max-sm:flex-row-reverse">
           <Select value={save} onValueChange={setSave}>
@@ -145,7 +160,7 @@ export default function ServerMap() {
             </SelectTrigger>
             <SelectContent>
               {saves.map(({ name }, i) => (
-                <SelectItem value={name} key={i}>{name}</SelectItem>
+                <SelectItem value={name} key={i}>{name} {name.endsWith("_nether") ? `(${$("gamerules.dimension.nether")})` : name.endsWith("_the_end") ? `(${$("gamerules.dimension.the_end")})` : ""}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -161,6 +176,8 @@ export default function ServerMap() {
           </Button>
           <MapSettingsPopover
             settings={settings}
+              playersEnabled={playersEnabled}
+            onPlayersChange={setPlayersEnabled}
             onSettingsChange={handleSettingsChange}
             asChild>
             <Button variant="ghost" size="icon" className="cursor-pointer">

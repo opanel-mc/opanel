@@ -31,6 +31,11 @@ public class OPanelConfiguration {
     public int mcdrSocketPort;
     public int mapPrerenderConcurrent;
     public int monitorSnapshotInterval;
+    public boolean diagnosticsEnabled = false;
+    public boolean performanceIncidentsEnabled = false;
+    public double performanceIncidentThresholdMs = 50;
+    public int performanceIncidentTriggerSeconds = 10;
+    public int performanceIncidentRecoverySeconds = 5;
     public boolean monitorHistoryEnabled;
     public int monitorHistoryMinuteRetentionDays;
     public int monitorHistoryQuarterHourRetentionDays;

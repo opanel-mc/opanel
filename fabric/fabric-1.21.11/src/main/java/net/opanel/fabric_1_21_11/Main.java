@@ -34,6 +34,7 @@ public class Main implements DedicatedServerModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStart);
         ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStop);
         ServerTickEvents.START_SERVER_TICK.register(this::onServerTick);
+        ServerTickEvents.END_SERVER_TICK.register(server -> net.opanel.monitor.PerformanceTickSampler.endTick());
 
         new FabricListener();
 
@@ -80,6 +81,7 @@ public class Main implements DedicatedServerModInitializer {
     }
 
     private void onServerTick(MinecraftServer server) {
+        net.opanel.monitor.PerformanceTickSampler.beginTick();
         instance.onTick();
     }
 }

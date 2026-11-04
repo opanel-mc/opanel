@@ -128,15 +128,17 @@ public class NeoListener extends BaseNeoListener {
     @SubscribeEvent
     public void onChunkLoad(ChunkEvent.Load event) {
         ServerLevel world = (ServerLevel) event.getLevel();
-        if(world.dimension() != Level.OVERWORLD) return;
+
 
         ChunkPos pos = event.getChunk().getPos();
-        EventManager.get().emit(EventType.CHUNK_DIRTY, new OPanelChunkDirtyEvent(pos.x, pos.z));
+        if(mapWorldName(world) == null) return;
+        EventManager.get().emit(EventType.CHUNK_DIRTY, new OPanelChunkDirtyEvent(mapWorldName(world), pos.x, pos.z));
     }
 
     private static void emitDirtyChunk(ServerLevel world, BlockPos pos) {
-        if(world.dimension() != Level.OVERWORLD) return;
 
-        EventManager.get().emit(EventType.CHUNK_DIRTY, new OPanelChunkDirtyEvent(pos.getX() >> 4, pos.getZ() >> 4));
+
+        if(mapWorldName(world) == null) return;
+        EventManager.get().emit(EventType.CHUNK_DIRTY, new OPanelChunkDirtyEvent(mapWorldName(world), pos.getX() >> 4, pos.getZ() >> 4));
     }
 }

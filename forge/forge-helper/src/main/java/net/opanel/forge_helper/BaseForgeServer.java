@@ -30,6 +30,24 @@ public abstract class BaseForgeServer implements OPanelServer {
     }
 
     @Override
+    public boolean isMapDimensionLoaded(int dimension) {
+        return dimension == 0 || (dimension == -1 ? server.getLevel(net.minecraft.world.level.Level.NETHER) : server.getLevel(net.minecraft.world.level.Level.END)) != null;
+    }
+    @Override
+    public java.util.List<net.opanel.map.MapPlayerPositions.Position> getMapPlayers() {
+        var positions = new java.util.ArrayList<net.opanel.map.MapPlayerPositions.Position>();
+        for(var world : server.getAllLevels()) {
+            String name = getCurrentSaveName();
+            if(world == server.getLevel(net.minecraft.world.level.Level.NETHER)) name += "_nether";
+            else if(world == server.getLevel(net.minecraft.world.level.Level.END)) name += "_the_end";
+            else if(world != server.overworld()) continue;
+            for(var player : world.players()) positions.add(new net.opanel.map.MapPlayerPositions.Position(
+                player.getUUID().toString(), player.getName().getString(), name, player.getX(), player.getY(), player.getZ()));
+        }
+        return positions;
+    }
+
+    @Override
     public ServerType getServerType() {
         return ServerType.FORGE;
     }

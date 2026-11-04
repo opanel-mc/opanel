@@ -17,16 +17,21 @@ public class FoliaChunkAccessor extends BasePaperChunkAccessor {
     @Rewrite
     @Override
     public Tile readLiveTile(int chunkX, int chunkZ) {
+        return readLiveTile(plugin.getServer().getWorlds().get(0).getName(), chunkX, chunkZ);
+    }
+
+    @Override
+    public Tile readLiveTile(String worldName, int chunkX, int chunkZ) {
         Server server = plugin.getServer();
 
         try {
-            World world = server.getWorlds().get(0);
-            if(world == null || world.getEnvironment() != World.Environment.NORMAL) return null;
+            World world = server.getWorld(worldName);
+            if(world == null) return null;
 
             CompletableFuture<Tile> future = new CompletableFuture<>();
             server.getRegionScheduler().run(plugin, world, chunkX, chunkZ, task -> {
                 try {
-                    future.complete(readOnMainThread(chunkX, chunkZ));
+                    future.complete(readWorld(world, chunkX, chunkZ));
                 } catch (Throwable t) {
                     future.completeExceptionally(t);
                 }

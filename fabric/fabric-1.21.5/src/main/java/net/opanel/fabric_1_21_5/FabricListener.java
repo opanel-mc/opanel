@@ -57,10 +57,11 @@ public class FabricListener extends BaseFabricListener {
         });
 
         ServerChunkEvents.CHUNK_GENERATE.register((world, chunk) -> {
-            if(world.getRegistryKey() != World.OVERWORLD) return;
+
 
             ChunkPos pos = chunk.getPos();
-            EventManager.get().emit(EventType.CHUNK_DIRTY, new OPanelChunkDirtyEvent(pos.x, pos.z));
+            if(mapWorldName(world) == null) return;
+            EventManager.get().emit(EventType.CHUNK_DIRTY, new OPanelChunkDirtyEvent(mapWorldName(world), pos.x, pos.z));
         });
     }
 

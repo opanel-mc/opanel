@@ -6,7 +6,7 @@ import net.opanel.config.OPanelConfiguration;
 public class ConfigManagerImpl implements ConfigManager {
     @Override
     public OPanelConfiguration get() {
-        return new OPanelConfiguration(
+        OPanelConfiguration result = new OPanelConfiguration(
                 Config.ACCESS_KEY.get(),
                 Config.SALT.get(),
                 Config.WEB_SERVER_HOST.get(),
@@ -27,10 +27,21 @@ public class ConfigManagerImpl implements ConfigManager {
                 Config.OIDC_CLIENT_SECRET.get(),
                 Config.OIDC_DISPLAY_NAME.get()
         );
+        result.diagnosticsEnabled = Config.DIAGNOSTICS_ENABLED.get();
+        result.performanceIncidentsEnabled = Config.PERFORMANCE_INCIDENTS_ENABLED.get();
+        result.performanceIncidentThresholdMs = Config.PERFORMANCE_INCIDENT_THRESHOLD_MS.get();
+        result.performanceIncidentTriggerSeconds = Config.PERFORMANCE_INCIDENT_TRIGGER_SECONDS.get();
+        result.performanceIncidentRecoverySeconds = Config.PERFORMANCE_INCIDENT_RECOVERY_SECONDS.get();
+        return result;
     }
 
     @Override
     public void set(OPanelConfiguration config) {
+        Config.DIAGNOSTICS_ENABLED.set(config.diagnosticsEnabled);
+        Config.PERFORMANCE_INCIDENTS_ENABLED.set(config.performanceIncidentsEnabled);
+        Config.PERFORMANCE_INCIDENT_THRESHOLD_MS.set(config.performanceIncidentThresholdMs);
+        Config.PERFORMANCE_INCIDENT_TRIGGER_SECONDS.set(config.performanceIncidentTriggerSeconds);
+        Config.PERFORMANCE_INCIDENT_RECOVERY_SECONDS.set(config.performanceIncidentRecoverySeconds);
         Config.ACCESS_KEY.set(config.accessKey);
         Config.SALT.set(config.salt);
         Config.WEB_SERVER_HOST.set(config.webServerHost);

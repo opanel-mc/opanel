@@ -32,11 +32,20 @@ public abstract class BasePaperChunkAccessor implements OPanelChunkAccessor {
         }
     }
 
+    @Override
+    public Tile readLiveTile(String world, int chunkX, int chunkZ) {
+        try {
+            return Bukkit.getScheduler().callSyncMethod(plugin, () -> readWorld(plugin.getServer().getWorld(world), chunkX, chunkZ)).get(SYNC_CALL_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        } catch(Exception e) { return null; }
+    }
+
     protected Tile readOnMainThread(int chunkX, int chunkZ) {
-        World world = plugin.getServer().getWorlds().get(0);
+        return readWorld(plugin.getServer().getWorlds().get(0), chunkX, chunkZ);
+    }
+
+    protected Tile readWorld(World world, int chunkX, int chunkZ) {
         if(world == null) return null;
-        // OPanel renders only the overworld; non-NORMAL dimensions are out of scope.
-        if(world.getEnvironment() != World.Environment.NORMAL) return null;
+
         if(!world.isChunkLoaded(chunkX, chunkZ)) return null;
 
         Chunk chunk = world.getChunkAt(chunkX, chunkZ);
@@ -69,7 +78,9 @@ public abstract class BasePaperChunkAccessor implements OPanelChunkAccessor {
         }
         long[] packedHeightMap = AnvilUtility.bitpack(heightMap, heightMapBits);
 
-        return new Tile(chunkX, chunkZ, sections, packedHeightMap, minY, maxY);
+        Tile tile = new Tile(chunkX, chunkZ, sections, packedHeightMap, minY, maxY);
+        if(world.getEnvironment() == World.Environment.NETHER) tile.useNetherSurface();
+        return tile;
     }
 
     protected Tile.Section buildSection(ChunkSnapshot snap, int sectionY) {

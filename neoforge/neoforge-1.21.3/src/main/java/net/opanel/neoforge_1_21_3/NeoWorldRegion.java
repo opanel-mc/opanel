@@ -39,9 +39,11 @@ public class NeoWorldRegion extends BaseNeoWorldRegion implements OPanelWorldReg
                 }
             }
 
-            int minY = server.overworld().getMinY();
-            int maxY = server.overworld().getMaxY() + 1;
-            return new Tile(chunkX, chunkZ, sections, motionBlockingHeightMap, minY, maxY);
+            int minY = getMapWorld().getMinY();
+            int maxY = getMapWorld().getMaxY() + 1;
+            Tile tile = new Tile(chunkX, chunkZ, sections, motionBlockingHeightMap, minY, maxY);
+            if(net.opanel.map.MapDimensions.fromRegionPath(regionPath) == -1) tile.useNetherSurface();
+            return tile;
         } catch (IOException e) {
             e.printStackTrace();
             return null;

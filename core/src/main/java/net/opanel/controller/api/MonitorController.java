@@ -48,6 +48,20 @@ public class MonitorController extends BaseController {
         sendResponse(ctx, obj);
     };
 
+    public Handler getIncidents = ctx -> {
+        HashMap<String, Object> obj = new HashMap<>();
+        obj.put("available", net.opanel.monitor.PerformanceTickSampler.available());
+        obj.put("enabled", net.opanel.monitor.PerformanceTickSampler.enabled());
+        obj.put("source", "server-tick-execution");
+        obj.put("persistent", true);
+        String selectedId = ctx.queryParam("id");
+        obj.put("incidents", net.opanel.monitor.PerformanceTickSampler.incidents().stream().map(event ->
+                new net.opanel.monitor.PerformanceIncidentRecorder.Incident(event.id(), event.startedAt(),
+                        event.endedAt(), event.status(), event.thresholdMs(),
+                        event.id().equals(selectedId) ? event.samples() : List.of(), event.id().equals(selectedId) ? event.scene() : null)).toList());
+        sendResponse(ctx, obj);
+    };
+
     public Handler getHistory = ctx -> {
         String fromText = ctx.queryParam("from");
         String toText = ctx.queryParam("to");

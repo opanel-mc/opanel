@@ -13,6 +13,12 @@ import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public class FoliaListener extends BasePaperListener implements Listener {
+    @Override
+    @org.bukkit.event.EventHandler
+    public void onPerformanceTick(com.destroystokyo.paper.event.server.ServerTickEndEvent event) {
+        // Folia has no single-server tick execution duration. Player positions use entity schedulers.
+    }
+
     private final Main plugin;
 
     public FoliaListener(Main plugin) {

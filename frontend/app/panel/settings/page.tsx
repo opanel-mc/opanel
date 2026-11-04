@@ -42,6 +42,7 @@ import {
 import { getLogLevels } from "@/lib/ws/terminal";
 import { Extensions } from "./extensions";
 import { serverType } from "@/lib/global";
+import { DiagnosticsSettings } from "./diagnostics-settings";
 
 const SETTINGS_TAB_VALUES = [
   "general",
@@ -395,6 +396,7 @@ export default function Settings() {
                   onCheckedChange={handleToggleMap}/>
               }/>
           </Section>
+          {!isPumpkin(serverType) && <DiagnosticsSettings/>}
         </TabsContent>
         <TabsContent value="terminal">
           <Section>

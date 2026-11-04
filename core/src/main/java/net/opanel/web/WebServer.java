@@ -81,6 +81,7 @@ public class WebServer {
         LogsController logsController = new LogsController(plugin);
         MapController mapController = new MapController(plugin);
         MonitorController monitorController = new MonitorController(plugin);
+        DiagnosticsController diagnosticsController = new DiagnosticsController(plugin);
         PlayersController playersController = new PlayersController(plugin);
         SavesController savesController = new SavesController(plugin);
         PluginsController pluginsController = new PluginsController(plugin);
@@ -174,6 +175,8 @@ public class WebServer {
             path("map", Set.of(PANEL_OR_MCP), () -> {
                 get("/", mapController.getMapEnabled);
                 post("/", mapController.toggleMap);
+                get("player-positions", mapController.getPlayerPositions);
+                get("worlds", mapController.getMapWorlds);
                 get("{saveName}", mapController.getAvailableTiles);
                 post("{saveName}/tiles-range", mapController.getTilesInRange);
                 post("{saveName}/tiles", mapController.getTiles);
@@ -181,7 +184,12 @@ public class WebServer {
             path("monitor", Set.of(PANEL_OR_MCP), () -> {
                 get("/", monitorController.getMonitorSnapshot); // for mcp
                 get("history", monitorController.getHistory);
+                get("incidents", monitorController.getIncidents);
                 get("activity", monitorController.getActivity);
+            });
+            path("diagnostics", Set.of(PANEL_SESSION), () -> {
+                get("settings", diagnosticsController.getSettings);
+                post("settings", diagnosticsController.saveSettings);
             });
             path("players", Set.of(PANEL_OR_MCP), () -> {
                 get("/", playersController.getPlayersOverview);

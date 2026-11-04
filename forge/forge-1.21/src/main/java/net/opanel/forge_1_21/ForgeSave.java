@@ -174,9 +174,13 @@ public class ForgeSave extends BaseForgeSave implements OPanelSave {
 
     @Override
     public List<OPanelWorldRegion> getRegions() {
+        return getRegions(savePath.resolve("region"));
+    }
+
+    @Override
+    public List<OPanelWorldRegion> getRegions(Path regionFolderPath) {
         List<OPanelWorldRegion> regions = new ArrayList<>();
 
-        Path regionFolderPath = savePath.resolve("region");
         if(!regionFolderPath.toFile().exists()) return regions;
 
         try(Stream<Path> stream = Files.list(regionFolderPath)) {

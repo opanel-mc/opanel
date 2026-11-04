@@ -95,9 +95,13 @@ public class Main {
     }
 
     @SubscribeEvent
+    public void onServerTickStart(ServerTickEvent.Pre event) { net.opanel.monitor.PerformanceTickSampler.beginTick(); }
+
+    @SubscribeEvent
     public void onServerTick(ServerTickEvent.Post event) {
         if(instance == null) throw new NullPointerException("OPanel is not initialized.");
 
+        net.opanel.monitor.PerformanceTickSampler.endTick();
         instance.onTick();
     }
 }

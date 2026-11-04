@@ -23,6 +23,12 @@ public abstract class BaseForgeWorldRegion implements OPanelWorldRegion {
         this.regionPath = regionPath;
     }
 
+    protected net.minecraft.server.level.ServerLevel getMapWorld() {
+        int dimension = net.opanel.map.MapDimensions.fromRegionPath(regionPath);
+        var world = dimension == -1 ? server.getLevel(net.minecraft.world.level.Level.NETHER) : dimension == 1 ? server.getLevel(net.minecraft.world.level.Level.END) : server.overworld();
+        return world == null ? server.overworld() : world;
+    }
+
     @Override
     public Path getPath() {
         return regionPath;

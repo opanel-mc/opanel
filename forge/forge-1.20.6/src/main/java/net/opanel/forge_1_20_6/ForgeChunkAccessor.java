@@ -26,7 +26,8 @@ public class ForgeChunkAccessor extends BaseForgeChunkAccessor {
 
     @Override
     protected Tile readOnMainThread(int chunkX, int chunkZ) {
-        ServerLevel world = server.overworld();
+        ServerLevel world = getMapWorld();
+        if(world == null) return null;
         LevelChunk chunk = world.getChunkSource().getChunkNow(chunkX, chunkZ);
         if(chunk == null) return null;
 
@@ -57,7 +58,9 @@ public class ForgeChunkAccessor extends BaseForgeChunkAccessor {
         }
         long[] packedHeightMap = AnvilUtility.bitpack(heightMap, heightMapBits);
 
-        return new Tile(chunkX, chunkZ, sections, packedHeightMap, minY, maxY);
+        Tile tile = new Tile(chunkX, chunkZ, sections, packedHeightMap, minY, maxY);
+        if(world != server.overworld() && world == server.getLevel(net.minecraft.world.level.Level.NETHER)) tile.useNetherSurface();
+        return tile;
     }
 
     @Override

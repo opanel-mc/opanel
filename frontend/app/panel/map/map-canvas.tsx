@@ -16,6 +16,7 @@ import { MAX_ZOOM, MIN_ZOOM, useMapTiles } from "@/hooks/use-map-tiles";
 import { useLatestRef } from "@/hooks/use-latest-ref";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { type ChunksFlushedPayload, MapClient } from "@/lib/ws/map";
+import { PlayerMarkers } from "./player-markers";
 
 const TILE_BLOCKS = 16;
 
@@ -30,6 +31,7 @@ export interface MapCanvasHandle {
 interface MapCanvasProps {
   save: string
   settings: RenderSettings
+  playersEnabled: boolean
   onCoordChange?: (coord: { x: number, z: number } | null) => void
   onFpsChange?: (fps: number) => void
   onTilesLoadedChange?: (count: number) => void
@@ -41,6 +43,7 @@ interface MapCanvasProps {
 const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas({
   save,
   settings,
+  playersEnabled,
   onCoordChange,
   onFpsChange,
   onTilesLoadedChange,
@@ -49,6 +52,7 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
   onLoad
 }, ref) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const pointerStart = useRef({ x: 0, y: 0, moved: false });
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const workerRef = useRef<Worker | null>(null);
   const dragRef = useRef({ active: false, lastX: 0, lastY: 0 });
@@ -72,6 +76,7 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
   });
 
   const handlePointerDown = (e: PointerEvent<HTMLDivElement>) => {
+    pointerStart.current = { x: e.clientX, y: e.clientY, moved: false };
     dragRef.current.active = true;
     dragRef.current.lastX = e.clientX;
     dragRef.current.lastY = e.clientY;
@@ -90,6 +95,7 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
   };
 
   const handlePointerMove = (e: PointerEvent<HTMLDivElement>) => {
+    if(Math.hypot(e.clientX - pointerStart.current.x, e.clientY - pointerStart.current.y) > 5) pointerStart.current.moved = true;
     if(dragRef.current.active) {
       const dx = e.clientX - dragRef.current.lastX;
       const dy = e.clientY - dragRef.current.lastY;
@@ -270,8 +276,9 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
       onPointerCancel={handlePointerEnd}
       onPointerLeave={handlePointerLeave}
       onWheel={handleWheel}
-      className="w-full h-full overflow-hidden touch-none cursor-grab active:cursor-grabbing select-none">
+      className="relative w-full h-full overflow-hidden touch-none cursor-grab active:cursor-grabbing select-none">
       <canvas ref={canvasRef} className="block w-full h-full image-pixelated"/>
+      <PlayerMarkers visible={playersEnabled} save={save} viewport={viewportRef} onLocate={player => setCenter({ x: player.x, z: player.z })}/>
     </div>
   );
 });

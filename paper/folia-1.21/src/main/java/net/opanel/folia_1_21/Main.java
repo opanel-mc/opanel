@@ -92,10 +92,29 @@ public class Main extends JavaPlugin implements Listener, TaskRunner {
         logListenerAppender.clearListeners();
     }
 
+    private long lastMapDispatch;
+    private void sampleMapPlayers() {
+        if(!net.opanel.monitor.DiagnosticsState.enabled() || !net.opanel.map.MapPlayerPositions.hasDemand()) return;
+        long now = System.currentTimeMillis();
+        if(now - lastMapDispatch < 5000 || !net.opanel.map.MapPlayerPositions.needsSample(now)) return;
+        lastMapDispatch = now;
+        var positions = new java.util.concurrent.ConcurrentHashMap<String, net.opanel.map.MapPlayerPositions.Position>();
+        for(var player : Bukkit.getOnlinePlayers()) {
+            player.getScheduler().run(this, task -> {
+                var location = player.getLocation();
+                if(location.getWorld() != null) positions.put(player.getUniqueId().toString(),
+                    new net.opanel.map.MapPlayerPositions.Position(player.getUniqueId().toString(), player.getName(),
+                        location.getWorld().getName(), location.getX(), location.getY(), location.getZ()));
+            }, null);
+        }
+        Bukkit.getGlobalRegionScheduler().runDelayed(this, task ->
+            net.opanel.map.MapPlayerPositions.publish(now, new java.util.ArrayList<>(positions.values())), 20);
+    }
+
     private void initServerTickListener() {
         // Use Folia's global region scheduler for tick events
         serverTickListener = Bukkit.getGlobalRegionScheduler().runAtFixedRate(this, 
-            (task) -> instance.onTick(), 1, 1);
+            (task) -> { instance.onTick(); sampleMapPlayers(); }, 1, 1);
     }
 
     @EventHandler

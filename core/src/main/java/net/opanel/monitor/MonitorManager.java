@@ -21,6 +21,7 @@ import static net.opanel.monitor.Monitor.getMemoryRate;
 public class MonitorManager {
     public static final int MAX_HISTORY_SIZE = 200;
 
+    private final PerformanceIncidentStore incidentStore = new PerformanceIncidentStore(OPanel.OPANEL_DIR_PATH.resolve("performance-incidents.json"));
     private final OPanel plugin;
     private final SystemInfo si = new SystemInfo();
     private final CpuSampler cpuSampler = new CpuSampler(si);
@@ -42,6 +43,20 @@ public class MonitorManager {
         this.plugin = plugin;
         snapshotIntervalMs = plugin.getConfig().monitorSnapshotInterval;
         historyManager = new MonitorHistoryManager(plugin);
+
+        var config = plugin.getConfig();
+        try {
+            PerformanceTickSampler.configure(config.diagnosticsEnabled && config.performanceIncidentsEnabled,
+                    config.performanceIncidentThresholdMs, config.performanceIncidentTriggerSeconds,
+                    config.performanceIncidentRecoverySeconds);
+        } catch(IllegalArgumentException e) {
+            plugin.logger.warn("Invalid performance incident thresholds; using 50 ms / 10 s / 5 s.");
+            PerformanceTickSampler.configure(config.diagnosticsEnabled && config.performanceIncidentsEnabled, 50, 10, 5);
+        }
+
+        if(PerformanceTickSampler.enabled()) {
+            try { incidentStore.load(); } catch(Exception e) { plugin.logger.warn("Cannot load performance incidents: " + e.getMessage()); }
+        }
 
         // Initialize the data list
         for(int i = 0; i < MAX_HISTORY_SIZE; i++) {
@@ -82,6 +97,7 @@ public class MonitorManager {
                     diskRate.writeRate()
             );
             historyManager.recordSample(System.currentTimeMillis(), data);
+            try { incidentStore.save(false); } catch(Exception e) { plugin.logger.warn("Cannot save performance incidents: " + e.getMessage()); }
 
             lock.writeLock().lock();
             try {
@@ -164,6 +180,7 @@ public class MonitorManager {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+        try { incidentStore.save(true); } catch(Exception e) { plugin.logger.warn("Cannot save performance incidents: " + e.getMessage()); }
         historyManager.shutdown();
         updateListeners.clear();
     }

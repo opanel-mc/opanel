@@ -18,6 +18,13 @@ import org.bukkit.event.world.StructureGrowEvent;
 
 public abstract class BasePaperListener implements Listener {
     @EventHandler
+    public void onPerformanceTick(com.destroystokyo.paper.event.server.ServerTickEndEvent event) {
+        if(!net.opanel.monitor.DiagnosticsState.enabled()) return;
+        net.opanel.monitor.PerformanceTickSampler.record(event.getTickDuration());
+        PaperIncidentSceneSampler.tick(event.getTickDuration());
+        PaperMapPlayerSampler.tick();
+    }
+    @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         emitDirtyChunk(event.getBlock());
     }
@@ -88,17 +95,17 @@ public abstract class BasePaperListener implements Listener {
     @EventHandler
     public void onChunkLoad(ChunkPopulateEvent event) {
         World world = event.getWorld();
-        if(world.getEnvironment() != World.Environment.NORMAL) return;
+
 
         Chunk chunk = event.getChunk();
-        EventManager.get().emit(EventType.CHUNK_DIRTY, new OPanelChunkDirtyEvent(chunk.getX(), chunk.getZ()));
+        EventManager.get().emit(EventType.CHUNK_DIRTY, new OPanelChunkDirtyEvent(world.getName(), chunk.getX(), chunk.getZ()));
     }
 
     protected static void emitDirtyChunk(Block block) {
         World world = block.getWorld();
-        if(world.getEnvironment() != World.Environment.NORMAL) return;
 
-        EventManager.get().emit(EventType.CHUNK_DIRTY, new OPanelChunkDirtyEvent(block.getX() >> 4, block.getZ() >> 4));
+
+        EventManager.get().emit(EventType.CHUNK_DIRTY, new OPanelChunkDirtyEvent(world.getName(), block.getX() >> 4, block.getZ() >> 4));
     }
 
     protected static boolean hasPlayerMoved(PlayerMoveEvent event) {

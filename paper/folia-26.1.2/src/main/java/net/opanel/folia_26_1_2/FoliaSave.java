@@ -115,9 +115,13 @@ public class FoliaSave extends BasePaperSave implements OPanelSave {
 
     @Override
     public List<OPanelWorldRegion> getRegions() {
+        return getRegions(savePath.resolve("dimensions/minecraft/overworld/region"));
+    }
+
+    @Override
+    public List<OPanelWorldRegion> getRegions(Path regionFolderPath) {
         List<OPanelWorldRegion> regions = new ArrayList<>();
 
-        Path regionFolderPath = savePath.resolve("dimensions/minecraft/overworld/region");
         if(!regionFolderPath.toFile().exists()) return regions;
 
         try(Stream<Path> stream = Files.list(regionFolderPath)) {

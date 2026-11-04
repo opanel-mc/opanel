@@ -39,6 +39,19 @@ public interface OPanelServer {
     List<OPanelSave> getSaves();
     OPanelSave getSave(String saveName);
     String getCurrentSaveName();
+    default java.util.List<net.opanel.map.MapPlayerPositions.Position> getMapPlayers() { return null; }
+    default boolean isMapDimensionLoaded(int dimension) { return true; }
+    default java.util.Map<String, java.util.List<OPanelWorldRegion>> getMapWorlds() {
+        java.util.Map<String, java.util.List<OPanelWorldRegion>> worlds = new java.util.LinkedHashMap<>();
+        for(OPanelSave save : getSaves()) if(save.isRunning()) {
+            worlds.put(save.getName(), save.getRegions());
+            Path root = save.getPath();
+            boolean modern = Files.isDirectory(root.resolve("dimensions/minecraft/overworld"));
+            if(isMapDimensionLoaded(-1)) worlds.put(save.getName() + "_nether", save.getRegions(root.resolve(modern ? "dimensions/minecraft/the_nether/region" : "DIM-1/region")));
+            if(isMapDimensionLoaded(1)) worlds.put(save.getName() + "_the_end", save.getRegions(root.resolve(modern ? "dimensions/minecraft/the_end/region" : "DIM1/region")));
+        }
+        return worlds;
+    }
     void saveAll();
     List<OPanelPlayer> getOnlinePlayers();
     List<OPanelPlayer> getPlayers();

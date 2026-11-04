@@ -27,7 +27,8 @@ public class FabricChunkAccessor extends BaseFabricChunkAccessor implements OPan
 
     @Override
     protected Tile readOnMainThread(int chunkX, int chunkZ) {
-        ServerWorld world = server.getOverworld();
+        ServerWorld world = getMapWorld();
+        if(world == null) return null;
         WorldChunk chunk = world.getChunkManager().getWorldChunk(chunkX, chunkZ);
         if(chunk == null) return null;
 
@@ -58,7 +59,9 @@ public class FabricChunkAccessor extends BaseFabricChunkAccessor implements OPan
         }
         long[] packedHeightMap = AnvilUtility.bitpack(heightMap, heightMapBits);
 
-        return new Tile(chunkX, chunkZ, sections, packedHeightMap, minY, maxY);
+        Tile tile = new Tile(chunkX, chunkZ, sections, packedHeightMap, minY, maxY);
+        if(world != server.getOverworld() && world == server.getWorld(net.minecraft.world.World.NETHER)) tile.useNetherSurface();
+        return tile;
     }
 
     @Override

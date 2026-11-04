@@ -37,6 +37,24 @@ public abstract class BaseFabricServer implements OPanelServer {
     }
 
     @Override
+    public boolean isMapDimensionLoaded(int dimension) {
+        return dimension == 0 || (dimension == -1 ? server.getWorld(net.minecraft.world.World.NETHER) : server.getWorld(net.minecraft.world.World.END)) != null;
+    }
+    @Override
+    public java.util.List<net.opanel.map.MapPlayerPositions.Position> getMapPlayers() {
+        var positions = new java.util.ArrayList<net.opanel.map.MapPlayerPositions.Position>();
+        for(var world : server.getWorlds()) {
+            String name = getCurrentSaveName();
+            if(world == server.getWorld(net.minecraft.world.World.NETHER)) name += "_nether";
+            else if(world == server.getWorld(net.minecraft.world.World.END)) name += "_the_end";
+            else if(world != server.getOverworld()) continue;
+            for(var player : world.getPlayers()) positions.add(new net.opanel.map.MapPlayerPositions.Position(
+                player.getUuidAsString(), player.getName().getString(), name, player.getX(), player.getY(), player.getZ()));
+        }
+        return positions;
+    }
+
+    @Override
     public ServerType getServerType() {
         return ServerType.FABRIC;
     }

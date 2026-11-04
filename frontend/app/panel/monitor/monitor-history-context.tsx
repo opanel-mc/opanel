@@ -55,6 +55,7 @@ interface MonitorHistoryContextValue {
   returnToLive: () => void
   retryOverview: () => void
   retryDetail: () => void
+  focusRange: (range: MonitorHistoryRange) => Promise<void>
 }
 
 const MonitorHistoryContext = createContext<MonitorHistoryContextValue | null>(null);
@@ -263,6 +264,7 @@ export function MonitorHistoryProvider({
     commitSelection,
     returnToLive,
     retryOverview: () => void refreshOverview(),
+    focusRange: loadDetail,
     retryDetail
   }), [
     enabled,
@@ -277,6 +279,7 @@ export function MonitorHistoryProvider({
     commitSelection,
     returnToLive,
     refreshOverview,
+    loadDetail,
     retryDetail
   ]);
 

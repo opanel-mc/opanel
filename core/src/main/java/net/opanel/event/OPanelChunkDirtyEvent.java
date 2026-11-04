@@ -4,6 +4,12 @@ import cn.opanel.api.event.ExtensionEvent;
 import net.opanel.extension.api.ExtensionAPI;
 
 public class OPanelChunkDirtyEvent extends OPanelEvent {
+    private String world;
+    public OPanelChunkDirtyEvent(String world, int chunkX, int chunkZ) {
+        this(chunkX, chunkZ);
+        this.world = world;
+    }
+    public String getWorld() { return world; }
     private final int chunkX;
     private final int chunkZ;
 

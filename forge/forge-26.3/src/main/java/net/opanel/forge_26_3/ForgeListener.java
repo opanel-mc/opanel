@@ -139,9 +139,10 @@ public class ForgeListener extends BaseForgeListener {
     @SubscribeEvent
     public void onChunkLoad(ChunkEvent.Load event) {
         ServerLevel world = (ServerLevel) event.getLevel();
-        if(world.dimension() != Level.OVERWORLD) return;
+
 
         ChunkPos pos = event.getChunk().getPos();
-        EventManager.get().emit(EventType.CHUNK_DIRTY, new OPanelChunkDirtyEvent(pos.x(), pos.z()));
+        if(mapWorldName(world) == null) return;
+        EventManager.get().emit(EventType.CHUNK_DIRTY, new OPanelChunkDirtyEvent(mapWorldName(world), pos.x(), pos.z()));
     }
 }

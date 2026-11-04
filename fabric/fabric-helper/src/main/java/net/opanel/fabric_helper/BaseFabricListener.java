@@ -5,6 +5,14 @@ import java.util.Map;
 import java.util.UUID;
 
 public abstract class BaseFabricListener {
+    protected static String mapWorldName(net.minecraft.server.world.ServerWorld world) {
+        var server = world.getServer();
+        String name = server.getSavePath(net.minecraft.util.WorldSavePath.LEVEL_DAT).getParent().getFileName().toString();
+        if(world == server.getWorld(net.minecraft.world.World.NETHER)) return name + "_nether";
+        if(world == server.getWorld(net.minecraft.world.World.END)) return name + "_the_end";
+        return world == server.getOverworld() ? name : null;
+    }
+
     private final Map<UUID, double[]> playerPositions = new HashMap<>();
 
     protected boolean hasPlayerMoved(UUID uuid, double x, double y, double z) {

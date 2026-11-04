@@ -23,6 +23,7 @@ const RUN_DIRECTLY = argv.includes("--run");
 const langKeyPrefixesToExtract = [
   "block",
   "item",
+  "entity",
   "enchantment",
   "effect",
   "filled_map",
@@ -180,7 +181,16 @@ async function execute() {
     fs.rmSync(minecraftAssetsPath, { recursive: true, force: true });
   }
 
-  if(FORCE || !fs.existsSync(minecraftAssetsPath)) {
+  const entityLanguagesReady = ["en_us", ...languagesToFetch].every((language) => {
+    try {
+      const translations = JSON.parse(fs.readFileSync(path.resolve(minecraftAssetsPath, `${language}.json`), "utf-8"));
+      return typeof translations["entity.minecraft.sheep"] === "string";
+    } catch {
+      return false;
+    }
+  });
+  // Previously generated caches omitted entity names. Refresh them once.
+  if(FORCE || !fs.existsSync(minecraftAssetsPath) || !entityLanguagesReady) {
     const versionInfo = await getMinecraftVersionInfo();
     await extractNecessaryAssetsFromMinecraft(versionInfo);
     await fetchMinecraftLanguages(versionInfo);

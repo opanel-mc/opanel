@@ -18,4 +18,5 @@ public interface OPanelChunkAccessor {
      *         or cannot be read.
      */
     Tile readLiveTile(int chunkX, int chunkZ);
+    default Tile readLiveTile(String world, int chunkX, int chunkZ) { return readLiveTile(chunkX, chunkZ); }
 }

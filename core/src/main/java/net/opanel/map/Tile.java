@@ -167,6 +167,19 @@ public class Tile {
         return result;
     }
 
+    /** Skip the ceiling, then resolve the first solid surface beneath its air gap. */
+    public void useNetherSurface() {
+        for(int z = 0; z < 16; z++) for(int x = 0; x < 16; x++) {
+            int y = Math.min(126, getHeight(x, z));
+            while(y >= minY) {
+                Section section = sections.get(y >> 4);
+                if(section == null || TRANSPARENT_BLOCK_IDS.contains(section.getBlockType(x, y & 15, z))) break;
+                y--;
+            }
+            heightMap[z * 16 + x] = Math.max(0, y - minY + 1);
+        }
+    }
+
     public int getHeight(int x, int z) {
         int storedHeight = heightMap[z * 16 + x];
         return storedHeight + minY - 1;

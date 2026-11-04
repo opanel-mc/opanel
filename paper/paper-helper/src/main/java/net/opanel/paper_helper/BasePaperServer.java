@@ -38,6 +38,20 @@ public abstract class BasePaperServer implements OPanelServer, PaperRealtimeMotd
     }
 
     @Override
+    public java.util.Map<String, java.util.List<net.opanel.common.OPanelWorldRegion>> getMapWorlds() {
+        var result = new java.util.LinkedHashMap<String, java.util.List<net.opanel.common.OPanelWorldRegion>>();
+        var save = getSave(getCurrentSaveName());
+        if(save == null) return result;
+        for(var world : server.getWorlds()) {
+            Path folder = world.getWorldFolder().toPath();
+            if(world.getEnvironment() == org.bukkit.World.Environment.NETHER) folder = folder.resolve("DIM-1");
+            else if(world.getEnvironment() == org.bukkit.World.Environment.THE_END) folder = folder.resolve("DIM1");
+            result.put(world.getName(), save.getRegions(folder.resolve("region")));
+        }
+        return result;
+    }
+
+    @Override
     public ServerType getServerType() {
         if(PaperUtils.isLeaves()) {
             return ServerType.LEAVES;

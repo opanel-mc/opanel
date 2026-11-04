@@ -72,6 +72,9 @@ public class OPanel {
         mapRenderManager = new MapRenderManager(this);
 
         // Initialize monitor service
+        net.opanel.monitor.PerformanceTickSampler.reset();
+        net.opanel.map.MapPlayerPositions.reset();
+        net.opanel.monitor.DiagnosticsState.configure(getConfig().diagnosticsEnabled);
         monitorManager = new MonitorManager(this);
 
         // Initialize activity recorder
@@ -121,6 +124,13 @@ public class OPanel {
 
     public void onTick() {
         TPS.onTick();
+        if(getServer() != null && net.opanel.monitor.DiagnosticsState.enabled() && net.opanel.map.MapPlayerPositions.hasDemand()) {
+            long now = System.currentTimeMillis();
+            if(net.opanel.map.MapPlayerPositions.needsSample(now)) {
+                var positions = getServer().getMapPlayers();
+                if(positions != null) net.opanel.map.MapPlayerPositions.publish(now, positions);
+            }
+        }
     }
 
     public OPanelConfiguration getConfig() {

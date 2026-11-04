@@ -23,6 +23,12 @@ public abstract class BaseFabricWorldRegion implements OPanelWorldRegion {
         this.regionPath = regionPath;
     }
 
+    protected net.minecraft.server.world.ServerWorld getMapWorld() {
+        int dimension = net.opanel.map.MapDimensions.fromRegionPath(regionPath);
+        var world = dimension == -1 ? server.getWorld(net.minecraft.world.World.NETHER) : dimension == 1 ? server.getWorld(net.minecraft.world.World.END) : server.getOverworld();
+        return world == null ? server.getOverworld() : world;
+    }
+
     @Override
     public Path getPath() {
         return regionPath;

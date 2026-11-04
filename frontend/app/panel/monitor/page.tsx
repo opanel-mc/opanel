@@ -4,6 +4,8 @@ import type { APIResponse, InfoResponse } from "@/lib/types";
 import type { PropsWithChildren } from "react";
 import { useContext, useEffect, useState } from "react";
 import { Activity } from "lucide-react";
+import { PerformanceIncidents } from "./performance-incidents";
+import { useMonitorHistory, MonitorHistoryProvider } from "./monitor-history-context";
 import { $ } from "@/lib/i18n";
 import { SubPage } from "../sub-page";
 import { InfoContext, MonitorContext, VersionContext } from "@/contexts/api-context";
@@ -19,10 +21,15 @@ import {
 } from "./monitor-block";
 import { emitter } from "@/lib/emitter";
 import { sendGetRequest, toastError } from "@/lib/api";
-import { MonitorHistoryProvider } from "./monitor-history-context";
+
 import { cn } from "@/lib/utils";
 import { isPumpkin } from "@/lib/server-type";
 import { serverType } from "@/lib/global";
+
+function IncidentSection() {
+  const history = useMonitorHistory();
+  return <PerformanceIncidents onViewHistory={history.enabled ? (from, to) => { void history.focusRange({ from, to }); } : undefined}/>;
+}
 
 function RealtimeMonitorProvider({ children }: PropsWithChildren) {
   const monitorDataList = useMonitor(200);
@@ -64,6 +71,7 @@ export default function Monitor() {
       <InfoContext.Provider value={info}>
         <RealtimeMonitorProvider>
           <MonitorHistoryProvider enabled={versionCtx?.monitorHistoryEnabled ?? false}>
+            {!isPumpkin(serverType) && serverType !== "Folia" && <IncidentSection />}
             {!isPumpkin(serverType) && (
               <ActivityMonitorBlock className="col-span-2"/>
             )}
