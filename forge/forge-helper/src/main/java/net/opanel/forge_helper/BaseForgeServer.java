@@ -30,6 +30,9 @@ public abstract class BaseForgeServer implements OPanelServer {
     }
 
     @Override
+    public java.nio.file.Path getMapRootPath() { return server.getWorldPath(net.minecraft.world.level.storage.LevelResource.LEVEL_DATA_FILE).getParent(); }
+
+    @Override
     public boolean isMapDimensionLoaded(int dimension) {
         return dimension == 0 || (dimension == -1 ? server.getLevel(net.minecraft.world.level.Level.NETHER) : server.getLevel(net.minecraft.world.level.Level.END)) != null;
     }

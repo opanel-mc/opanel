@@ -38,6 +38,11 @@ public class FoliaServer extends BasePaperServer implements OPanelServer, CodeOf
 
     @Rewrite
     @Override
+    public java.util.List<net.opanel.common.OPanelWorldRegion> getMapRegions(java.nio.file.Path folder) {
+        return net.opanel.map.MapDimensions.readRegions(folder, path -> new FoliaWorldRegion(server, path));
+    }
+
+    @Override
     public ServerType getServerType() {
         return ServerType.FOLIA;
     }

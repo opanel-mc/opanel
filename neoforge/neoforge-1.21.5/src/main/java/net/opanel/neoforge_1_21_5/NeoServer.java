@@ -30,6 +30,11 @@ public class NeoServer extends BaseNeoServer implements OPanelServer {
     }
 
     @Override
+    public java.util.List<net.opanel.common.OPanelWorldRegion> getMapRegions(java.nio.file.Path folder) {
+        return net.opanel.map.MapDimensions.readRegions(folder, path -> new NeoWorldRegion(server, getCurrentSaveName(), path));
+    }
+
+    @Override
     public void setFavicon(byte[] iconBytes) throws IOException {
         super.setFavicon(iconBytes);
         // reload server favicon

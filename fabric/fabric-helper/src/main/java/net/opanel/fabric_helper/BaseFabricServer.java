@@ -37,6 +37,9 @@ public abstract class BaseFabricServer implements OPanelServer {
     }
 
     @Override
+    public java.nio.file.Path getMapRootPath() { return server.getSavePath(net.minecraft.util.WorldSavePath.LEVEL_DAT).getParent(); }
+
+    @Override
     public boolean isMapDimensionLoaded(int dimension) {
         return dimension == 0 || (dimension == -1 ? server.getWorld(net.minecraft.world.World.NETHER) : server.getWorld(net.minecraft.world.World.END)) != null;
     }

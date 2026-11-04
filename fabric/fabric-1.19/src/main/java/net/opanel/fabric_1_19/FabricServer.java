@@ -33,6 +33,11 @@ public class FabricServer extends BaseFabricServer implements OPanelServer {
     }
 
     @Override
+    public java.util.List<net.opanel.common.OPanelWorldRegion> getMapRegions(java.nio.file.Path folder) {
+        return net.opanel.map.MapDimensions.readRegions(folder, path -> new FabricWorldRegion(server, getCurrentSaveName(), path));
+    }
+
+    @Override
     public byte[] getFavicon() {
         byte[] serverIconPNG = super.getFavicon();
         if(serverIconPNG != null) return serverIconPNG;

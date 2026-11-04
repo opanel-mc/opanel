@@ -41,15 +41,20 @@ public interface OPanelServer {
     String getCurrentSaveName();
     default java.util.List<net.opanel.map.MapPlayerPositions.Position> getMapPlayers() { return null; }
     default boolean isMapDimensionLoaded(int dimension) { return true; }
+    default Path getMapRootPath() {
+        OPanelSave save = getSave(getCurrentSaveName());
+        return save == null ? null : save.getPath();
+    }
+    default List<OPanelWorldRegion> getMapRegions(Path folder) { return List.of(); }
     default java.util.Map<String, java.util.List<OPanelWorldRegion>> getMapWorlds() {
         java.util.Map<String, java.util.List<OPanelWorldRegion>> worlds = new java.util.LinkedHashMap<>();
-        for(OPanelSave save : getSaves()) if(save.isRunning()) {
-            worlds.put(save.getName(), save.getRegions());
-            Path root = save.getPath();
-            boolean modern = Files.isDirectory(root.resolve("dimensions/minecraft/overworld"));
-            if(isMapDimensionLoaded(-1)) worlds.put(save.getName() + "_nether", save.getRegions(root.resolve(modern ? "dimensions/minecraft/the_nether/region" : "DIM-1/region")));
-            if(isMapDimensionLoaded(1)) worlds.put(save.getName() + "_the_end", save.getRegions(root.resolve(modern ? "dimensions/minecraft/the_end/region" : "DIM1/region")));
-        }
+        Path root = getMapRootPath();
+        if(root == null) return worlds;
+        String name = getCurrentSaveName();
+        boolean modern = Files.isDirectory(root.resolve("dimensions/minecraft/overworld"));
+        worlds.put(name, getMapRegions(root.resolve(modern ? "dimensions/minecraft/overworld/region" : "region")));
+        if(isMapDimensionLoaded(-1)) worlds.put(name + "_nether", getMapRegions(root.resolve(modern ? "dimensions/minecraft/the_nether/region" : "DIM-1/region")));
+        if(isMapDimensionLoaded(1)) worlds.put(name + "_the_end", getMapRegions(root.resolve(modern ? "dimensions/minecraft/the_end/region" : "DIM1/region")));
         return worlds;
     }
     void saveAll();

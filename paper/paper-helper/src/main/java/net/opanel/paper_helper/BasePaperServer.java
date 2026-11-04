@@ -40,8 +40,6 @@ public abstract class BasePaperServer implements OPanelServer, PaperRealtimeMotd
     @Override
     public java.util.Map<String, java.util.List<net.opanel.common.OPanelWorldRegion>> getMapWorlds() {
         var result = new java.util.LinkedHashMap<String, java.util.List<net.opanel.common.OPanelWorldRegion>>();
-        var save = getSave(getCurrentSaveName());
-        if(save == null) return result;
         for(var world : server.getWorlds()) {
             Path folder = world.getWorldFolder().toPath();
             String dimension = world.getEnvironment() == org.bukkit.World.Environment.NETHER ? "the_nether"
@@ -50,7 +48,7 @@ public abstract class BasePaperServer implements OPanelServer, PaperRealtimeMotd
             Path legacy = world.getEnvironment() == org.bukkit.World.Environment.NETHER ? folder.resolve("DIM-1/region")
                 : world.getEnvironment() == org.bukkit.World.Environment.THE_END ? folder.resolve("DIM1/region") : folder.resolve("region");
             Path regions = java.nio.file.Files.isDirectory(modern) ? modern : java.nio.file.Files.isDirectory(legacy) ? legacy : folder.resolve("region");
-            result.put(world.getName(), save.getRegions(regions));
+            result.put(world.getName(), getMapRegions(regions));
         }
         return result;
     }
