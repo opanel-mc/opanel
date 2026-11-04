@@ -121,6 +121,15 @@ export default function ServerMap() {
     changeSettings("map.render-settings", newSettings);
   };
 
+  const handleWorldChange = (world: string) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("world", world);
+    url.searchParams.delete("x");
+    url.searchParams.delete("z");
+    window.history.replaceState(window.history.state, "", url);
+    setSave(world);
+  };
+
   useEffect(() => {
     fetchServerWorlds();
   }, []);
@@ -154,7 +163,7 @@ export default function ServerMap() {
           }}/>
 
         <div className="absolute bottom-6 left-6 bg-accent border w-xs max-sm:w-40 h-10 rounded-lg shadow-xl flex items-center max-sm:flex-row-reverse">
-          <Select value={save} onValueChange={setSave}>
+          <Select value={save} onValueChange={handleWorldChange}>
             <SelectTrigger className="bg-transparent! border-0 ring-0! outline-none px-4 max-sm:hidden cursor-pointer">
               <SelectValue />
             </SelectTrigger>
