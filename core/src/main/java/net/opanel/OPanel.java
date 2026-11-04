@@ -124,6 +124,8 @@ public class OPanel {
 
     public void onTick() {
         TPS.onTick();
+        if(getServer() != null && !getServer().getServerType().isPaperSeries() && net.opanel.monitor.DiagnosticsState.enabled())
+            net.opanel.monitor.JavaIncidentSceneSampler.tick(getServer(), net.opanel.monitor.PerformanceTickSampler.lastDurationMs());
         if(getServer() != null && net.opanel.monitor.DiagnosticsState.enabled() && net.opanel.map.MapPlayerPositions.hasDemand()) {
             long now = System.currentTimeMillis();
             if(net.opanel.map.MapPlayerPositions.needsSample(now)) {

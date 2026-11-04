@@ -44,9 +44,13 @@ public abstract class BasePaperServer implements OPanelServer, PaperRealtimeMotd
         if(save == null) return result;
         for(var world : server.getWorlds()) {
             Path folder = world.getWorldFolder().toPath();
-            if(world.getEnvironment() == org.bukkit.World.Environment.NETHER) folder = folder.resolve("DIM-1");
-            else if(world.getEnvironment() == org.bukkit.World.Environment.THE_END) folder = folder.resolve("DIM1");
-            result.put(world.getName(), save.getRegions(folder.resolve("region")));
+            String dimension = world.getEnvironment() == org.bukkit.World.Environment.NETHER ? "the_nether"
+                : world.getEnvironment() == org.bukkit.World.Environment.THE_END ? "the_end" : "overworld";
+            Path modern = folder.resolve("dimensions/minecraft/" + dimension + "/region");
+            Path legacy = world.getEnvironment() == org.bukkit.World.Environment.NETHER ? folder.resolve("DIM-1/region")
+                : world.getEnvironment() == org.bukkit.World.Environment.THE_END ? folder.resolve("DIM1/region") : folder.resolve("region");
+            Path regions = java.nio.file.Files.isDirectory(modern) ? modern : java.nio.file.Files.isDirectory(legacy) ? legacy : folder.resolve("region");
+            result.put(world.getName(), save.getRegions(regions));
         }
         return result;
     }

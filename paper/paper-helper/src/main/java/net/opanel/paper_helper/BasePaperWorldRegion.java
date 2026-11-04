@@ -146,7 +146,7 @@ public abstract class BasePaperWorldRegion implements OPanelWorldRegion {
                 for(int chunkZ = 0; chunkZ < REGION_SIZE; chunkZ++) {
                     Tile tile = readTile(chunkX, chunkZ);
                     if(tile != null) {
-                        if(regionPath.getParent().getParent().getFileName().toString().equals("DIM-1")) tile.useNetherSurface();
+                        if(net.opanel.map.MapDimensions.fromRegionPath(regionPath) == -1) tile.useNetherSurface();
                         tiles.add(tile);
                     }
                 }
@@ -180,7 +180,10 @@ public abstract class BasePaperWorldRegion implements OPanelWorldRegion {
                 }
             }
 
+            int dimension = net.opanel.map.MapDimensions.fromRegionPath(regionPath);
+            org.bukkit.World.Environment environment = dimension == -1 ? org.bukkit.World.Environment.NETHER : dimension == 1 ? org.bukkit.World.Environment.THE_END : org.bukkit.World.Environment.NORMAL;
             org.bukkit.World world = server.getWorlds().stream()
+                .filter(w -> w.getEnvironment() == environment)
                 .filter(w -> regionPath.toAbsolutePath().normalize().startsWith(w.getWorldFolder().toPath().toAbsolutePath().normalize()))
                 .findFirst().orElse(server.getWorlds().get(0));
             return new Tile(chunkX, chunkZ, sections, motionBlockingHeightMap, PaperUtils.getMinY(world), PaperUtils.getMaxY(world));

@@ -1,7 +1,9 @@
 package net.opanel.monitor;
 
-/** Paper feeds actual tick execution times; other platforms remain unavailable. */
+/** Platform adapters supply tick execution durations, never intervals between ticks. */
 public final class PerformanceTickSampler {
+    private static volatile double lastDurationMs;
+    public static double lastDurationMs() { return lastDurationMs; }
     private static long tickStarted;
     public static void beginTick() {
         tickStarted = net.opanel.monitor.DiagnosticsState.enabled() && enabled ? System.nanoTime() : 0;
@@ -33,6 +35,7 @@ public final class PerformanceTickSampler {
 
     public static synchronized void record(double durationMs) {
         if(!enabled || !Double.isFinite(durationMs) || durationMs < 0) return;
+        lastDurationMs = durationMs;
         long now = System.currentTimeMillis();
         long bucket = now / 1000;
         if(second != bucket && count > 0) {

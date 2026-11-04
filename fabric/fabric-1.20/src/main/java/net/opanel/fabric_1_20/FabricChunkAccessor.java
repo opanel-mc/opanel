@@ -26,6 +26,11 @@ public class FabricChunkAccessor extends BaseFabricChunkAccessor implements OPan
     }
 
     @Override
+    protected int sceneMinY() { return getMapWorld().getBottomY(); }
+    @Override
+    protected int sceneMaxY() { return getMapWorld().getTopY(); }
+
+    @Override
     protected Tile readOnMainThread(int chunkX, int chunkZ) {
         ServerWorld world = getMapWorld();
         if(world == null) return null;

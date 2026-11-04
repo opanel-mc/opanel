@@ -25,6 +25,11 @@ public class ForgeChunkAccessor extends BaseForgeChunkAccessor {
     }
 
     @Override
+    protected int sceneMinY() { return getMapWorld().getMinY(); }
+    @Override
+    protected int sceneMaxY() { return getMapWorld().getMaxY() + 1; }
+
+    @Override
     protected Tile readOnMainThread(int chunkX, int chunkZ) {
         ServerLevel world = getMapWorld();
         if(world == null) return null;

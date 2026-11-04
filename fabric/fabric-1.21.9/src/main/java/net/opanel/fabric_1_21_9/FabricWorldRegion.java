@@ -30,7 +30,7 @@ public class FabricWorldRegion extends BaseFabricWorldRegion implements OPanelWo
             return tiles;
         }
 
-        StorageKey storageKey = new StorageKey(saveName, World.OVERWORLD, "chunk");
+        StorageKey storageKey = new StorageKey(saveName, getMapWorld().getRegistryKey(), "chunk");
         try(RegionFile regionFile = new RegionFile(storageKey, regionPath, regionPath.getParent(), false)) {
             for(int chunkX = 0; chunkX < REGION_SIZE; chunkX++) {
                 for(int chunkZ = 0; chunkZ < REGION_SIZE; chunkZ++) {

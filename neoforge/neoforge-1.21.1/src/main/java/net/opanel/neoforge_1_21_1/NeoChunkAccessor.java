@@ -18,6 +18,11 @@ public class NeoChunkAccessor extends BaseNeoChunkAccessor implements OPanelChun
     }
 
     @Override
+    protected int sceneMinY() { return getMapWorld().getMinBuildHeight(); }
+    @Override
+    protected int sceneMaxY() { return getMapWorld().getMaxBuildHeight(); }
+
+    @Override
     protected Tile readOnMainThread(int chunkX, int chunkZ) {
         ServerLevel world = getMapWorld();
         if(world == null) return null;

@@ -3,7 +3,7 @@ package net.opanel.map;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
-/** Immutable online-player positions, published only from the Paper game thread. */
+/** Immutable positions published from the owning server/entity threads. */
 public final class MapPlayerPositions {
     public static final long SAMPLE_INTERVAL_MS = 5000;
     public static final long VIEWER_LEASE_MS = 7500;

@@ -3,6 +3,7 @@ package net.opanel.common;
 import net.opanel.map.Tile;
 
 public interface OPanelChunkAccessor {
+    default net.opanel.monitor.IncidentScene.Chunk readIncidentChunk(String world, int x, int z, long now) { return null; }
     int SYNC_CALL_TIMEOUT_MS = 5000;
     String FALLBACK_BIOME = "minecraft:plains";
 

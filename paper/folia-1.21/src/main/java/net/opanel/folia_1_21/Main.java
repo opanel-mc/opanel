@@ -42,6 +42,7 @@ public class Main extends JavaPlugin implements Listener, TaskRunner {
 
         saveDefaultConfig();
         instance = new OPanel(new ConfigManagerImpl(getConfig(), this), logger);
+        net.opanel.monitor.PerformanceTickSampler.configure(false, 50, 10, 5);
 
         initLogListenerAppender();
         initServerTickListener();
