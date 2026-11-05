@@ -19,3 +19,10 @@ it("distinguishes missing evidence from zero counts", () => {
   expect(screen.getByText("monitor.scene.missing")).toBeInTheDocument();
   expect(screen.queryByRole("link")).toBeNull();
 });
+it("shows an unavailable status instead of zero for unsampled chunks", () => {
+  render(<IncidentScene scene={{ requestedAt: 1000, completedAt: 2000, candidates: 1, players: [],
+    chunks: [{ world: "world", x: 0, z: 0, sampledAt: 1500, status: "unloaded", entities: {}, blockEntities: {} }] }}/>);
+  const summary = screen.getByText(/world · \(0, 0\)/);
+  expect(summary).toHaveTextContent("monitor.scene.unloaded");
+  expect(summary).not.toHaveTextContent("map.density.entities: 0");
+});

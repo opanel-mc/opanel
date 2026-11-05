@@ -28,9 +28,11 @@ public abstract class BaseNeoChunkAccessor implements OPanelChunkAccessor {
 
     private String requestedWorld;
     protected net.minecraft.server.level.ServerLevel getMapWorld() {
-        if(requestedWorld != null && requestedWorld.endsWith("_nether")) return server.getLevel(net.minecraft.world.level.Level.NETHER);
-        if(requestedWorld != null && requestedWorld.endsWith("_the_end")) return server.getLevel(net.minecraft.world.level.Level.END);
-        return server.overworld();
+        String primary = server.getWorldPath(net.minecraft.world.level.storage.LevelResource.LEVEL_DATA_FILE).getParent().getFileName().toString();
+        int dimension = net.opanel.map.MapDimensions.fromMapKey(primary, requestedWorld);
+        if(dimension == -1) return server.getLevel(net.minecraft.world.level.Level.NETHER);
+        if(dimension == 1) return server.getLevel(net.minecraft.world.level.Level.END);
+        return dimension == 0 ? server.overworld() : null;
     }
     protected abstract int sceneMinY();
     protected abstract int sceneMaxY();
@@ -45,7 +47,11 @@ public abstract class BaseNeoChunkAccessor implements OPanelChunkAccessor {
             var blocks = new java.util.HashMap<String, Integer>();
             boolean truncated = false;
             int count = 0;
-            for(var entity : world.getEntitiesOfClass(net.minecraft.world.entity.Entity.class, new net.minecraft.world.phys.AABB(x * 16.0, sceneMinY(), z * 16.0, x * 16.0 + 16, sceneMaxY(), z * 16.0 + 16))) {
+            var nearby = new java.util.ArrayList<net.minecraft.world.entity.Entity>();
+            world.getEntities(net.minecraft.world.level.entity.EntityTypeTest.forClass(net.minecraft.world.entity.Entity.class),
+                    new net.minecraft.world.phys.AABB(x * 16.0, sceneMinY(), z * 16.0, x * 16.0 + 16, sceneMaxY(), z * 16.0 + 16),
+                    entity -> Math.floor(entity.getX() / 16.0) == x && Math.floor(entity.getZ() / 16.0) == z, nearby, 1025);
+            for(var entity : nearby) {
                 if(Math.floor(entity.getX() / 16.0) != x || Math.floor(entity.getZ() / 16.0) != z) continue;
                 if(count++ >= 1024) { truncated = true; break; }
                 String type = entity.getType().getDescriptionId().replace("entity.minecraft.", "").toUpperCase(java.util.Locale.ROOT);

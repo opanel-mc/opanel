@@ -58,7 +58,12 @@ public final class PerformanceIncidentRecorder {
             throw new IllegalArgumentException("Invalid performance sample");
         }
         if(previous >= 0 && timestamp <= previous) return;
-        if(previous >= 0 && timestamp - previous > 1500) interrupt();
+        if(previous >= 0 && timestamp - previous > 1500 && meanTickMs < timestamp - previous - 1000) {
+            // A long tick can leave a gap in completed samples. Keep an active
+            // incident, but never count missing seconds toward either streak.
+            breaches = healthy = 0;
+            if(active == null) recent.clear();
+        }
         previous = timestamp;
         Sample sample = new Sample(timestamp, meanTickMs);
         recent.addLast(sample);
@@ -78,7 +83,9 @@ public final class PerformanceIncidentRecorder {
                 breaches = healthy = 0;
             }
         } else if(meanTickMs > threshold) {
-            if(breaches++ == 0) breachStart = timestamp;
+            if(breaches == 0) breachStart = timestamp;
+            // A completed multi-second tick supplies evidence for its own duration.
+            breaches += Math.max(1, (int) Math.min(triggerSeconds, meanTickMs / 1000));
             if(breaches >= triggerSeconds) {
                 active = new Event(breachStart);
                 active.threshold = threshold;

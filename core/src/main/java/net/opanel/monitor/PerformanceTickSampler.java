@@ -50,9 +50,7 @@ public final class PerformanceTickSampler {
     }
 
     public static synchronized boolean available() {
-        boolean available = enabled && lastObserved > 0 && System.currentTimeMillis() - lastObserved < 3000;
-        if(!available) recorder.interrupt();
-        return available;
+        return enabled && lastObserved > 0 && System.currentTimeMillis() - lastObserved < 3000;
     }
 
     public static synchronized java.util.List<PerformanceIncidentRecorder.Incident> incidents() {

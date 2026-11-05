@@ -2,6 +2,12 @@ package net.opanel.map;
 import java.nio.file.Path;
 public final class MapDimensions {
     private MapDimensions() {}
+    public static int fromMapKey(String primary, String key) {
+        if(key == null || key.equals(primary)) return 0;
+        if(key.equals(primary + "_nether")) return -1;
+        if(key.equals(primary + "_the_end")) return 1;
+        return 2;
+    }
     public static java.util.List<net.opanel.common.OPanelWorldRegion> readRegions(Path folder, java.util.function.Function<Path, net.opanel.common.OPanelWorldRegion> factory) {
         if(!java.nio.file.Files.isDirectory(folder)) return java.util.List.of();
         try(var files = java.nio.file.Files.list(folder)) {

@@ -15,11 +15,16 @@ public abstract class BaseFabricChunkAccessor implements OPanelChunkAccessor {
         this.server = server;
     }
 
+    private static final class EntityLimitReached extends RuntimeException {
+        @Override public synchronized Throwable fillInStackTrace() { return this; }
+    }
     private String requestedWorld;
     protected net.minecraft.server.world.ServerWorld getMapWorld() {
-        if(requestedWorld != null && requestedWorld.endsWith("_nether")) return server.getWorld(net.minecraft.world.World.NETHER);
-        if(requestedWorld != null && requestedWorld.endsWith("_the_end")) return server.getWorld(net.minecraft.world.World.END);
-        return server.getOverworld();
+        String primary = server.getSavePath(net.minecraft.util.WorldSavePath.LEVEL_DAT).getParent().getFileName().toString();
+        int dimension = net.opanel.map.MapDimensions.fromMapKey(primary, requestedWorld);
+        if(dimension == -1) return server.getWorld(net.minecraft.world.World.NETHER);
+        if(dimension == 1) return server.getWorld(net.minecraft.world.World.END);
+        return dimension == 0 ? server.getOverworld() : null;
     }
     protected abstract int sceneMinY();
     protected abstract int sceneMaxY();
@@ -34,12 +39,17 @@ public abstract class BaseFabricChunkAccessor implements OPanelChunkAccessor {
             var blocks = new java.util.HashMap<String, Integer>();
             boolean truncated = false;
             int count = 0;
-            for(var entity : world.getEntitiesByClass(net.minecraft.entity.Entity.class, new net.minecraft.util.math.Box(x * 16.0, sceneMinY(), z * 16.0, x * 16.0 + 16, sceneMaxY(), z * 16.0 + 16), entity -> true)) {
-                if(Math.floor(entity.getX() / 16.0) != x || Math.floor(entity.getZ() / 16.0) != z) continue;
-                if(count++ >= 1024) { truncated = true; break; }
-                String type = entity.getType().getTranslationKey().replace("entity.minecraft.", "").toUpperCase(java.util.Locale.ROOT);
-                entities.merge(type, 1, Integer::sum);
-            }
+            final int[] entityCount = {0};
+            try {
+                world.getEntitiesByClass(net.minecraft.entity.Entity.class,
+                        new net.minecraft.util.math.Box(x * 16.0, sceneMinY(), z * 16.0, x * 16.0 + 16, sceneMaxY(), z * 16.0 + 16), entity -> {
+                            if(Math.floor(entity.getX() / 16.0) != x || Math.floor(entity.getZ() / 16.0) != z) return false;
+                            if(entityCount[0]++ >= 1024) throw new EntityLimitReached();
+                            String type = entity.getType().getTranslationKey().replace("entity.minecraft.", "").toUpperCase(java.util.Locale.ROOT);
+                            entities.merge(type, 1, Integer::sum);
+                            return false;
+                        });
+            } catch(EntityLimitReached limit) { truncated = true; }
             count = 0;
             for(var block : chunk.getBlockEntities().values()) {
                 if(count++ >= 1024) { truncated = true; break; }

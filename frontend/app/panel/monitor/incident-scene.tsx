@@ -9,7 +9,8 @@ export type Scene = {
 const total = (values: Record<string, number>) => Object.values(values).reduce((a, b) => a + b, 0);
 export function IncidentScene({ scene }: { scene?: Scene | null }) {
   if(!scene) return <p className="text-sm text-muted-foreground">{$("monitor.scene.missing")}</p>;
-  const chunks = [...scene.chunks].sort((a, b) => total(b.entities) + total(b.blockEntities) - total(a.entities) - total(a.blockEntities));
+  const available = (chunk: Scene["chunks"][number]) => chunk.status === "sampled" || chunk.status === "truncated";
+  const chunks = [...scene.chunks].sort((a, b) => Number(available(b)) - Number(available(a)) || (available(a) && available(b) ? total(b.entities) + total(b.blockEntities) - total(a.entities) - total(a.blockEntities) : 0));
   return <section className="space-y-2 my-3">
     <h3 className="font-medium">{$("monitor.scene.title")}</h3>
     <p className="text-xs text-muted-foreground">{$("monitor.scene.scope")}</p>
@@ -18,7 +19,7 @@ export function IncidentScene({ scene }: { scene?: Scene | null }) {
     {chunks.length === 0 && <p className="text-sm">{$("monitor.scene.empty")}</p>}
     <div className="max-h-96 overflow-auto space-y-2">
       {chunks.map(chunk => <details key={`${chunk.world}:${chunk.x}:${chunk.z}`} className="rounded border p-2 text-sm">
-        <summary className="cursor-pointer">{chunk.world} · ({chunk.x}, {chunk.z}) · {$("map.density.entities")}: {total(chunk.entities)} · {$("map.density.block-entities")}: {total(chunk.blockEntities)}</summary>
+        <summary className="cursor-pointer">{chunk.world} · ({chunk.x}, {chunk.z}) · {available(chunk) ? <>{$("map.density.entities")}: {total(chunk.entities)} · {$("map.density.block-entities")}: {total(chunk.blockEntities)}</> : $(chunk.status === "unloaded" ? "monitor.scene.unloaded" : "monitor.scene.entities-unavailable")}</summary>
         <p>{$("map.density.sampled-at")}: {new Date(chunk.sampledAt).toLocaleString()}</p>
         <p>{$(chunk.status === "sampled" ? "monitor.scene.sampled" : chunk.status === "truncated" ? "monitor.scene.truncated" : chunk.status === "unloaded" ? "monitor.scene.unloaded" : "monitor.scene.entities-unavailable")}</p>
         <p>{$("monitor.scene.center")}: {chunk.x * 16 + 8}, {chunk.z * 16 + 8}</p>

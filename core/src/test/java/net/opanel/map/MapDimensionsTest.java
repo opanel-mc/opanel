@@ -3,6 +3,12 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import java.nio.file.Path;
 public class MapDimensionsTest {
+    @Test public void primaryNameEndingInDimensionSuffixIsNotMisidentified() {
+        assertEquals(0, MapDimensions.fromMapKey("survival_nether", "survival_nether"));
+        assertEquals(-1, MapDimensions.fromMapKey("survival_nether", "survival_nether_nether"));
+        assertEquals(1, MapDimensions.fromMapKey("survival_the_end", "survival_the_end_the_end"));
+        assertEquals(2, MapDimensions.fromMapKey("survival_nether", "another_nether"));
+    }
     @Test public void standardDimensionLayoutsResolveWithoutLoadingWorlds() {
         assertEquals(-1, MapDimensions.fromRegionPath(Path.of("world/DIM-1/region/r.0.0.mca")));
         assertEquals(1, MapDimensions.fromRegionPath(Path.of("world/DIM1/region/r.0.0.mca")));

@@ -37,6 +37,9 @@ subprojects {
     pluginManager.withPlugin('com.gradleup.shadow') {
         tasks.named('shadowJar') {
             relocate 'org.h2', 'net.opanel.deps.h2'
+            if (project.name.startsWith('forge-')) {
+                relocate 'net.jcip.annotations', 'net.opanel.deps.jcip.annotations'
+            }
         }
     }
 }
