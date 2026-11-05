@@ -31,7 +31,7 @@ export function PlayerMarkers({ save, viewport, onLocate, visible = false }: { v
     const load = async () => {
       try {
         if(document.visibilityState !== "hidden") {
-          const positions = await sendGetRequest<Positions>("/api/map/player-positions");
+          const positions = await sendGetRequest<Positions>("/api/map-info/player-positions");
           if(!disposed) { setData(positions); setFailed(false); }
         } else if(!disposed) setData(undefined);
       } catch {

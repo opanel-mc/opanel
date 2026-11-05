@@ -31,8 +31,10 @@ public abstract class BaseNeoWorldRegion implements OPanelWorldRegion {
         this.regionPath = regionPath;
     }
 
+    protected int getMapDimension() { return net.opanel.map.MapDimensions.fromRegionPath(regionPath, server.getWorldPath(net.minecraft.world.level.storage.LevelResource.LEVEL_DATA_FILE).getParent().getParent().resolve(saveName)); }
+
     protected net.minecraft.server.level.ServerLevel getMapWorld() {
-        int dimension = net.opanel.map.MapDimensions.fromRegionPath(regionPath);
+        int dimension = net.opanel.map.MapDimensions.fromRegionPath(regionPath, server.getWorldPath(net.minecraft.world.level.storage.LevelResource.LEVEL_DATA_FILE).getParent().getParent().resolve(saveName));
         var world = dimension == -1 ? server.getLevel(net.minecraft.world.level.Level.NETHER) : dimension == 1 ? server.getLevel(net.minecraft.world.level.Level.END) : server.overworld();
         return world == null ? server.overworld() : world;
     }

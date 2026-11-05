@@ -10,6 +10,11 @@ public class MapDimensionsTest {
         assertEquals(2, MapDimensions.fromMapKey("survival_nether", "another_nether"));
     }
     @Test public void standardDimensionLayoutsResolveWithoutLoadingWorlds() {
+        assertEquals(0, MapDimensions.fromRegionPath(Path.of("the_nether/region/r.0.0.mca"), Path.of("the_nether")));
+        assertEquals(0, MapDimensions.fromRegionPath(Path.of("DIM-1/region/r.0.0.mca"), Path.of("DIM-1")));
+        assertEquals(-1, MapDimensions.fromRegionPath(Path.of("DIM-1/DIM-1/region/r.0.0.mca"), Path.of("DIM-1")));
+        assertEquals(-1, MapDimensions.fromRegionPath(Path.of("the_nether/DIM-1/region/r.0.0.mca"), Path.of("the_nether")));
+        assertEquals(-1, MapDimensions.fromRegionPath(Path.of("the_nether/dimensions/minecraft/the_nether/region/r.0.0.mca"), Path.of("the_nether")));
         assertEquals(-1, MapDimensions.fromRegionPath(Path.of("world/DIM-1/region/r.0.0.mca")));
         assertEquals(1, MapDimensions.fromRegionPath(Path.of("world/DIM1/region/r.0.0.mca")));
         assertEquals(-1, MapDimensions.fromRegionPath(Path.of("world/dimensions/minecraft/the_nether/region/r.0.0.mca")));

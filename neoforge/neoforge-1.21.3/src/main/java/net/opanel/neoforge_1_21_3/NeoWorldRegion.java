@@ -42,7 +42,7 @@ public class NeoWorldRegion extends BaseNeoWorldRegion implements OPanelWorldReg
             int minY = getMapWorld().getMinY();
             int maxY = getMapWorld().getMaxY() + 1;
             Tile tile = new Tile(chunkX, chunkZ, sections, motionBlockingHeightMap, minY, maxY);
-            if(net.opanel.map.MapDimensions.fromRegionPath(regionPath) == -1) tile.useNetherSurface();
+            if(getMapDimension() == -1) tile.useNetherSurface();
             return tile;
         } catch (IOException e) {
             e.printStackTrace();

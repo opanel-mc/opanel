@@ -45,7 +45,7 @@ public class PerformanceIncidentHttpTest {
             c.routes.apiBuilder(() -> {
                 beforeMatched("/*", auth.authToken);
                 get("/api/monitor/incidents", monitor.getIncidents, AuthRouteRole.PANEL_OR_MCP);
-                get("/api/map/player-positions", map.getPlayerPositions, AuthRouteRole.PANEL_OR_MCP);
+                get("/api/map-info/player-positions", map.getPlayerPositions, AuthRouteRole.PANEL_OR_MCP);
                 get("/api/diagnostics/settings", diagnostics.getSettings, AuthRouteRole.PANEL_SESSION);
                 post("/api/diagnostics/settings", diagnostics.saveSettings, AuthRouteRole.PANEL_SESSION);
             });
@@ -67,7 +67,7 @@ public class PerformanceIncidentHttpTest {
             String id = rows.get(0).getAsJsonObject().get("id").getAsString();
             response = client.send(HttpRequest.newBuilder(URI.create(base + "?id=" + id)).header("Cookie", "token=" + token).build(), HttpResponse.BodyHandlers.ofString());
             if(JsonParser.parseString(response.body()).getAsJsonObject().getAsJsonArray("incidents").get(0).getAsJsonObject().getAsJsonArray("samples").size() != 2) throw new AssertionError("detail lost evidence");
-            String positionsUrl = "http://127.0.0.1:" + app.port() + "/api/map/player-positions";
+            String positionsUrl = "http://127.0.0.1:" + app.port() + "/api/map-info/player-positions";
             if(client.send(HttpRequest.newBuilder(URI.create(positionsUrl)).build(), HttpResponse.BodyHandlers.ofString()).statusCode() != 401) throw new AssertionError("anonymous positions access allowed");
             net.opanel.map.MapPlayerPositions.publish(System.currentTimeMillis(), List.of(
                     new net.opanel.map.MapPlayerPositions.Position("online-id", "Alex", "world_nether", -10, 64, 20)));

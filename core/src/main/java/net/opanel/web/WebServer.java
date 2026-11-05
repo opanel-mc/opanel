@@ -175,11 +175,13 @@ public class WebServer {
             path("map", Set.of(PANEL_OR_MCP), () -> {
                 get("/", mapController.getMapEnabled);
                 post("/", mapController.toggleMap);
-                get("player-positions", mapController.getPlayerPositions);
-                get("worlds", mapController.getMapWorlds);
                 get("{saveName}", mapController.getAvailableTiles);
                 post("{saveName}/tiles-range", mapController.getTilesInRange);
                 post("{saveName}/tiles", mapController.getTiles);
+            });
+            path("map-info", Set.of(PANEL_OR_MCP), () -> {
+                get("player-positions", mapController.getPlayerPositions);
+                get("worlds", mapController.getMapWorlds);
             });
             path("monitor", Set.of(PANEL_OR_MCP), () -> {
                 get("/", monitorController.getMonitorSnapshot); // for mcp

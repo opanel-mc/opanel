@@ -7,6 +7,9 @@ import java.util.*;
 
 /** One finite capture per incident. No loaded-chunk enumeration or forced loads. */
 public final class PaperIncidentSceneSampler {
+    private static final class CollectionLimitReached extends RuntimeException {
+        @Override public synchronized Throwable fillInStackTrace() { return this; }
+    }
     private record Key(String world, int x, int z) {}
     private static String seen;
     private static String capturing;
@@ -16,6 +19,11 @@ public final class PaperIncidentSceneSampler {
     private static final List<IncidentScene.Chunk> chunks = new ArrayList<>();
     private static final List<IncidentScene.Player> players = new ArrayList<>();
     private static final java.lang.reflect.Method ENTITIES_LOADED = findEntitiesLoaded();
+    private static final java.lang.reflect.Method FILTERED_BLOCK_ENTITIES = findFilteredBlockEntities();
+    private static java.lang.reflect.Method findFilteredBlockEntities() {
+        try { return org.bukkit.Chunk.class.getMethod("getTileEntities", java.util.function.Predicate.class, boolean.class); }
+        catch(NoSuchMethodException e) { return null; }
+    }
     private static java.lang.reflect.Method findEntitiesLoaded() {
         try { return org.bukkit.Chunk.class.getMethod("isEntitiesLoaded"); }
         catch(NoSuchMethodException e) { return null; }
@@ -59,15 +67,28 @@ public final class PaperIncidentSceneSampler {
             var chunk = world.getChunkAt(key.x(), key.z());
             if(entitiesLoaded(chunk)) {
                 status = "sampled";
-                int count = 0;
-                for(var entity : chunk.getEntities()) {
-                    if(count++ >= 1024) { status = "truncated"; break; }
-                    entities.merge(entity.getType().name(), 1, Integer::sum);
+                // Bukkit's entity queries allocate the whole result before applying
+                // predicates. Only query when the world-wide count bounds that allocation.
+                if(world.getEntityCount() <= 1024) {
+                    for(var entity : chunk.getEntities()) entities.merge(entity.getType().name(), 1, Integer::sum);
+                } else {
+                    status = "entities-unavailable";
                 }
-                count = 0;
-                for(var block : chunk.getTileEntities(false)) {
-                    if(count++ >= 1024) { status = "truncated"; break; }
-                    blocks.merge(block.getType().name(), 1, Integer::sum);
+                final int[] blockCount = {0};
+                java.util.function.Predicate<org.bukkit.block.Block> blockFilter = block -> {
+                        if(blockCount[0]++ >= 1024) throw new CollectionLimitReached();
+                        blocks.merge(block.getType().name(), 1, Integer::sum);
+                        return false;
+                    };
+                if(FILTERED_BLOCK_ENTITIES == null) status = "entities-unavailable";
+                else try {
+                    FILTERED_BLOCK_ENTITIES.invoke(chunk, blockFilter, false);
+                } catch(java.lang.reflect.InvocationTargetException e) {
+                    if(e.getCause() instanceof CollectionLimitReached) {
+                        if(!status.equals("entities-unavailable")) status = "truncated";
+                    } else status = "entities-unavailable";
+                } catch(ReflectiveOperationException e) {
+                    status = "entities-unavailable";
                 }
             } else status = "entities-unavailable";
         }

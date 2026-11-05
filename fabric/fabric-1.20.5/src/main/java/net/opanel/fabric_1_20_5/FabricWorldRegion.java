@@ -73,7 +73,7 @@ public class FabricWorldRegion extends BaseFabricWorldRegion implements OPanelWo
             int minY = getMapWorld().getBottomY();
             int maxY = getMapWorld().getTopY();
             Tile tile = new Tile(chunkX, chunkZ, sections, motionBlockingHeightMap, minY, maxY);
-            if(net.opanel.map.MapDimensions.fromRegionPath(regionPath) == -1) tile.useNetherSurface();
+            if(getMapDimension() == -1) tile.useNetherSurface();
             return tile;
         } catch (IOException e) {
             e.printStackTrace();

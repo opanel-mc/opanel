@@ -54,6 +54,7 @@ public class MapRenderManager {
 
     private Consumer<OPanelChunkDirtyEvent> chunkDirtyListener;
     private final Map<String, DirtyChunkTracker> dirtyChunkTrackers = new ConcurrentHashMap<>();
+    private int nextDirtyWorld;
     private final Map<String, ScheduledFuture<?>> pendingBundleWrite = new ConcurrentHashMap<>();
 
     public MapRenderManager(OPanel plugin) {
@@ -114,7 +115,13 @@ public class MapRenderManager {
         if(accessor == null) return;
 
         int remaining = MAX_CHUNKS_PER_FLUSH;
-        for(var entry : dirtyChunkTrackers.entrySet()) {
+        var entries = new java.util.ArrayList<>(dirtyChunkTrackers.entrySet());
+        if(entries.isEmpty()) return;
+        entries.sort(Map.Entry.comparingByKey());
+        int start = Math.floorMod(nextDirtyWorld, entries.size());
+        nextDirtyWorld = (start + 1) % entries.size();
+        for(int offset = 0; offset < entries.size(); offset++) {
+        var entry = entries.get((start + offset) % entries.size());
         List<Long> batch = entry.getValue().drain(remaining);
         remaining -= batch.size();
         if(batch.isEmpty()) continue;

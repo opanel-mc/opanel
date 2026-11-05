@@ -103,7 +103,7 @@ export default function ServerMap() {
 
   const fetchServerWorlds = async () => {
     try {
-      const { worlds, defaultWorld } = await sendGetRequest<{ worlds: string[]; defaultWorld: string }>("/api/map/worlds");
+      const { worlds, defaultWorld } = await sendGetRequest<{ worlds: string[]; defaultWorld: string }>("/api/map-info/worlds");
       const filteredSaves = worlds.map(name => ({ name, isRunning: true } as Save));
       setSaves(filteredSaves);
       const requestedWorld = new URLSearchParams(window.location.search).get("world");
