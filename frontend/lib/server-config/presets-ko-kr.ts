@@ -1,0 +1,90 @@
+import type { PropertyTranslations } from ".";
+
+/**
+ * Text excerpts from Minecraft Wiki contributors, CC BY-NC-SA 3.0.
+ * Wiki markup and references omitted; unavailable translations are empty.
+ * @see https://ko.minecraft.wiki/w/Server.properties?oldid=105429
+ * @see https://ko.minecraft.wiki/w/Server.properties?oldid=86705
+ * @see https://creativecommons.org/licenses/by-nc-sa/3.0/
+ */
+export const wikiUrl = "https://ko.minecraft.wiki/w/Server.properties";
+
+const serverPropertiesPresets: PropertyTranslations = {
+  "accepts-transfers": "",
+  "allow-flight": "이 설정을 켜두면 크리에이티브, 관전자모드를 제외한 게임모드를 가진 플레이어가 하늘을 날아도 별 다른 조치를 하지 않게 할 수 있습니다. 예를 들어 모드를 사용하여 날아다니거나 핵 사용자가 날아다닐 수 있게됩니다.",
+  "allow-nether": "네더에 들어갈 수 있게 할지 안할지 설정합니다.",
+  "broadcast-console-to-ops": "콘솔의 커맨드 출력을 온라인 상태의 관리자에게 전송합니다.",
+  "broadcast-rcon-to-ops": "rcon콘솔의 커맨드 출력을 온라인 상태의 관리자에게 전송합니다.",
+  "bug-report-link": "",
+  "debug": "",
+  "difficulty": "서버의 난이도를 설정합니다. (난이도에 따라 몬스터가 입히는 데미지의 양이 증가하고, 배고픔과 독 효과가 달라집니다)",
+  "enable-code-of-conduct": "",
+  "enable-command-block": "커맨드 블록의 사용을 허용합니다.",
+  "enable-jmx-monitoring": "",
+  "enable-query": "GameSpy4 프로토콜을 허용합니다. 서버의 정보를 가져올 때 사용합니다.",
+  "enable-rcon": "원격에서 서버 콘솔에 접근하는 것을 허용합니다.",
+  "enable-status": "서버 목록에서 서버의 상태가 \"온라인\" 이라고 표시되게 합니다.",
+  "enforce-secure-profile": "",
+  "enforce-whitelist": "",
+  // The old translation incorrectly describes a mob spawn rate.
+  "entity-broadcast-range-percentage": "",
+  "force-gamemode": "서버에 접속시 지정된 게임모드로 변경할 것인지 설정합니다.",
+  "function-permission-level": "Minecraft 함수의 기본 펄미션 레벨을 설정합니다.",
+  "gamemode": "게임 플레이시 게임모드를 정합니다.",
+  "generate-structures": "구조물의 생성 여부를 정합니다. (예를 들어 마을)",
+  "generator-settings": "서버에서 생성할 월드를 마음대로 조정할 수 있습니다. 완전한 평지 와 사용자 지정 에서 예제를 보실 수 있습니다.",
+  // The old translation describes the removed death-ban behavior.
+  "hardcore": "",
+  "hide-online-players": "",
+  "initial-disabled-packs": "",
+  "initial-enabled-packs": "",
+  "level-name": "생성될 월드 폴더의 이름을 지정합니다. 만약 저장된 게임을 불러오고 싶다면 이 설정을 폴더의 이름과 동일하게 바꾸면 됩니다.",
+  "level-seed": "월드를 생성 할 때 사용할 시드를 설정합니다.",
+  "level-type": "월드가 어떤 방식으로 생성될 지 설정합니다.",
+  "log-ips": "",
+  "management-server-enabled": "",
+  "management-server-host": "",
+  "management-server-port": "",
+  "management-server-secret": "",
+  "management-server-tls-enabled": "",
+  "management-server-tls-keystore": "",
+  "management-server-tls-keystore-password": "",
+  "max-build-height": "플레이어가 블록을 설치할 수 있는 최고 높이를 설정합니다.",
+  "max-chained-neighbor-updates": "",
+  "max-players": "서버에 접속 가능한 최대 플레이어 수를 설정합니다. 많은 플레이어를 수용할 시 그만큼 더 많은 리소스를 사용하게 됩니다. 관리자(op)는 최대 플레이어에 관계없이 접속이 가능합니다. 그러나 관리자도 접속하지 못할 정도가 되면 클라이언트에서 유저 리스트가 손상됩니다.",
+  "max-tick-time": "설정된 값의 틱을 넘어서면(렉의 발생 등) 서버가 다음 메세지를 출력하면서 정지됩니다: A single server tick took 60.00 seconds (should be max 0.05); Considering it to be crashed, server will forcibly shutdown. 또한 System.exit(1)를 호출합니다.",
+  "max-world-size": "",
+  "network-compression-threshold": "",
+  "online-mode": "",
+  "op-permission-level": "서버 OP의 권한의 정도를 설정합니다.",
+  "pause-when-empty-seconds": "",
+  "player-idle-timeout": "",
+  "prevent-proxy-connections": "",
+  "pvp": "",
+  "query.port": "",
+  "rate-limit": "",
+  "rcon.password": "",
+  "rcon.port": "",
+  "region-file-compression": "",
+  "require-resource-pack": "",
+  "resource-pack": "(선택사항) 리소스팩의 다운로드 URL을 입력하여 유저가 서버리소스팩으로 다운로드합니다. 서버 리소스팩은 유저가 사용 여부를 결정 할 수 있으며 다운로드 성공 여부는 서버에 처음 로그인 할 때 알려줍니다. 하지만 실패하더라도 서버에서 활동하는 것은 가능합니다. 리소스팩의 용량이 약 50MB(50.4MB)보다 크면 안됩니다.",
+  "resource-pack-id": "",
+  "resource-pack-prompt": "",
+  "resource-pack-sha1": "(선택사항) SHA-1 함수로 암호화 된 리소스팩을 입력합니다. 이것은 소문자로 된 16진수로 구성되어 있으며, 리소스팩의 무결성을 검증하는데 사용하기 때문에 정확하게 입력해야 합니다.",
+  "server-ip": "당신이 원하는 특정한 아이피로 서버에 접근할 수 있도록 고정합니다. 이 칸을 비워두는 것을 강력하게 추천합니다.",
+  "server-port": "",
+  "simulation-distance": "",
+  "spawn-animals": "",
+  "spawn-monsters": "",
+  "spawn-npcs": "",
+  "spawn-protection": "",
+  "status-heartbeat-interval": "",
+  "sync-chunk-writes": "",
+  "text-filtering-config": "",
+  "text-filtering-version": "",
+  "use-native-transport": "",
+  "view-distance": "",
+  "white-list": "",
+};
+
+export default serverPropertiesPresets;

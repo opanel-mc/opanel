@@ -11,6 +11,8 @@ import { compare } from "semver";
 import { Flame, PencilRuler, Search, TentTree, View } from "lucide-react";
 import {
   generateFormSchema,
+  getGamerulePresets,
+  getGameruleWikiUrl,
   type ServerGamerules
 } from "@/lib/gamerules";
 import { Dimension, type GamerulesResponse } from "@/lib/types";
@@ -27,8 +29,7 @@ import {
   FieldError,
   FieldLabel
 } from "@/components/ui/field";
-import _gamerulePresets from "@/lib/gamerules/presets";
-import _gamerulePresetsOld from "@/lib/gamerules/presets-old";
+import { getSettings } from "@/lib/settings";
 import { SubPage } from "../sub-page";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { $ } from "@/lib/i18n";
@@ -45,12 +46,11 @@ export default function Gamerules() {
   const searchParams = useSearchParams();
   const dimFromUrl = searchParams.get("dim");
   const versionCtx = useContext(VersionContext);
-  const gamerulePresets = useMemo(() => {
-    if(versionCtx && compare(versionCtx.version, "1.21.11") < 0) {
-      return _gamerulePresetsOld;
-    }
-    return _gamerulePresets;
-  }, [versionCtx]);
+  const language = getSettings("system.language");
+  const gamerulePresets = useMemo(() => getGamerulePresets(
+    language,
+    !!versionCtx && compare(versionCtx.version, "1.21.11") < 0
+  ), [language, versionCtx]);
   const [dimension, setDimension] = useState<Dimension>(
     dimFromUrl
     ? getDimensionByName(dimFromUrl)
@@ -194,7 +194,7 @@ export default function Gamerules() {
                               <TooltipTrigger asChild>
                                 <span tabIndex={0} className="text-ellipsis overflow-hidden">{key}</span>
                               </TooltipTrigger>
-                              <TooltipContent>{preset ? preset.name : key}</TooltipContent>
+                              <TooltipContent>{preset?.name || key}</TooltipContent>
                             </Tooltip>
                           </FieldLabel>
                           {(preset && preset.description) && <FieldDescription>{preset.description}</FieldDescription>}
@@ -249,7 +249,7 @@ export default function Gamerules() {
             id="gamerules.hint2"
             args={[
               <Link
-                href="https://zh.minecraft.wiki/w/游戏规则#游戏规则列表"
+                href={getGameruleWikiUrl(language)}
                 target="_blank"
                 rel="noopener noreferrer"
                 key={0}>
