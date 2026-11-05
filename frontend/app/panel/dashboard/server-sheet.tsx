@@ -19,6 +19,8 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   generateFormSchema,
+  getServerPropertiesPresets,
+  getServerPropertiesWikiUrl,
   type ServerProperties
 } from "@/lib/server-config";
 import { sendGetRequest, sendPostRequest, toastError } from "@/lib/api";
@@ -30,7 +32,7 @@ import {
   FieldError,
   FieldLabel
 } from "@/components/ui/field";
-import serverPropertiesPresets from "@/lib/server-config/presets";
+import { getSettings } from "@/lib/settings";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { $ } from "@/lib/i18n";
@@ -44,6 +46,8 @@ export function ServerSheet({
   asChild?: boolean
 }) {
   const { restartAlert, openRestartAlert } = useRestartAlert();
+  const language = getSettings("system.language");
+  const serverPropertiesPresets = useMemo(() => getServerPropertiesPresets(language), [language]);
   const [properties, setProperties] = useState<ServerProperties>({});
   const [hasChanged, setChanged] = useState<boolean>(false);
   const propertiesMap = useMemo(() => objectToMap(properties), [properties]);
@@ -140,7 +144,7 @@ export function ServerSheet({
                           {(preset && preset.icon) && <preset.icon size={17}/>}
                           {key}
                         </FieldLabel>
-                        {preset && <FieldDescription>{preset.description}</FieldDescription>}
+                        {preset?.description && <FieldDescription>{preset.description}</FieldDescription>}
                         {fieldState.invalid && (
                           <FieldError id={`${formId}-${field.name}-error`} errors={[fieldState.error]}/>
                         )}
@@ -182,7 +186,7 @@ export function ServerSheet({
               id="dashboard.properties.hint2"
               args={[
                 <Link
-                  href="https://zh.minecraft.wiki/w/服务端配置文件格式"
+                  href={getServerPropertiesWikiUrl(language)}
                   target="_blank"
                   rel="noopener noreferrer"
                   key={0}>
