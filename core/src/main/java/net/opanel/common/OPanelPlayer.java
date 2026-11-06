@@ -29,7 +29,16 @@ public interface OPanelPlayer {
     InetAddress getAddress();
 
     default Map<String, Object> serializePosition() {
-        return Map.of("x", getX(), "y", getY(), "z", getZ());
+        return serializePosition(getX(), getY(), getZ(), null);
+    }
+
+    static Map<String, Object> serializePosition(double x, double y, double z, String save) {
+        Map<String, Object> position = new HashMap<>();
+        position.put("x", x);
+        position.put("y", y);
+        position.put("z", z);
+        if(save != null) position.put("save", save);
+        return position;
     }
 
     default HashMap<String, Object> serialize(boolean isWhitelistEnabled, List<String> whitelistedNames, Long joinTime) {

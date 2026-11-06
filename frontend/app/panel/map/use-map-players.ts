@@ -6,14 +6,23 @@ import { PlayersClient } from "@/lib/ws/players";
 export function useMapPlayers(enabled: boolean) {
   const [players, setPlayers] = useState<PlayerMoveData[]>([]);
 
+  const [disconnected, setDisconnected] = useState(false);
+
   useEffect(() => {
     if(!enabled) return;
 
-    const client = new PlayersClient();
     const online = new Map<string, PlayerMoveData>();
     const pending = new Map<string, PlayerMoveData>();
     const publish = () => setPlayers([...online.values()]);
     let active = true;
+    const client = new PlayersClient(() => {
+      if(!active) return;
+      active = false;
+      online.clear();
+      pending.clear();
+      publish();
+      setDisconnected(true);
+    });
 
     client.subscribe("init", (players: Player[]) => {
       if(!active) return;
@@ -40,9 +49,20 @@ export function useMapPlayers(enabled: boolean) {
 
     client.subscribe("move", (moves: PlayerMoveData[]) => {
       if(!active) return;
+      let worldChanged = false;
       for(const move of moves) {
-        if(online.has(move.uuid)) pending.set(move.uuid, move);
+        const player = online.get(move.uuid);
+        if(!player) continue;
+
+        if(player.position.save !== move.position.save) {
+          pending.delete(move.uuid);
+          online.set(move.uuid, move);
+          worldChanged = true;
+        } else {
+          pending.set(move.uuid, move);
+        }
       }
+      if(worldChanged) publish();
     });
 
     const timer = window.setInterval(() => {
@@ -57,8 +77,9 @@ export function useMapPlayers(enabled: boolean) {
       window.clearInterval(timer);
       client.close();
       setPlayers([]);
+      setDisconnected(false);
     };
   }, [enabled]);
 
-  return players;
+  return { players, disconnected };
 }

@@ -109,7 +109,7 @@ export default function ServerMap() {
   const mapRef = useRef<MapCanvasHandle | null>(null);
   const pendingCenter = useRef<PlayerMoveData["position"] | null>(null);
   const [showPlayers, setShowPlayers] = useState(() => supportsMapPlayers && getSettings("map.show-players"));
-  const players = useMapPlayers(showPlayers);
+  const { players, disconnected } = useMapPlayers(showPlayers);
 
   const focusPlayer = ({ position }: PlayerMoveData) => {
     if(!position.save) return;
@@ -173,7 +173,13 @@ export default function ServerMap() {
             emitter.emit("loading-done");
           }}/>
 
-        {showPlayers && <MapPlayerList players={players} saves={saves.map(({ name }) => name)} onSelect={focusPlayer}/>}
+        {showPlayers && (
+          <MapPlayerList
+            players={players}
+            disconnected={disconnected}
+            saves={saves.map(({ name }) => name)}
+            onSelect={focusPlayer}/>
+        )}
 
         <div className="absolute bottom-6 left-6 bg-accent border w-xs max-sm:w-40 h-10 rounded-lg shadow-xl flex items-center max-sm:flex-row-reverse">
           <Select value={save} onValueChange={(value) => {

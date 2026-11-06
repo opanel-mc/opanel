@@ -7,10 +7,12 @@ import { $ } from "@/lib/i18n";
 
 export function MapPlayerList({
   players,
+  disconnected,
   saves,
   onSelect,
 }: {
   players: PlayerMoveData[]
+  disconnected: boolean
   saves: string[]
   onSelect: (player: PlayerMoveData) => void
 }) {
@@ -18,12 +20,14 @@ export function MapPlayerList({
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="outline" className="absolute top-6 right-6 bg-accent shadow-xl">
-          <Users /> {$("map.players")} ({players.length})
+          <Users /> {disconnected ? $("map.players.disconnected") : `${$("map.players")} (${players.length})`}
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-64 bg-accent p-2">
         {players.length === 0 ? (
-          <p className="px-2 py-3 text-sm text-muted-foreground">{$("map.players.empty")}</p>
+          <p className="px-2 py-3 text-sm text-muted-foreground">
+            {$(disconnected ? "map.players.disconnected" : "map.players.empty")}
+          </p>
         ) : (
           <ul className="o-scrollbar max-h-64 overflow-y-auto">
             {players.map((player) => {

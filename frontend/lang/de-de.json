@@ -475,6 +475,7 @@
   "map.toggle.disable.error": "Deaktivierung der Kartenfunktion fehlgeschlagen",
   "map.players": "Spieler online",
   "map.players.empty": "Keine Spieler online",
+  "map.players.disconnected": "Spielerverbindung getrennt",
 
   "map.settings.title": "Karteneinstellungen",
   "map.settings.description": "Passen Sie hier die Anzeigeoptionen der Karte an.",

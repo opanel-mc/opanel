@@ -22,12 +22,8 @@ public class PaperPlayer extends BasePaperPlayer implements OPanelPlayer {
     }
 
     static Map<String, Object> serializePosition(Location location) {
-        return Map.of(
-                "x", location.getX(),
-                "y", location.getY(),
-                "z", location.getZ(),
-                "save", location.getWorld().getWorldFolder().getName()
-        );
+        return OPanelPlayer.serializePosition(
+                location.getX(), location.getY(), location.getZ(), location.getWorld().getWorldFolder().getName());
     }
 
     @Override

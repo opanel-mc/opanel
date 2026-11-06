@@ -475,6 +475,7 @@
   "map.toggle.disable.error": "マップ機能の無効化に失敗しました",
   "map.players": "オンラインプレイヤー",
   "map.players.empty": "オンラインのプレイヤーはいません",
+  "map.players.disconnected": "プレイヤー情報の接続が切断されました",
 
   "map.settings.title": "マップ設定",
   "map.settings.description": "ここでマップの表示設定を調整できます。",

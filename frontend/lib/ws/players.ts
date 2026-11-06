@@ -17,7 +17,7 @@ export type PlayersMessageType = (
 );
 
 export class PlayersClient extends WebSocketClient<PlayersMessageType> {
-  constructor() {
+  constructor(private readonly onDisconnected?: () => void) {
     super("/socket/players");
   }
 
@@ -27,6 +27,7 @@ export class PlayersClient extends WebSocketClient<PlayersMessageType> {
   
   protected override onClose() {
     console.log("Player list disconnected.");
+    this.onDisconnected?.();
   }
 
   protected override onError(err: Event) {
