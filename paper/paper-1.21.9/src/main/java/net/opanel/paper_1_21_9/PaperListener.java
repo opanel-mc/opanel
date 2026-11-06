@@ -4,13 +4,18 @@ import net.opanel.paper_helper.BasePaperListener;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.event.*;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class PaperListener extends BasePaperListener implements Listener {
     private final Main plugin;
@@ -29,16 +34,32 @@ public class PaperListener extends BasePaperListener implements Listener {
         EventManager.get().emit(EventType.PLAYER_LEAVE, new OPanelPlayerLeaveEvent(new PaperPlayer(plugin, event.getPlayer())));
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerMove(PlayerMoveEvent event) {
-        if(!hasPlayerMoved(event)) return;
+        var to = event.getTo();
+        if(to == null || (event.getFrom().getWorld() == to.getWorld() && !hasPlayerMoved(event))) return;
 
-        EventManager.get().emit(EventType.PLAYER_MOVE, new OPanelPlayerMoveEvent(new PaperPlayer(plugin, event.getPlayer())));
+        emitPlayerPosition(event.getPlayer(), to);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        onPlayerMove(event);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerPortal(PlayerPortalEvent event) {
         onPlayerMove(event);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        emitPlayerPosition(event.getPlayer(), event.getRespawnLocation());
+    }
+
+    private void emitPlayerPosition(Player player, Location location) {
+        EventManager.get().emit(EventType.PLAYER_MOVE, new OPanelPlayerMoveEvent(
+                new PaperPlayer(plugin, player), PaperPlayer.serializePosition(location)));
     }
 
     @EventHandler

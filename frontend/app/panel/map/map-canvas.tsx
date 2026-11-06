@@ -1,12 +1,14 @@
 "use client";
 
-import type { MainToWorker, RenderSettings, WorkerToMain } from "@/lib/map/tile-worker-protocol";
+import type { MainToWorker, RenderSettings, Viewport, WorkerToMain } from "@/lib/map/tile-worker-protocol";
+import type { PlayerMoveData } from "@/lib/ws/players";
 import {
   forwardRef,
   useCallback,
   useEffect,
   useImperativeHandle,
   useRef,
+  useState,
   type PointerEvent,
   type WheelEvent,
 } from "react";
@@ -16,6 +18,7 @@ import { MAX_ZOOM, MIN_ZOOM, useMapTiles } from "@/hooks/use-map-tiles";
 import { useLatestRef } from "@/hooks/use-latest-ref";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { type ChunksFlushedPayload, MapClient } from "@/lib/ws/map";
+import { PlayerAvatar } from "@/components/player-avatar";
 
 const TILE_BLOCKS = 16;
 
@@ -30,6 +33,7 @@ export interface MapCanvasHandle {
 interface MapCanvasProps {
   save: string
   settings: RenderSettings
+  players?: PlayerMoveData[]
   onCoordChange?: (coord: { x: number, z: number } | null) => void
   onFpsChange?: (fps: number) => void
   onTilesLoadedChange?: (count: number) => void
@@ -41,6 +45,7 @@ interface MapCanvasProps {
 const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas({
   save,
   settings,
+  players,
   onCoordChange,
   onFpsChange,
   onTilesLoadedChange,
@@ -60,6 +65,8 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
   const onLoadRef = useLatestRef(onLoad);
   const saveRef = useLatestRef(save);
   const client = useWebSocket(MapClient);
+  const showPlayers = players !== undefined;
+  const [projection, setProjection] = useState<Pick<Viewport, "camera" | "zoom" | "viewportPx"> | null>(null);
 
   const {
     viewportRef,
@@ -68,8 +75,18 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
     setViewportSize,
     refresh,
   } = useMapTiles({
-    postWorkerMessage: (msg) => workerRef.current?.postMessage(msg),
+    postWorkerMessage: (msg) => {
+      workerRef.current?.postMessage(msg);
+      if(showPlayers && "viewport" in msg) {
+        const { camera, zoom, viewportPx } = msg.viewport;
+        setProjection({ camera: { ...camera }, zoom, viewportPx });
+      }
+    },
   });
+
+  useEffect(() => {
+    if(showPlayers) postViewport();
+  }, [showPlayers, postViewport]);
 
   const handlePointerDown = (e: PointerEvent<HTMLDivElement>) => {
     dragRef.current.active = true;
@@ -270,8 +287,25 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
       onPointerCancel={handlePointerEnd}
       onPointerLeave={handlePointerLeave}
       onWheel={handleWheel}
-      className="w-full h-full overflow-hidden touch-none cursor-grab active:cursor-grabbing select-none">
+      className="relative w-full h-full overflow-hidden touch-none cursor-grab active:cursor-grabbing select-none">
       <canvas ref={canvasRef} className="block w-full h-full image-pixelated"/>
+      {projection && players?.map(({ uuid, name, position }) => {
+        const x = (position.x - projection.camera.x * TILE_BLOCKS) * projection.zoom;
+        const z = (position.z - projection.camera.z * TILE_BLOCKS) * projection.zoom;
+
+        const { width, height } = projection.viewportPx;
+        if(Math.abs(x) > width / 2 || Math.abs(z) > height / 2) return null;
+
+        return (
+          <div
+            key={uuid}
+            className="pointer-events-none absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-full flex-col items-center gap-0.5"
+            style={{ marginLeft: x, marginTop: z }}>
+            <span className="rounded-sm bg-black/80 px-1.5 py-0.5 text-xs font-semibold text-white shadow-sm">{name}</span>
+            <PlayerAvatar name={name} className="size-6 rounded-sm ring-1 ring-white/80 shadow-md"/>
+          </div>
+        );
+      })}
     </div>
   );
 });

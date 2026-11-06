@@ -15,6 +15,7 @@ const storageKey = "opanel.settings";
 
 export type SettingsStorageType = {
   "map.render-settings": RenderSettings
+  "map.show-players": boolean
   "players.avatar-provider": AvatarProvider | string
   "players.skin-provider": SkinProvider | string
   // "players.cape-provider": CapeProvider | string
@@ -54,6 +55,7 @@ const defaultSettings: SettingsStorageType = {
     renderShadows: true,
     debugMode: false
   },
+  "map.show-players": false,
   "players.avatar-provider": AvatarProvider.MINOTAR,
   "players.skin-provider": SkinProvider.MINOTAR,
   // "players.cape-provider": CapeProvider.CRAFATAR,

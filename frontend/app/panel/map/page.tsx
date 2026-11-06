@@ -3,6 +3,7 @@
 import type { Save, SavesResponse } from "@/lib/types";
 import type { MapCanvasHandle } from "./map-canvas";
 import type { RenderSettings } from "@/lib/map/tile-worker-protocol";
+import type { PlayerMoveData } from "@/lib/ws/players";
 import dynamic from "next/dynamic";
 import { type PropsWithChildren, useEffect, useRef, useState } from "react";
 import { House, MapPinned, Minus, Plus, RotateCw, Settings } from "lucide-react";
@@ -34,6 +35,10 @@ import { changeSettings, getSettings } from "@/lib/settings";
 import { DEFAULT_ZOOM } from "@/hooks/use-map-tiles";
 import { emitter } from "@/lib/emitter";
 import { CoordDialog } from "./coord-dialog";
+import { MapPlayerList } from "./map-player-list";
+import { useMapPlayers } from "./use-map-players";
+
+const supportsMapPlayers = import.meta.env.VITE_OPANEL_TARGET === "paper-1.21.9";
 
 const MapCanvas = dynamic(() => import("./map-canvas"), { ssr: false });
 
@@ -41,11 +46,15 @@ function MapSettingsPopover({
   children,
   asChild,
   settings,
-  onSettingsChange
+  onSettingsChange,
+  showPlayers,
+  onShowPlayersChange,
 }: PropsWithChildren<{
   asChild?: boolean
   settings: RenderSettings
   onSettingsChange: (newSettings: RenderSettings) => void
+  showPlayers: boolean
+  onShowPlayersChange: (show: boolean) => void
 }>) {
   return (
     <Popover>
@@ -70,6 +79,12 @@ function MapSettingsPopover({
               checked={settings.renderShadows}
               onCheckedChange={(checked) => onSettingsChange({ ...settings, renderShadows: checked })}/>
           </Field>
+          {supportsMapPlayers && (
+            <Field orientation="horizontal">
+              <FieldLabel htmlFor="map-show-players">{$("map.settings.show-players")}</FieldLabel>
+              <Switch id="map-show-players" checked={showPlayers} onCheckedChange={onShowPlayersChange}/>
+            </Field>
+          )}
           <Field orientation="horizontal">
             <FieldLabel>{$("map.settings.debug-mode")}</FieldLabel>
             <Switch
@@ -92,13 +107,26 @@ export default function ServerMap() {
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
   const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
   const mapRef = useRef<MapCanvasHandle | null>(null);
+  const pendingCenter = useRef<PlayerMoveData["position"] | null>(null);
+  const [showPlayers, setShowPlayers] = useState(() => supportsMapPlayers && getSettings("map.show-players"));
+  const players = useMapPlayers(showPlayers);
+
+  const focusPlayer = ({ position }: PlayerMoveData) => {
+    if(!position.save) return;
+    if(position.save === save) {
+      mapRef.current?.setCenter(position);
+    } else {
+      pendingCenter.current = position;
+      setSave(position.save);
+    }
+  };
 
   const fetchServerWorlds = async () => {
     try {
       const { saves } = await sendGetRequest<SavesResponse>("/api/saves");
       const filteredSaves = saves.filter((item) => item.isRunning);
       setSaves(filteredSaves);
-      setSave(filteredSaves[0].name ?? "");
+      setSave(filteredSaves[0]?.name ?? "");
     } catch (e: any) {
       toastError(e, $("saves.fetch.error"), [
         [400, $("common.error.400")],
@@ -131,15 +159,27 @@ export default function ServerMap() {
           ref={mapRef}
           save={save}
           settings={settings}
+          players={showPlayers ? players.filter(({ position }) => position.save === save) : undefined}
           onCoordChange={setCoord}
           onFpsChange={setFps}
           onTilesLoadedChange={setTilesLoaded}
           onZoomChange={setZoom}
           onResize={(width, height) => setViewportSize({ width, height })}
-          onLoad={() => emitter.emit("loading-done")}/>
+          onLoad={() => {
+            if(pendingCenter.current?.save === save) {
+              mapRef.current?.setCenter(pendingCenter.current);
+              pendingCenter.current = null;
+            }
+            emitter.emit("loading-done");
+          }}/>
+
+        {showPlayers && <MapPlayerList players={players} saves={saves.map(({ name }) => name)} onSelect={focusPlayer}/>}
 
         <div className="absolute bottom-6 left-6 bg-accent border w-xs max-sm:w-40 h-10 rounded-lg shadow-xl flex items-center max-sm:flex-row-reverse">
-          <Select value={save} onValueChange={setSave}>
+          <Select value={save} onValueChange={(value) => {
+            pendingCenter.current = null;
+            setSave(value);
+          }}>
             <SelectTrigger className="bg-transparent! border-0 ring-0! outline-none px-4 max-sm:hidden cursor-pointer">
               <SelectValue />
             </SelectTrigger>
@@ -162,6 +202,11 @@ export default function ServerMap() {
           <MapSettingsPopover
             settings={settings}
             onSettingsChange={handleSettingsChange}
+            showPlayers={showPlayers}
+            onShowPlayersChange={(show) => {
+              setShowPlayers(show);
+              changeSettings("map.show-players", show);
+            }}
             asChild>
             <Button variant="ghost" size="icon" className="cursor-pointer">
               <Settings />
@@ -195,7 +240,7 @@ export default function ServerMap() {
         </div>
 
         {settings.debugMode && (
-          <div className={cn("absolute top-2 right-2 min-w-24 px-1 py-0.5 bg-accent/50 text-xs flex flex-col items-end gap-1", googleSansCode.className)}>
+          <div className={cn(showPlayers ? "top-18" : "top-2", "pointer-events-none absolute right-2 min-w-24 px-1 py-0.5 bg-accent/50 text-xs flex flex-col items-end gap-1", googleSansCode.className)}>
             <span>W: {viewportSize.width.toFixed(2)}</span>
             <span>H: {viewportSize.height.toFixed(2)}</span>
             <span>{fps} FPS</span>

@@ -2,7 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import type { Player } from "@/lib/types";
 import Link from "next/link";
 import { Backpack, Ban, BrushCleaning, Check, ShieldHalf, ShieldOff, UserMinus, UserStar } from "lucide-react";
-import { base64ToString, cn, gameModeToString } from "@/lib/utils";
+import { base64ToString, gameModeToString } from "@/lib/utils";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Button } from "@/components/ui/button";
 import { Prompt } from "@/components/prompt";
@@ -16,30 +16,8 @@ import {
 } from "./player-utils";
 import { PlayerSheet } from "./player-sheet";
 import { emitter } from "@/lib/emitter";
-import { getSettings } from "@/lib/settings";
 import { $ } from "@/lib/i18n";
-
-import SteveAvatar from "@/assets/images/steve-avatar.png";
-
-function PlayerAvatar({
-  name,
-  className
-}: {
-  name: string
-  className?: string
-}) {
-  return (
-    <img
-      src={getSettings("players.avatar-provider") + name}
-      alt={name}
-      width={17}
-      height={17}
-      className={cn("image-pixelated", className)}
-      onError={(e) => {
-        (e.target as HTMLImageElement).src = SteveAvatar.src;
-      }}/>
-  );
-}
+import { PlayerAvatar } from "@/components/player-avatar";
 
 function PlayerHoverInfo({
   name,

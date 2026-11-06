@@ -5,12 +5,29 @@ import net.opanel.paper_helper.BasePaperPlayer;
 import net.opanel.common.OPanelPlayer;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.Location;
+
+import java.util.Map;
 
 import java.util.Date;
 
 public class PaperPlayer extends BasePaperPlayer implements OPanelPlayer {
     public PaperPlayer(Main plugin, Player player) {
         super(plugin, player);
+    }
+
+    @Override
+    public Map<String, Object> serializePosition() {
+        return serializePosition(player.getLocation());
+    }
+
+    static Map<String, Object> serializePosition(Location location) {
+        return Map.of(
+                "x", location.getX(),
+                "y", location.getY(),
+                "z", location.getZ(),
+                "save", location.getWorld().getWorldFolder().getName()
+        );
     }
 
     @Override

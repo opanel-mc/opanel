@@ -83,11 +83,7 @@ public class PlayersEndpoint extends BaseEndpoint {
             playerInfo.put("uuid", uuid);
             playerInfo.put("name", event.getPlayer().getName());
 
-            HashMap<String, Double> position = new HashMap<>();
-            position.put("x", event.getPlayer().getX());
-            position.put("y", event.getPlayer().getY());
-            position.put("z", event.getPlayer().getZ());
-            playerInfo.put("position", position);
+            playerInfo.put("position", event.getPosition());
 
             synchronized(pendingPlayerMovesLock) {
                 pendingPlayerMoves.put(uuid, playerInfo);
