@@ -78,6 +78,8 @@ public class PlayersEndpoint extends BaseEndpoint {
         };
 
         moveListener = (OPanelPlayerMoveEvent event) -> {
+            if(event.isExtensionOnly()) return;
+
             HashMap<String, Object> playerInfo = new HashMap<>();
             String uuid = event.getPlayer().getUUID();
             playerInfo.put("uuid", uuid);

@@ -38,10 +38,16 @@ public class PaperListener extends BasePaperListener implements Listener {
     public void onPlayerMove(PlayerMoveEvent event) {
         if(!hasPlayerMoved(event)) return;
 
-        PaperPlayer player = new PaperPlayer(plugin, event.getPlayer());
-        Location position = event.isCancelled() ? event.getFrom() : event.getTo();
         EventManager.get().emit(EventType.PLAYER_MOVE,
-                new OPanelPlayerMoveEvent(player, PaperPlayer.serializePosition(position)));
+                OPanelPlayerMoveEvent.forExtensions(new PaperPlayer(plugin, event.getPlayer())));
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onMovePosition(PlayerMoveEvent event) {
+        Location to = event.getTo();
+        if(to != null && (hasPlayerMoved(event) || event.getFrom().getWorld() != to.getWorld())) {
+            updatePosition(event.getPlayer(), to);
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
