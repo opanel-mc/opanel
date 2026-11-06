@@ -38,7 +38,7 @@ import { CoordDialog } from "./coord-dialog";
 import { MapPlayerList } from "./map-player-list";
 import { useMapPlayers } from "./use-map-players";
 
-const supportsMapPlayers = import.meta.env.VITE_OPANEL_TARGET === "paper-1.21.9";
+const supportsMapPlayers = import.meta.env.VITE_OPANEL_MAP_PLAYERS === "true";
 
 const MapCanvas = dynamic(() => import("./map-canvas"), { ssr: false });
 

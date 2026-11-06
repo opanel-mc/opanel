@@ -104,6 +104,7 @@ public class PlayersEndpoint extends BaseEndpoint {
         EventManager.get().on(EventType.PLAYER_JOIN, joinListener);
         EventManager.get().on(EventType.PLAYER_LEAVE, leaveListener);
         EventManager.get().on(EventType.PLAYER_MOVE, moveListener);
+        EventManager.get().on(EventType.PLAYER_POSITION_UPDATE, moveListener);
         EventManager.get().on(EventType.PLAYER_GAMEMODE_CHANGE, gamemodeChangeListener);
 
         moveBroadcastScheduler.scheduleWithFixedDelay(
@@ -126,6 +127,7 @@ public class PlayersEndpoint extends BaseEndpoint {
         EventManager.get().off(EventType.PLAYER_JOIN, joinListener);
         EventManager.get().off(EventType.PLAYER_LEAVE, leaveListener);
         EventManager.get().off(EventType.PLAYER_MOVE, moveListener);
+        EventManager.get().off(EventType.PLAYER_POSITION_UPDATE, moveListener);
         EventManager.get().off(EventType.PLAYER_GAMEMODE_CHANGE, gamemodeChangeListener);
 
         moveBroadcastScheduler.shutdownNow();

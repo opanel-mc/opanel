@@ -1,8 +1,8 @@
 import type { MainToWorker, Viewport } from "@/lib/map/tile-worker-protocol";
 import { useCallback, useEffect, useRef } from "react";
 import { useLatestRef } from "./use-latest-ref";
+import { TILE_BLOCKS } from "@/lib/map/projection";
 
-const TILE_BLOCKS = 16;
 export const DEFAULT_ZOOM = 2;
 export const MIN_ZOOM = 1.75;
 export const MAX_ZOOM = 10;

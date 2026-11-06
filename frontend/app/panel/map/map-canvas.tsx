@@ -1,6 +1,6 @@
 "use client";
 
-import type { MainToWorker, RenderSettings, Viewport, WorkerToMain } from "@/lib/map/tile-worker-protocol";
+import type { MainToWorker, RenderSettings, WorkerToMain } from "@/lib/map/tile-worker-protocol";
 import type { PlayerMoveData } from "@/lib/ws/players";
 import {
   forwardRef,
@@ -19,8 +19,8 @@ import { useLatestRef } from "@/hooks/use-latest-ref";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { type ChunksFlushedPayload, MapClient } from "@/lib/ws/map";
 import { PlayerAvatar } from "@/components/player-avatar";
+import { mapProjection, TILE_BLOCKS } from "@/lib/map/projection";
 
-const TILE_BLOCKS = 16;
 
 export interface MapCanvasHandle {
   zoomIn: () => void
@@ -66,7 +66,7 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
   const saveRef = useLatestRef(save);
   const client = useWebSocket(MapClient);
   const showPlayers = players !== undefined;
-  const [projection, setProjection] = useState<Pick<Viewport, "camera" | "zoom" | "viewportPx"> | null>(null);
+  const [projection, setProjection] = useState<ReturnType<typeof mapProjection> | null>(null);
 
   const {
     viewportRef,
@@ -78,8 +78,7 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
     postWorkerMessage: (msg) => {
       workerRef.current?.postMessage(msg);
       if(showPlayers && "viewport" in msg) {
-        const { camera, zoom, viewportPx } = msg.viewport;
-        setProjection({ camera: { ...camera }, zoom, viewportPx });
+        setProjection(mapProjection(msg.viewport));
       }
     },
   });
@@ -99,11 +98,12 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
     if(!onCoordChange) return;
 
     const rect = e.currentTarget.getBoundingClientRect();
-    const px = e.clientX - rect.left - rect.width / 2;
-    const py = e.clientY - rect.top - rect.height / 2;
-    const blockX = viewportRef.current.camera.x * TILE_BLOCKS + px / viewportRef.current.zoom;
-    const blockZ = viewportRef.current.camera.z * TILE_BLOCKS + py / viewportRef.current.zoom;
-    onCoordChange({ x: blockX, z: blockZ });
+    const { width, height, zoom, originX, originY } = mapProjection(viewportRef.current);
+    if(!width || !height || !rect.width || !rect.height) return;
+
+    const px = (e.clientX - rect.left) * width / rect.width;
+    const py = (e.clientY - rect.top) * height / rect.height;
+    onCoordChange({ x: (px - originX) / zoom, z: (py - originY) / zoom });
   };
 
   const handlePointerMove = (e: PointerEvent<HTMLDivElement>) => {
@@ -290,17 +290,16 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
       className="relative w-full h-full overflow-hidden touch-none cursor-grab active:cursor-grabbing select-none">
       <canvas ref={canvasRef} className="block w-full h-full image-pixelated"/>
       {projection && players?.map(({ uuid, name, position }) => {
-        const x = (position.x - projection.camera.x * TILE_BLOCKS) * projection.zoom;
-        const z = (position.z - projection.camera.z * TILE_BLOCKS) * projection.zoom;
-
-        const { width, height } = projection.viewportPx;
-        if(Math.abs(x) > width / 2 || Math.abs(z) > height / 2) return null;
+        const { width, height, zoom, originX, originY } = projection;
+        const x = originX + position.x * zoom;
+        const z = originY + position.z * zoom;
+        if(!width || !height || x < 0 || x > width || z < 0 || z > height) return null;
 
         return (
           <div
             key={uuid}
-            className="pointer-events-none absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-full flex-col items-center gap-0.5"
-            style={{ marginLeft: x, marginTop: z }}>
+            className="pointer-events-none absolute flex -translate-x-1/2 -translate-y-full flex-col items-center gap-0.5"
+            style={{ left: `${x / width * 100}%`, top: `${z / height * 100}%` }}>
             <span className="rounded-sm bg-black/80 px-1.5 py-0.5 text-xs font-semibold text-white shadow-sm">{name}</span>
             <PlayerAvatar name={name} className="size-6 rounded-sm ring-1 ring-white/80 shadow-md"/>
           </div>

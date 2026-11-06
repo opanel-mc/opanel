@@ -34,31 +34,40 @@ public class PaperListener extends BasePaperListener implements Listener {
         EventManager.get().emit(EventType.PLAYER_LEAVE, new OPanelPlayerLeaveEvent(new PaperPlayer(plugin, event.getPlayer())));
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
-        var to = event.getTo();
-        if(to == null || (event.getFrom().getWorld() == to.getWorld() && !hasPlayerMoved(event))) return;
+        if(!hasPlayerMoved(event)) return;
 
-        emitPlayerPosition(event.getPlayer(), to);
+        PaperPlayer player = new PaperPlayer(plugin, event.getPlayer());
+        Location position = event.isCancelled() ? event.getFrom() : event.getTo();
+        EventManager.get().emit(EventType.PLAYER_MOVE,
+                new OPanelPlayerMoveEvent(player, PaperPlayer.serializePosition(position)));
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
-        onPlayerMove(event);
+        updatePosition(event.getPlayer(), event.getTo());
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler
     public void onPlayerPortal(PlayerPortalEvent event) {
         onPlayerMove(event);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerRespawn(PlayerRespawnEvent event) {
-        emitPlayerPosition(event.getPlayer(), event.getRespawnLocation());
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPortalPosition(PlayerPortalEvent event) {
+        updatePosition(event.getPlayer(), event.getTo());
     }
 
-    private void emitPlayerPosition(Player player, Location location) {
-        EventManager.get().emit(EventType.PLAYER_MOVE, new OPanelPlayerMoveEvent(
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        updatePosition(event.getPlayer(), event.getRespawnLocation());
+    }
+
+    private void updatePosition(Player player, Location location) {
+        if(location == null) return;
+
+        EventManager.get().emit(EventType.PLAYER_POSITION_UPDATE, new OPanelPlayerMoveEvent(
                 new PaperPlayer(plugin, player), PaperPlayer.serializePosition(location)));
     }
 
