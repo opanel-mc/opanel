@@ -50,7 +50,7 @@ export function useMapPlayers(enabled: boolean) {
       for(const [uuid, move] of pending) online.set(uuid, move);
       pending.clear();
       publish();
-    }, 3000);
+    }, 5000);
 
     return () => {
       active = false;
