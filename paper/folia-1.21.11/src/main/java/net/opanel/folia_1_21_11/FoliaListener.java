@@ -2,8 +2,10 @@ package net.opanel.folia_1_21_11;
 
 import net.opanel.paper_helper.BasePaperListener;
 import net.opanel.common.OPanelGameMode;
+import net.opanel.common.OPanelPlayer;
 import net.opanel.event.*;
 import org.bukkit.GameMode;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
@@ -17,6 +19,11 @@ public class FoliaListener extends BasePaperListener implements Listener {
 
     public FoliaListener(Main plugin) {
         this.plugin = plugin;
+    }
+
+    @Override
+    protected OPanelPlayer createPlayer(Player player) {
+        return new FoliaPlayer(plugin, player);
     }
 
     @EventHandler
@@ -33,7 +40,7 @@ public class FoliaListener extends BasePaperListener implements Listener {
     public void onPlayerMove(PlayerMoveEvent event) {
         if(!hasPlayerMoved(event)) return;
 
-        EventManager.get().emit(EventType.PLAYER_MOVE, new OPanelPlayerMoveEvent(new FoliaPlayer(plugin, event.getPlayer())));
+        EventManager.get().emit(EventType.PLAYER_MOVE, OPanelPlayerMoveEvent.forExtensions(new FoliaPlayer(plugin, event.getPlayer())));
     }
 
     @EventHandler

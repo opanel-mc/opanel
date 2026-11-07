@@ -31,6 +31,11 @@ public class FabricListener extends BaseFabricListener {
             EventManager.get().emit(EventType.PLAYER_LEAVE, new OPanelPlayerLeaveEvent(new FabricPlayer(player, server)));
         });
 
+        ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
+            EventManager.get().emit(EventType.PLAYER_POSITION_UPDATE,
+                    new OPanelPlayerMoveEvent(new FabricPlayer(newPlayer, server)));
+        });
+
         PlayerGameModeChangeEvent.EVENT.register(((player, gamemode) -> {
             OPanelGameMode opanelGamemode;
             switch(gamemode) {
@@ -56,6 +61,7 @@ public class FabricListener extends BaseFabricListener {
         });
 
         ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> {
+            EventManager.get().emit(EventType.PLAYER_POSITION_UPDATE, new OPanelPlayerMoveEvent(new FabricPlayer(player, server)));
             if(!hasPlayerMoved(player.getUuid(), player.getX(), player.getY(), player.getZ())) return;
 
             EventManager.get().emit(EventType.PLAYER_MOVE, new OPanelPlayerMoveEvent(new FabricPlayer(player, server)));

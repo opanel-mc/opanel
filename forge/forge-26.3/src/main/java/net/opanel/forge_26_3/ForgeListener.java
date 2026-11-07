@@ -39,6 +39,22 @@ public class ForgeListener extends BaseForgeListener {
     }
 
     @SubscribeEvent
+    public void onMapDimensionChange(PlayerEvent.PlayerChangedDimensionEvent event) {
+        if(server == null) return;
+
+        EventManager.get().emit(EventType.PLAYER_POSITION_UPDATE,
+                new OPanelPlayerMoveEvent(new ForgePlayer((ServerPlayer) event.getEntity(), server)));
+    }
+
+    @SubscribeEvent
+    public void onMapRespawn(PlayerEvent.PlayerRespawnEvent event) {
+        if(server == null) return;
+
+        EventManager.get().emit(EventType.PLAYER_POSITION_UPDATE,
+                new OPanelPlayerMoveEvent(new ForgePlayer((ServerPlayer) event.getEntity(), server)));
+    }
+
+    @SubscribeEvent
     public void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent event) {
         if(server == null) return;
 

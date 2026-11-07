@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class FabricListener extends BaseFabricListener {
+    private final java.util.Map<UUID, Boolean> mapWorlds = new java.util.HashMap<>();
     private final Set<UUID> playersInPortal = new HashSet<>();
 
     public FabricListener() {
@@ -32,8 +33,14 @@ public class FabricListener extends BaseFabricListener {
 
         ServerPlayerEvents.LEAVE.register(player -> {
             removePlayerPosition(player.getUUID());
+            mapWorlds.remove(player.getUUID());
             playersInPortal.remove(player.getUUID());
             EventManager.get().emit(EventType.PLAYER_LEAVE, new OPanelPlayerLeaveEvent(new FabricPlayer(player, server)));
+        });
+
+        ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
+            EventManager.get().emit(EventType.PLAYER_POSITION_UPDATE,
+                    new OPanelPlayerMoveEvent(new FabricPlayer(newPlayer, server)));
         });
 
         PlayerGameModeChangeEvent.EVENT.register(((player, gamemode) -> {
@@ -54,6 +61,12 @@ public class FabricListener extends BaseFabricListener {
                 double x = player.getX();
                 double y = player.getY();
                 double z = player.getZ();
+                boolean inOverworld = tickServer.overworld().getEntity(player.getUUID()) == player;
+                Boolean previousWorld = mapWorlds.put(uuid, inOverworld);
+                if(previousWorld != null && previousWorld != inOverworld) {
+                    EventManager.get().emit(EventType.PLAYER_POSITION_UPDATE,
+                            new OPanelPlayerMoveEvent(new FabricPlayer(player, tickServer)));
+                }
                 boolean hasMoved = hasPlayerMoved(uuid, x, y, z);
 
                 if(player.portalProcess != null) playersInPortal.add(uuid);

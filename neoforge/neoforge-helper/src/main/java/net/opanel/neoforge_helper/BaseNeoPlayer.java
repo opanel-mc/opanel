@@ -9,10 +9,12 @@ import net.minecraft.server.players.UserBanList;
 import net.minecraft.server.players.UserBanListEntry;
 import net.minecraft.world.level.GameType;
 import net.opanel.common.OPanelGameMode;
+import net.minecraft.world.level.storage.LevelResource;
 import net.opanel.common.OPanelPlayer;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Map;
 import java.util.Date;
 
 public abstract class BaseNeoPlayer implements OPanelPlayer {
@@ -26,6 +28,14 @@ public abstract class BaseNeoPlayer implements OPanelPlayer {
         server = player.getServer();
         playerManager = server.getPlayerList();
         profile = player.getGameProfile();
+    }
+
+    @Override
+    public Map<String, Object> serializePosition() {
+        String save = server.overworld().getEntity(player.getUUID()) == player
+                ? server.getWorldPath(LevelResource.ROOT).toAbsolutePath().normalize().getFileName().toString()
+                : null;
+        return OPanelPlayer.serializePosition(getX(), getY(), getZ(), save);
     }
 
     @Override

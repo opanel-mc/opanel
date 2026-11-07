@@ -4,10 +4,12 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.level.storage.LevelResource;
 import net.opanel.common.OPanelPlayer;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Map;
 
 public abstract class BaseForgePlayer implements OPanelPlayer {
     protected final ServerPlayer player;
@@ -20,6 +22,14 @@ public abstract class BaseForgePlayer implements OPanelPlayer {
         this.server = server;
         playerManager = server.getPlayerList();
         profile = player.getGameProfile();
+    }
+
+    @Override
+    public Map<String, Object> serializePosition() {
+        String save = server.overworld().getEntity(player.getUUID()) == player
+                ? server.getWorldPath(LevelResource.ROOT).toAbsolutePath().normalize().getFileName().toString()
+                : null;
+        return OPanelPlayer.serializePosition(getX(), getY(), getZ(), save);
     }
 
     @Override

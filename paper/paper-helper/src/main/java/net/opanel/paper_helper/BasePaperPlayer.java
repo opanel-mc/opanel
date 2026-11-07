@@ -4,8 +4,10 @@ import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
+import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Map;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
@@ -18,6 +20,16 @@ public abstract class BasePaperPlayer implements OPanelPlayer {
         this.plugin = plugin;
         runner = (TaskRunner) plugin;
         this.player = player;
+    }
+
+    @Override
+    public Map<String, Object> serializePosition() {
+        return serializePosition(player.getLocation());
+    }
+
+    public static Map<String, Object> serializePosition(Location location) {
+        return OPanelPlayer.serializePosition(
+                location.getX(), location.getY(), location.getZ(), location.getWorld().getWorldFolder().getName());
     }
 
     @Override

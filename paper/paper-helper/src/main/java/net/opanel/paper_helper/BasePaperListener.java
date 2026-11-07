@@ -1,5 +1,7 @@
 package net.opanel.paper_helper;
 
+import net.opanel.common.OPanelPlayer;
+import net.opanel.event.OPanelPlayerMoveEvent;
 import net.opanel.event.EventManager;
 import net.opanel.event.EventType;
 import net.opanel.event.OPanelChunkDirtyEvent;
@@ -8,15 +10,52 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerPortalEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.world.ChunkPopulateEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 
 public abstract class BasePaperListener implements Listener {
+    protected abstract OPanelPlayer createPlayer(Player player);
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onMovePosition(PlayerMoveEvent event) {
+        Location to = event.getTo();
+        if(to != null && (hasPlayerMoved(event) || event.getFrom().getWorld() != to.getWorld())) {
+            updatePosition(event.getPlayer(), to);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onTeleportPosition(PlayerTeleportEvent event) {
+        updatePosition(event.getPlayer(), event.getTo());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPortalPosition(PlayerPortalEvent event) {
+        updatePosition(event.getPlayer(), event.getTo());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onRespawnPosition(PlayerRespawnEvent event) {
+        updatePosition(event.getPlayer(), event.getRespawnLocation());
+    }
+
+    private void updatePosition(Player player, Location location) {
+        if(location == null) return;
+
+        EventManager.get().emit(EventType.PLAYER_POSITION_UPDATE,
+                new OPanelPlayerMoveEvent(createPlayer(player), BasePaperPlayer.serializePosition(location)));
+    }
+
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         emitDirtyChunk(event.getBlock());
