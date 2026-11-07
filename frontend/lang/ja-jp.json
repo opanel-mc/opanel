@@ -473,6 +473,7 @@
   "map.fetch-enabled.error": "マップ機能の状態の取得に失敗しました",
   "map.toggle.enable.error": "マップ機能の有効化に失敗しました",
   "map.toggle.disable.error": "マップ機能の無効化に失敗しました",
+  "map.origin": "原点に移動",
   "map.players": "オンラインプレイヤー",
   "map.players.empty": "オンラインのプレイヤーはいません",
   "map.players.disconnected": "プレイヤー情報の接続が切断されました",

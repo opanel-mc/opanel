@@ -473,6 +473,7 @@
   "map.fetch-enabled.error": "Échec de la récupération du statut de la fonctionnalité de carte",
   "map.toggle.enable.error": "Échec de l'activation de la fonctionnalité de carte",
   "map.toggle.disable.error": "Échec de la désactivation de la fonctionnalité de carte",
+  "map.origin": "Aller à l’origine",
   "map.players": "Joueurs en ligne",
   "map.players.empty": "Aucun joueur en ligne",
   "map.players.disconnected": "Connexion aux joueurs interrompue",

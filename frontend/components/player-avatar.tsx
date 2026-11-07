@@ -1,8 +1,9 @@
+import { memo } from "react";
 import { getSettings } from "@/lib/settings";
 import { cn } from "@/lib/utils";
 import SteveAvatar from "@/assets/images/steve-avatar.png";
 
-export function PlayerAvatar({
+export const PlayerAvatar = memo(function PlayerAvatar({
   name,
   className
 }: {
@@ -20,4 +21,4 @@ export function PlayerAvatar({
         if(currentTarget.getAttribute("src") !== SteveAvatar.src) currentTarget.src = SteveAvatar.src;
       }}/>
   );
-}
+});

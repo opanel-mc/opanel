@@ -473,6 +473,7 @@
   "map.fetch-enabled.error": "Status der Kartenfunktion konnte nicht abgerufen werden",
   "map.toggle.enable.error": "Aktivierung der Kartenfunktion fehlgeschlagen",
   "map.toggle.disable.error": "Deaktivierung der Kartenfunktion fehlgeschlagen",
+  "map.origin": "Zum Ursprung",
   "map.players": "Spieler online",
   "map.players.empty": "Keine Spieler online",
   "map.players.disconnected": "Spielerverbindung getrennt",

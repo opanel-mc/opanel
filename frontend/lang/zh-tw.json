@@ -473,6 +473,7 @@
   "map.fetch-enabled.error": "取得地圖功能狀態失敗",
   "map.toggle.enable.error": "啟用地圖功能失敗",
   "map.toggle.disable.error": "停用地圖功能失敗",
+  "map.origin": "返回原點",
   "map.players": "線上玩家",
   "map.players.empty": "目前沒有線上玩家",
   "map.players.disconnected": "玩家連線已中斷",

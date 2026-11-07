@@ -473,6 +473,7 @@
   "map.fetch-enabled.error": "获取地图功能状态失败",
   "map.toggle.enable.error": "启用地图功能失败",
   "map.toggle.disable.error": "禁用地图功能失败",
+  "map.origin": "返回原点",
   "map.players": "在线玩家",
   "map.players.empty": "暂无在线玩家",
   "map.players.disconnected": "玩家连接已断开",

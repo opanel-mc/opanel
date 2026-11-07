@@ -111,10 +111,15 @@ export default function ServerMap() {
   const [showPlayers, setShowPlayers] = useState(() => supportsMapPlayers && getSettings("map.show-players"));
   const { players, disconnected } = useMapPlayers(showPlayers);
 
+  const setCenter = (position: { x: number, z: number }) => {
+    pendingCenter.current = null;
+    mapRef.current?.setCenter(position);
+  };
+
   const focusPlayer = ({ position }: PlayerMoveData) => {
     if(!position.save) return;
     if(position.save === save) {
-      mapRef.current?.setCenter(position);
+      setCenter(position);
     } else {
       pendingCenter.current = position;
       setSave(position.save);
@@ -224,12 +229,13 @@ export default function ServerMap() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => mapRef.current?.setCenter({ x: 0, z: 0 })}>
+            aria-label={$("map.origin")}
+            onClick={() => setCenter({ x: 0, z: 0 })}>
             <House />
           </Button>
           <CoordDialog
             getInitialCoord={() => mapRef.current?.getCenter() ?? null}
-            onTeleport={(coord) => mapRef.current?.setCenter(coord)}
+            onTeleport={setCenter}
             asChild>
             <Button variant="outline" size="icon">
               <MapPinned />
