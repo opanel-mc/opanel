@@ -722,7 +722,7 @@
   "settings.dashboard.monitor-interval": "모니터링 새로고침 간격",
   "settings.dashboard.monitor-interval.description": "모니터링 데이터를 새로고침하는 시간 간격 (ms)",
   "settings.dashboard.ping-interval": "플레이어 핑 새로고침 간격",
-  "settings.dashboard.ping-interval.description": "대시보드의 플레이어 핑 데이터를 새로고침하는 시간 간격 (ms)",
+  "settings.dashboard.ping-interval.description": "대시보드와 플레이어 페이지의 핑 데이터를 새로고침하는 시간 간격 (ms)",
   "settings.players.title": "플레이어",
   "settings.players.avatar-provider": "아바타 제공자",
   "settings.players.avatar-provider.description": "아바타 텍스처를 제공하는 API URL",

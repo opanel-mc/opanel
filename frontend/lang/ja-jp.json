@@ -722,7 +722,7 @@
   "settings.dashboard.monitor-interval": "リソース監視更新間隔",
   "settings.dashboard.monitor-interval.description": "監視データの更新間隔（単位: ms）",
   "settings.dashboard.ping-interval": "プレイヤーのPing更新間隔",
-  "settings.dashboard.ping-interval.description": "ダッシュボードのプレイヤーPingデータの更新間隔（単位: ms）",
+  "settings.dashboard.ping-interval.description": "ダッシュボードとプレイヤーページのPingデータの更新間隔（単位: ms）",
   "settings.players.title": "プレイヤー",
   "settings.players.avatar-provider": "アバター画像提供者",
   "settings.players.avatar-provider.description": "アバター画像API提供者のURLアドレス",

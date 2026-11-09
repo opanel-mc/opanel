@@ -722,7 +722,7 @@
   "settings.dashboard.monitor-interval": "资源监控刷新间隔",
   "settings.dashboard.monitor-interval.description": "刷新监控数据时间间隔（单位: ms）",
   "settings.dashboard.ping-interval": "玩家延迟刷新间隔",
-  "settings.dashboard.ping-interval.description": "仪表盘中玩家延迟数据的刷新间隔（单位: ms）",
+  "settings.dashboard.ping-interval.description": "仪表盘和玩家页面中玩家延迟数据的刷新间隔（单位: ms）",
   "settings.players.title": "玩家",
   "settings.players.avatar-provider": "头像贴图提供方",
   "settings.players.avatar-provider.description": "头像贴图API提供方的URL地址",

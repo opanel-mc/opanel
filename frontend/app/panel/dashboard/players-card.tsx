@@ -16,7 +16,7 @@ import {
   TooltipContent,
   TooltipTrigger
 } from "@/components/ui/tooltip";
-import { cn, gameModeToString } from "@/lib/utils";
+import { cn, gameModeToString, pingValueToColorClassName } from "@/lib/utils";
 import { googleSansCode } from "@/lib/fonts";
 import { $ } from "@/lib/i18n";
 import { useWebSocket } from "@/hooks/use-websocket";
@@ -88,15 +88,7 @@ export function PlayersCard({
                 </Tooltip>
               </TableCell>
               <TableCell className="text-center">{gameModeToString(gamemode)}</TableCell>
-              <TableCell className={cn("text-right", googleSansCode.className, (
-                ping! < 100
-                ? "text-green-600"
-                : (
-                  ping! < 200
-                  ? "text-yellow-600"
-                  : "text-red-700"
-                )
-              ))}>
+              <TableCell className={cn("text-right", googleSansCode.className, pingValueToColorClassName(ping!))}>
                 {ping! +"ms"}
               </TableCell>
             </TableRow>
