@@ -294,6 +294,15 @@ export default function Settings() {
                 </Select>
               }/> */}
           </Section>
+          <SectionGroup title={$("settings.dashboard.title")}>
+            <Section>
+              <SettingsItem
+                id="dashboard.ping-interval"
+                name={$("settings.dashboard.ping-interval")}
+                description={$("settings.dashboard.ping-interval.description")}
+                control={<SettingsSlider id="dashboard.ping-interval" unit="ms" min={1000} max={30000} step={1000}/>}/>
+            </Section>
+          </SectionGroup>
           <SectionGroup title="OPanel">
             <Section>
               <SettingsItem

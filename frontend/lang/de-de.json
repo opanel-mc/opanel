@@ -721,6 +721,8 @@
   "settings.dashboard.title": "Dashboard",
   "settings.dashboard.monitor-interval": "Aktualisierungsintervall der Überwachung",
   "settings.dashboard.monitor-interval.description": "Zeitintervall zur Aktualisierung der Überwachungsdaten (in ms)",
+  "settings.dashboard.ping-interval": "Aktualisierungsintervall des Spieler-Pings",
+  "settings.dashboard.ping-interval.description": "Intervall zur Aktualisierung der Spieler-Ping-Daten im Dashboard (in ms)",
   "settings.players.title": "Spieler",
   "settings.players.avatar-provider": "Avatar-Anbieter",
   "settings.players.avatar-provider.description": "API-URL des Anbieters für Avatar-Texturen",

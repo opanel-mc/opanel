@@ -721,6 +721,8 @@
   "settings.dashboard.title": "Dashboard",
   "settings.dashboard.monitor-interval": "Resource Monitoring Refresh Interval",
   "settings.dashboard.monitor-interval.description": "Refresh monitoring data interval (unit: ms)",
+  "settings.dashboard.ping-interval": "Player Ping Refresh Interval",
+  "settings.dashboard.ping-interval.description": "Interval for refreshing player ping data on the dashboard (unit: ms)",
   "settings.players.title": "Players",
   "settings.players.avatar-provider": "Avatar Provider",
   "settings.players.avatar-provider.description": "URL address of the avatar API provider",

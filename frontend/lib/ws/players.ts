@@ -12,8 +12,10 @@ export type PlayersMessageType = (
   | "leave"
   | "move"
   | "gamemode-change"
+  | "ping"
   /* client packet */
   | "fetch"
+  | "fetch-ping"
 );
 
 export class PlayersClient extends WebSocketClient<PlayersMessageType> {

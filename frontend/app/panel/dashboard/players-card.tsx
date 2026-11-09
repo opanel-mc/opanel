@@ -21,6 +21,7 @@ import { googleSansCode } from "@/lib/fonts";
 import { $ } from "@/lib/i18n";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { PlayersClient } from "@/lib/ws/players";
+import { getSettings } from "@/lib/settings";
 
 export function PlayersCard({
   className,
@@ -34,8 +35,15 @@ export function PlayersCard({
   useEffect(() => {
     if(!client) return;
 
+    let pingTimer: ReturnType<typeof setInterval> | undefined;
+
     client.subscribe("init", (players: Player[]) => {
       setOnlinePlayers(players.filter(({ isOnline }) => isOnline));
+
+      clearInterval(pingTimer);
+      pingTimer = setInterval(() => {
+        client.send("fetch-ping", null);
+      }, getSettings("dashboard.ping-interval"));
     });
 
     client.subscribe("join", (player: Player) => {
@@ -45,6 +53,14 @@ export function PlayersCard({
     client.subscribe("leave", ({ uuid }: Player) => {
       setOnlinePlayers((prev) => prev.filter((p) => p.uuid !== uuid));
     });
+
+    client.subscribe("ping", (pings: Record<string, number>) => {
+      setOnlinePlayers((prev) => prev.map((player) => (
+        pings[player.uuid] !== undefined ? { ...player, ping: pings[player.uuid] } : player
+      )));
+    });
+
+    return () => clearInterval(pingTimer);
   }, [client]);
   
   return (

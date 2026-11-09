@@ -21,6 +21,8 @@ public class PlayersEndpoint extends BaseEndpoint {
     private static class PlayersPacket<D> extends Packet<D> {
         public static final String INIT = "init";
         public static final String FETCH = "fetch";
+        public static final String FETCH_PING = "fetch-ping";
+        public static final String PING = "ping";
         public static final String JOIN = "join";
         public static final String LEAVE = "leave";
         public static final String MOVE = "move";
@@ -123,6 +125,7 @@ public class PlayersEndpoint extends BaseEndpoint {
         sendPlayerList(ctx);
 
         subscribe(ctx.session, PlayersPacket.FETCH, this::sendPlayerList);
+        subscribe(ctx.session, PlayersPacket.FETCH_PING, this::sendPlayerPings);
     }
 
     @Override
@@ -148,6 +151,12 @@ public class PlayersEndpoint extends BaseEndpoint {
         }
 
         broadcast(new PlayersPacket<>(PlayersPacket.MOVE, playerMoves));
+    }
+
+    private void sendPlayerPings(WsContext ctx) {
+        HashMap<String, Integer> pings = new HashMap<>();
+        server.getOnlinePlayers().forEach(player -> pings.put(player.getUUID(), player.getPing()));
+        ctx.send(new PlayersPacket<>(PlayersPacket.PING, pings));
     }
 
     private void sendPlayerList(WsContext ctx) {

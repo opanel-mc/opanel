@@ -721,6 +721,8 @@
   "settings.dashboard.title": "Tableau de bord",
   "settings.dashboard.monitor-interval": "Intervalle de rafraîchissement du moniteur",
   "settings.dashboard.monitor-interval.description": "Intervalle de temps pour rafraîchir les données de surveillance (en ms)",
+  "settings.dashboard.ping-interval": "Intervalle de rafraîchissement du ping des joueurs",
+  "settings.dashboard.ping-interval.description": "Intervalle de rafraîchissement du ping des joueurs sur le tableau de bord (en ms)",
   "settings.players.title": "Joueurs",
   "settings.players.avatar-provider": "Fournisseur d'avatars",
   "settings.players.avatar-provider.description": "URL de l'API du fournisseur de textures d'avatar",
