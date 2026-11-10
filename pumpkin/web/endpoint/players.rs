@@ -1,4 +1,7 @@
-use std::sync::Arc;
+use std::{
+    collections::HashMap,
+    sync::{Arc, atomic::Ordering},
+};
 
 use axum::{
     extract::WebSocketUpgrade,
@@ -81,6 +84,21 @@ impl PlayersEndpoint {
         };
         session.send(Packet::new("init", players))
     }
+
+    fn send_player_pings(&self, session: &WsSession) -> Result<(), EndpointError> {
+        let opanel = self
+            .events
+            .opanel()
+            .map_err(|_| EndpointError::ServiceUnavailable("OPanel is no longer available."))?;
+        let pings: HashMap<_, _> = opanel
+            .context()
+            .server
+            .get_all_players()
+            .into_iter()
+            .map(|player| (player.gameprofile.id, player.ping.load(Ordering::Relaxed)))
+            .collect();
+        session.send(Packet::new("ping", pings))
+    }
 }
 
 impl Endpoint for PlayersEndpoint {
@@ -96,10 +114,11 @@ impl Endpoint for PlayersEndpoint {
         session: &WsSession,
         packet: Packet<Value>,
     ) -> Result<(), EndpointError> {
-        if packet.kind == "fetch" {
-            self.send_player_list(session).await?;
+        match packet.kind.as_str() {
+            "fetch" => self.send_player_list(session).await,
+            "fetch-ping" => self.send_player_pings(session),
+            _ => Ok(()),
         }
-        Ok(())
     }
 
     async fn on_disconnect(&self, _session: &WsSession) {
