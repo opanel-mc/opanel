@@ -79,9 +79,11 @@ impl Endpoint for TerminalEndpoint {
                     EndpointError::ServiceUnavailable("OPanel is no longer available.")
                 })?;
                 let command = command.strip_prefix('/').unwrap_or(&command).to_string();
-                let output =
-                    server::send_command_with_output(&opanel.context().server, command).await;
-                self.logs.track_command_output(output);
+                // Command feedback is temporarily disabled.
+                // let output =
+                //     server::send_command_with_output(&opanel.context().server, command).await;
+                // self.logs.track_command_output(output);
+                server::send_command(&opanel.context().server, command).await;
             }
             "autocomplete" => {
                 let data: AutocompleteData = serde_json::from_value(packet.data)
