@@ -17,6 +17,11 @@ public class FabricPlayer extends BaseFabricPlayer implements OPanelPlayer {
     }
 
     @Override
+    protected boolean isInMapWorld() {
+        return player.getWorld().getRegistryKey() == net.minecraft.world.World.OVERWORLD;
+    }
+
+    @Override
     public FabricInventory getInventory() {
         return new FabricInventory(player, server);
     }
