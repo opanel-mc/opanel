@@ -1,7 +1,5 @@
-use std::{
-    process::Command,
-    sync::{Arc, Mutex},
-};
+use std::{process::Command, sync::Arc};
+// use std::sync::Mutex;
 
 use pumpkin::{
     command::CommandSender, plugin::api::events::server::server_command::ServerCommandEvent,
@@ -37,34 +35,35 @@ pub(crate) async fn send_command(server: &Arc<Server>, command: String) {
     dispatch_command(server, command, CommandSender::Console).await;
 }
 
-pub(crate) struct CommandOutput(Arc<Mutex<Vec<String>>>);
-
-impl CommandOutput {
-    pub(crate) fn drain(&self) -> (Vec<String>, bool) {
-        // Async commands retain a cloned sender until their final feedback has been written.
-        let finished = Arc::strong_count(&self.0) == 1;
-        let lines = std::mem::take(
-            &mut *self
-                .0
-                .lock()
-                .unwrap_or_else(std::sync::PoisonError::into_inner),
-        );
-        // Console feedback uses stdout and is absent from Pumpkin's log file.
-        for line in &lines {
-            println!("{line}");
-        }
-        (lines, finished)
-    }
-}
-
-pub(crate) async fn send_command_with_output(
-    server: &Arc<Server>,
-    command: String,
-) -> CommandOutput {
-    let output = CommandOutput(Arc::new(Mutex::new(Vec::new())));
-    dispatch_command(server, command, CommandSender::Rcon(Arc::clone(&output.0))).await;
-    output
-}
+// TODO: Command feedback is disabled because Pumpkin 0.2.2 removed CommandSender::Rcon.
+// pub(crate) struct CommandOutput(Arc<Mutex<Vec<String>>>);
+//
+// impl CommandOutput {
+//     pub(crate) fn drain(&self) -> (Vec<String>, bool) {
+//         // Async commands retain a cloned sender until their final feedback has been written.
+//         let finished = Arc::strong_count(&self.0) == 1;
+//         let lines = std::mem::take(
+//             &mut *self
+//                 .0
+//                 .lock()
+//                 .unwrap_or_else(std::sync::PoisonError::into_inner),
+//         );
+//         // Console feedback uses stdout and is absent from Pumpkin's log file.
+//         for line in &lines {
+//             println!("{line}");
+//         }
+//         (lines, finished)
+//     }
+// }
+//
+// pub(crate) async fn send_command_with_output(
+//     server: &Arc<Server>,
+//     command: String,
+// ) -> CommandOutput {
+//     let output = CommandOutput(Arc::new(Mutex::new(Vec::new())));
+//     dispatch_command(server, command, CommandSender::Rcon(Arc::clone(&output.0))).await;
+//     output
+// }
 
 async fn dispatch_command(server: &Arc<Server>, command: String, output: CommandSender) {
     let mut event = ServerCommandEvent::new(command);
@@ -172,25 +171,25 @@ fn restart_command(launch_command: &str, delay_seconds: u64) -> RestartCommand {
 mod tests {
     use super::*;
 
-    #[test]
-    fn command_output_keeps_collecting_until_async_senders_are_released() {
-        let output = CommandOutput(Arc::new(Mutex::new(Vec::new())));
-        let sender = CommandSender::Rcon(Arc::clone(&output.0));
-        sender.send_message(pumpkin_util::text::TextComponent::text("started"));
-        let (lines, finished) = output.drain();
-        assert_eq!(lines.len(), 1);
-        assert!(lines[0].contains("started"));
-        assert!(!finished);
-        assert!(output.drain().0.is_empty());
-
-        sender.send_message(pumpkin_util::text::TextComponent::text("finished later"));
-        drop(sender);
-        let (lines, finished) = output.drain();
-        assert_eq!(lines.len(), 1);
-        assert!(lines[0].contains("finished later"));
-        assert!(finished);
-        assert!(output.drain().0.is_empty());
-    }
+    // #[test]
+    // fn command_output_keeps_collecting_until_async_senders_are_released() {
+    //     let output = CommandOutput(Arc::new(Mutex::new(Vec::new())));
+    //     let sender = CommandSender::Rcon(Arc::clone(&output.0));
+    //     sender.send_message(pumpkin_util::text::TextComponent::text("started"));
+    //     let (lines, finished) = output.drain();
+    //     assert_eq!(lines.len(), 1);
+    //     assert!(lines[0].contains("started"));
+    //     assert!(!finished);
+    //     assert!(output.drain().0.is_empty());
+    //
+    //     sender.send_message(pumpkin_util::text::TextComponent::text("finished later"));
+    //     drop(sender);
+    //     let (lines, finished) = output.drain();
+    //     assert_eq!(lines.len(), 1);
+    //     assert!(lines[0].contains("finished later"));
+    //     assert!(finished);
+    //     assert!(output.drain().0.is_empty());
+    // }
 
     #[test]
     fn completion_uses_the_requested_argument_and_preserves_unicode_and_spaces() {
