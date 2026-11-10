@@ -102,11 +102,18 @@ export default function Players() {
   useEffect(() => {
     if(!client) return;
 
+    let pingTimer: ReturnType<typeof setInterval> | undefined;
+
     client.subscribe("init", (players: Player[]) => {
       const namedPlayers = players.filter(({ name }) => name !== undefined);
 
       setPlayers(namedPlayers);
       setUnnamedPlayers(players.filter(({ name }) => name === undefined) as UnnamedPlayer[]);
+
+      clearInterval(pingTimer);
+      pingTimer = setInterval(() => {
+        client.send("fetch-ping", null);
+      }, getSettings("dashboard.ping-interval"));
 
       emitter.emit("loading-done");
     });
@@ -139,9 +146,18 @@ export default function Players() {
       setPlayers((prev) => prev.map((p) => p.uuid === player.uuid ? player : p));
     });
 
+    client.subscribe("ping", (pings: Record<string, number>) => {
+      setPlayers((prev) => prev.map((player) => (
+        player.isOnline && pings[player.uuid] !== undefined
+        ? { ...player, ping: pings[player.uuid] }
+        : player
+      )));
+    });
+
     emitter.on("refresh-data", () => client.send("fetch", null));
 
     return () => {
+      clearInterval(pingTimer);
       emitter.removeAllListeners("refresh-data");
     };
   }, [client]);
