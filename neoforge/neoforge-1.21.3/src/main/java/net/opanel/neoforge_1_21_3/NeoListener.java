@@ -41,6 +41,7 @@ public class NeoListener extends BaseNeoListener {
 
     @SubscribeEvent
     public void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent event) {
+        mapPositions.remove(event.getEntity().getUUID().toString());
         EventManager.get().emit(EventType.PLAYER_LEAVE, new OPanelPlayerLeaveEvent(new NeoPlayer((ServerPlayer) event.getEntity())));
     }
 
@@ -72,10 +73,11 @@ public class NeoListener extends BaseNeoListener {
         emitPlayerMove(player);
     }
 
-    private static void emitPlayerMove(ServerPlayer player) {
+    private void emitPlayerMove(ServerPlayer player) {
+        mapPositions.update(new NeoPlayer(player));
         if(!hasPlayerMoved(player)) return;
 
-        EventManager.get().emit(EventType.PLAYER_MOVE, new OPanelPlayerMoveEvent(new NeoPlayer(player)));
+        EventManager.get().emit(EventType.PLAYER_MOVE, OPanelPlayerMoveEvent.forExtensions(new NeoPlayer(player)));
     }
 
     @SubscribeEvent

@@ -26,7 +26,7 @@ public abstract class BaseFabricPlayer implements OPanelPlayer {
 
     @Override
     public Map<String, Object> serializePosition() {
-        String save = server.getOverworld().getEntity(player.getUuid()) == player
+        String save = player.getWorld().getRegistryKey() == net.minecraft.world.World.OVERWORLD
                 ? server.getSavePath(WorldSavePath.ROOT).toAbsolutePath().normalize().getFileName().toString()
                 : null;
         return OPanelPlayer.serializePosition(getX(), getY(), getZ(), save);

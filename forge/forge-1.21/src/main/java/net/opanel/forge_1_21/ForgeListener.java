@@ -41,6 +41,7 @@ public class ForgeListener extends BaseForgeListener {
 
     @SubscribeEvent
     public void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent event) {
+        mapPositions.remove(event.getEntity().getUUID().toString());
         EventManager.get().emit(EventType.PLAYER_LEAVE, new OPanelPlayerLeaveEvent(new ForgePlayer((ServerPlayer) event.getEntity())));
     }
 
@@ -72,10 +73,11 @@ public class ForgeListener extends BaseForgeListener {
         emitPlayerMove(player);
     }
 
-    private static void emitPlayerMove(ServerPlayer player) {
+    private void emitPlayerMove(ServerPlayer player) {
+        mapPositions.update(new ForgePlayer(player));
         if(!hasPlayerMoved(player)) return;
 
-        EventManager.get().emit(EventType.PLAYER_MOVE, new OPanelPlayerMoveEvent(new ForgePlayer(player)));
+        EventManager.get().emit(EventType.PLAYER_MOVE, OPanelPlayerMoveEvent.forExtensions(new ForgePlayer(player)));
     }
 
     @SubscribeEvent

@@ -49,8 +49,12 @@ public abstract class BasePaperListener implements Listener {
         updatePosition(event.getPlayer(), event.getRespawnLocation());
     }
 
+    protected boolean usesScheduledPositions() {
+        return false;
+    }
+
     private void updatePosition(Player player, Location location) {
-        if(location == null) return;
+        if(usesScheduledPositions() || location == null) return;
 
         EventManager.get().emit(EventType.PLAYER_POSITION_UPDATE,
                 new OPanelPlayerMoveEvent(createPlayer(player), BasePaperPlayer.serializePosition(location)));
