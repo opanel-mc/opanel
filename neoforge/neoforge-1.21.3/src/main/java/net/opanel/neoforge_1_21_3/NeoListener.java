@@ -17,6 +17,7 @@ import net.neoforged.neoforge.event.level.ExplosionEvent;
 import net.neoforged.neoforge.event.level.block.CreateFluidSourceEvent;
 import net.neoforged.neoforge.event.level.block.CropGrowEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.event.*;
 import net.opanel.neoforge_helper.BaseNeoListener;
@@ -60,6 +61,14 @@ public class NeoListener extends BaseNeoListener {
     }
 
     @SubscribeEvent
+    public void onMapServerTick(ServerTickEvent.Post event) {
+        var server = event.getServer();
+        for(ServerPlayer player : server.getPlayerList().getPlayers()) {
+            mapPositions.update(new NeoPlayer(player));
+        }
+    }
+
+    @SubscribeEvent
     public void onPlayerMove(PlayerTickEvent.Post event) {
         if(!(event.getEntity() instanceof ServerPlayer player)) return;
 
@@ -74,7 +83,6 @@ public class NeoListener extends BaseNeoListener {
     }
 
     private void emitPlayerMove(ServerPlayer player) {
-        mapPositions.update(new NeoPlayer(player));
         if(!hasPlayerMoved(player)) return;
 
         EventManager.get().emit(EventType.PLAYER_MOVE, OPanelPlayerMoveEvent.forExtensions(new NeoPlayer(player)));

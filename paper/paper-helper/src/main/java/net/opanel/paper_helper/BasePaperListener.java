@@ -5,6 +5,7 @@ import net.opanel.event.OPanelPlayerMoveEvent;
 import net.opanel.event.EventManager;
 import net.opanel.event.EventType;
 import net.opanel.event.OPanelChunkDirtyEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -36,17 +37,26 @@ public abstract class BasePaperListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onTeleportPosition(PlayerTeleportEvent event) {
-        updatePosition(event.getPlayer(), event.getTo());
+        updateCompletedPosition(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPortalPosition(PlayerPortalEvent event) {
-        updatePosition(event.getPlayer(), event.getTo());
+        updateCompletedPosition(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onRespawnPosition(PlayerRespawnEvent event) {
-        updatePosition(event.getPlayer(), event.getRespawnLocation());
+        updateCompletedPosition(event.getPlayer());
+    }
+
+    private void updateCompletedPosition(Player player) {
+        if(usesScheduledPositions()) return;
+
+        BasePaperPlayer wrapped = (BasePaperPlayer) createPlayer(player);
+        Bukkit.getScheduler().runTask(wrapped.plugin, () -> {
+            if(player.isOnline()) updatePosition(player, player.getLocation());
+        });
     }
 
     protected boolean usesScheduledPositions() {
