@@ -48,7 +48,8 @@ public class ForgeListener extends BaseForgeListener {
     }
 
     @SubscribeEvent
-    public void onMapServerTick(TickEvent.ServerTickEvent evnet) {
+    public void onMapServerTick(TickEvent.ServerTickEvent event) {
+        if(event.phase != TickEvent.Phase.END) return;
         var server = event.getServer();
         for(ServerPlayer player : server.getPlayerList().getPlayers()) {
             mapPositions.update(new ForgePlayer(player));
