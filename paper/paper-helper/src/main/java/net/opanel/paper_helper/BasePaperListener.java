@@ -2,6 +2,7 @@ package net.opanel.paper_helper;
 
 import net.opanel.common.OPanelPlayer;
 import net.opanel.event.OPanelPlayerMoveEvent;
+import net.opanel.event.PlayerPositionTracker;
 import net.opanel.event.EventManager;
 import net.opanel.event.EventType;
 import net.opanel.event.OPanelChunkDirtyEvent;
@@ -23,8 +24,30 @@ import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.world.ChunkPopulateEvent;
 import org.bukkit.event.world.StructureGrowEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public abstract class BasePaperListener implements Listener {
+    protected static final long POSITION_SAMPLE_INTERVAL = 20L;
+
+    private final JavaPlugin plugin;
+    private final PlayerPositionTracker scheduledPositions = new PlayerPositionTracker();
+
+    protected BasePaperListener(JavaPlugin plugin) {
+        this.plugin = plugin;
+    }
+
+    protected final void samplePosition(Player player, Runnable cancel) {
+        if(!player.isOnline()) {
+            cancel.run();
+            return;
+        }
+        scheduledPositions.update(createPlayer(player));
+    }
+
+    protected final void clearPosition(Player player) {
+        scheduledPositions.remove(player.getUniqueId().toString());
+    }
+
     protected abstract OPanelPlayer createPlayer(Player player);
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -53,8 +76,7 @@ public abstract class BasePaperListener implements Listener {
     private void updateCompletedPosition(Player player) {
         if(usesScheduledPositions()) return;
 
-        BasePaperPlayer wrapped = (BasePaperPlayer) createPlayer(player);
-        Bukkit.getScheduler().runTask(wrapped.plugin, () -> {
+        Bukkit.getScheduler().runTask(plugin, () -> {
             if(player.isOnline()) updatePosition(player, player.getLocation());
         });
     }

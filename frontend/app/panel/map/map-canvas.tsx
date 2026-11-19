@@ -21,7 +21,6 @@ import { type ChunksFlushedPayload, MapClient } from "@/lib/ws/map";
 import { PlayerAvatar } from "@/components/player-avatar";
 import { mapProjection, TILE_BLOCKS } from "@/lib/map/projection";
 
-
 export interface MapCanvasHandle {
   zoomIn: () => void
   zoomOut: () => void
@@ -157,19 +156,12 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
     applyZoom(e.deltaY > 0 ? 0.9 : 1.1, px, py);
   };
 
-  // `transferControlToOffscreen` can only be called once per canvas element.
-  // Initialize the worker exactly once per mount. Save changes remount the
-  // whole component via `key={save}` in the parent, which gives us a fresh
-  // canvas and a fresh worker. Settings changes go through a postMessage.
+  // Each save mounts a fresh canvas because transferControlToOffscreen can only run once per element.
   const initWorker = useCallback(async () => {
-    // Skip until we have a save: the page mounts with an empty `save` and only
-    // fills it in after fetching the world list. Initializing here would spin
-    // up a throwaway worker and consume the canvas's one-shot transfer.
     if(workerRef.current || !canvasRef.current || !save) return;
 
     const wasmResp = await fetch(wasmUrl);
     const wasmBuffer = await wasmResp.arrayBuffer();
-    // return early if one of workerRef and canvasRef is changed while awaiting
     if(workerRef.current || !canvasRef.current) return;
 
     const offscreen = canvasRef.current.transferControlToOffscreen();
@@ -180,7 +172,6 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
     worker.onmessage = (e: MessageEvent<WorkerToMain>) => {
       switch(e.data.type) {
         case "ready":
-          // First tiles fetch
           postRequestTiles();
           onLoadRef.current?.();
           return;
@@ -260,8 +251,6 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
     workerRef.current.postMessage({ type: "setFpsReporting", enabled: settings.debugMode } satisfies MainToWorker);
   }, [settings.debugMode]);
 
-  // Resize observer keeps the worker's OffscreenCanvas in sync with the
-  // container's CSS box.
   useEffect(() => {
     const containerElem = containerRef.current;
     if(!containerElem) return;

@@ -16,9 +16,9 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public class FoliaListener extends BasePaperListener implements Listener {
     private final Main plugin;
-    private final PlayerPositionTracker mapPositions = new PlayerPositionTracker();
 
     public FoliaListener(Main plugin) {
+        super(plugin);
         this.plugin = plugin;
     }
 
@@ -35,19 +35,14 @@ public class FoliaListener extends BasePaperListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        player.getScheduler().runAtFixedRate(plugin, task -> {
-            if(!player.isOnline()) {
-                task.cancel();
-                return;
-            }
-            mapPositions.update(createPlayer(player));
-        }, null, 1L, 20L);
+        player.getScheduler().runAtFixedRate(plugin, task -> samplePosition(player, task::cancel),
+                null, 1L, POSITION_SAMPLE_INTERVAL);
         EventManager.get().emit(EventType.PLAYER_JOIN, new OPanelPlayerJoinEvent(new FoliaPlayer(plugin, event.getPlayer())));
     }
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
-        mapPositions.remove(event.getPlayer().getUniqueId().toString());
+        clearPosition(event.getPlayer());
         EventManager.get().emit(EventType.PLAYER_LEAVE, new OPanelPlayerLeaveEvent(new FoliaPlayer(plugin, event.getPlayer())));
     }
 

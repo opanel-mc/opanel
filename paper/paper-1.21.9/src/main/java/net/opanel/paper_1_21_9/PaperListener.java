@@ -18,6 +18,7 @@ public class PaperListener extends BasePaperListener implements Listener {
     private final Main plugin;
 
     public PaperListener(Main plugin) {
+        super(plugin);
         this.plugin = plugin;
     }
 
