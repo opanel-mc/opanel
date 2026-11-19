@@ -1,10 +1,9 @@
 package net.opanel.paper_helper;
 
-import net.opanel.common.OPanelPlayer;
-import net.opanel.event.OPanelPlayerMoveEvent;
 import net.opanel.event.EventManager;
 import net.opanel.event.EventType;
 import net.opanel.event.OPanelChunkDirtyEvent;
+import net.opanel.event.OPanelPlayerMoveEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -18,56 +17,60 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.ChunkPopulateEvent;
 import org.bukkit.event.world.StructureGrowEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public abstract class BasePaperListener implements Listener {
-    protected abstract OPanelPlayer createPlayer(Player player);
+    protected final JavaPlugin plugin;
+
+    protected BasePaperListener(JavaPlugin plugin) {
+        this.plugin = plugin;
+    }
+
+    protected abstract BasePaperPlayer createPlayer(Player player);
+
+    protected void runAfterPlayerAction(Player player, Runnable task) {
+        Bukkit.getScheduler().runTask(plugin, task);
+    }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onMovePosition(PlayerMoveEvent event) {
+    public void onPlayerMove(PlayerMoveEvent event) {
         Location to = event.getTo();
         if(to != null && (hasPlayerMoved(event) || event.getFrom().getWorld() != to.getWorld())) {
-            updatePosition(event.getPlayer(), to);
+            emitPlayerMove(event.getPlayer(), to);
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onTeleportPosition(PlayerTeleportEvent event) {
-        updateCompletedPosition(event.getPlayer());
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        emitCompletedPlayerMove(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPortalPosition(PlayerPortalEvent event) {
-        updateCompletedPosition(event.getPlayer());
+    public void onPlayerPortal(PlayerPortalEvent event) {
+        emitCompletedPlayerMove(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onRespawnPosition(PlayerRespawnEvent event) {
-        updateCompletedPosition(event.getPlayer());
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        emitCompletedPlayerMove(event.getPlayer());
     }
 
-    private void updateCompletedPosition(Player player) {
-        if(usesScheduledPositions()) return;
-
-        BasePaperPlayer wrapped = (BasePaperPlayer) createPlayer(player);
-        Bukkit.getScheduler().runTask(wrapped.plugin, () -> {
-            if(player.isOnline()) updatePosition(player, player.getLocation());
+    private void emitCompletedPlayerMove(Player player) {
+        runAfterPlayerAction(player, () -> {
+            if(player.isOnline()) emitPlayerMove(player, player.getLocation());
         });
     }
 
-    protected boolean usesScheduledPositions() {
-        return false;
-    }
+    private void emitPlayerMove(Player player, Location location) {
+        if(location == null) return;
 
-    private void updatePosition(Player player, Location location) {
-        if(usesScheduledPositions() || location == null) return;
-
-        EventManager.get().emit(EventType.PLAYER_POSITION_UPDATE,
-                new OPanelPlayerMoveEvent(createPlayer(player), BasePaperPlayer.serializePosition(location)));
+        BasePaperPlayer wrapped = createPlayer(player);
+        EventManager.get().emit(EventType.PLAYER_MOVE, new OPanelPlayerMoveEvent(wrapped, wrapped.toPosition(location)));
     }
 
     @EventHandler

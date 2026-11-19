@@ -2,12 +2,13 @@ package net.opanel.paper_helper;
 
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
+import net.opanel.common.OPanelPlayerPosition;
 import org.bukkit.GameMode;
-import org.bukkit.entity.Player;
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Map;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
@@ -23,13 +24,22 @@ public abstract class BasePaperPlayer implements OPanelPlayer {
     }
 
     @Override
-    public Map<String, Object> serializePosition() {
-        return serializePosition(player.getLocation());
+    public OPanelPlayerPosition getPosition() {
+        return toPosition(player.getLocation());
     }
 
-    public static Map<String, Object> serializePosition(Location location) {
-        return OPanelPlayer.serializePosition(
-                location.getX(), location.getY(), location.getZ(), location.getWorld().getWorldFolder().getName());
+    public OPanelPlayerPosition toPosition(Location location) {
+        if(location == null) {
+            return new OPanelPlayerPosition(getX(), getY(), getZ(), null);
+        }
+        World world = location.getWorld();
+        String save = (world != null && isMapWorld(world)) ? world.getName() : null;
+        return new OPanelPlayerPosition(location.getX(), location.getY(), location.getZ(), save);
+    }
+
+    private boolean isMapWorld(World world) {
+        return !plugin.getServer().getWorlds().isEmpty()
+                && world.equals(plugin.getServer().getWorlds().get(0));
     }
 
     @Override

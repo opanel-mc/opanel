@@ -1,8 +1,8 @@
 package net.opanel.paper_26_1;
 
 import net.opanel.paper_helper.BasePaperListener;
+import net.opanel.paper_helper.BasePaperPlayer;
 import net.opanel.common.OPanelGameMode;
-import net.opanel.common.OPanelPlayer;
 import net.opanel.event.*;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -10,19 +10,18 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PaperListener extends BasePaperListener implements Listener {
     private final Main plugin;
 
     public PaperListener(Main plugin) {
+        super(plugin);
         this.plugin = plugin;
     }
 
     @Override
-    protected OPanelPlayer createPlayer(Player player) {
+    protected BasePaperPlayer createPlayer(Player player) {
         return new PaperPlayer(plugin, player);
     }
 
@@ -34,18 +33,6 @@ public class PaperListener extends BasePaperListener implements Listener {
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
         EventManager.get().emit(EventType.PLAYER_LEAVE, new OPanelPlayerLeaveEvent(new PaperPlayer(plugin, event.getPlayer())));
-    }
-
-    @EventHandler
-    public void onPlayerMove(PlayerMoveEvent event) {
-        if(!hasPlayerMoved(event)) return;
-
-        EventManager.get().emit(EventType.PLAYER_MOVE, OPanelPlayerMoveEvent.forExtensions(new PaperPlayer(plugin, event.getPlayer())));
-    }
-
-    @EventHandler
-    public void onPlayerPortal(PlayerPortalEvent event) {
-        onPlayerMove(event);
     }
 
     @EventHandler

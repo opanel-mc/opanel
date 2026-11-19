@@ -1,8 +1,8 @@
 package net.opanel.folia_26_1_2;
 
 import net.opanel.paper_helper.BasePaperListener;
+import net.opanel.paper_helper.BasePaperPlayer;
 import net.opanel.common.OPanelGameMode;
-import net.opanel.common.OPanelPlayer;
 import net.opanel.event.*;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -10,57 +10,34 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public class FoliaListener extends BasePaperListener implements Listener {
     private final Main plugin;
-    private final PlayerPositionTracker mapPositions = new PlayerPositionTracker();
 
     public FoliaListener(Main plugin) {
+        super(plugin);
         this.plugin = plugin;
     }
 
     @Override
-    protected boolean usesScheduledPositions() {
-        return true;
+    protected BasePaperPlayer createPlayer(Player player) {
+        return new FoliaPlayer(plugin, player);
     }
 
     @Override
-    protected OPanelPlayer createPlayer(Player player) {
-        return new FoliaPlayer(plugin, player);
+    protected void runAfterPlayerAction(Player player, Runnable task) {
+        player.getScheduler().run(plugin, scheduledTask -> task.run(), null);
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        player.getScheduler().runAtFixedRate(plugin, task -> {
-            if(!player.isOnline()) {
-                task.cancel();
-                return;
-            }
-            mapPositions.update(createPlayer(player));
-        }, null, 1L, 20L);
         EventManager.get().emit(EventType.PLAYER_JOIN, new OPanelPlayerJoinEvent(new FoliaPlayer(plugin, event.getPlayer())));
     }
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
-        mapPositions.remove(event.getPlayer().getUniqueId().toString());
         EventManager.get().emit(EventType.PLAYER_LEAVE, new OPanelPlayerLeaveEvent(new FoliaPlayer(plugin, event.getPlayer())));
-    }
-
-    @EventHandler
-    public void onPlayerMove(PlayerMoveEvent event) {
-        if(!hasPlayerMoved(event)) return;
-
-        EventManager.get().emit(EventType.PLAYER_MOVE, OPanelPlayerMoveEvent.forExtensions(new FoliaPlayer(plugin, event.getPlayer())));
-    }
-
-    @EventHandler
-    public void onPlayerPortal(PlayerPortalEvent event) {
-        onPlayerMove(event);
     }
 
     @EventHandler
