@@ -37,6 +37,8 @@ subprojects {
     pluginManager.withPlugin('com.gradleup.shadow') {
         tasks.named('shadowJar') {
             relocate 'org.h2', 'net.opanel.deps.h2'
+            // The private H2 driver must not be discovered by other mods through JDBC's ServiceLoader.
+            exclude 'META-INF/services/java.sql.Driver'
         }
     }
 }

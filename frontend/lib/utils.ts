@@ -206,3 +206,15 @@ export function getDimensionByName(name: string): Dimension {
     default: return Dimension.OVERWORLD;
   }
 }
+
+export function pingValueToColorClassName(ping: number): string {
+  return (
+    ping! < 100
+    ? "text-green-600"
+    : (
+      ping! < 200
+      ? "text-yellow-600"
+      : "text-red-700"
+    )
+  );
+}

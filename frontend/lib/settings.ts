@@ -14,6 +14,7 @@ import { version } from "./global";
 const storageKey = "opanel.settings";
 
 export type SettingsStorageType = {
+  "dashboard.ping-interval": number
   "map.render-settings": RenderSettings
   "map.show-players": boolean
   "players.avatar-provider": AvatarProvider | string
@@ -50,6 +51,7 @@ export type SettingsStorageType = {
 };
 
 const defaultSettings: SettingsStorageType = {
+  "dashboard.ping-interval": 5000, // ms
   "map.render-settings": {
     biomeColoring: true,
     renderShadows: true,

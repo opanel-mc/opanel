@@ -1,7 +1,7 @@
 package net.opanel.monitor;
 
 import net.opanel.config.MonitorHistoryConfiguration;
-import org.h2.Driver;
+import org.h2.jdbc.JdbcConnection;
 
 import java.nio.file.Path;
 import java.sql.Connection;
@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 final class MonitorHistoryStore implements AutoCloseable {
     static final int MINUTE_RESOLUTION_SECONDS = 60;
@@ -49,15 +48,13 @@ final class MonitorHistoryStore implements AutoCloseable {
     void open() throws SQLException {
         close();
 
-        Properties properties = new Properties();
-        properties.setProperty("user", "sa");
-        properties.setProperty("password", "");
         String databasePath = databaseBasePath.toString().replace('\\', '/');
-        connection = new Driver().connect(
+        // H2's Driver registers globally even after relocation and can claim other mods' JDBC connections.
+        // Open the private database without initializing that driver.
+        connection = new JdbcConnection(
                 "jdbc:h2:file:" + databasePath + ";DB_CLOSE_ON_EXIT=FALSE",
-                properties
+                null, "sa", "", false
         );
-        if(connection == null) throw new SQLException("H2 rejected the monitor history database URL.");
 
         try {
             initializeSchema();

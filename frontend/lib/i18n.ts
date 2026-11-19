@@ -25,11 +25,8 @@ export function localizeRich(id: TranslationKey, ...args: (string | React.ReactN
     const template = str.substring(i, i + 3);
     if(i <= str.length - 3 && /^{\d}$/.test(template)) {
       const arg = args[parseInt(template.replaceAll(/[{}]/g, ""))];
-      parsed += (
-        typeof arg === "string"
-        ? arg
-        : renderToStaticMarkup(arg) // ReactNode -> HTML string
-      );
+      // Escape string arguments as text while preserving explicit React markup.
+      parsed += renderToStaticMarkup(arg);
       i += 3;
       continue;
     }
@@ -75,10 +72,11 @@ export function localizeRich(id: TranslationKey, ...args: (string | React.ReactN
   return parsed;
 }
 
-export const $ = (id: TranslationKey, ...args: any[]) => (
+// Plain translations are rendered as text, so their arguments must not be HTML-encoded.
+export const $ = (id: TranslationKey, ...args: (string | number | null | undefined)[]) => (
   args.length === 0
   ? localize(id)
-  : localizeRich(id, ...args)
+  : localize(id).replace(/\{(\d)\}/g, (_, index: string) => String(args[Number(index)] ?? ""))
 );
 
 export const $mc = (itemId: string) => {

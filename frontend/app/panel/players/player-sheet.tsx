@@ -39,7 +39,7 @@ import { emitter } from "@/lib/emitter";
 import { millisToTime } from "@/lib/time";
 import { $ } from "@/lib/i18n";
 import { Alert } from "@/components/alert";
-import { cn, copyToClipboard, sleep } from "@/lib/utils";
+import { cn, copyToClipboard, pingValueToColorClassName, sleep } from "@/lib/utils";
 import { googleSansCode } from "@/lib/fonts";
 
 const formSchema = z.object({
@@ -116,7 +116,7 @@ export function PlayerSheet({
         clearInterval(timerRef.current);
       }
     };
-  }, [player]);
+  }, [player.isOnline, player.joinTime]);
 
   return (
     <Sheet>
@@ -174,6 +174,12 @@ export function PlayerSheet({
             <div className="flex flex-col gap-3">
               {player.isOnline && (
                 <>
+                  <Field orientation="horizontal">
+                    <FieldTitle className="flex-1">Ping</FieldTitle>
+                    <span className={cn("text-xs", googleSansCode.className, pingValueToColorClassName(player.ping!))}>
+                      {player.ping !== undefined ? `${player.ping}ms` : "-"}
+                    </span>
+                  </Field>
                   {player.ip && (
                     <Field orientation="horizontal">
                       <FieldTitle className="flex-1">{$("players.edit.form.ip")}</FieldTitle>

@@ -34,7 +34,6 @@ import {
 import { useMonitorHistory } from "./monitor-history-context";
 
 const YAXIS_TICKS = [0, 25, 50, 75, 100];
-const ACTIVITY_DATE_LABEL_INTERVAL = 4;
 const CPU_NAVIGATOR_SERIES = [{
   dataKey: "cpu",
   label: $("monitor.chart.cpu"),
@@ -195,15 +194,11 @@ export const ActivityMonitorBlock = memo(({ className }: {
           <CartesianGrid vertical={false} stroke="var(--border)"/>
           <XAxis
             dataKey="dateLabel"
-            interval={0}
+            interval="preserveEnd"
             tickLine={false}
             axisLine={false}
             tickMargin={8}
-            tickFormatter={(value, index) => (
-              (activityChartData.length - 1 - index) % ACTIVITY_DATE_LABEL_INTERVAL === 0
-                ? value
-                : ""
-            )}/>
+            minTickGap={32}/>
           <YAxis hide domain={[0, info ? info.maxPlayerCount : "auto"]}/>
           <ChartTooltip
             cursor={false}

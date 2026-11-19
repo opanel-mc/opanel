@@ -31,6 +31,7 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/lib/settings", () => ({
   getSettings: vi.fn((key: string) => {
+    if(key === "dashboard.ping-interval") return 5000;
     if(key === "dashboard.monitor-interval" || key === "terminal.font-size" || key === "monaco.font-size") return 14;
     if(key === "terminal.max-log-lines" || key === "code-of-conduct.auto-saving-interval") return 1000;
     if(key === "terminal.log-levels") return ["INFO", "WARN", "ERROR"];

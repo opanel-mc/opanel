@@ -17,8 +17,9 @@ use tokio::{
 
 use crate::{
     managers::{Manager, ManagerContext},
-    utils::{logs::LogTail, server::CommandOutput, time::unix_time_millis},
+    utils::{logs::LogTail, time::unix_time_millis},
 };
+// use crate::utils::server::CommandOutput;
 
 const MAX_LOG_LINES: usize = 20_000;
 const POLL_INTERVAL: Duration = Duration::from_millis(200);
@@ -76,20 +77,21 @@ impl LogListenerManager {
         )
     }
 
-    pub(crate) fn track_command_output(&self, output: CommandOutput) {
-        let mut state = self
-            .state
-            .write()
-            .unwrap_or_else(std::sync::PoisonError::into_inner);
-        state.command_outputs.push(output);
-        state.drain_command_outputs();
-    }
+    // Command feedback is temporarily disabled; see utils::server.
+    // pub(crate) fn track_command_output(&self, output: CommandOutput) {
+    //     let mut state = self
+    //         .state
+    //         .write()
+    //         .unwrap_or_else(std::sync::PoisonError::into_inner);
+    //     state.command_outputs.push(output);
+    //     state.drain_command_outputs();
+    // }
 }
 
 struct LogState {
     logs: VecDeque<ConsoleLog>,
     updates: broadcast::Sender<ConsoleLog>,
-    command_outputs: Vec<CommandOutput>,
+    // command_outputs: Vec<CommandOutput>,
 }
 
 impl LogState {
@@ -97,7 +99,7 @@ impl LogState {
         Self {
             logs: VecDeque::new(),
             updates: broadcast::channel(1024).0,
-            command_outputs: Vec::new(),
+            // command_outputs: Vec::new(),
         }
     }
 
@@ -109,17 +111,17 @@ impl LogState {
         let _ = self.updates.send(log);
     }
 
-    fn drain_command_outputs(&mut self) {
-        for output in std::mem::take(&mut self.command_outputs) {
-            let (lines, finished) = output.drain();
-            for line in lines {
-                self.record(ConsoleLog::new("INFO", line));
-            }
-            if !finished {
-                self.command_outputs.push(output);
-            }
-        }
-    }
+    // fn drain_command_outputs(&mut self) {
+    //     for output in std::mem::take(&mut self.command_outputs) {
+    //         let (lines, finished) = output.drain();
+    //         for line in lines {
+    //             self.record(ConsoleLog::new("INFO", line));
+    //         }
+    //         if !finished {
+    //             self.command_outputs.push(output);
+    //         }
+    //     }
+    // }
 }
 
 fn parse_log_line(line: String, level: &mut Option<&'static str>) -> Option<ConsoleLog> {
@@ -159,8 +161,8 @@ impl Manager for LogListenerManager {
             // configured log file from the current end, polling every POLL_INTERVAL.
             // LogTail tracks the read offset, buffers incomplete lines and detects truncation.
             // File records contain only level and message: use collection time and leave
-            // thread/source empty. Console command feedback bypasses file logging and is
-            // collected separately below, even when file logging is disabled.
+            // thread/source empty. Console command feedback goes directly to stdout and
+            // cannot be collected through Pumpkin's current plugin API.
             // A host-provided tracing Layer subscription could replace this polling later.
             let mut tail = if logging.enabled && !logging.file.is_empty() {
                 let path = PathBuf::from("logs").join(&logging.file);
@@ -187,10 +189,10 @@ impl Manager for LogListenerManager {
                         _ = shutdown.cancelled() => break,
                         _ = timer.tick() => {}
                     }
-                    state
-                        .write()
-                        .unwrap_or_else(std::sync::PoisonError::into_inner)
-                        .drain_command_outputs();
+                    // state
+                    //     .write()
+                    //     .unwrap_or_else(std::sync::PoisonError::into_inner)
+                    //     .drain_command_outputs();
                     let Some(mut current_tail) = tail.take() else {
                         continue;
                     };
