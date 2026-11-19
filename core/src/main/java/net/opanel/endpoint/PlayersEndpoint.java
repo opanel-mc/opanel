@@ -80,14 +80,12 @@ public class PlayersEndpoint extends BaseEndpoint {
         };
 
         moveListener = (OPanelPlayerMoveEvent event) -> {
-            if(event.isExtensionOnly()) return;
-
             HashMap<String, Object> playerInfo = new HashMap<>();
             String uuid = event.getPlayer().getUUID();
             playerInfo.put("uuid", uuid);
             playerInfo.put("name", event.getPlayer().getName());
 
-            playerInfo.put("position", event.getPosition());
+            playerInfo.put("position", event.getPosition().serialize());
 
             synchronized(pendingPlayerMovesLock) {
                 pendingPlayerMoves.put(uuid, playerInfo);
@@ -108,7 +106,6 @@ public class PlayersEndpoint extends BaseEndpoint {
         EventManager.get().on(EventType.PLAYER_JOIN, joinListener);
         EventManager.get().on(EventType.PLAYER_LEAVE, leaveListener);
         EventManager.get().on(EventType.PLAYER_MOVE, moveListener);
-        EventManager.get().on(EventType.PLAYER_POSITION_UPDATE, moveListener);
         EventManager.get().on(EventType.PLAYER_GAMEMODE_CHANGE, gamemodeChangeListener);
 
         moveBroadcastScheduler.scheduleWithFixedDelay(
@@ -132,7 +129,6 @@ public class PlayersEndpoint extends BaseEndpoint {
         EventManager.get().off(EventType.PLAYER_JOIN, joinListener);
         EventManager.get().off(EventType.PLAYER_LEAVE, leaveListener);
         EventManager.get().off(EventType.PLAYER_MOVE, moveListener);
-        EventManager.get().off(EventType.PLAYER_POSITION_UPDATE, moveListener);
         EventManager.get().off(EventType.PLAYER_GAMEMODE_CHANGE, gamemodeChangeListener);
 
         moveBroadcastScheduler.shutdownNow();
