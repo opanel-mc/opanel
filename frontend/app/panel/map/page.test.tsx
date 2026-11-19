@@ -1,10 +1,14 @@
-import type ServerMapPage from "./page";
 import type { ReactNode, Ref } from "react";
 import type { MapCanvasHandle } from "./map-canvas";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import * as globalInfo from "@/lib/global";
+import ServerMap from "./page";
 
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
 
 const { setCenter } = vi.hoisted(() => ({ setCenter: vi.fn() }));
 
@@ -58,14 +62,10 @@ vi.mock("./use-map-players", () => ({
   }),
 }));
 
-let ServerMap: typeof ServerMapPage;
-
-beforeAll(async () => {
-  vi.stubEnv("VITE_OPANEL_MAP_PLAYERS", "true");
-  ServerMap = (await import("./page")).default;
+beforeEach(() => {
+  setCenter.mockClear();
+  vi.spyOn(globalInfo, "serverType", "get").mockReturnValue("Paper");
 });
-afterAll(() => vi.unstubAllEnvs());
-beforeEach(() => setCenter.mockClear());
 
 describe("map positioning while loading a world", () => {
   it.each(["Beta", "Origin", "Coordinate"])("keeps the latest %s selection after ready", async (action) => {
@@ -89,5 +89,14 @@ describe("map positioning while loading a world", () => {
     fireEvent.click(screen.getByRole("button", { name: "Ready other" }));
     expect(setCenter).toHaveBeenCalledTimes(callsBeforeReady);
     expect(setCenter).toHaveBeenLastCalledWith(expected);
+  });
+
+  it("hides map players on Pumpkin", async () => {
+    vi.spyOn(globalInfo, "serverType", "get").mockReturnValue("Pumpkin");
+
+    render(<ServerMap />);
+    await screen.findByRole("button", { name: "Ready world" });
+
+    expect(screen.queryByRole("button", { name: /map.players/ })).not.toBeInTheDocument();
   });
 });

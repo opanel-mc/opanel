@@ -34,11 +34,11 @@ import { $ } from "@/lib/i18n";
 import { changeSettings, getSettings } from "@/lib/settings";
 import { DEFAULT_ZOOM } from "@/hooks/use-map-tiles";
 import { emitter } from "@/lib/emitter";
+import { serverType } from "@/lib/global";
+import { isPumpkin } from "@/lib/server-type";
 import { CoordDialog } from "./coord-dialog";
 import { MapPlayerList } from "./map-player-list";
 import { useMapPlayers } from "./use-map-players";
-
-const supportsMapPlayers = import.meta.env.VITE_OPANEL_MAP_PLAYERS === "true";
 
 const MapCanvas = dynamic(() => import("./map-canvas"), { ssr: false });
 
@@ -79,7 +79,7 @@ function MapSettingsPopover({
               checked={settings.renderShadows}
               onCheckedChange={(checked) => onSettingsChange({ ...settings, renderShadows: checked })}/>
           </Field>
-          {supportsMapPlayers && (
+          {!isPumpkin(serverType) && (
             <Field orientation="horizontal">
               <FieldLabel htmlFor="map-show-players">{$("map.settings.show-players")}</FieldLabel>
               <Switch id="map-show-players" checked={showPlayers} onCheckedChange={onShowPlayersChange}/>
@@ -108,7 +108,7 @@ export default function ServerMap() {
   const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
   const mapRef = useRef<MapCanvasHandle | null>(null);
   const pendingCenter = useRef<PlayerMoveData["position"] | null>(null);
-  const [showPlayers, setShowPlayers] = useState(() => supportsMapPlayers && getSettings("map.show-players"));
+  const [showPlayers, setShowPlayers] = useState(() => !isPumpkin(serverType) && getSettings("map.show-players"));
   const { players, disconnected } = useMapPlayers(showPlayers);
 
   const setCenter = (position: { x: number, z: number }) => {

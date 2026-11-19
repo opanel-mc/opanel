@@ -18,7 +18,6 @@ declare module 'virtual:textures' {
 interface ImportMetaEnv {
   readonly VITE_OPANEL_VERSION: string;
   readonly VITE_OPANEL_TARGET: string;
-  readonly VITE_OPANEL_MAP_PLAYERS?: string;
 }
 
 interface ImportMeta {
