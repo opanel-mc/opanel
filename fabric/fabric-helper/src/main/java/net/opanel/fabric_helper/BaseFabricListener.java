@@ -1,27 +1,32 @@
 package net.opanel.fabric_helper;
 
-import java.util.HashMap;
-import java.util.Map;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.WorldSavePath;
+import net.opanel.common.OPanelPlayerPosition;
+import net.opanel.utils.PlayerPositionTracker;
+
 import java.util.UUID;
 
 public abstract class BaseFabricListener {
-    private final Map<UUID, double[]> playerPositions = new HashMap<>();
+    private final PlayerPositionTracker positionTracker = new PlayerPositionTracker();
+    private String cachedSaveName;
 
-    protected boolean hasPlayerMoved(UUID uuid, double x, double y, double z) {
-        double[] previousPosition = playerPositions.get(uuid);
-        if(previousPosition == null) {
-            playerPositions.put(uuid, new double[] { x, y, z });
-            return false;
+    protected String getOverworldSaveName(MinecraftServer server) {
+        if(cachedSaveName == null) {
+            cachedSaveName = server.getSavePath(WorldSavePath.ROOT).toAbsolutePath().normalize().getFileName().toString();
         }
-        if(x == previousPosition[0] && y == previousPosition[1] && z == previousPosition[2]) return false;
+        return cachedSaveName;
+    }
 
-        previousPosition[0] = x;
-        previousPosition[1] = y;
-        previousPosition[2] = z;
-        return true;
+    protected void seedPlayerPosition(UUID uuid, OPanelPlayerPosition position) {
+        positionTracker.set(uuid, position);
+    }
+
+    protected OPanelPlayerPosition trackPlayerPosition(UUID uuid, double x, double y, double z, String save) {
+        return positionTracker.track(uuid, x, y, z, save);
     }
 
     protected void removePlayerPosition(UUID uuid) {
-        playerPositions.remove(uuid);
+        positionTracker.remove(uuid);
     }
 }

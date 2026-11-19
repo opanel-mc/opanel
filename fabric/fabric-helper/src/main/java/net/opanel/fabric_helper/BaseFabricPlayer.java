@@ -6,10 +6,10 @@ import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.WorldSavePath;
 import net.opanel.common.OPanelPlayer;
+import net.opanel.common.OPanelPlayerPosition;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Map;
 
 public abstract class BaseFabricPlayer implements OPanelPlayer {
     protected final ServerPlayerEntity player;
@@ -24,16 +24,14 @@ public abstract class BaseFabricPlayer implements OPanelPlayer {
         profile = player.getGameProfile();
     }
 
-    protected boolean isInMapWorld() {
-        return server.getOverworld().getEntity(player.getUuid()) == player;
-    }
+    protected abstract boolean isInMapWorld();
 
     @Override
-    public Map<String, Object> serializePosition() {
+    public OPanelPlayerPosition getPosition() {
         String save = isInMapWorld()
                 ? server.getSavePath(WorldSavePath.ROOT).toAbsolutePath().normalize().getFileName().toString()
                 : null;
-        return OPanelPlayer.serializePosition(getX(), getY(), getZ(), save);
+        return new OPanelPlayerPosition(getX(), getY(), getZ(), save);
     }
 
     @Override

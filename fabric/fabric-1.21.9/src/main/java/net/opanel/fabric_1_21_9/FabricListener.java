@@ -1,6 +1,5 @@
 package net.opanel.fabric_1_21_9;
 
-import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -9,11 +8,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.opanel.common.OPanelGameMode;
+import net.opanel.common.OPanelPlayerPosition;
 import net.opanel.event.*;
 import net.opanel.fabric_helper.BaseFabricListener;
 import net.opanel.fabric_helper.event.PlayerGameModeChangeEvent;
-
-import java.util.UUID;
 
 public class FabricListener extends BaseFabricListener {
 
@@ -23,17 +21,14 @@ public class FabricListener extends BaseFabricListener {
 
     private void registerListeners(MinecraftServer server) {
         ServerPlayerEvents.JOIN.register(player -> {
-            EventManager.get().emit(EventType.PLAYER_JOIN, new OPanelPlayerJoinEvent(new FabricPlayer(player, server)));
+            FabricPlayer wrapped = new FabricPlayer(player, server);
+            seedPlayerPosition(player.getUuid(), wrapped.getPosition());
+            EventManager.get().emit(EventType.PLAYER_JOIN, new OPanelPlayerJoinEvent(wrapped));
         });
 
         ServerPlayerEvents.LEAVE.register(player -> {
             removePlayerPosition(player.getUuid());
             EventManager.get().emit(EventType.PLAYER_LEAVE, new OPanelPlayerLeaveEvent(new FabricPlayer(player, server)));
-        });
-
-        ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
-            EventManager.get().emit(EventType.PLAYER_POSITION_UPDATE,
-                    new OPanelPlayerMoveEvent(new FabricPlayer(newPlayer, server)));
         });
 
         PlayerGameModeChangeEvent.EVENT.register(((player, gamemode) -> {
@@ -49,22 +44,14 @@ public class FabricListener extends BaseFabricListener {
         }));
 
         ServerTickEvents.END_SERVER_TICK.register(tickServer -> {
+            String overworldSave = getOverworldSaveName(tickServer);
             for(var player : tickServer.getPlayerManager().getPlayerList()) {
-                UUID uuid = player.getUuid();
-                double x = player.getX();
-                double y = player.getY();
-                double z = player.getZ();
-                if(!hasPlayerMoved(uuid, x, y, z)) continue;
+                String save = player.getEntityWorld().getRegistryKey() == World.OVERWORLD ? overworldSave : null;
+                OPanelPlayerPosition position = trackPlayerPosition(player.getUuid(), player.getX(), player.getY(), player.getZ(), save);
+                if(position == null) continue;
 
-                EventManager.get().emit(EventType.PLAYER_MOVE, new OPanelPlayerMoveEvent(new FabricPlayer(player, tickServer)));
+                EventManager.get().emit(EventType.PLAYER_MOVE, new OPanelPlayerMoveEvent(new FabricPlayer(player, tickServer), position));
             }
-        });
-
-        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> {
-            EventManager.get().emit(EventType.PLAYER_POSITION_UPDATE, new OPanelPlayerMoveEvent(new FabricPlayer(player, server)));
-            if(!hasPlayerMoved(player.getUuid(), player.getX(), player.getY(), player.getZ())) return;
-
-            EventManager.get().emit(EventType.PLAYER_MOVE, new OPanelPlayerMoveEvent(new FabricPlayer(player, server)));
         });
 
         ServerChunkEvents.CHUNK_GENERATE.register((world, chunk) -> {

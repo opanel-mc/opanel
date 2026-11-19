@@ -4,12 +4,13 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.LevelResource;
 import net.opanel.common.OPanelPlayer;
+import net.opanel.common.OPanelPlayerPosition;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Map;
 
 public abstract class BaseFabricPlayer implements OPanelPlayer {
     protected final ServerPlayer player;
@@ -25,11 +26,11 @@ public abstract class BaseFabricPlayer implements OPanelPlayer {
     }
 
     @Override
-    public Map<String, Object> serializePosition() {
-        String save = server.overworld().getEntity(player.getUUID()) == player
+    public OPanelPlayerPosition getPosition() {
+        String save = player.level().dimension() == Level.OVERWORLD
                 ? server.getWorldPath(LevelResource.ROOT).toAbsolutePath().normalize().getFileName().toString()
                 : null;
-        return OPanelPlayer.serializePosition(getX(), getY(), getZ(), save);
+        return new OPanelPlayerPosition(getX(), getY(), getZ(), save);
     }
 
     @Override
