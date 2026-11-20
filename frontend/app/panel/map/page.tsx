@@ -32,11 +32,11 @@ import { sendGetRequest, toastError } from "@/lib/api";
 import { $ } from "@/lib/i18n";
 import { changeSettings, getSettings } from "@/lib/settings";
 import { DEFAULT_ZOOM } from "@/hooks/use-map-tiles";
+import { useMapPlayers } from "@/hooks/use-map-players";
 import { emitter } from "@/lib/emitter";
 import { serverType } from "@/lib/global";
 import { isPumpkin } from "@/lib/server-type";
 import { CoordDialog } from "./coord-dialog";
-import { useMapPlayers } from "./use-map-players";
 
 const MapCanvas = dynamic(() => import("./map-canvas"), { ssr: false });
 
