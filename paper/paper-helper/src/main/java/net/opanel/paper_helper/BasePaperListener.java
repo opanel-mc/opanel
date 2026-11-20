@@ -35,6 +35,7 @@ public abstract class BasePaperListener implements Listener {
     protected final JavaPlugin plugin;
     private final PlayerPositionTracker positionTracker = new PlayerPositionTracker();
     private final BukkitTask positionPollTask;
+    private volatile World cachedMainWorld;
 
     protected BasePaperListener(JavaPlugin plugin) {
         this(plugin, true);
@@ -89,6 +90,7 @@ public abstract class BasePaperListener implements Listener {
         }
         onPositionTrackingStop();
         positionTracker.clear();
+        cachedMainWorld = null;
     }
 
     protected void removePlayerPosition(UUID uuid) {
@@ -139,8 +141,15 @@ public abstract class BasePaperListener implements Listener {
     }
 
     private World getMainWorld() {
+        World mainWorld = cachedMainWorld;
+        if(mainWorld != null) return mainWorld;
+
         List<World> worlds = plugin.getServer().getWorlds();
-        return worlds.isEmpty() ? null : worlds.get(0);
+        if(worlds.isEmpty()) return null;
+
+        mainWorld = worlds.get(0);
+        cachedMainWorld = mainWorld;
+        return mainWorld;
     }
 
     @EventHandler
