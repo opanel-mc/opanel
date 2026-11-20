@@ -20,6 +20,8 @@ import { useWebSocket } from "@/hooks/use-websocket";
 import { type ChunksFlushedPayload, MapClient } from "@/lib/ws/map";
 import { PlayerAvatar } from "@/components/player-avatar";
 import { mapProjection, TILE_BLOCKS } from "@/lib/map/projection";
+import { cn } from "@/lib/utils";
+import { minecraftAE } from "@/lib/fonts";
 
 
 export interface MapCanvasHandle {
@@ -292,6 +294,8 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
       onWheel={handleWheel}
       className="relative w-full h-full overflow-hidden touch-none cursor-grab active:cursor-grabbing select-none">
       <canvas ref={canvasRef} className="block w-full h-full image-pixelated"/>
+
+      {/** Player avatars (Realtime player positions) */}
       {projection && players?.map(({ uuid, name, position }) => {
         const { width, height, zoom, originX, originY } = projection;
         const x = originX + position.x * zoom;
@@ -303,8 +307,8 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
             key={uuid}
             className="pointer-events-none absolute flex -translate-x-1/2 -translate-y-full flex-col items-center gap-0.5"
             style={{ left: `${x / width * 100}%`, top: `${z / height * 100}%` }}>
-            <span className="rounded-sm bg-black/80 px-1.5 py-0.5 text-xs font-semibold text-white shadow-sm">{name}</span>
-            <PlayerAvatar name={name} className="size-6 rounded-sm ring-1 ring-white/80 shadow-md"/>
+            <span className={cn("rounded-xs bg-black/60 pl-1 pr-0.5 pt-0.5 text-xs text-white shadow-sm", minecraftAE.className)}>{name}</span>
+            <PlayerAvatar name={name} className="size-6 shadow-md"/>
           </div>
         );
       })}
