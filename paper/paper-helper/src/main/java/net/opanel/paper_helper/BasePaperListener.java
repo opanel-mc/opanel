@@ -1,110 +1,146 @@
 package net.opanel.paper_helper;
 
+import net.opanel.common.OPanelPlayerPosition;
 import net.opanel.event.EventManager;
 import net.opanel.event.EventType;
 import net.opanel.event.OPanelChunkDirtyEvent;
 import net.opanel.event.OPanelPlayerMoveEvent;
+import net.opanel.utils.PlayerPositionTracker;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.entity.Boat;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerPortalEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.event.vehicle.VehicleMoveEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.world.ChunkPopulateEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.List;
+import java.util.UUID;
 
 public abstract class BasePaperListener implements Listener {
-    // Vehicle types whose passenger movement is handled by VehicleMoveEvent instead of PlayerMoveEvent.
-    // Living mounts (horses, pigs, striders, etc.) do not fire VehicleMoveEvent and must stay on PlayerMoveEvent.
-    // Add new VehicleMoveEvent-emitting vehicle interfaces here if future MC/Paper versions introduce any.
-    private static final List<Class<? extends Vehicle>> VEHICLE_MOVE_TYPES = List.of(
-        Boat.class,
-        Minecart.class
-    );
+    protected static final long POSITION_POLL_INTERVAL_TICKS = 1L;
 
     protected final JavaPlugin plugin;
+    private final PlayerPositionTracker positionTracker = new PlayerPositionTracker();
+    private final BukkitTask positionPollTask;
 
     protected BasePaperListener(JavaPlugin plugin) {
+        this(plugin, true);
+    }
+
+    protected BasePaperListener(JavaPlugin plugin, boolean pollGlobally) {
         this.plugin = plugin;
+        if(pollGlobally) {
+            World mainWorld = getMainWorld();
+            for(Player player : Bukkit.getOnlinePlayers()) {
+                seedPlayerPosition(player, mainWorld);
+            }
+            positionPollTask = Bukkit.getScheduler().runTaskTimer(
+                plugin,
+                this::pollOnlinePlayers,
+                POSITION_POLL_INTERVAL_TICKS,
+                POSITION_POLL_INTERVAL_TICKS
+            );
+        } else {
+            positionPollTask = null;
+        }
     }
 
     protected abstract BasePaperPlayer createPlayer(Player player);
 
-    protected void runAfterPlayerAction(Player player, Runnable task) {
-        Bukkit.getScheduler().runTask(plugin, task);
-    }
+    protected void onPlayerTrackStart(Player player) { }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPlayerMove(PlayerMoveEvent event) {
-        if(isVehicleMoveTracked(event.getPlayer().getVehicle())) return;
+    protected void onPlayerTrackStop(UUID uuid) { }
 
-        Location to = event.getTo();
-        if(hasLocationMoved(event.getFrom(), to)) {
-            emitPlayerMove(event.getPlayer(), to);
-        }
-    }
+    protected void onPositionTrackingStop() { }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onVehicleMove(VehicleMoveEvent event) {
-        if(!isVehicleMoveTracked(event.getVehicle())) return;
-
-        List<Entity> passengers = event.getVehicle().getPassengers();
-        if(passengers.isEmpty()) return;
-
-        Location to = event.getTo();
-        if(!hasLocationMoved(event.getFrom(), to)) return;
-
-        for(Entity passenger : passengers) {
-            if(passenger instanceof Player player) {
-                emitCompletedPlayerMove(player);
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPlayerTeleport(PlayerTeleportEvent event) {
-        emitCompletedPlayerMove(event.getPlayer());
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPlayerPortal(PlayerPortalEvent event) {
-        emitCompletedPlayerMove(event.getPlayer());
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerJoinTrack(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        seedPlayerPosition(player, getMainWorld());
+        onPlayerTrackStart(player);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerRespawn(PlayerRespawnEvent event) {
-        emitCompletedPlayerMove(event.getPlayer());
+    public void onPlayerQuitTrack(PlayerQuitEvent event) {
+        UUID uuid = event.getPlayer().getUniqueId();
+        onPlayerTrackStop(uuid);
+        removePlayerPosition(uuid);
     }
 
-    private void emitCompletedPlayerMove(Player player) {
-        runAfterPlayerAction(player, () -> {
-            if(player.isOnline()) emitPlayerMove(player, player.getLocation());
-        });
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPluginDisable(PluginDisableEvent event) {
+        if(event.getPlugin() != plugin) return;
+
+        if(positionPollTask != null && !positionPollTask.isCancelled()) {
+            positionPollTask.cancel();
+        }
+        onPositionTrackingStop();
+        positionTracker.clear();
     }
 
-    private void emitPlayerMove(Player player, Location location) {
+    protected void removePlayerPosition(UUID uuid) {
+        positionTracker.remove(uuid);
+    }
+
+    protected void samplePlayerPosition(Player player) {
+        samplePlayerPosition(player, getMainWorld());
+    }
+
+    private void pollOnlinePlayers() {
+        World mainWorld = getMainWorld();
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            samplePlayerPosition(player, mainWorld);
+        }
+    }
+
+    private void seedPlayerPosition(Player player, World mainWorld) {
+        Location location = player.getLocation();
         if(location == null) return;
 
-        BasePaperPlayer wrapped = createPlayer(player);
-        EventManager.get().emit(EventType.PLAYER_MOVE, new OPanelPlayerMoveEvent(wrapped, wrapped.toPosition(location)));
+        World world = location.getWorld();
+        String save = (world != null && world.equals(mainWorld)) ? world.getName() : null;
+        positionTracker.set(
+            player.getUniqueId(),
+            new OPanelPlayerPosition(location.getX(), location.getY(), location.getZ(), save)
+        );
+    }
+
+    private void samplePlayerPosition(Player player, World mainWorld) {
+        if(!player.isOnline()) return;
+
+        Location location = player.getLocation();
+        if(location == null) return;
+
+        World world = location.getWorld();
+        String save = (world != null && world.equals(mainWorld)) ? world.getName() : null;
+        OPanelPlayerPosition position = positionTracker.track(
+            player.getUniqueId(),
+            location.getX(),
+            location.getY(),
+            location.getZ(),
+            save
+        );
+        if(position == null) return;
+
+        EventManager.get().emit(EventType.PLAYER_MOVE, new OPanelPlayerMoveEvent(createPlayer(player), position));
+    }
+
+    private World getMainWorld() {
+        List<World> worlds = plugin.getServer().getWorlds();
+        return worlds.isEmpty() ? null : worlds.get(0);
     }
 
     @EventHandler
@@ -189,22 +225,5 @@ public abstract class BasePaperListener implements Listener {
         if(world.getEnvironment() != World.Environment.NORMAL) return;
 
         EventManager.get().emit(EventType.CHUNK_DIRTY, new OPanelChunkDirtyEvent(block.getX() >> 4, block.getZ() >> 4));
-    }
-
-    protected static boolean hasLocationMoved(Location from, Location to) {
-        if(to == null) return false;
-        if(from == null) return true;
-        return from.getWorld() != to.getWorld()
-                || from.getX() != to.getX()
-                || from.getY() != to.getY()
-                || from.getZ() != to.getZ();
-    }
-
-    private static boolean isVehicleMoveTracked(Entity vehicle) {
-        if(vehicle == null) return false;
-        for(Class<? extends Vehicle> type : VEHICLE_MOVE_TYPES) {
-            if(type.isInstance(vehicle)) return true;
-        }
-        return false;
     }
 }
