@@ -10,8 +10,11 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Minecart;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -29,6 +32,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.List;
 
 public abstract class BasePaperListener implements Listener {
+    // Vehicle types whose passenger movement is handled by VehicleMoveEvent instead of PlayerMoveEvent.
+    // Living mounts (horses, pigs, striders, etc.) do not fire VehicleMoveEvent and must stay on PlayerMoveEvent.
+    // Add new VehicleMoveEvent-emitting vehicle interfaces here if future MC/Paper versions introduce any.
+    private static final List<Class<? extends Vehicle>> VEHICLE_MOVE_TYPES = List.of(
+        Boat.class,
+        Minecart.class
+    );
+
     protected final JavaPlugin plugin;
 
     protected BasePaperListener(JavaPlugin plugin) {
@@ -43,6 +54,8 @@ public abstract class BasePaperListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerMove(PlayerMoveEvent event) {
+        if(isVehicleMoveTracked(event.getPlayer().getVehicle())) return;
+
         Location to = event.getTo();
         if(hasLocationMoved(event.getFrom(), to)) {
             emitPlayerMove(event.getPlayer(), to);
@@ -51,6 +64,8 @@ public abstract class BasePaperListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onVehicleMove(VehicleMoveEvent event) {
+        if(!isVehicleMoveTracked(event.getVehicle())) return;
+
         List<Entity> passengers = event.getVehicle().getPassengers();
         if(passengers.isEmpty()) return;
 
@@ -59,7 +74,7 @@ public abstract class BasePaperListener implements Listener {
 
         for(Entity passenger : passengers) {
             if(passenger instanceof Player player) {
-                emitPlayerMove(player, to);
+                emitCompletedPlayerMove(player);
             }
         }
     }
@@ -183,5 +198,13 @@ public abstract class BasePaperListener implements Listener {
                 || from.getX() != to.getX()
                 || from.getY() != to.getY()
                 || from.getZ() != to.getZ();
+    }
+
+    private static boolean isVehicleMoveTracked(Entity vehicle) {
+        if(vehicle == null) return false;
+        for(Class<? extends Vehicle> type : VEHICLE_MOVE_TYPES) {
+            if(type.isInstance(vehicle)) return true;
+        }
+        return false;
     }
 }
