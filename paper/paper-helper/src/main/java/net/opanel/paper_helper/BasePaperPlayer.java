@@ -11,6 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.List;
 
 public abstract class BasePaperPlayer implements OPanelPlayer {
     protected final JavaPlugin plugin;
@@ -38,8 +39,8 @@ public abstract class BasePaperPlayer implements OPanelPlayer {
     }
 
     private boolean isMapWorld(World world) {
-        return !plugin.getServer().getWorlds().isEmpty()
-                && world.equals(plugin.getServer().getWorlds().get(0));
+        List<World> worlds = plugin.getServer().getWorlds();
+        return !worlds.isEmpty() && world.equals(worlds.get(0));
     }
 
     @Override
