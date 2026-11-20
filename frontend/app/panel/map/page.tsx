@@ -45,14 +45,10 @@ function MapSettingsPopover({
   asChild,
   settings,
   onSettingsChange,
-  showPlayers,
-  onShowPlayersChange,
 }: PropsWithChildren<{
   asChild?: boolean
   settings: RenderSettings
   onSettingsChange: (newSettings: RenderSettings) => void
-  showPlayers: boolean
-  onShowPlayersChange: (show: boolean) => void
 }>) {
   return (
     <Popover>
@@ -80,7 +76,10 @@ function MapSettingsPopover({
           {!isPumpkin(serverType) && (
             <Field orientation="horizontal">
               <FieldLabel htmlFor="map-show-players">{$("map.settings.show-players")}</FieldLabel>
-              <Switch id="map-show-players" checked={showPlayers} onCheckedChange={onShowPlayersChange}/>
+              <Switch
+                id="map-show-players"
+                checked={settings.showPlayers}
+                onCheckedChange={(checked) => onSettingsChange({ ...settings, showPlayers: checked })}/>
             </Field>
           )}
           <Field orientation="horizontal">
@@ -105,7 +104,7 @@ export default function ServerMap() {
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
   const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
   const mapRef = useRef<MapCanvasHandle | null>(null);
-  const [showPlayers, setShowPlayers] = useState(() => !isPumpkin(serverType) && getSettings("map.show-players"));
+  const showPlayers = !isPumpkin(serverType) && settings.showPlayers;
   const players = useMapPlayers(showPlayers);
 
   const fetchServerWorlds = async () => {
@@ -178,11 +177,6 @@ export default function ServerMap() {
           <MapSettingsPopover
             settings={settings}
             onSettingsChange={handleSettingsChange}
-            showPlayers={showPlayers}
-            onShowPlayersChange={(show) => {
-              setShowPlayers(show);
-              changeSettings("map.show-players", show);
-            }}
             asChild>
             <Button variant="ghost" size="icon" className="cursor-pointer">
               <Settings />

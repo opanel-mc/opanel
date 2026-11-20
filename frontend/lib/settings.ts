@@ -16,7 +16,6 @@ const storageKey = "opanel.settings";
 export type SettingsStorageType = {
   "dashboard.ping-interval": number
   "map.render-settings": RenderSettings
-  "map.show-players": boolean
   "players.avatar-provider": AvatarProvider | string
   "players.skin-provider": SkinProvider | string
   // "players.cape-provider": CapeProvider | string
@@ -55,9 +54,9 @@ const defaultSettings: SettingsStorageType = {
   "map.render-settings": {
     biomeColoring: true,
     renderShadows: true,
+    showPlayers: true,
     debugMode: false
   },
-  "map.show-players": true,
   "players.avatar-provider": AvatarProvider.MINOTAR,
   "players.skin-provider": SkinProvider.MINOTAR,
   // "players.cape-provider": CapeProvider.CRAFATAR,
@@ -122,6 +121,13 @@ function getSettingsStorage(): SettingsStorageType {
       settings[key] = defaultSettings[key as keyof SettingsStorageType];
     }
   }
+
+  // To be compatible with older versions of `map.render-settings`
+  settings["map.render-settings"] = {
+    ...defaultSettings["map.render-settings"],
+    ...settings["map.render-settings"]
+  };
+
   storage.setItem(storageKey, JSON.stringify(settings));
   return settings;
 }

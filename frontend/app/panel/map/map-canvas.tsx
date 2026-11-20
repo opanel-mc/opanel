@@ -250,15 +250,18 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
   // oxlint-disable-next-line react/exhaustive-deps
   }, [client]);
 
-  useEffect(() => {
-    if(!workerRef.current) return;
-    workerRef.current.postMessage({ type: "setSettings", settings } satisfies MainToWorker);
-  }, [settings]);
+  const { biomeColoring, renderShadows, debugMode } = settings;
+  settingsRef.current = settings;
 
   useEffect(() => {
     if(!workerRef.current) return;
-    workerRef.current.postMessage({ type: "setFpsReporting", enabled: settings.debugMode } satisfies MainToWorker);
-  }, [settings.debugMode]);
+    workerRef.current.postMessage({ type: "setSettings", settings: settingsRef.current } satisfies MainToWorker);
+  }, [biomeColoring, renderShadows]);
+
+  useEffect(() => {
+    if(!workerRef.current) return;
+    workerRef.current.postMessage({ type: "setFpsReporting", enabled: debugMode } satisfies MainToWorker);
+  }, [debugMode]);
 
   // Resize observer keeps the worker's OffscreenCanvas in sync with the
   // container's CSS box.

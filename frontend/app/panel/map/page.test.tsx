@@ -44,9 +44,12 @@ vi.mock("./coord-dialog", () => ({
   CoordDialog: () => null,
 }));
 vi.mock("@/lib/settings", () => ({
-  getSettings: (key: string) => key === "map.render-settings"
-    ? { biomeColoring: true, renderShadows: true, debugMode: false }
-    : true,
+  getSettings: () => ({
+    biomeColoring: true,
+    renderShadows: true,
+    showPlayers: true,
+    debugMode: false,
+  }),
   changeSettings: vi.fn(),
 }));
 vi.mock("@/lib/api", () => ({
