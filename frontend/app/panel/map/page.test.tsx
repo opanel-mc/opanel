@@ -1,6 +1,7 @@
 import type { ReactNode, Ref } from "react";
 import type { MapCanvasHandle } from "./map-canvas";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import type { PlayerMoveData } from "@/lib/ws/players";
+import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as globalInfo from "@/lib/global";
 import ServerMap from "./page";
@@ -10,17 +11,21 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-const { setCenter } = vi.hoisted(() => ({ setCenter: vi.fn() }));
+const { capturedPlayers, useMapPlayersMock } = vi.hoisted(() => ({
+  capturedPlayers: vi.fn(),
+  useMapPlayersMock: vi.fn(),
+}));
 
 vi.mock("next/dynamic", async () => {
   const { forwardRef, useImperativeHandle } = await import("react");
   return {
     default: () => forwardRef(function MockMap(
-      { save, onLoad }: { save: string, onLoad: () => void },
+      { save, players, onLoad }: { save: string, players?: PlayerMoveData[], onLoad: () => void },
       ref: Ref<MapCanvasHandle>
     ) {
+      capturedPlayers(save, players);
       useImperativeHandle(ref, () => ({
-        setCenter,
+        setCenter: vi.fn(),
         getCenter: () => ({ x: 0, z: 0 }),
         zoomIn: vi.fn(),
         zoomOut: vi.fn(),
@@ -36,9 +41,7 @@ vi.mock("../sub-page", () => ({
   SubPage: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 vi.mock("./coord-dialog", () => ({
-  CoordDialog: ({ onTeleport }: { onTeleport: (coord: { x: number, z: number }) => void }) => (
-    <button onClick={() => onTeleport({ x: 70, z: 80 })}>Coordinate</button>
-  ),
+  CoordDialog: () => null,
 }));
 vi.mock("@/lib/settings", () => ({
   getSettings: (key: string) => key === "map.render-settings"
@@ -53,50 +56,38 @@ vi.mock("@/lib/api", () => ({
   toastError: vi.fn(),
 }));
 vi.mock("./use-map-players", () => ({
-  useMapPlayers: () => ({
-    disconnected: false,
-    players: [
-      { uuid: "a", name: "Alpha", position: { save: "other", x: 10, y: 64, z: 10 } },
-      { uuid: "b", name: "Beta", position: { save: "other", x: 90, y: 64, z: 90 } },
-    ],
-  }),
+  useMapPlayers: useMapPlayersMock,
 }));
 
 beforeEach(() => {
-  setCenter.mockClear();
+  capturedPlayers.mockClear();
+  useMapPlayersMock.mockReset();
+  useMapPlayersMock.mockImplementation((enabled: boolean) => enabled ? [
+    { uuid: "a", name: "Alpha", position: { save: "world", x: 10, y: 64, z: 10 } },
+    { uuid: "b", name: "Beta", position: { save: "other", x: 90, y: 64, z: 90 } },
+  ] : []);
   vi.spyOn(globalInfo, "serverType", "get").mockReturnValue("Paper");
 });
 
-describe("map positioning while loading a world", () => {
-  it.each(["Beta", "Origin", "Coordinate"])("keeps the latest %s selection after ready", async (action) => {
+describe("map players display", () => {
+  it("passes current save players to MapCanvas without rendering a player list", async () => {
     render(<ServerMap />);
     await screen.findByRole("button", { name: "Ready world" });
-    fireEvent.click(screen.getByRole("button", { name: /map.players/ }));
-    fireEvent.click(screen.getByRole("button", { name: /Alpha/ }));
-    await screen.findByRole("button", { name: "Ready other" });
 
-    if(action === "Beta") {
-      fireEvent.click(screen.getByRole("button", { name: /Beta/ }));
-    } else {
-      fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
-      fireEvent.click(screen.getByRole("button", { name: action === "Origin" ? /map.origin/ : "Coordinate" }));
-    }
-
-    const expected = action === "Beta" ? { x: 90, y: 64, z: 90, save: "other" }
-      : action === "Origin" ? { x: 0, z: 0 } : { x: 70, z: 80 };
-    expect(setCenter).toHaveBeenLastCalledWith(expected);
-    const callsBeforeReady = setCenter.mock.calls.length;
-    fireEvent.click(screen.getByRole("button", { name: "Ready other" }));
-    expect(setCenter).toHaveBeenCalledTimes(callsBeforeReady);
-    expect(setCenter).toHaveBeenLastCalledWith(expected);
+    expect(useMapPlayersMock).toHaveBeenCalledWith(true);
+    expect(capturedPlayers).toHaveBeenLastCalledWith("world", [
+      { uuid: "a", name: "Alpha", position: { save: "world", x: 10, y: 64, z: 10 } },
+    ]);
+    expect(screen.queryByRole("button", { name: /map\.players/ })).not.toBeInTheDocument();
   });
 
-  it("hides map players on Pumpkin", async () => {
+  it("disables map players on Pumpkin", async () => {
     vi.spyOn(globalInfo, "serverType", "get").mockReturnValue("Pumpkin");
 
     render(<ServerMap />);
     await screen.findByRole("button", { name: "Ready world" });
 
-    expect(screen.queryByRole("button", { name: /map.players/ })).not.toBeInTheDocument();
+    expect(useMapPlayersMock).toHaveBeenCalledWith(false);
+    expect(capturedPlayers).toHaveBeenLastCalledWith("world", undefined);
   });
 });

@@ -6,8 +6,6 @@ import { PlayersClient } from "@/lib/ws/players";
 export function useMapPlayers(enabled: boolean) {
   const [players, setPlayers] = useState<PlayerMoveData[]>([]);
 
-  const [disconnected, setDisconnected] = useState(false);
-
   useEffect(() => {
     if(!enabled) return;
 
@@ -21,7 +19,6 @@ export function useMapPlayers(enabled: boolean) {
       online.clear();
       pending.clear();
       publish();
-      setDisconnected(true);
     });
 
     client.subscribe("init", (players: Player[]) => {
@@ -77,9 +74,8 @@ export function useMapPlayers(enabled: boolean) {
       window.clearInterval(timer);
       client.close();
       setPlayers([]);
-      setDisconnected(false);
     };
   }, [enabled]);
 
-  return { players, disconnected };
+  return players;
 }

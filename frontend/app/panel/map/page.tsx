@@ -3,7 +3,6 @@
 import type { Save, SavesResponse } from "@/lib/types";
 import type { MapCanvasHandle } from "./map-canvas";
 import type { RenderSettings } from "@/lib/map/tile-worker-protocol";
-import type { PlayerMoveData } from "@/lib/ws/players";
 import dynamic from "next/dynamic";
 import { type PropsWithChildren, useEffect, useRef, useState } from "react";
 import { House, MapPinned, Minus, Plus, RotateCw, Settings } from "lucide-react";
@@ -37,7 +36,6 @@ import { emitter } from "@/lib/emitter";
 import { serverType } from "@/lib/global";
 import { isPumpkin } from "@/lib/server-type";
 import { CoordDialog } from "./coord-dialog";
-import { MapPlayerList } from "./map-player-list";
 import { useMapPlayers } from "./use-map-players";
 
 const MapCanvas = dynamic(() => import("./map-canvas"), { ssr: false });
@@ -107,24 +105,8 @@ export default function ServerMap() {
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
   const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
   const mapRef = useRef<MapCanvasHandle | null>(null);
-  const pendingCenter = useRef<PlayerMoveData["position"] | null>(null);
   const [showPlayers, setShowPlayers] = useState(() => !isPumpkin(serverType) && getSettings("map.show-players"));
-  const { players, disconnected } = useMapPlayers(showPlayers);
-
-  const setCenter = (position: { x: number, z: number }) => {
-    pendingCenter.current = null;
-    mapRef.current?.setCenter(position);
-  };
-
-  const focusPlayer = ({ position }: PlayerMoveData) => {
-    if(!position.save) return;
-    if(position.save === save) {
-      setCenter(position);
-    } else {
-      pendingCenter.current = position;
-      setSave(position.save);
-    }
-  };
+  const players = useMapPlayers(showPlayers);
 
   const fetchServerWorlds = async () => {
     try {
@@ -170,27 +152,10 @@ export default function ServerMap() {
           onTilesLoadedChange={setTilesLoaded}
           onZoomChange={setZoom}
           onResize={(width, height) => setViewportSize({ width, height })}
-          onLoad={() => {
-            if(pendingCenter.current?.save === save) {
-              mapRef.current?.setCenter(pendingCenter.current);
-              pendingCenter.current = null;
-            }
-            emitter.emit("loading-done");
-          }}/>
-
-        {showPlayers && (
-          <MapPlayerList
-            players={players}
-            disconnected={disconnected}
-            saves={saves.map(({ name }) => name)}
-            onSelect={focusPlayer}/>
-        )}
+          onLoad={() => emitter.emit("loading-done")}/>
 
         <div className="absolute bottom-6 left-6 bg-accent border w-xs max-sm:w-40 h-10 rounded-lg shadow-xl flex items-center max-sm:flex-row-reverse">
-          <Select value={save} onValueChange={(value) => {
-            pendingCenter.current = null;
-            setSave(value);
-          }}>
+          <Select value={save} onValueChange={setSave}>
             <SelectTrigger className="bg-transparent! border-0 ring-0! outline-none px-4 max-sm:hidden cursor-pointer">
               <SelectValue />
             </SelectTrigger>
@@ -230,12 +195,12 @@ export default function ServerMap() {
             variant="outline"
             size="icon"
             aria-label={$("map.origin")}
-            onClick={() => setCenter({ x: 0, z: 0 })}>
+            onClick={() => mapRef.current?.setCenter({ x: 0, z: 0 })}>
             <House />
           </Button>
           <CoordDialog
             getInitialCoord={() => mapRef.current?.getCenter() ?? null}
-            onTeleport={setCenter}
+            onTeleport={(coord) => mapRef.current?.setCenter(coord)}
             asChild>
             <Button variant="outline" size="icon">
               <MapPinned />
@@ -252,7 +217,7 @@ export default function ServerMap() {
         </div>
 
         {settings.debugMode && (
-          <div className={cn(showPlayers ? "top-18" : "top-2", "pointer-events-none absolute right-2 min-w-24 px-1 py-0.5 bg-accent/50 text-xs flex flex-col items-end gap-1", googleSansCode.className)}>
+          <div className={cn("pointer-events-none absolute top-2 right-2 min-w-24 px-1 py-0.5 bg-accent/50 text-xs flex flex-col items-end gap-1", googleSansCode.className)}>
             <span>W: {viewportSize.width.toFixed(2)}</span>
             <span>H: {viewportSize.height.toFixed(2)}</span>
             <span>{fps} FPS</span>

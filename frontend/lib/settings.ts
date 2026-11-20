@@ -57,7 +57,7 @@ const defaultSettings: SettingsStorageType = {
     renderShadows: true,
     debugMode: false
   },
-  "map.show-players": false,
+  "map.show-players": true,
   "players.avatar-provider": AvatarProvider.MINOTAR,
   "players.skin-provider": SkinProvider.MINOTAR,
   // "players.cape-provider": CapeProvider.CRAFATAR,

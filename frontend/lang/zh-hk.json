@@ -474,9 +474,6 @@
   "map.toggle.enable.error": "啟用地圖功能失敗",
   "map.toggle.disable.error": "停用地圖功能失敗",
   "map.origin": "返回原點",
-  "map.players": "在線玩家",
-  "map.players.empty": "暫無在線玩家",
-  "map.players.disconnected": "玩家連線已中斷",
 
   "map.settings.title": "地圖設定",
   "map.settings.description": "喺呢度調整地圖顯示設定選項。",
