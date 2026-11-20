@@ -1,8 +1,9 @@
 "use client";
 
-import type { Save, SavesResponse } from "@/lib/types";
+import type { Player, Save, SavesResponse } from "@/lib/types";
 import type { MapCanvasHandle } from "./map-canvas";
 import type { RenderSettings } from "@/lib/map/tile-worker-protocol";
+import type { PlayerMoveData } from "@/lib/ws/players";
 import dynamic from "next/dynamic";
 import { type PropsWithChildren, useEffect, useRef, useState } from "react";
 import { House, MapPinned, Minus, Plus, RotateCw, Settings } from "lucide-react";
@@ -32,7 +33,7 @@ import { sendGetRequest, toastError } from "@/lib/api";
 import { $ } from "@/lib/i18n";
 import { changeSettings, getSettings } from "@/lib/settings";
 import { DEFAULT_ZOOM } from "@/hooks/use-map-tiles";
-import { useMapPlayers } from "@/hooks/use-map-players";
+import { PlayersClient } from "@/lib/ws/players";
 import { emitter } from "@/lib/emitter";
 import { serverType } from "@/lib/global";
 import { isPumpkin } from "@/lib/server-type";
@@ -103,9 +104,9 @@ export default function ServerMap() {
   const [tilesLoaded, setTilesLoaded] = useState(0);
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
   const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
+  const [players, setPlayers] = useState<PlayerMoveData[]>([]);
   const mapRef = useRef<MapCanvasHandle | null>(null);
   const showPlayers = !isPumpkin(serverType) && settings.showPlayers;
-  const players = useMapPlayers(showPlayers);
 
   const fetchServerWorlds = async () => {
     try {
@@ -133,6 +134,71 @@ export default function ServerMap() {
   useEffect(() => {
     if(!settings.debugMode) setFps(0);
   }, [settings.debugMode]);
+
+  useEffect(() => {
+    if(!showPlayers) return;
+
+    const online = new Map<string, PlayerMoveData>();
+
+    let active = true;
+    const client = new PlayersClient(() => {
+      if(!active) return;
+
+      active = false;
+      online.clear();
+      setPlayers([]);
+    });
+
+    client.subscribe("init", (players: Player[]) => {
+      if(!active) return;
+
+      online.clear();
+      for(const { uuid, name, position, isOnline } of players) {
+        if(isOnline && name) {
+          online.set(uuid, { uuid, name, position });
+        }
+      }
+
+      setPlayers([...online.values()]);
+    });
+
+    client.subscribe("join", ({ uuid, name, position }: Player) => {
+      if(!active || !name) return;
+
+      online.set(uuid, { uuid, name, position });
+      setPlayers([...online.values()]);
+    });
+
+    client.subscribe("leave", ({ uuid }: Player) => {
+      if(!active) return;
+
+      if(online.delete(uuid)) {
+        setPlayers([...online.values()]);
+      }
+    });
+
+    client.subscribe("move", (moves: PlayerMoveData[]) => {
+      if(!active) return;
+
+      let updated = false;
+      for(const move of moves) {
+        if(!online.has(move.uuid)) continue;
+
+        online.set(move.uuid, move);
+        updated = true;
+      }
+
+      if(updated) {
+        setPlayers([...online.values()]);
+      }
+    });
+
+    return () => {
+      active = false;
+      client.close();
+      setPlayers([]);
+    };
+  }, [showPlayers]);
 
   return (
     <SubPage
