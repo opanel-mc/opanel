@@ -292,7 +292,7 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
       onPointerCancel={handlePointerEnd}
       onPointerLeave={handlePointerLeave}
       onWheel={handleWheel}
-      className="relative w-full h-full overflow-hidden touch-none cursor-grab active:cursor-grabbing select-none">
+      className="relative isolate w-full h-full overflow-hidden touch-none cursor-grab active:cursor-grabbing select-none">
       <canvas ref={canvasRef} className="block w-full h-full image-pixelated"/>
 
       {/** Player avatars (Realtime player positions) */}
@@ -305,10 +305,10 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
         return (
           <div
             key={uuid}
-            className="pointer-events-none absolute flex -translate-x-1/2 -translate-y-full flex-col items-center gap-0.5"
+            className="pointer-events-auto absolute flex -translate-x-1/2 -translate-y-full flex-col items-center gap-0.5 hover:z-10"
             style={{ left: `${x / width * 100}%`, top: `${z / height * 100}%` }}>
-            <span className={cn("rounded-xs bg-black/60 pl-1 pr-0.5 pt-0.5 text-xs text-white shadow-sm", minecraftAE.className)}>{name}</span>
-            <PlayerAvatar name={name} className="size-6 shadow-md"/>
+            <span className={cn("pointer-events-none rounded-xs bg-black/60 pl-1 pr-0.5 pt-0.5 text-xs text-white shadow-sm", minecraftAE.className)}>{name}</span>
+            <PlayerAvatar name={name} className="pointer-events-none size-6 shadow-md"/>
           </div>
         );
       })}
