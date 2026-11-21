@@ -1,6 +1,7 @@
 package net.opanel.forge_1_20_2;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
@@ -53,7 +54,8 @@ public class ForgeListener extends BaseForgeListener {
     @SubscribeEvent
     public void onPlayerMove(TickEvent.ServerTickEvent event) {
         if(event.phase != TickEvent.Phase.END) return;
-        var server = event.getServer();
+
+        MinecraftServer server = event.getServer();
         String overworldSave = getOverworldSaveName(server);
         for(ServerPlayer player : server.getPlayerList().getPlayers()) {
             String save = player.level().dimension() == Level.OVERWORLD ? overworldSave : null;

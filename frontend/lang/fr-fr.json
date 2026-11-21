@@ -474,7 +474,6 @@
   "map.toggle.enable.error": "Échec de l'activation de la fonctionnalité de carte",
   "map.toggle.disable.error": "Échec de la désactivation de la fonctionnalité de carte",
   "map.origin": "Aller à l’origine",
-
   "map.settings.title": "Paramètres de la carte",
   "map.settings.description": "Ajustez ici les options d'affichage de la carte.",
   "map.settings.biome-coloring": "Coloration des biomes",

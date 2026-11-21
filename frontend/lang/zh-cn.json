@@ -474,7 +474,6 @@
   "map.toggle.enable.error": "启用地图功能失败",
   "map.toggle.disable.error": "禁用地图功能失败",
   "map.origin": "返回原点",
-
   "map.settings.title": "地图设置",
   "map.settings.description": "在此调整地图显示设置选项。",
   "map.settings.biome-coloring": "生物群系着色",

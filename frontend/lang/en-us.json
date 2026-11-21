@@ -474,7 +474,6 @@
   "map.toggle.enable.error": "Failed to enable map feature",
   "map.toggle.disable.error": "Failed to disable map feature",
   "map.origin": "Go to Origin",
-
   "map.settings.title": "Map Settings",
   "map.settings.description": "Adjust map display settings here.",
   "map.settings.biome-coloring": "Biome Coloring",

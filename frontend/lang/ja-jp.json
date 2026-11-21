@@ -474,7 +474,6 @@
   "map.toggle.enable.error": "マップ機能の有効化に失敗しました",
   "map.toggle.disable.error": "マップ機能の無効化に失敗しました",
   "map.origin": "原点に移動",
-
   "map.settings.title": "マップ設定",
   "map.settings.description": "ここでマップの表示設定を調整できます。",
   "map.settings.biome-coloring": "バイオーム着色",

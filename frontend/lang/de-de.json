@@ -474,7 +474,6 @@
   "map.toggle.enable.error": "Aktivierung der Kartenfunktion fehlgeschlagen",
   "map.toggle.disable.error": "Deaktivierung der Kartenfunktion fehlgeschlagen",
   "map.origin": "Zum Ursprung",
-
   "map.settings.title": "Karteneinstellungen",
   "map.settings.description": "Passen Sie hier die Anzeigeoptionen der Karte an.",
   "map.settings.biome-coloring": "Biom-Färbung",

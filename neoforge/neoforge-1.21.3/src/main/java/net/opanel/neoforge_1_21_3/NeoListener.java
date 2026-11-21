@@ -1,6 +1,7 @@
 package net.opanel.neoforge_1_21_3;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
@@ -52,7 +53,7 @@ public class NeoListener extends BaseNeoListener {
 
     @SubscribeEvent
     public void onPlayerMove(ServerTickEvent.Post event) {
-        var server = event.getServer();
+        MinecraftServer server = event.getServer();
         String overworldSave = getOverworldSaveName(server);
         for(ServerPlayer player : server.getPlayerList().getPlayers()) {
             String save = player.level().dimension() == Level.OVERWORLD ? overworldSave : null;

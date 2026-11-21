@@ -474,7 +474,6 @@
   "map.toggle.enable.error": "지도 기능 활성화 실패",
   "map.toggle.disable.error": "지도 기능 비활성화 실패",
   "map.origin": "원점으로 이동",
-
   "map.settings.title": "지도 설정",
   "map.settings.description": "지도 표시 옵션을 조정합니다.",
   "map.settings.biome-coloring": "바이옴 색상 지정",

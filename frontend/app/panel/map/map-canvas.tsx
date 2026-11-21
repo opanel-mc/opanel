@@ -23,7 +23,6 @@ import { mapProjection, TILE_BLOCKS } from "@/lib/map/projection";
 import { cn } from "@/lib/utils";
 import { minecraftAE } from "@/lib/fonts";
 
-
 export interface MapCanvasHandle {
   zoomIn: () => void
   zoomOut: () => void
