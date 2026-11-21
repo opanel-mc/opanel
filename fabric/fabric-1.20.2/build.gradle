@@ -66,6 +66,7 @@ shadowJar {
     relocate 'kotlin', 'net.opanel.deps.kotlin'
     relocate 'com.nimbusds', 'net.opanel.deps.nimbusds'
     relocate 'net.minidev', 'net.opanel.deps.minidev'
+    relocate 'net.jcip.annotations', 'net.opanel.deps.jcip.annotations'
 
     exclude 'META-INF/*.SF'
     exclude 'META-INF/*.DSA'
