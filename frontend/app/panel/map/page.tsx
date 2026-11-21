@@ -141,12 +141,16 @@ export default function ServerMap() {
     const online = new Map<string, PlayerMoveData>();
 
     let active = true;
-    const client = new PlayersClient(() => {
-      if(!active) return;
+    const client = new PlayersClient({
+      onlineOnly: true,
+      positionOnly: true,
+      onDisconnected: () => {
+        if(!active) return;
 
-      active = false;
-      online.clear();
-      setPlayers([]);
+        active = false;
+        online.clear();
+        setPlayers([]);
+      }
     });
 
     client.subscribe("init", (players: Player[]) => {

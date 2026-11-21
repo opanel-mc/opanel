@@ -38,7 +38,8 @@ public interface OPanelPlayer {
         playerInfo.put("isOnline", isOnline());
         playerInfo.put("isOp", isOp());
         playerInfo.put("isBanned", isBanned());
-        playerInfo.put("gamemode", getGameMode().getName());
+        OPanelGameMode gamemode = getGameMode();
+        if(gamemode != null) playerInfo.put("gamemode", gamemode.getName());
 
         playerInfo.put("position", getPosition().serialize());
 
@@ -47,7 +48,8 @@ public interface OPanelPlayer {
         if(isWhitelistEnabled) playerInfo.put("isWhitelisted", whitelistedNames.contains(getName()));
         if(isOnline()) {
             playerInfo.put("ping", getPing());
-            playerInfo.put("ip", getAddress().getHostAddress());
+            InetAddress address = getAddress();
+            if(address != null) playerInfo.put("ip", address.getHostAddress());
             playerInfo.put("joinTime", joinTime);
         }
         return playerInfo;
