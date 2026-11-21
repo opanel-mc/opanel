@@ -29,7 +29,7 @@ export function PlayersCard({
   className?: string
 }>) {
   const ctx = useContext(InfoContext);
-  const client = useWebSocket(PlayersClient);
+  const client = useWebSocket(PlayersClient, { onlineOnly: true });
   const [onlinePlayers, setOnlinePlayers] = useState<Player[]>([]);
 
   useEffect(() => {

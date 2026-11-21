@@ -54,6 +54,7 @@ const defaultSettings: SettingsStorageType = {
   "map.render-settings": {
     biomeColoring: true,
     renderShadows: true,
+    showPlayers: true,
     debugMode: false
   },
   "players.avatar-provider": AvatarProvider.MINOTAR,
@@ -120,6 +121,13 @@ function getSettingsStorage(): SettingsStorageType {
       settings[key] = defaultSettings[key as keyof SettingsStorageType];
     }
   }
+
+  // To be compatible with older versions of `map.render-settings`
+  settings["map.render-settings"] = {
+    ...defaultSettings["map.render-settings"],
+    ...settings["map.render-settings"]
+  };
+
   storage.setItem(storageKey, JSON.stringify(settings));
   return settings;
 }

@@ -4,7 +4,9 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.WorldSavePath;
 import net.opanel.common.OPanelPlayer;
+import net.opanel.common.OPanelPlayerPosition;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -20,6 +22,16 @@ public abstract class BaseFabricPlayer implements OPanelPlayer {
         this.server = server;
         playerManager = server.getPlayerManager();
         profile = player.getGameProfile();
+    }
+
+    protected abstract boolean isInMapWorld();
+
+    @Override
+    public OPanelPlayerPosition getPosition() {
+        String save = isInMapWorld()
+                ? server.getSavePath(WorldSavePath.ROOT).toAbsolutePath().normalize().getFileName().toString()
+                : null;
+        return new OPanelPlayerPosition(getX(), getY(), getZ(), save);
     }
 
     @Override

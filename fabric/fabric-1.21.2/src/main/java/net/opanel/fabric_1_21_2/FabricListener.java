@@ -1,23 +1,23 @@
 package net.opanel.fabric_1_21_2;
 
-import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.opanel.common.OPanelGameMode;
+import net.opanel.common.OPanelPlayerPosition;
 import net.opanel.event.*;
 import net.opanel.fabric_helper.BaseFabricListener;
 import net.opanel.fabric_helper.event.PlayerGameModeChangeEvent;
-
-import java.util.UUID;
 
 public class FabricListener extends BaseFabricListener {
 
     public FabricListener() {
         ServerPlayConnectionEvents.JOIN.register((networkHandler, sender, server) -> {
-            EventManager.get().emit(EventType.PLAYER_JOIN, new OPanelPlayerJoinEvent(new FabricPlayer(networkHandler.getPlayer())));
+            FabricPlayer player = new FabricPlayer(networkHandler.getPlayer());
+            seedPlayerPosition(networkHandler.getPlayer().getUuid(), player.getPosition());
+            EventManager.get().emit(EventType.PLAYER_JOIN, new OPanelPlayerJoinEvent(player));
         });
 
         ServerPlayConnectionEvents.DISCONNECT.register((networkHandler, server) -> {
@@ -38,21 +38,14 @@ public class FabricListener extends BaseFabricListener {
         }));
 
         ServerTickEvents.END_SERVER_TICK.register(server -> {
+            String overworldSave = getOverworldSaveName(server);
             for(var player : server.getPlayerManager().getPlayerList()) {
-                UUID uuid = player.getUuid();
-                double x = player.getX();
-                double y = player.getY();
-                double z = player.getZ();
-                if(!hasPlayerMoved(uuid, x, y, z)) continue;
+                String save = player.getWorld().getRegistryKey() == World.OVERWORLD ? overworldSave : null;
+                OPanelPlayerPosition position = trackPlayerPosition(player.getUuid(), player.getX(), player.getY(), player.getZ(), save);
+                if(position == null) continue;
 
-                EventManager.get().emit(EventType.PLAYER_MOVE, new OPanelPlayerMoveEvent(new FabricPlayer(player)));
+                EventManager.get().emit(EventType.PLAYER_MOVE, new OPanelPlayerMoveEvent(new FabricPlayer(player), position));
             }
-        });
-
-        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> {
-            if(!hasPlayerMoved(player.getUuid(), player.getX(), player.getY(), player.getZ())) return;
-
-            EventManager.get().emit(EventType.PLAYER_MOVE, new OPanelPlayerMoveEvent(new FabricPlayer(player)));
         });
 
         ServerChunkEvents.CHUNK_LOAD.register((world, chunk) -> {

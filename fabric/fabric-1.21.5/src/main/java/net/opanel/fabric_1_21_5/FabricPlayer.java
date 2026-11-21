@@ -5,6 +5,7 @@ import net.minecraft.server.BannedPlayerList;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.world.GameMode;
+import net.minecraft.world.World;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.fabric_helper.BaseFabricPlayer;
@@ -14,6 +15,11 @@ import java.util.Date;
 public class FabricPlayer extends BaseFabricPlayer implements OPanelPlayer {
     public FabricPlayer(ServerPlayerEntity player) {
         super(player, player.getServer());
+    }
+
+    @Override
+    protected boolean isInMapWorld() {
+        return player.getWorld().getRegistryKey() == World.OVERWORLD;
     }
 
     @Override

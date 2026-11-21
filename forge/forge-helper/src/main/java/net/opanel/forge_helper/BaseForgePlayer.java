@@ -4,7 +4,9 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.level.storage.LevelResource;
 import net.opanel.common.OPanelPlayer;
+import net.opanel.common.OPanelPlayerPosition;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -20,6 +22,16 @@ public abstract class BaseForgePlayer implements OPanelPlayer {
         this.server = server;
         playerManager = server.getPlayerList();
         profile = player.getGameProfile();
+    }
+
+    protected abstract boolean isInMapWorld();
+
+    @Override
+    public OPanelPlayerPosition getPosition() {
+        String save = isInMapWorld()
+                ? server.getWorldPath(LevelResource.ROOT).toAbsolutePath().normalize().getFileName().toString()
+                : null;
+        return new OPanelPlayerPosition(getX(), getY(), getZ(), save);
     }
 
     @Override
