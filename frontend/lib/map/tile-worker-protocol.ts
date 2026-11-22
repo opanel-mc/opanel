@@ -1,6 +1,7 @@
 export interface RenderSettings {
   biomeColoring: boolean
   renderShadows: boolean
+  showPlayers: boolean
   debugMode: boolean
 }
 

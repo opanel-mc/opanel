@@ -1,12 +1,14 @@
 "use client";
 
 import type { MainToWorker, RenderSettings, WorkerToMain } from "@/lib/map/tile-worker-protocol";
+import type { PlayerMoveData } from "@/lib/ws/players";
 import {
   forwardRef,
   useCallback,
   useEffect,
   useImperativeHandle,
   useRef,
+  useState,
   type PointerEvent,
   type WheelEvent,
 } from "react";
@@ -16,8 +18,10 @@ import { MAX_ZOOM, MIN_ZOOM, useMapTiles } from "@/hooks/use-map-tiles";
 import { useLatestRef } from "@/hooks/use-latest-ref";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { type ChunksFlushedPayload, MapClient } from "@/lib/ws/map";
-
-const TILE_BLOCKS = 16;
+import { PlayerAvatar } from "@/components/player-avatar";
+import { mapProjection, TILE_BLOCKS } from "@/lib/map/projection";
+import { cn } from "@/lib/utils";
+import { minecraftAE } from "@/lib/fonts";
 
 export interface MapCanvasHandle {
   zoomIn: () => void
@@ -30,6 +34,7 @@ export interface MapCanvasHandle {
 interface MapCanvasProps {
   save: string
   settings: RenderSettings
+  players?: PlayerMoveData[]
   onCoordChange?: (coord: { x: number, z: number } | null) => void
   onFpsChange?: (fps: number) => void
   onTilesLoadedChange?: (count: number) => void
@@ -41,6 +46,7 @@ interface MapCanvasProps {
 const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas({
   save,
   settings,
+  players,
   onCoordChange,
   onFpsChange,
   onTilesLoadedChange,
@@ -60,6 +66,8 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
   const onLoadRef = useLatestRef(onLoad);
   const saveRef = useLatestRef(save);
   const client = useWebSocket(MapClient);
+  const showPlayers = players !== undefined;
+  const [projection, setProjection] = useState<ReturnType<typeof mapProjection> | null>(null);
 
   const {
     viewportRef,
@@ -68,8 +76,17 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
     setViewportSize,
     refresh,
   } = useMapTiles({
-    postWorkerMessage: (msg) => workerRef.current?.postMessage(msg),
+    postWorkerMessage: (msg) => {
+      workerRef.current?.postMessage(msg);
+      if(showPlayers && "viewport" in msg) {
+        setProjection(mapProjection(msg.viewport));
+      }
+    },
   });
+
+  useEffect(() => {
+    if(showPlayers) postViewport();
+  }, [showPlayers, postViewport]);
 
   const handlePointerDown = (e: PointerEvent<HTMLDivElement>) => {
     dragRef.current.active = true;
@@ -82,11 +99,12 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
     if(!onCoordChange) return;
 
     const rect = e.currentTarget.getBoundingClientRect();
-    const px = e.clientX - rect.left - rect.width / 2;
-    const py = e.clientY - rect.top - rect.height / 2;
-    const blockX = viewportRef.current.camera.x * TILE_BLOCKS + px / viewportRef.current.zoom;
-    const blockZ = viewportRef.current.camera.z * TILE_BLOCKS + py / viewportRef.current.zoom;
-    onCoordChange({ x: blockX, z: blockZ });
+    const { width, height, zoom, originX, originY } = mapProjection(viewportRef.current);
+    if(!width || !height || !rect.width || !rect.height) return;
+
+    const px = (e.clientX - rect.left) * width / rect.width;
+    const py = (e.clientY - rect.top) * height / rect.height;
+    onCoordChange({ x: (px - originX) / zoom, z: (py - originY) / zoom });
   };
 
   const handlePointerMove = (e: PointerEvent<HTMLDivElement>) => {
@@ -233,15 +251,18 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
   // oxlint-disable-next-line react/exhaustive-deps
   }, [client]);
 
-  useEffect(() => {
-    if(!workerRef.current) return;
-    workerRef.current.postMessage({ type: "setSettings", settings } satisfies MainToWorker);
-  }, [settings]);
+  const { biomeColoring, renderShadows, debugMode } = settings;
+  settingsRef.current = settings;
 
   useEffect(() => {
     if(!workerRef.current) return;
-    workerRef.current.postMessage({ type: "setFpsReporting", enabled: settings.debugMode } satisfies MainToWorker);
-  }, [settings.debugMode]);
+    workerRef.current.postMessage({ type: "setSettings", settings: settingsRef.current } satisfies MainToWorker);
+  }, [biomeColoring, renderShadows]);
+
+  useEffect(() => {
+    if(!workerRef.current) return;
+    workerRef.current.postMessage({ type: "setFpsReporting", enabled: debugMode } satisfies MainToWorker);
+  }, [debugMode]);
 
   // Resize observer keeps the worker's OffscreenCanvas in sync with the
   // container's CSS box.
@@ -270,8 +291,26 @@ const MapCanvas = forwardRef<MapCanvasHandle, MapCanvasProps>(function MapCanvas
       onPointerCancel={handlePointerEnd}
       onPointerLeave={handlePointerLeave}
       onWheel={handleWheel}
-      className="w-full h-full overflow-hidden touch-none cursor-grab active:cursor-grabbing select-none">
+      className="relative isolate w-full h-full overflow-hidden touch-none cursor-grab active:cursor-grabbing select-none">
       <canvas ref={canvasRef} className="block w-full h-full image-pixelated"/>
+
+      {/** Player avatars (Realtime player positions) */}
+      {projection && players?.map(({ uuid, name, position }) => {
+        const { width, height, zoom, originX, originY } = projection;
+        const x = originX + position.x * zoom;
+        const z = originY + position.z * zoom;
+        if(!width || !height || x < 0 || x > width || z < 0 || z > height) return null;
+
+        return (
+          <div
+            key={uuid}
+            className="pointer-events-auto absolute flex -translate-x-1/2 -translate-y-full flex-col items-center gap-0.5 hover:z-10"
+            style={{ left: `${x / width * 100}%`, top: `${z / height * 100}%` }}>
+            <span className={cn("pointer-events-none rounded-xs bg-black/60 pl-1 pr-0.5 pt-0.5 text-xs text-white shadow-sm", minecraftAE.className)}>{name}</span>
+            <PlayerAvatar name={name} className="pointer-events-none size-6 shadow-md"/>
+          </div>
+        );
+      })}
     </div>
   );
 });

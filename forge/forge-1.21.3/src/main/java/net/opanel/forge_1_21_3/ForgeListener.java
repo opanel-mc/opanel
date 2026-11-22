@@ -1,13 +1,13 @@
 package net.opanel.forge_1_21_3;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.level.BlockEvent;
@@ -16,6 +16,7 @@ import net.minecraftforge.event.level.ExplosionEvent;
 import net.minecraftforge.event.level.SaplingGrowTreeEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.opanel.common.OPanelGameMode;
+import net.opanel.common.OPanelPlayerPosition;
 import net.opanel.event.*;
 import net.opanel.forge_helper.BaseForgeListener;
 
@@ -24,11 +25,15 @@ import static net.opanel.forge_helper.utils.ForgeUtils.emitDirtyChunk;
 public class ForgeListener extends BaseForgeListener {
     @SubscribeEvent
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
-        EventManager.get().emit(EventType.PLAYER_JOIN, new OPanelPlayerJoinEvent(new ForgePlayer((ServerPlayer) event.getEntity())));
+        ServerPlayer player = (ServerPlayer) event.getEntity();
+        ForgePlayer wrapped = new ForgePlayer(player);
+        seedPlayerPosition(player.getUUID(), wrapped.getPosition());
+        EventManager.get().emit(EventType.PLAYER_JOIN, new OPanelPlayerJoinEvent(wrapped));
     }
 
     @SubscribeEvent
     public void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent event) {
+        removePlayerPosition(event.getEntity().getUUID());
         EventManager.get().emit(EventType.PLAYER_LEAVE, new OPanelPlayerLeaveEvent(new ForgePlayer((ServerPlayer) event.getEntity())));
     }
 
@@ -47,23 +52,18 @@ public class ForgeListener extends BaseForgeListener {
     }
 
     @SubscribeEvent
-    public void onPlayerMove(TickEvent.PlayerTickEvent.Post event) {
-        if(!(event.player instanceof ServerPlayer player)) return;
-        
-        emitPlayerMove(player);
-    }
+    public void onPlayerMove(TickEvent.ServerTickEvent event) {
+        if(event.phase != TickEvent.Phase.END) return;
 
-    @SubscribeEvent
-    public void onPlayerEnterPortal(EntityTravelToDimensionEvent event) {
-        if(!(event.getEntity() instanceof ServerPlayer player)) return;
+        MinecraftServer server = event.getServer();
+        String overworldSave = getOverworldSaveName(server);
+        for(ServerPlayer player : server.getPlayerList().getPlayers()) {
+            String save = player.level().dimension() == Level.OVERWORLD ? overworldSave : null;
+            OPanelPlayerPosition position = trackPlayerPosition(player.getUUID(), player.getX(), player.getY(), player.getZ(), save);
+            if(position == null) continue;
 
-        emitPlayerMove(player);
-    }
-
-    private static void emitPlayerMove(ServerPlayer player) {
-        if(!hasPlayerMoved(player)) return;
-
-        EventManager.get().emit(EventType.PLAYER_MOVE, new OPanelPlayerMoveEvent(new ForgePlayer(player)));
+            EventManager.get().emit(EventType.PLAYER_MOVE, new OPanelPlayerMoveEvent(new ForgePlayer(player), position));
+        }
     }
 
     @SubscribeEvent

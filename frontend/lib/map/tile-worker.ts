@@ -17,8 +17,8 @@ import {
   render_tile_bundle_rgba,
 } from "@/wasm-lib/pkg/wasm_lib.js";
 import { fetchAvailableTiles, fetchTiles, fetchTilesInRange } from "./tile-fetch";
+import { mapProjection, TILE_BLOCKS } from "./projection";
 
-const TILE_BLOCKS = 16;
 const MACRO_BLOCKS_PER_TILE = 16;
 const MACRO_PX = MACRO_BLOCKS_PER_TILE * TILE_BLOCKS;
 const BASE_COLOR = "#222";
@@ -258,20 +258,20 @@ class TileWorker {
 
     this.frameTimes.push(performance.now());
 
+    const { width, height, tilePx, originX, originY } = mapProjection(viewport);
     let resized = false;
-    if(this.canvas.width !== viewport.viewportPx.width) {
-      this.canvas.width = viewport.viewportPx.width;
+    if(this.canvas.width !== width) {
+      this.canvas.width = width;
       resized = true;
     }
-    if(this.canvas.height !== viewport.viewportPx.height) {
-      this.canvas.height = viewport.viewportPx.height;
+    if(this.canvas.height !== height) {
+      this.canvas.height = height;
       resized = true;
     }
     if(resized) this.ctx.imageSmoothingEnabled = false;
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    const { tilePx, originX, originY } = this.tileMetrics(viewport);
     const macroBlockPx = MACRO_BLOCKS_PER_TILE * tilePx;
     const mxMin = Math.floor(viewport.tileBounds.xMin / MACRO_BLOCKS_PER_TILE);
     const mxMax = Math.floor(viewport.tileBounds.xMax / MACRO_BLOCKS_PER_TILE);
@@ -291,15 +291,6 @@ class TileWorker {
         this.ctx.drawImage(macro, x0, y0, x1 - x0, y1 - y0);
       }
     }
-  }
-
-  private tileMetrics(viewport: Viewport): { tilePx: number; originX: number; originY: number } {
-    const tilePx = viewport.zoom * TILE_BLOCKS;
-    const cx = this.canvas ? this.canvas.width / 2 : 0;
-    const cy = this.canvas ? this.canvas.height / 2 : 0;
-    const originX = Math.round(cx - viewport.camera.x * tilePx);
-    const originY = Math.round(cy - viewport.camera.z * tilePx);
-    return { tilePx, originX, originY };
   }
 
   private getOrCreateMacro(mx: number, mz: number): OffscreenCanvas {

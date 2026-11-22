@@ -80,6 +80,7 @@ export interface Player {
   isBanned: boolean
   gamemode: GameMode
   position: {
+    save?: string
     x: number
     y: number
     z: number

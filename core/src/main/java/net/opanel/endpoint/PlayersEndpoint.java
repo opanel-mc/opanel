@@ -3,6 +3,7 @@ package net.opanel.endpoint;
 import io.javalin.websocket.WsConfig;
 import io.javalin.websocket.WsContext;
 import net.opanel.OPanel;
+import net.opanel.common.OPanelPlayer;
 import net.opanel.event.*;
 
 import java.io.IOException;
@@ -85,11 +86,7 @@ public class PlayersEndpoint extends BaseEndpoint {
             playerInfo.put("uuid", uuid);
             playerInfo.put("name", event.getPlayer().getName());
 
-            HashMap<String, Double> position = new HashMap<>();
-            position.put("x", event.getPlayer().getX());
-            position.put("y", event.getPlayer().getY());
-            position.put("z", event.getPlayer().getZ());
-            playerInfo.put("position", position);
+            playerInfo.put("position", event.getPosition().serialize());
 
             synchronized(pendingPlayerMovesLock) {
                 pendingPlayerMoves.put(uuid, playerInfo);
@@ -122,9 +119,11 @@ public class PlayersEndpoint extends BaseEndpoint {
 
     @Override
     public void onConnect(WsContext ctx) {
-        sendPlayerList(ctx);
+        boolean onlineOnly = Boolean.parseBoolean(ctx.queryParam("onlineOnly"));
+        boolean positionOnly = Boolean.parseBoolean(ctx.queryParam("positionOnly"));
+        sendPlayerList(ctx, onlineOnly, positionOnly);
 
-        subscribe(ctx.session, PlayersPacket.FETCH, this::sendPlayerList);
+        subscribe(ctx.session, PlayersPacket.FETCH, fetchCtx -> sendPlayerList(fetchCtx, onlineOnly, positionOnly));
         subscribe(ctx.session, PlayersPacket.FETCH_PING, this::sendPlayerPings);
     }
 
@@ -159,18 +158,36 @@ public class PlayersEndpoint extends BaseEndpoint {
         ctx.send(new PlayersPacket<>(PlayersPacket.PING, pings));
     }
 
-    private void sendPlayerList(WsContext ctx) {
+    private void sendPlayerList(WsContext ctx, boolean onlineOnly, boolean positionOnly) {
         try {
-            List<String> whitelistedNames = server.getWhitelist().getNames();
-            List<HashMap<String, Object>> players = server.getPlayers().stream()
-                    .map(player -> (
-                            player.serialize(server.isWhitelistEnabled(), whitelistedNames, player.isOnline() ? joinTimeMap.get(player.getUUID()) : null)
-                    ))
-                    .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+            List<OPanelPlayer> sourcePlayers = onlineOnly ? server.getOnlinePlayers() : server.getPlayers();
+            List<HashMap<String, Object>> players;
+            if(positionOnly) {
+                players = sourcePlayers.stream()
+                        .map(PlayersEndpoint::serializePlayerPosition)
+                        .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+            } else {
+                List<String> whitelistedNames = server.getWhitelist().getNames();
+                boolean whitelistEnabled = server.isWhitelistEnabled();
+                players = sourcePlayers.stream()
+                        .map(player -> (
+                                player.serialize(whitelistEnabled, whitelistedNames, player.isOnline() ? joinTimeMap.get(player.getUUID()) : null)
+                        ))
+                        .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+            }
 
             ctx.send(new PlayersPacket<>(PlayersPacket.INIT, players));
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static HashMap<String, Object> serializePlayerPosition(OPanelPlayer player) {
+        HashMap<String, Object> playerInfo = new HashMap<>();
+        playerInfo.put("name", player.getName());
+        playerInfo.put("uuid", player.getUUID());
+        playerInfo.put("isOnline", player.isOnline());
+        playerInfo.put("position", player.getPosition().serialize());
+        return playerInfo;
     }
 }

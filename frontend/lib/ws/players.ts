@@ -18,9 +18,29 @@ export type PlayersMessageType = (
   | "fetch-ping"
 );
 
+export interface PlayersClientOptions {
+  onDisconnected?: () => void
+  onlineOnly?: boolean
+  positionOnly?: boolean
+}
+
 export class PlayersClient extends WebSocketClient<PlayersMessageType> {
-  constructor() {
-    super("/socket/players");
+  private readonly onDisconnected?: () => void;
+
+  constructor(options?: PlayersClientOptions | (() => void)) {
+    const {
+      onDisconnected,
+      onlineOnly = false,
+      positionOnly = false
+    } = typeof options === "function" ? { onDisconnected: options } : (options ?? {});
+
+    const params = new URLSearchParams();
+    if(onlineOnly) params.set("onlineOnly", "true");
+    if(positionOnly) params.set("positionOnly", "true");
+    const query = params.toString();
+
+    super(query ? `/socket/players?${query}` : "/socket/players");
+    this.onDisconnected = onDisconnected;
   }
 
   protected override onOpen() {
@@ -29,6 +49,7 @@ export class PlayersClient extends WebSocketClient<PlayersMessageType> {
   
   protected override onClose() {
     console.log("Player list disconnected.");
+    this.onDisconnected?.();
   }
 
   protected override onError(err: Event) {

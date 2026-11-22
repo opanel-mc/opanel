@@ -4,7 +4,10 @@ import com.mojang.authlib.GameProfile;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.LevelResource;
 import net.opanel.common.OPanelPlayer;
+import net.opanel.common.OPanelPlayerPosition;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -20,6 +23,14 @@ public abstract class BaseFabricPlayer implements OPanelPlayer {
         this.server = server;
         playerManager = server.getPlayerList();
         profile = player.getGameProfile();
+    }
+
+    @Override
+    public OPanelPlayerPosition getPosition() {
+        String save = player.level().dimension() == Level.OVERWORLD
+                ? server.getWorldPath(LevelResource.ROOT).toAbsolutePath().normalize().getFileName().toString()
+                : null;
+        return new OPanelPlayerPosition(getX(), getY(), getZ(), save);
     }
 
     @Override

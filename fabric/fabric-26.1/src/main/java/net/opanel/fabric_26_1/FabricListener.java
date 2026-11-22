@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.opanel.common.OPanelGameMode;
+import net.opanel.common.OPanelPlayerPosition;
 import net.opanel.event.*;
 import net.opanel.fabric_helper_unmapped.BaseFabricListener;
 import net.opanel.fabric_helper_unmapped.event.PlayerGameModeChangeEvent;
@@ -27,7 +28,9 @@ public class FabricListener extends BaseFabricListener {
 
     private void registerListeners(MinecraftServer server) {
         ServerPlayerEvents.JOIN.register(player -> {
-            EventManager.get().emit(EventType.PLAYER_JOIN, new OPanelPlayerJoinEvent(new FabricPlayer(player, server)));
+            FabricPlayer wrapped = new FabricPlayer(player, server);
+            seedPlayerPosition(player.getUUID(), wrapped.getPosition());
+            EventManager.get().emit(EventType.PLAYER_JOIN, new OPanelPlayerJoinEvent(wrapped));
         });
 
         ServerPlayerEvents.LEAVE.register(player -> {
@@ -49,19 +52,18 @@ public class FabricListener extends BaseFabricListener {
         }));
 
         ServerTickEvents.END_SERVER_TICK.register(tickServer -> {
+            String overworldSave = getOverworldSaveName(tickServer);
             for(var player : tickServer.getPlayerList().getPlayers()) {
                 UUID uuid = player.getUUID();
-                double x = player.getX();
-                double y = player.getY();
-                double z = player.getZ();
-                boolean hasMoved = hasPlayerMoved(uuid, x, y, z);
+                String save = player.level().dimension() == Level.OVERWORLD ? overworldSave : null;
+                OPanelPlayerPosition position = trackPlayerPosition(uuid, player.getX(), player.getY(), player.getZ(), save);
 
                 if(player.portalProcess != null) playersInPortal.add(uuid);
                 else playersInPortal.remove(uuid);
 
-                if(!hasMoved) continue;
+                if(position == null) continue;
 
-                EventManager.get().emit(EventType.PLAYER_MOVE, new OPanelPlayerMoveEvent(new FabricPlayer(player, tickServer)));
+                EventManager.get().emit(EventType.PLAYER_MOVE, new OPanelPlayerMoveEvent(new FabricPlayer(player, tickServer), position));
             }
         });
 

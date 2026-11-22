@@ -1,8 +1,9 @@
 "use client";
 
-import type { Save, SavesResponse } from "@/lib/types";
+import type { Player, Save, SavesResponse } from "@/lib/types";
 import type { MapCanvasHandle } from "./map-canvas";
 import type { RenderSettings } from "@/lib/map/tile-worker-protocol";
+import type { PlayerMoveData } from "@/lib/ws/players";
 import dynamic from "next/dynamic";
 import { type PropsWithChildren, useEffect, useRef, useState } from "react";
 import { House, MapPinned, Minus, Plus, RotateCw, Settings } from "lucide-react";
@@ -32,7 +33,10 @@ import { sendGetRequest, toastError } from "@/lib/api";
 import { $ } from "@/lib/i18n";
 import { changeSettings, getSettings } from "@/lib/settings";
 import { DEFAULT_ZOOM } from "@/hooks/use-map-tiles";
+import { PlayersClient } from "@/lib/ws/players";
 import { emitter } from "@/lib/emitter";
+import { serverType } from "@/lib/global";
+import { isPumpkin } from "@/lib/server-type";
 import { CoordDialog } from "./coord-dialog";
 
 const MapCanvas = dynamic(() => import("./map-canvas"), { ssr: false });
@@ -41,7 +45,7 @@ function MapSettingsPopover({
   children,
   asChild,
   settings,
-  onSettingsChange
+  onSettingsChange,
 }: PropsWithChildren<{
   asChild?: boolean
   settings: RenderSettings
@@ -70,6 +74,15 @@ function MapSettingsPopover({
               checked={settings.renderShadows}
               onCheckedChange={(checked) => onSettingsChange({ ...settings, renderShadows: checked })}/>
           </Field>
+          {!isPumpkin(serverType) && (
+            <Field orientation="horizontal">
+              <FieldLabel htmlFor="map-show-players">{$("map.settings.show-players")}</FieldLabel>
+              <Switch
+                id="map-show-players"
+                checked={settings.showPlayers}
+                onCheckedChange={(checked) => onSettingsChange({ ...settings, showPlayers: checked })}/>
+            </Field>
+          )}
           <Field orientation="horizontal">
             <FieldLabel>{$("map.settings.debug-mode")}</FieldLabel>
             <Switch
@@ -91,14 +104,16 @@ export default function ServerMap() {
   const [tilesLoaded, setTilesLoaded] = useState(0);
   const [zoom, setZoom] = useState(DEFAULT_ZOOM);
   const [viewportSize, setViewportSize] = useState({ width: 0, height: 0 });
+  const [players, setPlayers] = useState<PlayerMoveData[]>([]);
   const mapRef = useRef<MapCanvasHandle | null>(null);
+  const showPlayers = !isPumpkin(serverType) && settings.showPlayers;
 
   const fetchServerWorlds = async () => {
     try {
       const { saves } = await sendGetRequest<SavesResponse>("/api/saves");
       const filteredSaves = saves.filter((item) => item.isRunning);
       setSaves(filteredSaves);
-      setSave(filteredSaves[0].name ?? "");
+      setSave(filteredSaves[0]?.name ?? "");
     } catch (e: any) {
       toastError(e, $("saves.fetch.error"), [
         [400, $("common.error.400")],
@@ -120,6 +135,75 @@ export default function ServerMap() {
     if(!settings.debugMode) setFps(0);
   }, [settings.debugMode]);
 
+  useEffect(() => {
+    if(!showPlayers) return;
+
+    const online = new Map<string, PlayerMoveData>();
+
+    let active = true;
+    const client = new PlayersClient({
+      onlineOnly: true,
+      positionOnly: true,
+      onDisconnected: () => {
+        if(!active) return;
+
+        active = false;
+        online.clear();
+        setPlayers([]);
+      }
+    });
+
+    client.subscribe("init", (players: Player[]) => {
+      if(!active) return;
+
+      online.clear();
+      for(const { uuid, name, position, isOnline } of players) {
+        if(isOnline && name) {
+          online.set(uuid, { uuid, name, position });
+        }
+      }
+
+      setPlayers([...online.values()]);
+    });
+
+    client.subscribe("join", ({ uuid, name, position }: Player) => {
+      if(!active || !name) return;
+
+      online.set(uuid, { uuid, name, position });
+      setPlayers([...online.values()]);
+    });
+
+    client.subscribe("leave", ({ uuid }: Player) => {
+      if(!active) return;
+
+      if(online.delete(uuid)) {
+        setPlayers([...online.values()]);
+      }
+    });
+
+    client.subscribe("move", (moves: PlayerMoveData[]) => {
+      if(!active) return;
+
+      let updated = false;
+      for(const move of moves) {
+        if(!online.has(move.uuid)) continue;
+
+        online.set(move.uuid, move);
+        updated = true;
+      }
+
+      if(updated) {
+        setPlayers([...online.values()]);
+      }
+    });
+
+    return () => {
+      active = false;
+      client.close();
+      setPlayers([]);
+    };
+  }, [showPlayers]);
+
   return (
     <SubPage
       title={$("map.title")}
@@ -131,6 +215,7 @@ export default function ServerMap() {
           ref={mapRef}
           save={save}
           settings={settings}
+          players={showPlayers ? players.filter(({ position }) => position.save === save) : undefined}
           onCoordChange={setCoord}
           onFpsChange={setFps}
           onTilesLoadedChange={setTilesLoaded}
@@ -173,6 +258,7 @@ export default function ServerMap() {
           <Button
             variant="outline"
             size="icon"
+            aria-label={$("map.origin")}
             onClick={() => mapRef.current?.setCenter({ x: 0, z: 0 })}>
             <House />
           </Button>
@@ -195,7 +281,7 @@ export default function ServerMap() {
         </div>
 
         {settings.debugMode && (
-          <div className={cn("absolute top-2 right-2 min-w-24 px-1 py-0.5 bg-accent/50 text-xs flex flex-col items-end gap-1", googleSansCode.className)}>
+          <div className={cn("pointer-events-none absolute top-2 right-2 min-w-24 px-1 py-0.5 bg-accent/50 text-xs flex flex-col items-end gap-1", googleSansCode.className)}>
             <span>W: {viewportSize.width.toFixed(2)}</span>
             <span>H: {viewportSize.height.toFixed(2)}</span>
             <span>{fps} FPS</span>

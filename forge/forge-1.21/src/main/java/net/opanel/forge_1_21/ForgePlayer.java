@@ -5,6 +5,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.UserBanList;
 import net.minecraft.server.players.UserBanListEntry;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
 import net.opanel.common.OPanelGameMode;
 import net.opanel.common.OPanelPlayer;
 import net.opanel.forge_helper.BaseForgePlayer;
@@ -14,6 +15,11 @@ import java.util.Date;
 public class ForgePlayer extends BaseForgePlayer implements OPanelPlayer {
     public ForgePlayer(ServerPlayer player) {
         super(player, player.getServer());
+    }
+
+    @Override
+    protected boolean isInMapWorld() {
+        return player.level().dimension() == Level.OVERWORLD;
     }
     
     @Override

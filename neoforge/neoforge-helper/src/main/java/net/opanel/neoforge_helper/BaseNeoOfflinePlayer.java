@@ -69,24 +69,24 @@ public abstract class BaseNeoOfflinePlayer implements OPanelPlayer {
 
     protected abstract double[] readPosition();
 
-    private double[] getPosition() {
+    private double[] getCachedPosition() {
         if(position == null) position = readPosition();
         return position;
     }
 
     @Override
     public double getX() {
-        return getPosition()[0];
+        return getCachedPosition()[0];
     }
 
     @Override
     public double getY() {
-        return getPosition()[1];
+        return getCachedPosition()[1];
     }
 
     @Override
     public double getZ() {
-        return getPosition()[2];
+        return getCachedPosition()[2];
     }
 
     @Override

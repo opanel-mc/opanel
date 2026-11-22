@@ -27,6 +27,10 @@ public interface OPanelPlayer {
     int getPing();
     InetAddress getAddress();
 
+    default OPanelPlayerPosition getPosition() {
+        return new OPanelPlayerPosition(getX(), getY(), getZ(), null);
+    }
+
     default HashMap<String, Object> serialize(boolean isWhitelistEnabled, List<String> whitelistedNames, Long joinTime) {
         HashMap<String, Object> playerInfo = new HashMap<>();
         playerInfo.put("name", getName());
@@ -34,20 +38,18 @@ public interface OPanelPlayer {
         playerInfo.put("isOnline", isOnline());
         playerInfo.put("isOp", isOp());
         playerInfo.put("isBanned", isBanned());
-        playerInfo.put("gamemode", getGameMode().getName());
+        OPanelGameMode gamemode = getGameMode();
+        if(gamemode != null) playerInfo.put("gamemode", gamemode.getName());
 
-        HashMap<String, Double> position = new HashMap<>();
-        position.put("x", getX());
-        position.put("y", getY());
-        position.put("z", getZ());
-        playerInfo.put("position", position);
+        playerInfo.put("position", getPosition().serialize());
 
         final String banReason = getBanReason();
         if(banReason != null) playerInfo.put("banReason", Utils.stringToBase64(banReason));
         if(isWhitelistEnabled) playerInfo.put("isWhitelisted", whitelistedNames.contains(getName()));
         if(isOnline()) {
             playerInfo.put("ping", getPing());
-            playerInfo.put("ip", getAddress().getHostAddress());
+            InetAddress address = getAddress();
+            if(address != null) playerInfo.put("ip", address.getHostAddress());
             playerInfo.put("joinTime", joinTime);
         }
         return playerInfo;
