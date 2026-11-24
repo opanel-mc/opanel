@@ -790,6 +790,7 @@
   "settings.security.form.current-key.label": "Clé actuelle",
   "settings.security.form.current-key.placeholder": "Entrez la clé d'accès actuelle...",
   "settings.security.form.new-key.min": "La longueur de la clé d'accès ne doit pas être inférieure à 6 caractères",
+  "settings.security.form.new-key.max": "La longueur de la clé d'accès ne doit pas dépasser 256 caractères",
   "settings.security.form.new-key.label": "Nouvelle clé",
   "settings.security.form.new-key.placeholder": "Entrez la nouvelle clé d'accès...",
   "settings.update.title": "Vérifier les mises à jour",

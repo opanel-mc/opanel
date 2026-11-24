@@ -17,6 +17,7 @@ use tracing::warn;
 use crate::{
     managers::{Manager, ManagerContext, OPanelUnavailable},
     storage::{INITIAL_ACCESS_KEY_FILE_NAME, JsonFile, Storage, StorageError, TextFile},
+    utils::access_key::{self, AccessKeyError},
 };
 
 const RANDOM_CHARACTERS: &[u8; 64] =
@@ -61,6 +62,8 @@ pub(crate) enum ConfigManagerError {
     Storage(#[from] StorageError),
     #[error("failed to obtain secure random bytes: {0}")]
     Entropy(getrandom::Error),
+    #[error(transparent)]
+    AccessKey(#[from] AccessKeyError),
 }
 
 impl From<getrandom::Error> for ConfigManagerError {
@@ -114,11 +117,16 @@ impl ConfigManager {
         let mut config = loaded.value;
         let mut needs_persist = loaded.needs_persist;
         let mut plaintext_access_key = None;
+        let mut legacy_key_wrapped = false;
 
         if config.access_key.trim().is_empty() {
-            let access_key = secure_random_string(12)?;
-            config.access_key = md5_hex(&md5_hex(&access_key));
+            let access_key = secure_random_string(16)?;
+            config.access_key = access_key::hash(&access_key).await?;
             plaintext_access_key = Some(access_key);
+            needs_persist = true;
+        } else if let Some(wrapped) = access_key::wrap_legacy_if_needed(&config.access_key).await? {
+            config.access_key = wrapped;
+            legacy_key_wrapped = true;
             needs_persist = true;
         }
         if config.salt.trim().is_empty() {
@@ -145,6 +153,12 @@ impl ConfigManager {
                 cleanup_initial_access_key(storage).await;
             }
             return Err(error.into());
+        }
+
+        if legacy_key_wrapped {
+            warn!(
+                "Legacy MD5 access key hash detected and wrapped with bcrypt. Log in to the panel once to complete the migration to native bcrypt."
+            );
         }
 
         self.config.store(Arc::new(config));
@@ -205,10 +219,6 @@ fn secure_random_string(length: usize) -> Result<String, getrandom::Error> {
         .collect())
 }
 
-fn md5_hex(value: &str) -> String {
-    format!("{:x}", md5::compute(value.as_bytes()))
-}
-
 #[cfg(test)]
 mod tests {
     use std::{
@@ -224,11 +234,12 @@ mod tests {
 
     use super::{
         CONFIG_FILE, ConfigManager, INITIAL_ACCESS_KEY_FILE, INITIAL_ACCESS_KEY_TEMPLATE,
-        OPanelConfig, RANDOM_CHARACTERS, md5_hex, secure_random_string,
+        OPanelConfig, RANDOM_CHARACTERS, secure_random_string,
     };
     use crate::{
         managers::ManagerContext,
         storage::{INITIAL_ACCESS_KEY_FILE_NAME, Storage, StorageError},
+        utils::access_key::{self, VerifyResult},
     };
 
     static NEXT_TEST_DIRECTORY: AtomicU64 = AtomicU64::new(0);
@@ -351,7 +362,7 @@ mod tests {
         manager.initialize(&storage).await.unwrap();
 
         let config = manager.get();
-        assert_eq!(config.access_key.len(), 32);
+        assert!(config.access_key.starts_with("$2b$12$"));
         assert_eq!(config.salt.len(), 6);
         assert!(
             config
@@ -363,8 +374,11 @@ mod tests {
         let access_key = plaintext
             .strip_prefix(INITIAL_ACCESS_KEY_TEMPLATE)
             .expect("the plaintext file should contain the bilingual warning");
-        assert_eq!(access_key.len(), 12);
-        assert_eq!(config.access_key, md5_hex(&md5_hex(access_key)));
+        assert_eq!(access_key.len(), 16);
+        assert_eq!(
+            access_key::verify(access_key, &config.access_key).await,
+            VerifyResult::Valid
+        );
         assert_eq!(
             storage.load_json(&CONFIG_FILE).await.unwrap().value,
             *config
@@ -484,8 +498,12 @@ mod tests {
         let access_key = plaintext
             .strip_prefix(INITIAL_ACCESS_KEY_TEMPLATE)
             .expect("the plaintext file should contain the bilingual warning");
-        assert_eq!(access_key.len(), 12);
-        assert_eq!(config.access_key, md5_hex(&md5_hex(access_key)));
+        assert_eq!(access_key.len(), 16);
+        assert!(config.access_key.starts_with("$2b$12$"));
+        assert_eq!(
+            access_key::verify(access_key, &config.access_key).await,
+            VerifyResult::Valid
+        );
         assert_eq!(config.salt, "stored-salt");
 
         let stored: serde_json::Value =
@@ -493,6 +511,42 @@ mod tests {
         assert_eq!(stored["accessKey"], config.access_key);
         assert_eq!(stored["futureOption"], 42);
         assert!(manager.take_initial_access_key_notice());
+    }
+
+    #[tokio::test]
+    async fn wraps_legacy_double_md5_access_key_during_startup() {
+        let (directory, storage) = test_storage().await;
+        let config_path = directory.child("config.json");
+        tokio::fs::write(
+            &config_path,
+            br#"{
+                "host": "0.0.0.0",
+                "port": 3000,
+                "accessKey": "14e1b600b1fd579f47433b88e8d85291",
+                "salt": "stored-salt",
+                "cookieSecure": false,
+                "proxyHeaders": false,
+                "futureOption": 42
+            }"#,
+        )
+        .await
+        .unwrap();
+        let manager = ConfigManager::new(manager_context());
+
+        manager.initialize(&storage).await.unwrap();
+
+        let config = manager.get();
+        assert!(config.access_key.starts_with("md5-legacy:$2b$12$"));
+        assert_eq!(
+            access_key::verify("123456", &config.access_key).await,
+            VerifyResult::ValidNeedsUpgrade
+        );
+        let stored: serde_json::Value =
+            serde_json::from_slice(&tokio::fs::read(config_path).await.unwrap()).unwrap();
+        assert_eq!(stored["accessKey"], config.access_key);
+        assert_eq!(stored["futureOption"], 42);
+        assert!(!directory.child(INITIAL_ACCESS_KEY_FILE_NAME).exists());
+        assert!(!manager.take_initial_access_key_notice());
     }
 
     #[tokio::test]

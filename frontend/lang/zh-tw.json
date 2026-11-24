@@ -790,6 +790,7 @@
   "settings.security.form.current-key.label": "當前密鑰",
   "settings.security.form.current-key.placeholder": "請輸入當前訪問密鑰...",
   "settings.security.form.new-key.min": "訪問密鑰長度不應該細過6",
+  "settings.security.form.new-key.max": "訪問密鑰長度不應該超過256",
   "settings.security.form.new-key.label": "新密鑰",
   "settings.security.form.new-key.placeholder": "請輸入新訪問密鑰...",
   "settings.update.title": "檢查更新",

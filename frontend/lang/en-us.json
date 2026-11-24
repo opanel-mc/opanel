@@ -790,6 +790,7 @@
   "settings.security.form.current-key.label": "Current key",
   "settings.security.form.current-key.placeholder": "Please enter the current access key...",
   "settings.security.form.new-key.min": "The access key length should not be less than 6",
+  "settings.security.form.new-key.max": "The access key length should not exceed 256",
   "settings.security.form.new-key.label": "New key",
   "settings.security.form.new-key.placeholder": "Please enter the new access key...",
   "settings.update.title": "Check for Updates",

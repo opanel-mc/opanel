@@ -25,6 +25,7 @@ public class Utils {
     private static final SecureRandom rand = new SecureRandom();
 
     /**
+     * Non-security MD5 digest helper (used for cache checksums and legacy hash migration only).
      * @see <a href="https://ithelp.ithome.com.tw/articles/10212717">https://ithelp.ithome.com.tw/articles/10212717</a>
      */
     public static String md5(String str) {

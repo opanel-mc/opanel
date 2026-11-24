@@ -4,8 +4,8 @@ import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 import net.opanel.OPanel;
 import net.opanel.config.OPanelConfiguration;
-import net.opanel.utils.Utils;
 import net.opanel.controller.BaseController;
+import net.opanel.web.AccessKeyHasher;
 import net.opanel.web.JwtManager;
 
 import java.util.HashMap;
@@ -17,29 +17,48 @@ public class SecurityController extends BaseController {
     }
 
     public Handler updateAccessKey = ctx -> {
-        RequestBodyType reqBody = ctx.bodyAsClass(RequestBodyType.class);
-        if(reqBody == null || reqBody.currentKey() == null || reqBody.newKey() == null) {
+        RequestBodyType reqBody;
+        try {
+            if(ctx.body().isBlank()) throw new IllegalArgumentException();
+            reqBody = ctx.bodyAsClass(RequestBodyType.class);
+        } catch(Exception e) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Invalid request body.");
+            return;
+        }
+        if(
+            reqBody == null
+            || !AccessKeyHasher.isValidInputLength(reqBody.currentKey())
+            || !AccessKeyHasher.isValidNewKeyLength(reqBody.newKey())
+        ) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Invalid request body.");
             return;
         }
 
-        final String currentKey = reqBody.currentKey(); // hashed 1
-        final String newKey = reqBody.newKey(); // hashed 1
-        final String realKey = plugin.getConfig().accessKey; // hashed 2
+        OPanelConfiguration config = plugin.getConfig();
+        try(AccessKeyHasher.RequestSlot slot = AccessKeyHasher.tryAcquireRequestSlot()) {
+            if(slot == null) {
+                ctx.header("Retry-After", "1");
+                sendResponse(ctx, HttpStatus.TOO_MANY_REQUESTS, "Too many authentication requests are in progress.");
+                return;
+            }
 
-        if(!Utils.md5(currentKey).equals(realKey)) {
-            sendResponse(ctx, HttpStatus.FORBIDDEN, "Access key mismatch.");
-            return;
+            if(AccessKeyHasher.verify(reqBody.currentKey(), config.accessKey) == AccessKeyHasher.VerifyResult.INVALID) {
+                sendResponse(ctx, HttpStatus.FORBIDDEN, "Access key mismatch.");
+                return;
+            }
+
+            // Save new access key
+            JwtManager.revokeAllTokens();
+            config.accessKey = AccessKeyHasher.hash(reqBody.newKey());
+            plugin.setConfig(config);
         }
 
-        // Save new access key
-        OPanelConfiguration config = plugin.getConfig();
-        JwtManager.revokeAllTokens();
-        config.accessKey = Utils.md5(newKey);
-        plugin.setConfig(config);
-
         String token = JwtManager.generateToken(config.accessKey, config.salt);
-        ctx.cookie(JwtManager.createCookie("token", token, (int) TimeUnit.DAYS.toSeconds(1), plugin.getConfig().cookieSecure));
+        try {
+            ctx.cookie(JwtManager.createCookie("token", token, (int) TimeUnit.DAYS.toSeconds(1), config.cookieSecure));
+        } catch (NoSuchMethodError e) {
+            //
+        }
         sendResponse(ctx, new HashMap<>());
     };
 

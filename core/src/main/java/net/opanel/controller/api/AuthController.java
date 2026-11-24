@@ -6,23 +6,14 @@ import io.javalin.http.HttpStatus;
 
 import net.opanel.OPanel;
 import net.opanel.config.OPanelConfiguration;
-import net.opanel.utils.Utils;
 import net.opanel.controller.BaseController;
-import net.opanel.web.CramChallengeStore;
+import net.opanel.web.AccessKeyHasher;
 import net.opanel.web.JwtManager;
 import net.opanel.web.LoginAttemptTracker;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 public class AuthController extends BaseController {
-    private static final Pattern ID_PATTERN = Pattern.compile("[A-Za-z0-9_-]{1,64}");
-    private static final Pattern RESULT_PATTERN = Pattern.compile("[0-9a-f]{32}");
-
-    private final CramChallengeStore cramChallengeStore = new CramChallengeStore();
     private final LoginAttemptTracker loginAttemptTracker = new LoginAttemptTracker();
 
     public AuthController(OPanel plugin) {
@@ -36,44 +27,7 @@ public class AuthController extends BaseController {
                 && !config.salt.isBlank();
     }
 
-    public Handler getCram = ctx -> {
-        ctx.header("Cache-Control", "no-store");
-        final OPanelConfiguration config = plugin.getConfig();
-        if(config.oidcEnabled) {
-            sendResponse(ctx, HttpStatus.FORBIDDEN, "Secret login is disabled when OIDC is enabled.");
-            return;
-        }
-        if(!isCredentialInitialized(config)) {
-            sendResponse(ctx, HttpStatus.SERVICE_UNAVAILABLE, "Panel credential is not initialized.");
-            return;
-        }
-
-        final String id = ctx.queryParam("id");
-        if(id == null || !ID_PATTERN.matcher(id).matches()) {
-            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Id is invalid.");
-            return;
-        }
-
-        final String reqIp = getIpAndCheck(ctx);
-        if(reqIp == null) return;
-
-        CramChallengeStore.CreateResult createResult = cramChallengeStore.create(reqIp, id);
-        if(createResult.status() == CramChallengeStore.CreateStatus.DUPLICATE) {
-            sendResponse(ctx, HttpStatus.CONFLICT, "Id is already in use.");
-            return;
-        }
-        if(createResult.status() == CramChallengeStore.CreateStatus.CAPACITY_FULL) {
-            ctx.header("Retry-After", Long.toString(createResult.retryAfterSeconds()));
-            sendResponse(ctx, HttpStatus.TOO_MANY_REQUESTS, "Too many login challenges are active.");
-            return;
-        }
-
-        HashMap<String, Object> res = new HashMap<>();
-        res.put("cram", createResult.challenge());
-        sendResponse(ctx, res);
-    };
-
-    public Handler validateCram = ctx -> {
+    public Handler login = ctx -> {
         ctx.header("Cache-Control", "no-store");
         final OPanelConfiguration config = plugin.getConfig();
         if(config.oidcEnabled) {
@@ -93,54 +47,55 @@ public class AuthController extends BaseController {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Request body is invalid.");
             return;
         }
-        if(reqBody == null
-                || reqBody.id() == null
-                || !ID_PATTERN.matcher(reqBody.id()).matches()
-                || reqBody.result() == null
-                || !RESULT_PATTERN.matcher(reqBody.result()).matches()) {
-            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Id or result is invalid.");
+        if(reqBody == null || !AccessKeyHasher.isValidInputLength(reqBody.accessKey())) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Access key is invalid.");
             return;
         }
 
         final String reqIp = getIpAndCheck(ctx);
         if(reqIp == null) return;
 
-        final String challenge = cramChallengeStore.consume(reqIp, reqBody.id());
-        if(challenge == null) {
-            recordFailedLogin(ctx, reqIp);
-            return;
-        }
+        String activeHashedKey;
+        try(AccessKeyHasher.RequestSlot slot = AccessKeyHasher.tryAcquireRequestSlot()) {
+            if(slot == null) {
+                ctx.header("Retry-After", "1");
+                sendResponse(ctx, HttpStatus.TOO_MANY_REQUESTS, "Too many authentication requests are in progress.");
+                return;
+            }
 
-        final String challengeResult = reqBody.result(); // hashed 3
-        final String storedRealKey = config.accessKey; // hashed 2
-        final String realResult = Utils.md5(storedRealKey + challenge); // hashed 3
+            AccessKeyHasher.VerifyResult verifyResult = AccessKeyHasher.verify(reqBody.accessKey(), config.accessKey);
+            if(verifyResult == AccessKeyHasher.VerifyResult.INVALID) {
+                recordFailedLogin(ctx, reqIp);
+                return;
+            }
 
-        if(MessageDigest.isEqual(
-                challengeResult.getBytes(StandardCharsets.US_ASCII),
-                realResult.getBytes(StandardCharsets.US_ASCII)
-        )) {
             loginAttemptTracker.recordSuccess(reqIp);
 
-            String token = JwtManager.generateToken(storedRealKey, config.salt);
-            // Context.cookie() provided by Javalin called List.removeFirst() method.
-            // But the method was introduced in Java 21, so if OPanel is running under
-            // Java versions lower than 21, this method will throw a NoSuchMethodError.
-            //
-            // Just simply catch it and do nothing.
-            try {
-                ctx.cookie(JwtManager.createCookie("token", token, (int) TimeUnit.DAYS.toSeconds(1), config.cookieSecure));
-            } catch (NoSuchMethodError e) {
-                //
+            activeHashedKey = config.accessKey;
+            if(verifyResult == AccessKeyHasher.VerifyResult.VALID_NEEDS_UPGRADE) {
+                activeHashedKey = AccessKeyHasher.hash(reqBody.accessKey());
+                config.accessKey = activeHashedKey;
+                plugin.setConfig(config);
             }
-            sendResponse(ctx, HttpStatus.OK);
-        } else {
-            recordFailedLogin(ctx, reqIp);
         }
+
+        String token = JwtManager.generateToken(activeHashedKey, config.salt);
+        // Context.cookie() provided by Javalin called List.removeFirst() method.
+        // But the method was introduced in Java 21, so if OPanel is running under
+        // Java versions lower than 21, this method will throw a NoSuchMethodError.
+        //
+        // Just simply catch it and do nothing.
+        try {
+            ctx.cookie(JwtManager.createCookie("token", token, (int) TimeUnit.DAYS.toSeconds(1), config.cookieSecure));
+        } catch (NoSuchMethodError e) {
+            //
+        }
+        sendResponse(ctx, HttpStatus.OK);
     };
 
     public Handler checkAuth = ctx -> {
         String token = ctx.cookie("token"); // jws
-        final String hashedRealKey = plugin.getConfig().accessKey; // hashed 2
+        final String hashedRealKey = plugin.getConfig().accessKey;
         if(token == null) {
             sendResponse(ctx, HttpStatus.UNAUTHORIZED, "Token is missing.");
             return;
@@ -163,7 +118,7 @@ public class AuthController extends BaseController {
         sendResponse(ctx, HttpStatus.OK);
     };
 
-    private record RequestBodyType(String id, String result) {}
+    private record RequestBodyType(String accessKey) {}
 
     private String getIpAndCheck(Context ctx) {
         final String reqIp = getClientIp(ctx);

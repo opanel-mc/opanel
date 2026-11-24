@@ -15,6 +15,7 @@ import net.opanel.logger.Loggable;
 import net.opanel.time.Uptimer;
 import net.opanel.time.TPS;
 import net.opanel.utils.Utils;
+import net.opanel.web.AccessKeyHasher;
 import net.opanel.web.OidcManager;
 import net.opanel.web.WebServer;
 
@@ -134,10 +135,10 @@ public class OPanel {
     public boolean initializeAccessKey() {
         boolean initialAccessKeyGenerated = false;
         OPanelConfiguration config = getConfig();
-        if(config.accessKey.isEmpty()) {
+        if(config.accessKey == null || config.accessKey.isBlank()) {
             // Generate access key and then store it into the config
-            final String accessKey = Utils.generateRandomCharSequence(12, true);
-            config.accessKey = Utils.md5(Utils.md5(accessKey));
+            final String accessKey = Utils.generateRandomCharSequence(16, true);
+            config.accessKey = AccessKeyHasher.hash(accessKey);
             setConfig(config);
 
             // Store the plaintext access key into the temp file
@@ -148,8 +149,15 @@ public class OPanel {
                 throw new RuntimeException("Plaintext initial access key storage failed", e);
             }
             initialAccessKeyGenerated = true;
+        } else {
+            String wrappedKey = AccessKeyHasher.wrapLegacyIfNeeded(config.accessKey);
+            if(wrappedKey != null) {
+                config.accessKey = wrappedKey;
+                setConfig(config);
+                logger.warn("Legacy MD5 access key hash detected and wrapped with bcrypt. Log in to the panel once to complete the migration to native bcrypt.");
+            }
         }
-        if(config.salt.isEmpty()) {
+        if(config.salt == null || config.salt.isBlank()) {
             // Generate salt and then store it into the config
             config.salt = Utils.generateRandomCharSequence(6, true);
             setConfig(config);

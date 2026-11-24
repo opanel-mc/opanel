@@ -95,7 +95,7 @@ public class BeforeController extends BaseController {
             return;
         }
 
-        final String hashedRealKey = plugin.getConfig().accessKey; // hashed 2
+        final String hashedRealKey = plugin.getConfig().accessKey;
         if(!JwtManager.verifyToken(token, hashedRealKey, plugin.getConfig().salt)) {
             ctx.removeCookie("token");
             sendResponse(ctx, HttpStatus.UNAUTHORIZED, "Token is invalid.");

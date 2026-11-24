@@ -790,6 +790,7 @@
   "settings.security.form.current-key.label": "當前金鑰",
   "settings.security.form.current-key.placeholder": "請輸入當前存取金鑰...",
   "settings.security.form.new-key.min": "存取金鑰長度唔應該少過 6 個字元",
+  "settings.security.form.new-key.max": "存取金鑰長度唔應該超過 256 個字元",
   "settings.security.form.new-key.label": "新金鑰",
   "settings.security.form.new-key.placeholder": "請輸入新存取金鑰...",
   "settings.update.title": "檢查更新",

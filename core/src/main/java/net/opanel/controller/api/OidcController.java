@@ -4,10 +4,12 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import io.javalin.http.Handler;
 import io.javalin.http.HttpStatus;
 import net.opanel.OPanel;
+import net.opanel.config.OPanelConfiguration;
 import net.opanel.config.OidcConfiguration;
 import net.opanel.controller.BaseController;
 import net.opanel.storage.Storage;
 import net.opanel.storage.StorageKey;
+import net.opanel.web.AccessKeyHasher;
 import net.opanel.web.JwtManager;
 import net.opanel.web.OidcManager;
 
@@ -135,24 +137,48 @@ public class OidcController extends BaseController {
             return;
         }
 
-        RequestBodyType reqBody = ctx.bodyAsClass(RequestBodyType.class);
-        if(reqBody == null || reqBody.accessKey() == null) {
+        RequestBodyType reqBody;
+        try {
+            if(ctx.body().isBlank()) throw new IllegalArgumentException();
+            reqBody = ctx.bodyAsClass(RequestBodyType.class);
+        } catch(Exception e) {
+            sendResponse(ctx, HttpStatus.BAD_REQUEST, "Request body is invalid.");
+            return;
+        }
+        if(reqBody == null || !AccessKeyHasher.isValidInputLength(reqBody.accessKey())) {
             sendResponse(ctx, HttpStatus.BAD_REQUEST, "Access key is missing.");
             return;
         }
 
-        final String hashedAccessKey = plugin.getConfig().accessKey;
-        if(!reqBody.accessKey().equals(hashedAccessKey)) {
-            int current = failedVerifyRecords.merge(reqIp, 1, Integer::sum);
-            if(current >= MAX_VERIFY_TRIES) {
-                temporaryBannedRecords.put(reqIp, System.currentTimeMillis() + BANNED_PERIOD);
-                failedVerifyRecords.remove(reqIp);
+        OPanelConfiguration config = plugin.getConfig();
+        String activeHashedKey;
+        try(AccessKeyHasher.RequestSlot slot = AccessKeyHasher.tryAcquireRequestSlot()) {
+            if(slot == null) {
+                ctx.header("Retry-After", "1");
+                sendResponse(ctx, HttpStatus.TOO_MANY_REQUESTS, "Too many authentication requests are in progress.");
+                return;
             }
-            sendResponse(ctx, HttpStatus.FORBIDDEN, "Access key mismatch.");
-            return;
-        }
 
-        failedVerifyRecords.remove(reqIp);
+            AccessKeyHasher.VerifyResult verifyResult = AccessKeyHasher.verify(reqBody.accessKey(), config.accessKey);
+            if(verifyResult == AccessKeyHasher.VerifyResult.INVALID) {
+                int current = failedVerifyRecords.merge(reqIp, 1, Integer::sum);
+                if(current >= MAX_VERIFY_TRIES) {
+                    temporaryBannedRecords.put(reqIp, System.currentTimeMillis() + BANNED_PERIOD);
+                    failedVerifyRecords.remove(reqIp);
+                }
+                sendResponse(ctx, HttpStatus.FORBIDDEN, "Access key mismatch.");
+                return;
+            }
+
+            failedVerifyRecords.remove(reqIp);
+
+            activeHashedKey = config.accessKey;
+            if(verifyResult == AccessKeyHasher.VerifyResult.VALID_NEEDS_UPGRADE) {
+                activeHashedKey = AccessKeyHasher.hash(reqBody.accessKey());
+                config.accessKey = activeHashedKey;
+                plugin.setConfig(config);
+            }
+        }
 
         OidcConfiguration oidcConfig = Storage.get().getStoredData(StorageKey.OIDC_CONFIG);
         if(oidcConfig == null) {
@@ -166,9 +192,9 @@ public class OidcController extends BaseController {
             Storage.get().setStoredData(StorageKey.OIDC_CONFIG, oidcConfig);
         }
 
-        String token = JwtManager.generateToken(hashedAccessKey, plugin.getConfig().salt);
+        String token = JwtManager.generateToken(activeHashedKey, config.salt);
         try {
-            ctx.cookie(JwtManager.createCookie("token", token, (int) TimeUnit.DAYS.toSeconds(1), plugin.getConfig().cookieSecure));
+            ctx.cookie(JwtManager.createCookie("token", token, (int) TimeUnit.DAYS.toSeconds(1), config.cookieSecure));
         } catch (NoSuchMethodError e) {
             // Java < 21 compatibility
         }

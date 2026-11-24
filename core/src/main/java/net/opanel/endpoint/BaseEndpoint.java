@@ -46,7 +46,7 @@ public abstract class BaseEndpoint implements Connectable {
             Session session = ctx.session;
 
             String token = ctx.cookie("token");
-            final String hashedRealKey = plugin.getConfig().accessKey; // hashed 2
+            final String hashedRealKey = plugin.getConfig().accessKey;
             if(token == null || !JwtManager.verifyToken(token, hashedRealKey, plugin.getConfig().salt)) {
                 ctx.closeSession(1008, "Unauthorized.");
                 return;
