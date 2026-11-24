@@ -285,10 +285,7 @@ fn file_router() -> Router<Arc<OPanel>> {
 
 fn api_router() -> Router<Arc<OPanel>> {
     Router::new()
-        .route(
-            "/auth",
-            with_role(post(auth::login), AuthRouteRole::Public),
-        )
+        .route("/auth", with_role(post(auth::login), AuthRouteRole::Public))
         .route(
             "/auth/",
             with_role(post(auth::login), AuthRouteRole::Public),
