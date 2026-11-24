@@ -792,6 +792,7 @@
   "settings.security.form.current-key.label": "Aktueller Schlüssel",
   "settings.security.form.current-key.placeholder": "Geben Sie den aktuellen Zugriffsschlüssel ein...",
   "settings.security.form.new-key.min": "Die Länge des Zugriffsschlüssels darf 6 Zeichen nicht unterschreiten",
+  "settings.security.form.new-key.max": "Die Länge des Zugriffsschlüssels darf 256 Zeichen nicht überschreiten",
   "settings.security.form.new-key.label": "Neuer Schlüssel",
   "settings.security.form.new-key.placeholder": "Geben Sie den neuen Zugriffsschlüssel ein...",
   "settings.update.title": "Auf Updates prüfen",

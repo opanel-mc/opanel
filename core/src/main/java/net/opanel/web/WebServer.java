@@ -114,8 +114,7 @@ public class WebServer {
         });
         path("api", () -> {
             path("auth", () -> {
-                get("/", authController.getCram, PUBLIC);
-                post("/", authController.validateCram, PUBLIC);
+                post("/", authController.login, PUBLIC);
                 post("/check", authController.checkAuth, PUBLIC);
                 post("/logout", authController.logout, PUBLIC);
                 path("oidc", () -> {

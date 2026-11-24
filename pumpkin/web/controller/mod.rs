@@ -93,13 +93,10 @@ fn managed_auth_registry() -> AuthRouteRegistry {
         Public,
     );
     registry.register(
-        [Method::GET, Method::POST],
-        ["/api/auth", "/api/auth/"],
-        Public,
-    );
-    registry.register(
         [Method::POST],
         [
+            "/api/auth",
+            "/api/auth/",
             "/api/auth/check",
             "/api/auth/logout",
             "/api/auth/oidc/bind-user",
@@ -290,17 +287,11 @@ fn api_router() -> Router<Arc<OPanel>> {
     Router::new()
         .route(
             "/auth",
-            with_role(
-                get(auth::get_cram).post(auth::validate_cram),
-                AuthRouteRole::Public,
-            ),
+            with_role(post(auth::login), AuthRouteRole::Public),
         )
         .route(
             "/auth/",
-            with_role(
-                get(auth::get_cram).post(auth::validate_cram),
-                AuthRouteRole::Public,
-            ),
+            with_role(post(auth::login), AuthRouteRole::Public),
         )
         .nest("/auth", {
             Router::new()

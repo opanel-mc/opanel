@@ -12,10 +12,6 @@ use subtle::ConstantTimeEq;
 
 use crate::managers::{Manager, ManagerContext};
 
-const CHALLENGE_TTL: Duration = Duration::from_secs(5 * 60);
-const MAX_CHALLENGES_PER_IP: usize = 16;
-const MAX_CHALLENGES: usize = 4096;
-
 const MAX_LOGIN_FAILURES: u32 = 5;
 const MAX_TRACKED_IPS: usize = 10_000;
 const LOGIN_FAILURE_WINDOW: Duration = Duration::from_secs(10 * 60);
@@ -42,15 +38,7 @@ pub(crate) struct AuthManager {
     context: ManagerContext,
     signing_key: [u8; JWT_SIGNING_KEY_BYTES],
     active_sessions: Mutex<SessionStore>,
-    challenges: Mutex<ChallengeStore>,
     login_attempts: Mutex<LoginAttemptTracker>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) enum ChallengeCreateResult {
-    Created { challenge: String },
-    Duplicate,
-    CapacityFull { retry_after_seconds: u64 },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -73,18 +61,8 @@ impl AuthManager {
             context,
             signing_key,
             active_sessions: Mutex::new(SessionStore::default()),
-            challenges: Mutex::new(ChallengeStore::default()),
             login_attempts: Mutex::new(LoginAttemptTracker::new(Instant::now())),
         }
-    }
-
-    pub(crate) fn create_challenge(&self, ip: &str, id: &str) -> ChallengeCreateResult {
-        lock_or_recover(&self.challenges).create(ip, id, Instant::now())
-    }
-
-    /// Consumes a challenge even when the caller later supplies an invalid CRAM result.
-    pub(crate) fn consume_challenge(&self, ip: &str, id: &str) -> Option<String> {
-        lock_or_recover(&self.challenges).consume(ip, id, Instant::now())
     }
 
     pub(crate) fn check_login(&self, ip: &str) -> LoginAttemptResult {
@@ -97,10 +75,6 @@ impl AuthManager {
 
     pub(crate) fn record_login_success(&self, ip: &str) {
         lock_or_recover(&self.login_attempts).record_success(ip);
-    }
-
-    pub(crate) fn verify_cram_result(provided: &str, expected: &str) -> bool {
-        bool::from(provided.as_bytes().ct_eq(expected.as_bytes()))
     }
 
     pub(crate) fn issue_token(&self, access_key: &str, salt: &str) -> String {
@@ -246,90 +220,6 @@ impl Manager for AuthManager {
 
     fn context(&self) -> &ManagerContext {
         &self.context
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-struct ChallengeKey {
-    ip: String,
-    id: String,
-}
-
-struct ChallengeRecord {
-    challenge: String,
-    expires_at: Instant,
-}
-
-#[derive(Default)]
-struct ChallengeStore {
-    challenges: HashMap<ChallengeKey, ChallengeRecord>,
-}
-
-impl ChallengeStore {
-    fn create(&mut self, ip: &str, id: &str, now: Instant) -> ChallengeCreateResult {
-        self.cleanup_expired(now);
-
-        let key = ChallengeKey {
-            ip: ip.to_owned(),
-            id: id.to_owned(),
-        };
-        if self.challenges.contains_key(&key) {
-            return ChallengeCreateResult::Duplicate;
-        }
-
-        let ip_challenge_count = self.challenges.keys().filter(|key| key.ip == ip).count();
-        if ip_challenge_count >= MAX_CHALLENGES_PER_IP {
-            return ChallengeCreateResult::CapacityFull {
-                retry_after_seconds: self.retry_after_seconds(Some(ip), now),
-            };
-        }
-        if self.challenges.len() >= MAX_CHALLENGES {
-            return ChallengeCreateResult::CapacityFull {
-                retry_after_seconds: self.retry_after_seconds(None, now),
-            };
-        }
-
-        let challenge = loop {
-            let candidate = random_challenge();
-            if self
-                .challenges
-                .values()
-                .all(|record| record.challenge != candidate)
-            {
-                break candidate;
-            }
-        };
-        self.challenges.insert(
-            key,
-            ChallengeRecord {
-                challenge: challenge.clone(),
-                expires_at: now + CHALLENGE_TTL,
-            },
-        );
-        ChallengeCreateResult::Created { challenge }
-    }
-
-    fn consume(&mut self, ip: &str, id: &str, now: Instant) -> Option<String> {
-        self.cleanup_expired(now);
-        self.challenges
-            .remove(&ChallengeKey {
-                ip: ip.to_owned(),
-                id: id.to_owned(),
-            })
-            .map(|record| record.challenge)
-    }
-
-    fn cleanup_expired(&mut self, now: Instant) {
-        self.challenges.retain(|_, record| record.expires_at > now);
-    }
-
-    fn retry_after_seconds(&self, ip: Option<&str>, now: Instant) -> u64 {
-        self.challenges
-            .iter()
-            .filter(|(key, _)| ip.is_none_or(|ip| key.ip == ip))
-            .map(|(_, record)| seconds_until(record.expires_at, now))
-            .min()
-            .unwrap_or(1)
     }
 }
 
@@ -537,13 +427,6 @@ struct JwtClaims {
     access: String,
 }
 
-fn random_challenge() -> String {
-    let mut random = [0_u8; 16];
-    getrandom::fill(&mut random)
-        .expect("the operating system must provide randomness for login challenges");
-    to_lower_hex(&random)
-}
-
 fn random_session_id() -> String {
     let mut random = [0_u8; JWT_SESSION_ID_BYTES];
     getrandom::fill(&mut random)
@@ -562,7 +445,10 @@ fn to_lower_hex(bytes: &[u8]) -> String {
 }
 
 fn access_claim(access_key: &str, salt: &str) -> String {
-    format!("{:x}", md5::compute(format!("{salt}{access_key}")))
+    let mut mac = <HmacSha256 as Mac>::new_from_slice(salt.as_bytes())
+        .expect("HMAC-SHA256 accepts keys of every size");
+    mac.update(access_key.as_bytes());
+    to_lower_hex(&mac.finalize().into_bytes())
 }
 
 fn encode_json<T: Serialize>(value: &T) -> String {
@@ -610,7 +496,7 @@ mod tests {
 
     use super::*;
 
-    const TEST_ACCESS_KEY: &str = "0123456789abcdef0123456789abcdef";
+    const TEST_ACCESS_KEY: &str = "$2b$12$R9h/cIPz0gi.URNNX3kh2OPST9/PgBkqquzi.Ss7KIUgO2t0jWMUW";
     const TEST_SALT: &str = "abc123";
 
     fn manager_with_key(key: u8) -> AuthManager {
@@ -618,92 +504,6 @@ mod tests {
             ManagerContext::new(Weak::new(), CancellationToken::new()),
             [key; JWT_SIGNING_KEY_BYTES],
         )
-    }
-
-    fn created_challenge(result: ChallengeCreateResult) -> String {
-        let ChallengeCreateResult::Created { challenge } = result else {
-            panic!("expected a newly-created challenge");
-        };
-        challenge
-    }
-
-    #[test]
-    fn challenges_are_unique_hex_ip_bound_and_single_use() {
-        let auth = manager_with_key(1);
-        let first = created_challenge(auth.create_challenge("192.0.2.1", "browser"));
-        let second = created_challenge(auth.create_challenge("192.0.2.1", "other"));
-
-        assert_eq!(first.len(), 32);
-        assert!(first.bytes().all(|byte| byte.is_ascii_hexdigit()));
-        assert_eq!(first, first.to_ascii_lowercase());
-        assert_ne!(first, second);
-        assert_eq!(
-            auth.create_challenge("192.0.2.1", "browser"),
-            ChallengeCreateResult::Duplicate
-        );
-
-        assert_eq!(auth.consume_challenge("192.0.2.2", "browser"), None);
-        assert_eq!(auth.consume_challenge("192.0.2.1", "browser"), Some(first));
-        assert_eq!(auth.consume_challenge("192.0.2.1", "browser"), None);
-    }
-
-    #[test]
-    fn challenge_capacity_is_enforced_per_ip_before_global_capacity() {
-        let auth = manager_with_key(2);
-        for index in 0..MAX_CHALLENGES_PER_IP {
-            assert!(matches!(
-                auth.create_challenge("192.0.2.1", &index.to_string()),
-                ChallengeCreateResult::Created { .. }
-            ));
-        }
-        assert!(matches!(
-            auth.create_challenge("192.0.2.1", "overflow"),
-            ChallengeCreateResult::CapacityFull {
-                retry_after_seconds: 1..=300
-            }
-        ));
-
-        let now = Instant::now();
-        let mut store = lock_or_recover(&auth.challenges);
-        store.challenges.clear();
-        for index in 0..MAX_CHALLENGES {
-            store.challenges.insert(
-                ChallengeKey {
-                    ip: format!("source-{index}"),
-                    id: "id".to_owned(),
-                },
-                ChallengeRecord {
-                    challenge: format!("{index:032x}"),
-                    expires_at: now + CHALLENGE_TTL,
-                },
-            );
-        }
-        assert!(matches!(
-            store.create("new-source", "id", now),
-            ChallengeCreateResult::CapacityFull {
-                retry_after_seconds: 300
-            }
-        ));
-    }
-
-    #[test]
-    fn expired_challenges_are_removed_before_create_and_consume() {
-        let auth = manager_with_key(3);
-        let now = Instant::now();
-        let mut store = lock_or_recover(&auth.challenges);
-        let challenge = created_challenge(store.create("192.0.2.1", "id", now));
-
-        assert_eq!(store.consume("192.0.2.1", "id", now + CHALLENGE_TTL), None);
-        assert!(
-            !store
-                .challenges
-                .values()
-                .any(|record| record.challenge == challenge)
-        );
-        assert!(matches!(
-            store.create("192.0.2.1", "id", now + CHALLENGE_TTL),
-            ChallengeCreateResult::Created { .. }
-        ));
     }
 
     #[test]
@@ -803,6 +603,7 @@ mod tests {
         assert_eq!(claims["iat"], issued_at);
         assert_eq!(claims["exp"], issued_at + JWT_LIFETIME_SECONDS);
         assert_eq!(claims["access"], access_claim(TEST_ACCESS_KEY, TEST_SALT));
+        assert_eq!(claims["access"].as_str().unwrap().len(), 64);
         assert!(auth.verify_token_at(
             &token,
             TEST_ACCESS_KEY,
@@ -881,18 +682,5 @@ mod tests {
         let valid = auth.issue_token_at(TEST_ACCESS_KEY, TEST_SALT, issued_at);
         assert!(!auth.verify_token(&valid, "", TEST_SALT));
         assert!(!auth.verify_token(&valid, TEST_ACCESS_KEY, ""));
-    }
-
-    #[test]
-    fn cram_comparison_requires_an_exact_match() {
-        assert!(AuthManager::verify_cram_result(
-            "0123456789abcdef0123456789abcdef",
-            "0123456789abcdef0123456789abcdef"
-        ));
-        assert!(!AuthManager::verify_cram_result(
-            "1123456789abcdef0123456789abcdef",
-            "0123456789abcdef0123456789abcdef"
-        ));
-        assert!(!AuthManager::verify_cram_result("short", "different"));
     }
 }

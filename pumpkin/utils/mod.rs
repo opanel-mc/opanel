@@ -1,3 +1,4 @@
+pub mod access_key;
 pub mod base64;
 pub mod file;
 pub mod image;

@@ -792,6 +792,7 @@
   "settings.security.form.current-key.label": "当前密钥",
   "settings.security.form.current-key.placeholder": "请输入当前访问密钥...",
   "settings.security.form.new-key.min": "访问密钥长度不应小于6",
+  "settings.security.form.new-key.max": "访问密钥长度不应超过256",
   "settings.security.form.new-key.label": "新密钥",
   "settings.security.form.new-key.placeholder": "请输入新访问密钥...",
   "settings.update.title": "检查更新",

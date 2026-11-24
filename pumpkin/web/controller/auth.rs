@@ -5,8 +5,8 @@ use std::{
 
 use axum::{
     extract::{
-        ConnectInfo, Query, State,
-        rejection::{ExtensionRejection, QueryRejection, StringRejection},
+        ConnectInfo, State,
+        rejection::{ExtensionRejection, StringRejection},
     },
     http::{HeaderMap, HeaderValue, StatusCode, header},
     response::{IntoResponse, Response},
@@ -17,8 +17,9 @@ use tracing::warn;
 
 use crate::{
     opanel::OPanel,
+    utils::access_key::{self, VerifyResult},
     web::{
-        auth::{AuthManager, ChallengeCreateResult, LoginAttemptResult},
+        auth::LoginAttemptResult,
         middleware::{TOKEN_COOKIE_NAME, add_token_cookie, remove_token_cookie},
         response::{ApiError, ApiResponse},
     },
@@ -27,70 +28,15 @@ use crate::{
 const NO_STORE: HeaderValue = HeaderValue::from_static("no-store");
 
 #[derive(Debug, Deserialize)]
-pub(super) struct ChallengeQuery {
-    id: Option<String>,
-}
-
-#[derive(Debug, Deserialize)]
-struct ValidateRequest {
-    id: Option<String>,
-    result: Option<String>,
-}
-
-#[derive(Debug, Serialize)]
-struct ChallengePayload {
-    cram: String,
+#[serde(rename_all = "camelCase")]
+struct LoginRequest {
+    access_key: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
 struct EmptyPayload {}
 
-pub(super) async fn get_cram(
-    State(opanel): State<Arc<OPanel>>,
-    connect_info: Result<ConnectInfo<SocketAddr>, ExtensionRejection>,
-    headers: HeaderMap,
-    query: Result<Query<ChallengeQuery>, QueryRejection>,
-) -> Response {
-    let config = opanel.config();
-    if !credentials_initialized(&config.access_key, &config.salt) {
-        return no_store(ApiError::service_unavailable(
-            "Panel credential is not initialized.",
-        ));
-    }
-
-    let Ok(Query(ChallengeQuery { id: Some(id) })) = query else {
-        return no_store(ApiError::new(StatusCode::BAD_REQUEST, "Id is invalid."));
-    };
-    if !valid_id(&id) {
-        return no_store(ApiError::new(StatusCode::BAD_REQUEST, "Id is invalid."));
-    }
-
-    let ip = match checked_client_ip(&opanel, &headers, connect_info.as_ref().ok()) {
-        Ok(ip) => ip,
-        Err(response) => return with_no_store(*response),
-    };
-
-    let response = match opanel.managers().auth().create_challenge(&ip, &id) {
-        ChallengeCreateResult::Created { challenge } => {
-            ApiResponse::ok(ChallengePayload { cram: challenge }).into_response()
-        }
-        ChallengeCreateResult::Duplicate => {
-            ApiError::new(StatusCode::CONFLICT, "Id is already in use.").into_response()
-        }
-        ChallengeCreateResult::CapacityFull {
-            retry_after_seconds,
-        } => with_retry_after(
-            ApiError::new(
-                StatusCode::TOO_MANY_REQUESTS,
-                "Too many login challenges are active.",
-            ),
-            retry_after_seconds,
-        ),
-    };
-    with_no_store(response)
-}
-
-pub(super) async fn validate_cram(
+pub(super) async fn login(
     State(opanel): State<Arc<OPanel>>,
     connect_info: Result<ConnectInfo<SocketAddr>, ExtensionRejection>,
     headers: HeaderMap,
@@ -110,7 +56,7 @@ pub(super) async fn validate_cram(
             "Request body is invalid.",
         ));
     };
-    let request: Option<ValidateRequest> = match serde_json::from_str(&body) {
+    let request: Option<LoginRequest> = match serde_json::from_str(&body) {
         Ok(request) if !body.trim().is_empty() => request,
         _ => {
             return no_store(ApiError::new(
@@ -119,22 +65,19 @@ pub(super) async fn validate_cram(
             ));
         }
     };
-    let Some(request) = request else {
+    let Some(LoginRequest {
+        access_key: Some(provided_key),
+    }) = request
+    else {
         return no_store(ApiError::new(
             StatusCode::BAD_REQUEST,
-            "Id or result is invalid.",
+            "Access key is invalid.",
         ));
     };
-    let (Some(id), Some(provided_result)) = (request.id, request.result) else {
+    if !access_key::is_valid_input_length(&provided_key) {
         return no_store(ApiError::new(
             StatusCode::BAD_REQUEST,
-            "Id or result is invalid.",
-        ));
-    };
-    if !valid_id(&id) || !valid_cram_result(&provided_result) {
-        return no_store(ApiError::new(
-            StatusCode::BAD_REQUEST,
-            "Id or result is invalid.",
+            "Access key is invalid.",
         ));
     }
 
@@ -143,23 +86,48 @@ pub(super) async fn validate_cram(
         Err(response) => return with_no_store(*response),
     };
 
-    let Some(challenge) = opanel.managers().auth().consume_challenge(&ip, &id) else {
-        return with_no_store(record_failed_login(&opanel, &ip));
+    let active_access_key = {
+        let Some(_slot) = access_key::try_acquire_request_slot() else {
+            return with_no_store(with_retry_after(
+                ApiError::new(
+                    StatusCode::TOO_MANY_REQUESTS,
+                    "Too many authentication requests are in progress.",
+                ),
+                1,
+            ));
+        };
+
+        let verify_result = access_key::verify(&provided_key, &config.access_key).await;
+        if verify_result == VerifyResult::Invalid {
+            return with_no_store(record_failed_login(&opanel, &ip));
+        }
+
+        opanel.managers().auth().record_login_success(&ip);
+
+        let mut active_access_key = config.access_key.clone();
+        if verify_result == VerifyResult::ValidNeedsUpgrade {
+            match access_key::hash(&provided_key).await {
+                Ok(upgraded) => {
+                    let mut replacement = (*config).clone();
+                    replacement.access_key = upgraded.clone();
+                    if let Err(error) = opanel.managers().config().replace(replacement).await {
+                        warn!(%error, "failed to persist upgraded access key hash");
+                    } else {
+                        active_access_key = upgraded;
+                    }
+                }
+                Err(error) => {
+                    warn!(%error, "failed to hash upgraded access key");
+                }
+            }
+        }
+        active_access_key
     };
-    let expected_result = format!(
-        "{:x}",
-        md5::compute(format!("{}{}", config.access_key, challenge))
-    );
 
-    if !AuthManager::verify_cram_result(&provided_result, &expected_result) {
-        return with_no_store(record_failed_login(&opanel, &ip));
-    }
-
-    opanel.managers().auth().record_login_success(&ip);
     let token = opanel
         .managers()
         .auth()
-        .issue_token(&config.access_key, &config.salt);
+        .issue_token(&active_access_key, &config.salt);
     let response = (
         add_token_cookie(jar, token, config.cookie_secure),
         ApiResponse::ok(EmptyPayload {}),
@@ -292,20 +260,6 @@ fn credentials_initialized(access_key: &str, salt: &str) -> bool {
     !access_key.trim().is_empty() && !salt.trim().is_empty()
 }
 
-fn valid_id(id: &str) -> bool {
-    (1..=64).contains(&id.len())
-        && id
-            .bytes()
-            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'_' | b'-'))
-}
-
-fn valid_cram_result(result: &str) -> bool {
-    result.len() == 32
-        && result
-            .bytes()
-            .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
-}
-
 fn no_store(response: impl IntoResponse) -> Response {
     with_no_store(response.into_response())
 }
@@ -339,8 +293,7 @@ mod tests {
     use crate::web::{auth::LoginAttemptResult, response::ApiError};
 
     use super::{
-        ValidateRequest, client_ip, login_throttle_response, no_store, valid_cram_result, valid_id,
-        with_no_store, with_retry_after,
+        LoginRequest, client_ip, login_throttle_response, no_store, with_no_store, with_retry_after,
     };
 
     async fn response_json(response: axum::response::Response) -> Value {
@@ -348,18 +301,6 @@ mod tests {
             .await
             .expect("response body should be readable");
         serde_json::from_slice(&body).expect("response body should contain JSON")
-    }
-
-    #[test]
-    fn validates_cram_fields() {
-        assert!(valid_id("browser_1-session"));
-        assert!(!valid_id(""));
-        assert!(!valid_id(&"a".repeat(65)));
-        assert!(!valid_id("contains a space"));
-
-        assert!(valid_cram_result("0123456789abcdef0123456789abcdef"));
-        assert!(!valid_cram_result("0123456789ABCDEF0123456789ABCDEF"));
-        assert!(!valid_cram_result("too-short"));
     }
 
     #[test]
@@ -392,36 +333,29 @@ mod tests {
     async fn text_plain_body_is_accepted_as_login_json() {
         let request = Request::builder()
             .header(header::CONTENT_TYPE, "text/plain")
-            .body(Body::from(
-                r#"{"id":"browser_1","result":"0123456789abcdef0123456789abcdef"}"#,
-            ))
+            .body(Body::from(r#"{"accessKey":"secret-key"}"#))
             .unwrap();
 
         let body = String::from_request(request, &())
             .await
             .expect("text/plain should be extractable as a raw string");
-        let parsed: Option<ValidateRequest> =
+        let parsed: Option<LoginRequest> =
             serde_json::from_str(&body).expect("raw text should contain valid login JSON");
         let parsed = parsed.expect("a login object should not deserialize as null");
 
-        assert_eq!(parsed.id.as_deref(), Some("browser_1"));
-        assert_eq!(
-            parsed.result.as_deref(),
-            Some("0123456789abcdef0123456789abcdef")
-        );
+        assert_eq!(parsed.access_key.as_deref(), Some("secret-key"));
     }
 
     #[test]
     fn login_json_distinguishes_null_missing_fields_and_malformed_input() {
-        let null_request: Option<ValidateRequest> = serde_json::from_str("null").unwrap();
+        let null_request: Option<LoginRequest> = serde_json::from_str("null").unwrap();
         assert!(null_request.is_none());
 
-        let missing_fields: Option<ValidateRequest> = serde_json::from_str("{}").unwrap();
+        let missing_fields: Option<LoginRequest> = serde_json::from_str("{}").unwrap();
         let missing_fields = missing_fields.expect("an object should deserialize as a request");
-        assert!(missing_fields.id.is_none());
-        assert!(missing_fields.result.is_none());
+        assert!(missing_fields.access_key.is_none());
 
-        assert!(serde_json::from_str::<Option<ValidateRequest>>("not-json").is_err());
+        assert!(serde_json::from_str::<Option<LoginRequest>>("not-json").is_err());
     }
 
     #[tokio::test]
@@ -447,7 +381,7 @@ mod tests {
         let response = with_no_store(with_retry_after(
             ApiError::new(
                 StatusCode::TOO_MANY_REQUESTS,
-                "Too many login challenges are active.",
+                "Too many login sources are being tracked.",
             ),
             60,
         ));
@@ -465,7 +399,7 @@ mod tests {
             response_json(response).await,
             json!({
                 "code": 429,
-                "error": "Too many login challenges are active."
+                "error": "Too many login sources are being tracked."
             })
         );
     }

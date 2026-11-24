@@ -2,16 +2,16 @@ use std::sync::Arc;
 
 use axum::{
     extract::{State, rejection::StringRejection},
-    http::StatusCode,
+    http::{HeaderValue, StatusCode, header},
     response::{IntoResponse, Response},
 };
 use axum_extra::extract::cookie::CookieJar;
 use serde::{Deserialize, Serialize};
-use subtle::ConstantTimeEq;
 use tracing::error;
 
 use crate::{
     opanel::OPanel,
+    utils::access_key::{self, VerifyResult},
     web::{
         middleware::add_token_cookie,
         response::{ApiError, ApiResponse},
@@ -37,12 +37,37 @@ pub(super) async fn update_access_key(
         return ApiError::new(StatusCode::BAD_REQUEST, "Invalid request body.").into_response();
     };
     let current_config = opanel.config();
-    if !access_key_matches(&request.current_key, &current_config.access_key) {
-        return ApiError::new(StatusCode::FORBIDDEN, "Access key mismatch.").into_response();
-    }
+    let hashed_new_key = {
+        let Some(_slot) = access_key::try_acquire_request_slot() else {
+            let mut response = ApiError::new(
+                StatusCode::TOO_MANY_REQUESTS,
+                "Too many authentication requests are in progress.",
+            )
+            .into_response();
+            response
+                .headers_mut()
+                .insert(header::RETRY_AFTER, HeaderValue::from_static("1"));
+            return response;
+        };
+
+        if access_key::verify(&request.current_key, &current_config.access_key).await
+            == VerifyResult::Invalid
+        {
+            return ApiError::new(StatusCode::FORBIDDEN, "Access key mismatch.").into_response();
+        }
+
+        match access_key::hash(&request.new_key).await {
+            Ok(hashed) => hashed,
+            Err(error) => {
+                error!(%error, "failed to hash the replacement access key");
+                return ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, error.to_string())
+                    .into_response();
+            }
+        }
+    };
 
     let mut replacement = (*current_config).clone();
-    replacement.access_key = hash_once(&request.new_key);
+    replacement.access_key = hashed_new_key;
     if let Err(error) = opanel.managers().config().replace(replacement).await {
         error!(%error, "failed to persist the replacement access key");
         return ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, error.to_string()).into_response();
@@ -64,20 +89,15 @@ fn parse_request(body: Result<String, StringRejection>) -> Option<UpdateAccessKe
     if body.trim().is_empty() {
         return None;
     }
-    serde_json::from_str::<Option<UpdateAccessKeyRequest>>(&body)
+    let request = serde_json::from_str::<Option<UpdateAccessKeyRequest>>(&body)
         .ok()
-        .flatten()
-}
-
-fn access_key_matches(current_key: &str, stored_key: &str) -> bool {
-    hash_once(current_key)
-        .as_bytes()
-        .ct_eq(stored_key.as_bytes())
-        .into()
-}
-
-fn hash_once(value: &str) -> String {
-    format!("{:x}", md5::compute(value))
+        .flatten()?;
+    if !access_key::is_valid_input_length(&request.current_key)
+        || !access_key::is_valid_new_key_length(&request.new_key)
+    {
+        return None;
+    }
+    Some(request)
 }
 
 #[cfg(test)]
@@ -89,30 +109,39 @@ mod tests {
     }
 
     #[test]
-    fn request_body_requires_a_json_object_and_both_keys() {
+    fn request_body_requires_a_json_object_and_valid_key_lengths() {
         assert_eq!(
-            parse_request(body(r#"{"currentKey":"old","newKey":"new"}"#)),
+            parse_request(body(r#"{"currentKey":"old","newKey":"new-key"}"#)),
             Some(UpdateAccessKeyRequest {
                 current_key: "old".to_string(),
-                new_key: "new".to_string(),
+                new_key: "new-key".to_string(),
             })
         );
-        for invalid in ["", "null", "{}", "[]", "not-json"] {
+        let long_legacy_key = "a".repeat(300);
+        assert_eq!(
+            parse_request(body(&format!(
+                r#"{{"currentKey":"{long_legacy_key}","newKey":"new-key"}}"#
+            ))),
+            Some(UpdateAccessKeyRequest {
+                current_key: long_legacy_key,
+                new_key: "new-key".to_string(),
+            })
+        );
+        let too_long_new_key = "b".repeat(257);
+        for invalid in [
+            "",
+            "null",
+            "{}",
+            "[]",
+            "not-json",
+            r#"{"currentKey":"","newKey":"new-key"}"#,
+            r#"{"currentKey":"old","newKey":"short"}"#,
+            &format!(r#"{{"currentKey":"old","newKey":"{too_long_new_key}"}}"#),
+        ] {
             assert!(
                 parse_request(body(invalid)).is_none(),
                 "{invalid:?} should be rejected"
             );
         }
-    }
-
-    #[test]
-    fn access_key_verification_uses_the_frontend_and_storage_hash_layers() {
-        let plaintext = "correct horse battery staple";
-        let frontend_hash = hash_once(plaintext);
-        let stored_hash = hash_once(&frontend_hash);
-
-        assert!(access_key_matches(&frontend_hash, &stored_hash));
-        assert!(!access_key_matches(&hash_once("wrong"), &stored_hash));
-        assert_eq!(hash_once(&frontend_hash), stored_hash);
     }
 }

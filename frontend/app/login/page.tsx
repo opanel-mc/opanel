@@ -5,7 +5,6 @@ import { Suspense, useEffect, useId, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Info, KeyRound } from "lucide-react";
-import md5 from "md5";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -23,7 +22,6 @@ import { apiUrl, sendGetRequest, sendPostRequest } from "@/lib/api";
 import { Brand } from "@/components/logo";
 import { PasswordInput } from "@/components/password-input";
 import { Alert } from "@/components/alert";
-import { generateRandomString } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
 import { copyrightInfo } from "@/lib/global";
 import { $ } from "@/lib/i18n";
@@ -79,33 +77,32 @@ function LoginForm() {
   };
 
   const handleLogin = async () => {
-    const accessKey = form.getValues("accessKey"); // hashed 0
+    const accessKey = form.getValues("accessKey");
     if(accessKey.length === 0) {
       form.setError("accessKey", { message: $("login.form.input.empty") });
       return;
     }
 
     setLoading(true);
-    const hashedKey = md5(md5(accessKey)); // hashed 2
 
     try {
-      const id = generateRandomString(5);
-      const { cram } = await sendGetRequest<{ cram: string }>(`/api/auth?id=${id}`, false);
-      const challengeResult = md5(hashedKey + cram); // hashed 3
-
-      await sendPostRequest("/api/auth", { id, result: challengeResult });
+      await sendPostRequest("/api/auth", { accessKey });
       resetUpdateCheckInfo();
       doAutoUpdateCheck();
       push("/panel/dashboard");
     } catch (e: any) {
       setLoading(false);
       switch(e.status) {
+        case 400:
         case 401:
           form.setError("accessKey", { message: $("login.form.input.incorrect") });
           break;
         case 403:
           setBanned(true);
           form.setError("accessKey", { message: $("login.form.input.temporarily-banned") });
+          break;
+        default:
+          form.setError("accessKey", { message: e.message });
           break;
       }
     }

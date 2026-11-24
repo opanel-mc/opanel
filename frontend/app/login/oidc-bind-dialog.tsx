@@ -1,5 +1,4 @@
 import { useState } from "react";
-import md5 from "md5";
 import {
   Dialog,
   DialogContent,
@@ -37,10 +36,9 @@ export function OidcBindDialog({
 
     setLoading(true);
     setError("");
-    const hashedKey = md5(md5(accessKey)); // hashed 2
 
     try {
-      await sendPostRequest("/api/auth/oidc/bind-user", { accessKey: hashedKey });
+      await sendPostRequest("/api/auth/oidc/bind-user", { accessKey });
       resetUpdateCheckInfo();
       doAutoUpdateCheck();
       onOpenChange(false);

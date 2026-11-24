@@ -3,7 +3,6 @@ import { useId } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import md5 from "md5";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +21,10 @@ import { $ } from "@/lib/i18n";
 
 const formSchema = z.object({
   currentKey: z.string().nonempty($("settings.security.form.empty")),
-  newKey: z.string().nonempty($("settings.security.form.empty")).min(6, $("settings.security.form.new-key.min"))
+  newKey: z.string()
+    .nonempty($("settings.security.form.empty"))
+    .min(6, $("settings.security.form.new-key.min"))
+    .max(256, $("settings.security.form.new-key.max"))
 });
 
 export function SecurityDialog({
@@ -43,8 +45,8 @@ export function SecurityDialog({
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       await sendPostRequest("/api/security", {
-        currentKey: md5(values.currentKey), // hashed 1
-        newKey: md5(values.newKey) // hashed 1
+        currentKey: values.currentKey,
+        newKey: values.newKey
       });
       window.location.reload();
     } catch (e: any) {

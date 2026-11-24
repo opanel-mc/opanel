@@ -5,8 +5,13 @@ import io.javalin.http.SameSite;
 import io.jsonwebtoken.*;
 import net.opanel.utils.Utils;
 
+import javax.crypto.Mac;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.Date;
+import java.util.HexFormat;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -23,7 +28,11 @@ public class JwtManager {
     private static final AtomicLong NEXT_SESSION_CLEANUP_AT = new AtomicLong();
 
     public static String generateToken(String hashedAccessKey, String salt) {
-        final String access = Utils.md5(salt + hashedAccessKey); // salted hashed 3
+        if(hashedAccessKey == null || hashedAccessKey.isBlank() || salt == null || salt.isBlank()) {
+            throw new IllegalArgumentException("Credentials must not be blank.");
+        }
+
+        final String access = computeAccessClaim(hashedAccessKey, salt);
         Date current = new Date();
         Date expiration = new Date(current.getTime() + SESSION_LIFETIME);
         cleanupExpiredSessions(current.getTime());
@@ -66,7 +75,11 @@ public class JwtManager {
     }
 
     private static Claims getVerifiedClaims(String token, String hashedAccessKey, String salt) {
-        final String access = Utils.md5(salt + hashedAccessKey); // salted hashed 3
+        if(token == null || hashedAccessKey == null || hashedAccessKey.isBlank() || salt == null || salt.isBlank()) {
+            return null;
+        }
+
+        final String access = computeAccessClaim(hashedAccessKey, salt);
         long currentTime = System.currentTimeMillis();
         cleanupExpiredSessions(currentTime);
 
@@ -82,13 +95,18 @@ public class JwtManager {
                 || payload.getId() == null
                 || payload.getIssuer() == null
                 || payload.getExpiration() == null
-                || payload.get("access") == null
+                || !(payload.get("access") instanceof String claimAccess)
             ) {
                 return null;
             }
             if(!"accessKey".equals(jws.getHeader().getKeyId())) return null;
             if(!issuer.equals(payload.getIssuer())) return null;
-            if(!access.equals(payload.get("access"))) return null;
+            if(!MessageDigest.isEqual(
+                    access.getBytes(StandardCharsets.US_ASCII),
+                    claimAccess.getBytes(StandardCharsets.US_ASCII)
+            )) {
+                return null;
+            }
 
             Long sessionExpiration = ACTIVE_SESSIONS.get(payload.getId());
             if(sessionExpiration == null) return null;
@@ -103,6 +121,17 @@ public class JwtManager {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    private static String computeAccessClaim(String hashedAccessKey, String salt) {
+        try {
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(new SecretKeySpec(salt.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+            byte[] digest = mac.doFinal(hashedAccessKey.getBytes(StandardCharsets.UTF_8));
+            return HexFormat.of().formatHex(digest);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to compute JWT access claim", e);
         }
     }
 

@@ -792,6 +792,7 @@
   "settings.security.form.current-key.label": "현재 키",
   "settings.security.form.current-key.placeholder": "현재 액세스 키를 입력하세요...",
   "settings.security.form.new-key.min": "액세스 키 길이는 6자 이상이어야 합니다",
+  "settings.security.form.new-key.max": "액세스 키 길이는 256자를 초과할 수 없습니다",
   "settings.security.form.new-key.label": "새 키",
   "settings.security.form.new-key.placeholder": "새 액세스 키를 입력하세요...",
   "settings.update.title": "업데이트 확인",

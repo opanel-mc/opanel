@@ -792,6 +792,7 @@
   "settings.security.form.current-key.label": "現在のキー",
   "settings.security.form.current-key.placeholder": "現在のアクセスキーを入力してください...",
   "settings.security.form.new-key.min": "アクセスキーの長さは6未満であってはいけません",
+  "settings.security.form.new-key.max": "アクセスキーの長さは256を超えてはいけません",
   "settings.security.form.new-key.label": "新しい鍵",
   "settings.security.form.new-key.placeholder": "新しいアクセスキーを入力してください...",
   "settings.update.title": "アップデートを確認",
