@@ -10,6 +10,11 @@ declare module '*?url' {
   export default url;
 }
 
+declare module '*?raw' {
+  const content: string;
+  export default content;
+}
+
 declare module 'virtual:textures' {
   import type { Item } from 'minecraft-textures';
   export const textureLoaders: Record<string, () => Promise<{ items: Item[] }>>;
@@ -18,6 +23,7 @@ declare module 'virtual:textures' {
 interface ImportMetaEnv {
   readonly VITE_OPANEL_VERSION: string;
   readonly VITE_OPANEL_TARGET: string;
+  readonly VITE_BULLETIN_BASE_URL?: string;
 }
 
 interface ImportMeta {

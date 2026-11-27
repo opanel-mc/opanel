@@ -3,6 +3,7 @@
 import type { APIResponse, ExtensionPage, ExtensionPagesResponse, VersionResponse } from "@/lib/types";
 import { useEffect, useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
+import { Bulletin } from "@/components/bulletin";
 import {
   SidebarInset,
   SidebarProvider
@@ -19,6 +20,7 @@ export default function PanelLayout({
   children: React.ReactNode
 }>) {
   const [mounted, setMounted] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [versionInfo, setVersionInfo] = useState<APIResponse<VersionResponse>>();
   const [extensionPages, setExtensionPages] = useState<ExtensionPage[]>([]);
@@ -54,6 +56,7 @@ export default function PanelLayout({
   }, [sidebarOpen]);
 
   useCheckAuth(() => {
+    setAuthenticated(true);
     fetchVersionInfo();
     fetchExtensionPages();
   });
@@ -73,6 +76,7 @@ export default function PanelLayout({
           <SidebarInset className="min-w-0" suppressHydrationWarning>
             {mounted ? children : <></>}
           </SidebarInset>
+          <Bulletin enabled={authenticated}/>
         </ExtensionsContext>
       </VersionContext>
     </SidebarProvider>

@@ -25,6 +25,8 @@
   "restart-alert.description": "今すぐまたは後でサーバーを再起動して変更を適用することができます。今すぐサーバーを再起動してもよろしいですか？",
   "restart-alert.action": "再起動",
 
+  "bulletin.dismiss": "了解",
+
   "about": "について",
   "about.title": "について",
   "about.description": "Minecraftサーバーの管理パネルで、Paper、Fabric、Forgeなどの複数のプラットフォームをサポートする、開封してすぐに使えるものです。",

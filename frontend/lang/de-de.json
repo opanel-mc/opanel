@@ -25,6 +25,8 @@
   "restart-alert.description": "Sie können den Server jetzt oder später neu starten, um die Änderungen zu übernehmen. Möchten Sie jetzt neu starten?",
   "restart-alert.action": "Neu starten",
 
+  "bulletin.dismiss": "Verstanden",
+
   "about": "Über",
   "about.title": "Über",
   "about.description": "ist ein einsatzbereites Minecraft-Server-Verwaltungspanel, das mehrere Plattformen wie Paper, Fabric und Forge unterstützt.",
