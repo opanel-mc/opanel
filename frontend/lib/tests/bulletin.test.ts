@@ -185,7 +185,7 @@ describe("lib/bulletin", () => {
 
     const resolved = resolveBulletinContent(bulletin, "zh-tw");
     expect(resolved.title).toBe("测试");
-    expect(resolved.content).toBe("第一行 **加粗**\n\n第二行");
+    expect(resolved.content).toBe("第一行 **加粗**\n第二行");
     expect(resolved.priority).toBe(80);
     expect(resolved.actions).toEqual([
       { label: "安全外链", url: "https://opanel.cn" },
