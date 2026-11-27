@@ -16,6 +16,7 @@ on:
   push:
     branches:
       - main
+      - 'hotfix/*'
   pull_request:
 
 concurrency:
