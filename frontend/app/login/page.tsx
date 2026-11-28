@@ -29,6 +29,7 @@ import { Text } from "@/components/i18n-text";
 import { useKeydown } from "@/hooks/use-keydown";
 import { useCheckAuth } from "@/hooks/use-check-auth";
 import { doAutoUpdateCheck, resetUpdateCheckInfo } from "@/lib/update";
+import { resetBulletinCheckState } from "@/lib/bulletin";
 import { OidcBindDialog } from "./oidc-bind-dialog";
 import { emitter } from "@/lib/emitter";
 
@@ -88,6 +89,7 @@ function LoginForm() {
     try {
       await sendPostRequest("/api/auth", { accessKey });
       resetUpdateCheckInfo();
+      resetBulletinCheckState();
       doAutoUpdateCheck();
       push("/panel/dashboard");
     } catch (e: any) {

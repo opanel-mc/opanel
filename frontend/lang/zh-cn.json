@@ -25,6 +25,8 @@
   "restart-alert.description": "你可以选择现在或稍后重启服务器并应用更改，确定现在重启服务器吗？",
   "restart-alert.action": "重启",
 
+  "bulletin.dismiss": "我知道了",
+
   "about": "关于",
   "about.title": "关于",
   "about.description": "是一个开箱即用的 Minecraft 服务器管理面板，支持Paper、Fabric和Forge等多个平台。",

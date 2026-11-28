@@ -4,6 +4,12 @@ import { fileURLToPath } from "node:url";
 
 export const frontendDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const stagingDir = path.join(frontendDir, "dist");
+export const DEFAULT_BULLETIN_BASE_URL = "https://bulletin.opanel.cn/v1";
+
+export function resolveBulletinBaseUrl(env = process.env) {
+  const raw = env.VITE_BULLETIN_BASE_URL?.trim();
+  return (raw || DEFAULT_BULLETIN_BASE_URL).replace(/\/+$/, "");
+}
 
 export function resolveFrontendTarget(env = process.env, production = true) {
   const target = env.VITE_OPANEL_TARGET;

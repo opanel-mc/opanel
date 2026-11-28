@@ -22,7 +22,8 @@ export default defineConfig({
     environment: "jsdom",
     env: {
       VITE_OPANEL_VERSION: "0.1.0",
-      VITE_OPANEL_TARGET: "paper-26.1"
+      VITE_OPANEL_TARGET: "paper-26.1",
+      VITE_BULLETIN_BASE_URL: "https://bulletin.opanel.cn/v1"
     },
     setupFiles: ["./test/setup.tsx"]
   },

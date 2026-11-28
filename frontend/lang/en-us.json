@@ -25,6 +25,8 @@
   "restart-alert.description": "You can restart now or later to apply changes. Restart the server now?",
   "restart-alert.action": "Restart",
 
+  "bulletin.dismiss": "Got it",
+
   "about": "About",
   "about.title": "About",
   "about.description": "is a ready-to-use Minecraft server management panel that supports multiple platforms such as Paper, Fabric, and Forge.",
