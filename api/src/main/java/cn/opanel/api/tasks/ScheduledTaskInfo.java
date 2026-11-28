@@ -5,13 +5,15 @@ import java.util.Objects;
 
 /**
  * Immutable snapshot of one persistent scheduled task.
+ *
+ * <p>单个持久化定时任务的不可变快照。</p>
  */
-public final class ScheduledTaskInfo {
-    private final String id;
-    private final String name;
-    private final String cron;
-    private final List<String> commands;
-    private final boolean enabled;
+public final class ScheduledTaskInfo { // 单个持久化定时任务的不可变快照
+    private final String id; // 稳定的任务 ID
+    private final String name; // 任务显示名称
+    private final String cron; // 五字段 UNIX cron 表达式
+    private final List<String> commands; // 有序命令列表（不可修改）
+    private final boolean enabled; // 未来的触发是否应执行
 
     /**
      * Creates a scheduled-task snapshot.
@@ -23,7 +25,7 @@ public final class ScheduledTaskInfo {
      * @param enabled whether future occurrences should execute
      * @throws NullPointerException if an argument or command entry is {@code null}
      */
-    public ScheduledTaskInfo(String id, String name, String cron, List<String> commands, boolean enabled) {
+    public ScheduledTaskInfo(String id, String name, String cron, List<String> commands, boolean enabled) { // 创建定时任务快照
         this.id = Objects.requireNonNull(id, "id");
         this.name = Objects.requireNonNull(name, "name");
         this.cron = Objects.requireNonNull(cron, "cron");
@@ -34,35 +36,35 @@ public final class ScheduledTaskInfo {
     /**
      * @return the stable task ID
      */
-    public String getId() {
+    public String getId() { // 返回稳定的任务 ID
         return id;
     }
 
     /**
      * @return the task display name
      */
-    public String getName() {
+    public String getName() { // 返回任务显示名称
         return name;
     }
 
     /**
      * @return the five-field UNIX cron expression
      */
-    public String getCron() {
+    public String getCron() { // 返回五字段 UNIX cron 表达式
         return cron;
     }
 
     /**
      * @return an unmodifiable ordered command list
      */
-    public List<String> getCommands() {
+    public List<String> getCommands() { // 返回不可修改的有序命令列表
         return commands;
     }
 
     /**
      * @return {@code true} when future task occurrences should execute
      */
-    public boolean isEnabled() {
+    public boolean isEnabled() { // 未来的任务触发是否应执行
         return enabled;
     }
 }

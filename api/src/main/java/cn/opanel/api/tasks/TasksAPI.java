@@ -11,12 +11,18 @@ import java.util.Optional;
  * <p>Task schedules use five-field UNIX cron expressions. Command lists accept
  * normal server commands and OPanel's task-control syntax. Returned task objects
  * and lists are immutable snapshots; changes must be made through this API.</p>
+ *
+ * <p>OPanel 持久化命令调度器的管理 API。</p>
+ *
+ * <p>任务计划使用五字段 UNIX cron 表达式。命令列表接受普通服务器命令以及
+ * OPanel 的任务控制语法。返回的任务对象与列表都是不可变快照；修改必须
+ * 通过本 API 进行。</p>
  */
-public interface TasksAPI {
+public interface TasksAPI { // OPanel 持久化命令调度器的管理 API
     /**
      * @return an unmodifiable snapshot of all scheduled tasks
      */
-    List<ScheduledTaskInfo> getTasks();
+    List<ScheduledTaskInfo> getTasks(); // 返回所有定时任务的不可修改快照
 
     /**
      * Resolves a task by its stable ID.
@@ -26,7 +32,7 @@ public interface TasksAPI {
      * @throws NullPointerException if {@code id} is {@code null}
      * @throws IllegalArgumentException if {@code id} is blank
      */
-    Optional<ScheduledTaskInfo> getTask(String id);
+    Optional<ScheduledTaskInfo> getTask(String id); // 按稳定 ID 解析任务
 
     /**
      * Creates and schedules a task. This operation may block and must not be
@@ -42,7 +48,7 @@ public interface TasksAPI {
      * @throws OperationFailedException if the cron
      *         expression or task command syntax is invalid
      */
-    ScheduledTaskInfo createTask(String name, String cron, List<String> commands);
+    ScheduledTaskInfo createTask(String name, String cron, List<String> commands); // 创建并调度任务
 
     /**
      * Atomically validates and replaces a task definition. This operation may
@@ -60,7 +66,7 @@ public interface TasksAPI {
      * @throws OperationFailedException if the task does
      *         not exist or the replacement definition is invalid
      */
-    ScheduledTaskInfo updateTask(String id, String name, String cron, List<String> commands);
+    ScheduledTaskInfo updateTask(String id, String name, String cron, List<String> commands); // 原子地校验并替换任务定义
 
     /**
      * Changes whether a task is enabled. This operation may block and must not be
@@ -73,7 +79,7 @@ public interface TasksAPI {
      * @throws IllegalArgumentException if {@code id} is blank
      * @throws OperationFailedException if the task does not exist
      */
-    void setTaskEnabled(String id, boolean enabled);
+    void setTaskEnabled(String id, boolean enabled); // 更改任务是否启用
 
     /**
      * Deletes a task. This operation may block and must not be called from an
@@ -85,5 +91,5 @@ public interface TasksAPI {
      * @throws IllegalArgumentException if {@code id} is blank
      * @throws OperationFailedException if the task does not exist
      */
-    void deleteTask(String id);
+    void deleteTask(String id); // 删除任务
 }

@@ -6,16 +6,18 @@ import java.util.Objects;
 
 /**
  * Immutable aggregate of monitor samples for one aligned time bucket.
+ *
+ * <p>单个对齐时间桶内监控采样的不可变聚合。</p>
  */
-public final class MonitorHistoryPoint {
-    private final Instant startTime;
-    private final Duration duration;
-    private final long sampleCount;
-    private final MonitorSnapshot average;
-    private final MonitorSnapshot minimum;
-    private final MonitorSnapshot maximum;
+public final class MonitorHistoryPoint { // 监控历史聚合点：单个对齐时间桶内采样的不可变聚合
+    private final Instant startTime; // 时间桶的起始时间
+    private final Duration duration; // 时间桶的时长
+    private final long sampleCount; // 该时间桶内的采样数量
+    private final MonitorSnapshot average; // 平均值快照
+    private final MonitorSnapshot minimum; // 最小值快照
+    private final MonitorSnapshot maximum; // 最大值快照
 
-    public MonitorHistoryPoint(
+    public MonitorHistoryPoint( // 构造聚合点，参数均不允许为 null，且 duration 必须为正、sampleCount 不得为负
             Instant startTime,
             Duration duration,
             long sampleCount,
@@ -37,27 +39,27 @@ public final class MonitorHistoryPoint {
         this.sampleCount = sampleCount;
     }
 
-    public Instant getStartTime() {
+    public Instant getStartTime() { // 返回时间桶的起始时间
         return startTime;
     }
 
-    public Duration getDuration() {
+    public Duration getDuration() { // 返回时间桶的时长
         return duration;
     }
 
-    public long getSampleCount() {
+    public long getSampleCount() { // 返回该时间桶内的采样数量
         return sampleCount;
     }
 
-    public MonitorSnapshot getAverage() {
+    public MonitorSnapshot getAverage() { // 返回平均值快照
         return average;
     }
 
-    public MonitorSnapshot getMinimum() {
+    public MonitorSnapshot getMinimum() { // 返回最小值快照
         return minimum;
     }
 
-    public MonitorSnapshot getMaximum() {
+    public MonitorSnapshot getMaximum() { // 返回最大值快照
         return maximum;
     }
 }

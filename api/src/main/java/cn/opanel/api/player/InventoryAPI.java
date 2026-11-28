@@ -12,8 +12,14 @@ import java.util.List;
  * server platform provides them. Returned item objects and lists are immutable
  * snapshots. Player lookup and platform failures use the same exception model
  * as {@link PlayerAPI}.</p>
+ *
+ * <p>单个玩家的物品栏访问接口。</p>
+ *
+ * <p>该句柄绑定到一个玩家 UUID，并在每次操作时解析该玩家。当服务器平台
+ * 提供时，它同时支持在线与已保存的离线物品栏。返回的物品对象和列表都是
+ * 不可变的快照。玩家查找与平台失败使用与 {@link PlayerAPI} 相同的异常模型。</p>
  */
-public interface InventoryAPI {
+public interface InventoryAPI { // 单个玩家的物品栏访问 API
     /**
      * Returns the number of logical slots in an inventory section.
      *
@@ -21,7 +27,7 @@ public interface InventoryAPI {
      * @return the number of addressable slots
      * @throws NullPointerException if {@code inventoryType} is {@code null}
      */
-    int getSize(InventoryType inventoryType);
+    int getSize(InventoryType inventoryType); // 返回物品栏某个分区的逻辑槽位数量
 
     /**
      * Returns an immutable snapshot of all items in the main inventory.
@@ -29,7 +35,7 @@ public interface InventoryAPI {
      * @return an unmodifiable list of item snapshots
      * @throws NullPointerException if {@code inventoryType} is {@code null}
      */
-    default List<InventoryItem> getItems() {
+    default List<InventoryItem> getItems() { // 返回主物品栏中所有物品的不可变快照
         return getItems(InventoryType.MAIN);
     }
 
@@ -40,7 +46,7 @@ public interface InventoryAPI {
      * @return an unmodifiable list of item snapshots
      * @throws NullPointerException if {@code inventoryType} is {@code null}
      */
-    List<InventoryItem> getItems(InventoryType inventoryType);
+    List<InventoryItem> getItems(InventoryType inventoryType); // 返回物品栏某个分区中所有物品的不可变快照
 
     /**
      * Returns the item occupying one logical slot in the main inventory.
@@ -53,7 +59,7 @@ public interface InventoryAPI {
      * @throws OperationFailedException if {@code slot}
      *         is outside the selected section
      */
-    default InventoryItem getItem(int slot) {
+    default InventoryItem getItem(int slot) { // 返回主物品栏中某个逻辑槽位上的物品
         return getItem(InventoryType.MAIN, slot);
     }
 
@@ -68,7 +74,7 @@ public interface InventoryAPI {
      * @throws OperationFailedException if {@code slot}
      *         is outside the selected section
      */
-    InventoryItem getItem(InventoryType inventoryType, int slot);
+    InventoryItem getItem(InventoryType inventoryType, int slot); // 返回物品栏某个分区中指定逻辑槽位上的物品
 
     /**
      * Replaces one inventory section in the main inventory. This operation may
@@ -82,7 +88,7 @@ public interface InventoryAPI {
      *         is {@code null}, a slot is out of range or duplicated, or an item
      *         cannot be decoded by the platform
      */
-    default void setItems(List<InventoryItem> items) {
+    default void setItems(List<InventoryItem> items) { // 替换主物品栏中的某个分区
         setItems(InventoryType.MAIN, items);
     }
 
@@ -98,7 +104,7 @@ public interface InventoryAPI {
      *         is {@code null}, a slot is out of range or duplicated, or an item
      *         cannot be decoded by the platform
      */
-    void setItems(InventoryType inventoryType, List<InventoryItem> items);
+    void setItems(InventoryType inventoryType, List<InventoryItem> items); // 替换物品栏中的某个分区
 
     /**
      * Replaces one inventory slot in the main inventory. This operation may
@@ -111,7 +117,7 @@ public interface InventoryAPI {
      * @throws OperationFailedException if the slot is
      *         out of range or the item cannot be decoded by the platform
      */
-    default void setItem(InventoryItem item) {
+    default void setItem(InventoryItem item) { // 替换主物品栏中的某个槽位
         setItem(InventoryType.MAIN, item);
     }
 
@@ -126,5 +132,5 @@ public interface InventoryAPI {
      * @throws OperationFailedException if the slot is
      *         out of range or the item cannot be decoded by the platform
      */
-    void setItem(InventoryType inventoryType, InventoryItem item);
+    void setItem(InventoryType inventoryType, InventoryItem item); // 替换物品栏某个分区中的某个槽位
 }

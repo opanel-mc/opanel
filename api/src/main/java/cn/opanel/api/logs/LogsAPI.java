@@ -11,14 +11,20 @@ import java.util.List;
  * safe, single-segment file name. Compressed GZIP logs are decompressed
  * transparently by {@link #getLogContent(String)}. Returned lists are immutable
  * snapshots and have no guaranteed ordering.</p>
+ *
+ * <p>访问 Minecraft 服务器的日志文件。</p>
+ *
+ * <p>所有方法都在服务器日志目录内操作，且只接受安全的单段文件名。
+ * 压缩的 GZIP 日志会由 {@link #getLogContent(String)} 透明地解压。
+ * 返回的列表是不可变的快照，且不保证顺序。</p>
  */
-public interface LogsAPI {
+public interface LogsAPI { // 服务器日志文件管理 API
     /**
      * Lists regular files in the server log directory.
      *
      * @return an unmodifiable snapshot of log file names
      */
-    List<String> getLogFileList();
+    List<String> getLogFileList(); // 列出服务器日志目录中的常规文件，返回不可修改的日志文件名快照
 
     /**
      * Reads a text log in UTF-8. Files ending in {@code .gz} are decompressed
@@ -31,7 +37,7 @@ public interface LogsAPI {
      * @throws OperationFailedException if the file does
      *         not exist, cannot be read, or has an unsupported file extension
      */
-    String getLogContent(String fileName);
+    String getLogContent(String fileName); // 以 UTF-8 读取文本日志，.gz 文件会先解压再返回内容
 
     /**
      * Deletes an archived log. Active .log files cannot be deleted. This operation
@@ -45,5 +51,5 @@ public interface LogsAPI {
      * @throws OperationFailedException if the file does
      *         not exist or cannot be deleted
      */
-    void deleteLog(String fileName);
+    void deleteLog(String fileName); // 删除归档日志；活动的 .log 文件不可删除，且该操作可能阻塞
 }
